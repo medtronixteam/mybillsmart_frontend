@@ -1,0 +1,111 @@
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./ContractForm.css";
+
+const ContractForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    ContractedProvider: "",
+    ContractedRate: "",
+    ClosureDate: "",
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
+  const [modalMessage, setModalMessage] = useState(""); // Modal success message
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (
+      !formData.name ||
+      !formData.ContractedProvider ||
+      !formData.ContractedRate ||
+      !formData.ClosureDate
+    ) {
+      toast.error("All fields are required!");
+      return;
+    }
+
+    // Simulate adding data to the list (you can add logic to send data to an API or store here)
+    console.log("Form Data Submitted:", formData);
+
+    // Show modal on success
+    setModalMessage("Contract added successfully!");
+    setIsModalOpen(true);
+
+    // Reset the form
+    setFormData({
+      name: "",
+      ContractedProvider: "",
+      ContractedRate: "",
+      ClosureDate: "",
+    });
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  return (
+    <>
+      <div className="add-Contract-container">
+        <h2 className="add-Contract-heading">Add Contracts Data</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Please Enter Name"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="ContractedProvider"
+            placeholder="Please Enter Contracted Provider"
+            value={formData.ContractedProvider}
+            onChange={handleChange}
+          />
+          <input
+            type="number"
+            name="ContractedRate"
+            placeholder="Please Enter Contracted Rate"
+            value={formData.ContractedRate}
+            onChange={handleChange}
+          />
+          <input
+            type="date"
+            name="ClosureDate"
+            placeholder="Please Enter Closure Date"
+            value={formData.ClosureDate}
+            onChange={handleChange}
+          />
+
+          <button type="submit">Add Contract</button>
+        </form>
+      </div>
+
+      {/* Modal for success message */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-icon">
+              {/* Add any icon you like (this is an example using emoji) */}
+              ✔️
+            </div>
+            <p className="modal-message">{modalMessage}</p>
+            <button className="modal-ok-button" onClick={handleModalClose}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default ContractForm;

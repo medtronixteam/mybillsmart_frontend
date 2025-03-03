@@ -1,0 +1,266 @@
+.invoice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.invoice-stepper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Allow wrapping of steps on small screens */
+}
+
+.invoice-stepper .step {
+  width: 30px;
+  height: 30px;
+  background-color: #3897d8;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  margin: 5px;
+}
+
+.invoice-stepper .step.active {
+  background-color: black;
+}
+
+.invoice-stepper .line {
+  width: 300px;
+  height: 5px;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s;
+}
+
+.invoice-stepper .line.active-line {
+  background-color: #e0e0e0;
+}
+
+.invoice-form-container {
+  width: 100%;
+  max-width: 800px;
+  background-image: url('../../assets/img/Formback.png');
+  background-size: cover;
+  border-radius: 10px;
+  padding: 30px 30px 40px 50px;
+  margin-top: 20px;
+}
+
+.invoice-form-heading {
+  text-align: center;
+  font-size: 32px;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.invoice-form-container .form-field {
+  margin-bottom: 15px;
+}
+
+.invoice-form-container .form-field label {
+  font-size: 18px;
+  color: #fff;
+  display: block;
+}
+
+.invoice-form-container .form-field input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.invoice-form-container .form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.invoice-form-container .form-row-item {
+  width: calc(50% - 10px);
+  box-sizing: border-box;
+}
+
+.invoice-submit-btn {
+  margin: 10px auto;
+  padding: 12px 20px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 50%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+}
+
+.invoice-upload-heading {
+  margin-bottom: 20px;
+}
+
+.invoice-file-upload-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #9c9c9c;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  height: 300px;
+  max-width: 800px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.invoice-file-upload-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.invoice-file-upload-btn .invoice-upload-icon {
+  font-size: 60px;
+  color: #3598db;
+  margin-right: 10px;
+}
+
+.invoice-file-upload-btn p {
+  font-size: 24px;
+  color: #3598db;
+  margin: 0;
+}
+
+.invoice-file-input {
+  display: none;
+}
+
+.invoice-confirmation-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.invoice-card {
+  width: 400px;
+  border-radius: 30px;
+  background-image: url('../../assets/img/cardback.png');
+  background-size: cover;
+  background-position: center;
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.invoice-card h3 {
+  color: #2b2b2b;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.invoice-card p {
+  color: #fff;
+}
+
+.invoice-card button {
+  margin: 20px auto !important;
+  padding: 8px 0px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 60%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-width: 768px) {
+  .invoice-container {
+    padding: 10px;
+  }
+
+  .invoice-stepper {
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 0px;
+  }
+
+  .invoice-stepper .line {
+    width: 90px;
+    height: 5px;
+    background-color: #e0e0e0;
+    transition: background-color 0.3s;
+  }
+
+  .invoice-form-container {
+    width: 100%;
+    max-width: 100%;
+    background-image: url('../../assets/img/Formback.png');
+    background-size: cover;
+    border-radius: 10px;
+    padding: 30px 30px 40px 30px;
+  }
+
+  .invoice-upload-heading {
+    font-size: 24px;
+    margin: 10px 0 20px 0;
+  }
+
+  .invoice-file-upload-box {
+    height: 250px;
+  }
+
+  .invoice-form-heading {
+    font-size: 28px;
+  }
+
+  .invoice-form-container .form-field label {
+    font-size: 16px;
+  }
+
+  .invoice-form-container .form-field input {
+    font-size: 14px;
+  }
+
+  .invoice-form-container button {
+    font-size: 16px;
+  }
+
+  .invoice-form-container .form-row {
+    flex-direction: column;
+  }
+
+  .invoice-form-container .form-row-item {
+    width: 100%;
+  }
+
+  .invoice-submit-btn {
+    width: 100%;
+  }
+
+  .invoice-file-upload-box {
+    width: 100%;
+  }
+
+  .invoice-card {
+    width: 90%;
+  }
+}
