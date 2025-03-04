@@ -25,6 +25,7 @@ import ContractForm from "./components/ContractForm/ContractForm";
 import ProtectedRoute from './ProtectedRoute';
 import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ContractList from "./components/ContractList/ContractList";
+import AddProduct from "./Provider/AddProduct/AddProduct";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -98,8 +99,12 @@ const App = () => {
                     <ProviderNavbar toggleSidebar={toggleSidebar} />
                     <Routes>
                       <Route path="dashboard" element={<ProviderDashboard />} />
+
                       <Route path="profile-edit" element={<ProviderProfileSetting />} />
-                      <Route
+                      <Route path="product-list" element={<Products />} />
+                      <Route path="add-product" element={<AddProduct />} />
+
+                      {/* <Route
                         path="/add-user"
                         element={<AddUser onAddUser={handleAddUser} />}
                       />
@@ -112,7 +117,7 @@ const App = () => {
                             onEditUser={handleEditUser}
                           />
                         }
-                      />
+                      /> */}
                     </Routes>
                   </main>
                 </>

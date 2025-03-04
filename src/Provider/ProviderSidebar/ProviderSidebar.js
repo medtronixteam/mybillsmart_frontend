@@ -58,23 +58,23 @@ const ProviderSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/provider/add-user"
+              to="/provider/product-list"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
-              <span className="nav-link-text ms-1">Add User</span>
+              <span className="nav-link-text ms-1">Product List</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/provider/user-list"
+              to="/provider/add-product"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
               <FaCreditCard />
               </div>
-              <span className="nav-link-text ms-1">User List</span>
+              <span className="nav-link-text ms-1">Add Product</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">

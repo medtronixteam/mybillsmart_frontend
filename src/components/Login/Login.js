@@ -123,7 +123,7 @@ const Login = () => {
         </button>
 
         <p className="conditions">
-          Don't have an account? <a href="/signup">Sign Up</a> /  <a href="/forget-password">Forgot Password?</a>
+         If You Forgot Your Password / <a href="/forget-password">Forgot Password?</a>
         </p>
 
         <p className="forgot-password">
