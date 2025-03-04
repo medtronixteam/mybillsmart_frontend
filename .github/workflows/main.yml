@@ -1,0 +1,36 @@
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want to monitor
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: SSH into server and run commands using SSH key
+      env:
+        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+      run: |
+        echo "$SSH_KEY" > /tmp/deploy_key
+        chmod 600 /tmp/deploy_key
+        ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no contact@$SERVER_IP <<EOF
+          cd /home/contact/mybillsmart_frontend
+          
+          git pull origin main
+          cd ..
+          sudo docker compose build mybillsmart_frontend
+          sudo docker compose up mybillsmart_frontend -d
+                   
+          exit
+        EOF
+
+    - name: Clean up SSH key
+      run: rm /tmp/deploy_key
