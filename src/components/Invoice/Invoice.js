@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useAuth } from "../../contexts/AuthContext"; 
 const Invoice = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
@@ -14,7 +14,7 @@ const Invoice = () => {
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
   const navigate = useNavigate();
-
+  const { token } = useAuth();
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -69,12 +69,23 @@ const Invoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
+     
       const matchResponse = await axios.post("http://34.142.252.64:7000/api/match/", formData, {
         headers: { "Content-Type": "application/json" },
       });
       console.log("Match API Response:", matchResponse.data);
-      setSubmittedData(matchResponse.data);
+      setSubmittedData(matchResponse.data); 
+  
+      
+      const responseForCards = await axios.post("http://34.142.252.64:8080/api/invoices",formData, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+  
+      console.log("Second API Response:", responseForCards.data);
+      setResponseData(responseForCards.data); 
+  
       setStep(3);
       toast.success("Form submitted successfully!");
     } catch (error) {
@@ -82,6 +93,7 @@ const Invoice = () => {
       toast.error("Error submitting form. Please try again.");
     }
   };
+  
 
   const renderFormFields = (data) => {
     return Object.keys(data).map((key, index) => {
@@ -155,27 +167,33 @@ const Invoice = () => {
         </div>
       )}
 
-      {/* Step 3: Submit Confirmation */}
-      {step === 3 && submittedData && (
-        <div className="invoice-confirmation-container">
-          {submittedData.map((supplier, index) => (
-            <div className="invoice-card" key={index}>
-              <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
-              <p><strong>Fixed Monthly Charges:</strong> {supplier["Fixed Monthly Charges"]}</p>
-              <p><strong>Price per kWh:</strong> {supplier["Price per kWh "]}</p>
-              <p><strong>Meter Rental:</strong> {supplier["Meter Rental"]}</p>
-              <p><strong>Tax per kWh:</strong> {supplier["Tax per kWh"]}</p>
+{step === 3 && submittedData && (
+  <div className="invoice-confirmation-container">
+    {submittedData.map((supplier, index) => (
+      <div className="invoice-card" key={index}>
+        <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
+        {Object.keys(supplier).map((key, keyIndex) => {
+          if (key !== "Supplier Name") {  
+            return (
+              <p key={keyIndex}>
+                <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</strong> {supplier[key]}
+              </p>
+            );
+          }
+          return null;
+        })}
 
-              <button
-                className="invoice-confirmation-btn"
-                onClick={() => navigate("/agent/contract")} // Navigate to the route
-              >
-                Manage Contract
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+        <button
+          className="invoice-confirmation-btn"
+          onClick={() => navigate("/agent/contract")} // Navigate to the route
+        >
+          Manage Contract
+        </button>
+      </div>
+    ))}
+  </div>
+)}
+
     </div>
   );
 };

@@ -205,7 +205,7 @@ const Signup = () => {
                 required
               >
                 <option value="">Select Role</option>
-                <option value="agent">Agent</option>
+                <option value="agent">agent</option>
                 <option value="provider">Provider</option>
               </select>
             </div>

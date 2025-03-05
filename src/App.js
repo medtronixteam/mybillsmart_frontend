@@ -18,14 +18,20 @@ import ProviderProfileSetting from "./Provider/ProviderProfileSetting/ProviderPr
 import Products from "./Provider/Products/Products";
 import ProviderNavbar from "./Provider/ProviderNavbar/ProviderNavbar";
 import Signup from "./components/SignUp/Signup";
-import AddUser from "./Provider/AddUser/AddUser";
-import UserList from "./Provider/userList/UserList";
+// import AddUser from "./Provider/AddUser/AddUser";
+// import UserList from "./Provider/userList/UserList";
 import ContractForm from "./components/ContractForm/ContractForm";
 
 import ProtectedRoute from './ProtectedRoute';
 import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ContractList from "./components/ContractList/ContractList";
 import AddProduct from "./Provider/AddProduct/AddProduct";
+import AddUser from "./GroupAdmin/AddUser/AddUser";
+import UserList from "./GroupAdmin/userList/UserList";
+import GroupAdminSidebar from "./GroupAdmin/GroupAdminSidebar/GroupAdminSidebar";
+import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
+import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
+import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -123,6 +129,45 @@ const App = () => {
                 </>
               }
               requiredRole="provider" 
+            />
+          } />
+           {/* Group Admin */}
+           <Route path="/group_admin/*" element={
+            <ProtectedRoute
+              element={
+                <>
+                  <div
+                    className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${isSidebarOpen ? "show-sidebar" : ""}`}
+                    id="sidenav-main">
+                    <GroupAdminSidebar />
+                  </div>
+                  <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                    <GroupAdminNavbar toggleSidebar={toggleSidebar} />
+                    <Routes>
+                      <Route path="dashboard" element={<GroupAdminDashboard />} />
+
+                      <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
+                      
+
+                      <Route
+                        path="/add-user"
+                        element={<AddUser onAddUser={handleAddUser} />}
+                      />
+                      <Route
+                        path="/user-list"
+                        element={
+                          <UserList
+                            users={users}
+                            onDeleteUser={handleDeleteUser}
+                            onEditUser={handleEditUser}
+                          />
+                        }
+                      />
+                    </Routes>
+                  </main>
+                </>
+              }
+              requiredRole="group_admin" 
             />
           } />
         </Routes>

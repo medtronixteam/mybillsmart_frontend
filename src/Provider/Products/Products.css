@@ -270,13 +270,11 @@ select{
   margin-bottom: 20px;
 }
 
-/* Styling for individual form input fields */
 .edit-form-grid .form-group {
   display: flex;
   flex-direction: column;
 }
 
-/* Label Styling */
 .edit-form-grid .form-group label {
   font-size: 16px;
   font-weight: 600;
@@ -284,7 +282,6 @@ select{
   color: #444;
 }
 
-/* Unique input field styling for first input */
 .input-name {
   padding: 12px;
   font-size: 14px;
@@ -299,7 +296,6 @@ select{
   background-color: #fff;
 }
 
-/* Unique input field styling for second input */
 .input-category {
   padding: 12px;
   font-size: 14px;
@@ -314,7 +310,6 @@ select{
   background-color: #fff;
 }
 
-/* Styling for the form action buttons */
 .form-actions {
   display: flex;
   justify-content: space-between;
@@ -337,7 +332,6 @@ select{
   background-color: #0056b3;
 }
 
-/* Styling for the 'Back' button */
 .form-actions button[type="button"] {
   background-color: #dc3545;
 }
@@ -346,17 +340,15 @@ select{
   background-color: #c82333;
 }
 
-/* Error message styling */
 .error-message {
   color: red;
   font-size: 14px;
   margin-top: 10px;
 }
 
-/* For the edit form grid when screen size is smaller */
 @media screen and (max-width: 768px) {
   .edit-form-grid {
-    grid-template-columns: 1fr; /* Stack inputs vertically */
+    grid-template-columns: 1fr; 
     gap: 0px;
   }
 }

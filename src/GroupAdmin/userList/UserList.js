@@ -14,7 +14,7 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
     setEditData(user); 
     setIsModalOpen(true); 
   };
-
+ 
   const handleSaveClick = () => {
     if (
       !editData.name ||
@@ -48,7 +48,7 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
       <h1>User List</h1>
       {users.length === 0 ? (
         <p>
-          No users added yet. <Link to="/provider/add-user">Add User</Link>
+          No users added yet. <Link to="/group_admin/add-user">Add User</Link>
         </p>
       ) : (
         <table>
