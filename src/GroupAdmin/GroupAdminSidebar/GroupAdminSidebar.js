@@ -77,17 +77,17 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">User List</span>
             </NavLink>
           </li>
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/provider/billing"
+              to="/group_admin/invoice-list"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCreditCard />
               </div>
-              <span className="nav-link-text ms-1">Billing</span>
+              <span className="nav-link-text ms-1">Invoice List</span>
             </NavLink>
-          </li> */}
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
