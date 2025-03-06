@@ -11,12 +11,12 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
       navbar-scroll="true">
       <div className="container-fluid py-1 px-3 d-flex justify-content-between align-items-center">
         <h6 className="font-weight-bolder mb-0 d-none d-lg-block">
-          Provider Dashboard
+          Group Admin Dashboard
         </h6>
 
         <div className="d-flex align-items-center gap-2">
           <Link
-            to="/provider/profile-edit"
+            to="/admin/profile-edit"
             className="d-flex align-items-center text-decoration-none">
             <img
               src={team1}
