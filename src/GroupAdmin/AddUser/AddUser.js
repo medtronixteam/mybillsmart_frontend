@@ -103,8 +103,9 @@ const AddUser = ({ onAddUser }) => {
         />
         <select name="role" value={formData.role} onChange={handleChange}>
           <option value="sale_agent">Sale Agent</option>
-          <option value="sale_supervisor">Sale Supervisor</option>
-          <option value="provider">Provider</option>
+          <option value="sale_supervisor">supervisor</option>
+          <option value="provider">clients </option>
+          
         </select>
         <button type="submit">Add User</button>
       </form>

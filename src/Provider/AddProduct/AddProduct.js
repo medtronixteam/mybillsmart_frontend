@@ -8,6 +8,7 @@ import config from "../../config";
 const AddProduct = () => {
   const { token } = useAuth();
   const [formData, setFormData] = useState({
+    provider_name: "",
     product_name: "",
     light_category: "",
     fixed_rate: "",
@@ -24,7 +25,7 @@ const AddProduct = () => {
     discount_period_end: "",
     meter_rental: "",
     sales_commission: "",
-    provider_name: "",
+    
   });
 
   const handleChange = (e) => {
@@ -57,6 +58,7 @@ const AddProduct = () => {
       await response.json();
       toast.success("Product added successfully!");
       setFormData({
+        provider_name: "",
         product_name: "",
         light_category: "",
         fixed_rate: "",
@@ -73,7 +75,7 @@ const AddProduct = () => {
         discount_period_end: "",
         meter_rental: "",
         sales_commission: "",
-        provider_name: "",
+       
       });
     } catch (error) {
       toast.error(error.message);
@@ -86,6 +88,13 @@ const AddProduct = () => {
       <div className="add-product-container mx-auto">
         <h1>Add Product</h1>
         <form onSubmit={handleSubmit}>
+        <input
+            type="text"
+            name="provider_name"
+            placeholder="Provider Name"
+            value={formData.provider_name}
+            onChange={handleChange}
+          />
           <input
             type="text"
             name="product_name"
@@ -93,13 +102,7 @@ const AddProduct = () => {
             value={formData.product_name}
             onChange={handleChange}
           />
-          <input
-            type="text"
-            name="provider_name"
-            placeholder="Provider Name"
-            value={formData.provider_name}
-            onChange={handleChange}
-          />
+         
 
           <input
             type="text"

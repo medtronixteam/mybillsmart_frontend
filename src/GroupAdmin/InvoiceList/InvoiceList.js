@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 
-const InvoiceList = () => {
+ const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const { token } = useAuth();
