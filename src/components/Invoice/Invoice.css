@@ -10,7 +10,7 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
-  flex-wrap: wrap; /* Allow wrapping of steps on small screens */
+  /* flex-wrap: wrap; Allow wrapping of steps on small screens */
 }
 
 .invoice-stepper .step {
