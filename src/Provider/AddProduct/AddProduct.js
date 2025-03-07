@@ -86,7 +86,7 @@ const AddProduct = () => {
     
    
       <div className="add-product-container mx-auto">
-        <h1>Add Product</h1>
+        <h1>Add Products</h1>
         <form onSubmit={handleSubmit}>
         <input
             type="text"
