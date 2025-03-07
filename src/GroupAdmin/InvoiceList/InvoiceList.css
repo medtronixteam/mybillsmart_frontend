@@ -67,7 +67,7 @@
     .invoice-table {
       font-size: 14px;
       margin-top: 10px;
-      display: block;
+      /* display: block; */
       overflow-x: auto;  /* Makes the table scrollable horizontally */
       white-space: nowrap;  /* Prevents table contents from wrapping */
     }

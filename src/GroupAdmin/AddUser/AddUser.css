@@ -1,13 +1,13 @@
 .add-user-container {
     max-width: 800px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 40px;
     /* border: 1px solid #ccc; */
     border-radius: 10px;
     background-image: url('../../assets/img/Formback.png');
-    background-size: cover;
+    background-size: 100% 100%;
     border-radius: 10px;
-    padding: 30px 30px 40px 50px;
+    /* padding: 30px 30px 40px 50px; */
     
   }
   .add-user-container form{
