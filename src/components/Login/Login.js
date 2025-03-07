@@ -122,7 +122,7 @@ const Login = () => {
           {loading ? "Logging in..." : "LOGIN"}
         </button>
 
-        <p className="conditions">
+        <p className="conditions pt-3">
          If You Forgot Your Password / <a href="/forget-password">Forgot Password?</a>
         </p>
 

@@ -1,32 +1,43 @@
 .add-product-container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 30px 30px 40px 50px;
-    border-radius: 10px;
-    background-image: url('../../assets/img/Formback.png');
-    background-size: cover;
+    
+  max-width: 800px;
+  /* margin: 20px auto; */
+  padding: 60px;
+  /* padding: 30px 30px 40px 50px; */
+  border-radius: 10px;
+  background-image: url("../../assets/img/Formback.png");
+  background-size: 100% 100%;
+  /* background-position: 10% 100%; */
 }
 
 .add-product-container form {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .add-product-container h1 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 /* Inputs and Selects */
 .add-product-container input,
 .add-product-container select {
+
+  width: 48%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+
     width: 48%;
     padding: 10px;
     margin: 5px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
+
 }
 
 /* Labels */
@@ -67,26 +78,35 @@
 
 /* Button */
 .add-product-container button {
-    margin: 10px auto;
-    padding: 12px 20px;
-    background-color: white;
-    color: rgb(0, 0, 0);
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    width: 50%;
-    font-size: 18px;
-    transition: background-color 0.3s;
-    display: block;
-    box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+  margin: 10px auto;
+  padding: 12px 20px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 50%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
 }
 
 /* Mobile Styling */
 @media screen and (max-width: 600px) {
-    .add-product-container input,
-    .add-product-container select {
-        width: 100%;
-    }
+  .add-product-container input,
+  .add-product-container select {
+    width: 100%;
+  }
+
+
+  .add-product-container {
+    /* max-width: 100%;
+        padding: 20px; */
+    max-width: 100%;
+    padding: 60px 30px;
+    /* padding: 70px 20px; */
+  }
 
     .date-container {
         flex-direction: column;
@@ -99,4 +119,5 @@
     .add-product-container label {
         width: 100%;
     }
+
 }
