@@ -46,7 +46,7 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/admin/dashboard"
+              to="/group_admin/dashboard"
               activeClassName="active-class">
               <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
@@ -58,7 +58,7 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/admin/add-user"
+              to="/group_admin/add-user"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
@@ -69,7 +69,7 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/admin/user-list"
+              to="/group_admin/user-list"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
               <FaCreditCard />
@@ -80,7 +80,7 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/admin/invoice-list"
+              to="/group_admin/invoice-list"
               activeClassName="active-class">
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCreditCard />

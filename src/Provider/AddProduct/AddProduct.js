@@ -81,129 +81,9 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="add-product-container container mt-3">
-      <div className="row">
-        <div className="col-12">
-          <h1>Add Product</h1>
-          <form onSubmit={handleSubmit} className="row">
-            <input
-              type="text"
-              name="product_name"
-              placeholder="Product Name"
-              value={formData.product_name}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="light_category"
-              placeholder="Light Category"
-              value={formData.light_category}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="fixed_rate"
-              placeholder="Fixed Rate"
-              value={formData.fixed_rate}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="rl1"
-              placeholder="RL1"
-              value={formData.rl1}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="rl2"
-              placeholder="RL2"
-              value={formData.rl2}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="rl3"
-              placeholder="RL3"
-              value={formData.rl3}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p1"
-              placeholder="P1"
-              value={formData.p1}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p2"
-              placeholder="P2"
-              value={formData.p2}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p3"
-              placeholder="P3"
-              value={formData.p3}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p4"
-              placeholder="P4"
-              value={formData.p4}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p5"
-              placeholder="P5"
-              value={formData.p5}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="p6"
-              placeholder="P6"
-              value={formData.p6}
-              onChange={handleChange}
-            />
-            <input
-              type="date"
-              name="discount_period_start"
-              placeholder="Discount Period Start"
-              value={formData.discount_period_start}
-              onChange={handleChange}
-            />
-            <input
-              type="date"
-              name="discount_period_end"
-              placeholder="Discount Period End"
-              value={formData.discount_period_end}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="meter_rental"
-              placeholder="Meter Rental"
-              value={formData.meter_rental}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="sales_commission"
-              placeholder="Sales Commission"
-              value={formData.sales_commission}
-              onChange={handleChange}
-            />
-            <button type="submit">Add Product</button>
-          </form>
-        </div>
-      </div>
-
-      <div className="add-product-container">
+    
+   
+      <div className="add-product-container mx-auto">
         <h1>Add Product</h1>
         <form onSubmit={handleSubmit}>
           <input
@@ -337,7 +217,7 @@ const AddProduct = () => {
           Add Product
         </button>
       </div>
-    </div>
+    
   );
 };
 

@@ -133,7 +133,7 @@ const App = () => {
             />
           } />
            {/* Group Admin */}
-           <Route path="/admin/*" element={
+           <Route path="/group_admin/*" element={
             <ProtectedRoute
               element={
                 <>
@@ -169,7 +169,7 @@ const App = () => {
                   </main>
                 </>
               }
-              requiredRole="admin" 
+              requiredRole="group_admin" 
             />
           } />
         </Routes>
