@@ -32,6 +32,7 @@ import GroupAdminSidebar from "./GroupAdmin/GroupAdminSidebar/GroupAdminSidebar"
 import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
 import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
 import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
+import InvoiceList from "./GroupAdmin/InvoiceList/InvoiceList";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -147,6 +148,7 @@ const App = () => {
                       <Route path="dashboard" element={<GroupAdminDashboard />} />
 
                       <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
+                      <Route path="invoice-list" element={<InvoiceList />} />
                       
 
                       <Route
