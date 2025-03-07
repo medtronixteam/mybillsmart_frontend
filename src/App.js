@@ -33,6 +33,8 @@ import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
 import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
 import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
 import InvoiceList from "./GroupAdmin/InvoiceList/InvoiceList";
+import ClientContractList from "./GroupAdmin/ClientContractList/ClientContractList";
+import ClientContractDocx from "./GroupAdmin/ClientContractDocx/ClientContractDocx";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -64,54 +66,73 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          
 
-          {/* Agent Routes */} 
-          <Route path="/agent/*" element={
-            <ProtectedRoute
-              element={
-                <>
-                  <div
-                    className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${isSidebarOpen ? "show-sidebar" : ""}`}
-                    id="sidenav-main">
-                    <Sidebar />
-                  </div>
-                  <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                    <Navbar toggleSidebar={toggleSidebar} />
-                    <Routes>
-                      <Route path="dashboard" element={<Dashboard />} />
-                      <Route path="profile-edit" element={<ProfileEdit />} />
-                      <Route path="invoice" element={<Invoice />} />
-                      <Route path="contract" element={<ContractForm />} />
-                      <Route path="contract-list" element={<ContractList />} />
-                    </Routes>
-                  </main>
-                </>
-              }
-              requiredRole="agent" 
-            />
-          } />
+          {/* Agent Routes */}
+          <Route
+            path="/agent/*"
+            element={
+              <ProtectedRoute
+                element={
+                  <>
+                    <div
+                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                        isSidebarOpen ? "show-sidebar" : ""
+                      }`}
+                      id="sidenav-main"
+                    >
+                      <Sidebar />
+                    </div>
+                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                      <Navbar toggleSidebar={toggleSidebar} />
+                      <Routes>
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="profile-edit" element={<ProfileEdit />} />
+                        <Route path="invoice" element={<Invoice />} />
+                        <Route path="contract" element={<ContractForm />} />
+                        <Route
+                          path="contract-list"
+                          element={<ContractList />}
+                        />
+                      </Routes>
+                    </main>
+                  </>
+                }
+                requiredRole="agent"
+              />
+            }
+          />
 
           {/* Provider Routes */}
-          <Route path="/provider/*" element={
-            <ProtectedRoute
-              element={
-                <>
-                  <div
-                    className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${isSidebarOpen ? "show-sidebar" : ""}`}
-                    id="sidenav-main">
-                    <ProviderSidebar />
-                  </div>
-                  <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                    <ProviderNavbar toggleSidebar={toggleSidebar} />
-                    <Routes>
-                      <Route path="dashboard" element={<ProviderDashboard />} />
+          <Route
+            path="/provider/*"
+            element={
+              <ProtectedRoute
+                element={
+                  <>
+                    <div
+                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                        isSidebarOpen ? "show-sidebar" : ""
+                      }`}
+                      id="sidenav-main"
+                    >
+                      <ProviderSidebar />
+                    </div>
+                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                      <ProviderNavbar toggleSidebar={toggleSidebar} />
+                      <Routes>
+                        <Route
+                          path="dashboard"
+                          element={<ProviderDashboard />}
+                        />
 
-                      <Route path="profile-edit" element={<ProviderProfileSetting />} />
-                      <Route path="product-list" element={<Products />} />
-                      <Route path="add-product" element={<AddProduct />} />
+                        <Route
+                          path="profile-edit"
+                          element={<ProviderProfileSetting />}
+                        />
+                        <Route path="product-list" element={<Products />} />
+                        <Route path="add-product" element={<AddProduct />} />
 
-                      {/* <Route
+                        {/* <Route
                         path="/add-user"
                         element={<AddUser onAddUser={handleAddUser} />}
                       />
@@ -125,53 +146,73 @@ const App = () => {
                           />
                         }
                       /> */}
-                    </Routes>
-                  </main>
-                </>
-              }
-              requiredRole="provider" 
-            />
-          } />
-           {/* Group Admin */}
-           <Route path="/group_admin/*" element={
-            <ProtectedRoute
-              element={
-                <>
-                  <div
-                    className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${isSidebarOpen ? "show-sidebar" : ""}`}
-                    id="sidenav-main">
-                    <GroupAdminSidebar />
-                  </div>
-                  <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                    <GroupAdminNavbar toggleSidebar={toggleSidebar} />
-                    <Routes>
-                      <Route path="dashboard" element={<GroupAdminDashboard />} />
+                      </Routes>
+                    </main>
+                  </>
+                }
+                requiredRole="provider"
+              />
+            }
+          />
+          {/* Group Admin */}
+          <Route
+            path="/group_admin/*"
+            element={
+              <ProtectedRoute
+                element={
+                  <>
+                    <div
+                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                        isSidebarOpen ? "show-sidebar" : ""
+                      }`}
+                      id="sidenav-main"
+                    >
+                      <GroupAdminSidebar />
+                    </div>
+                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                      <GroupAdminNavbar toggleSidebar={toggleSidebar} />
+                      <Routes>
+                        <Route
+                          path="dashboard"
+                          element={<GroupAdminDashboard />}
+                        />
 
-                      <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
-                      <Route path="invoice-list" element={<InvoiceList />} />
-                      
+                        <Route
+                          path="profile-edit"
+                          element={<GroupAdminProfileSetting />}
+                        />
+                        <Route path="invoice-list" element={<InvoiceList />} />
 
-                      <Route
-                        path="/add-user"
-                        element={<AddUser onAddUser={handleAddUser} />}
-                      />
-                      <Route
-                        path="/user-list"
-                        element={
-                          <UserList
-                            users={users}
-                            onDeleteUser={handleDeleteUser}
-                            onEditUser={handleEditUser}
-                          />
-                        }
-                      />
-                    </Routes>
-                  </main>
-                </>
-              }
-              requiredRole="group_admin" 
-            />
-          } />
+                        <Route
+                          path="/add-user"
+                          element={<AddUser onAddUser={handleAddUser} />}
+                        />
+                        <Route
+                          path="/user-list"
+                          element={
+                            <UserList
+                              users={users}
+                              onDeleteUser={handleDeleteUser}
+                              onEditUser={handleEditUser}
+                            />
+                          }
+                        />
+                        <Route
+                          path="/client-contract-list"
+                          element={<ClientContractList />}
+                        />
+                        <Route
+                          path="/client-contract-docx"
+                          element={<ClientContractDocx />}
+                        />
+                      </Routes>
+                    </main>
+                  </>
+                }
+                requiredRole="group_admin"
+              />
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>

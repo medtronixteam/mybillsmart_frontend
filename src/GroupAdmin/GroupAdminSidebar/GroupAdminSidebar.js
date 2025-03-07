@@ -41,13 +41,15 @@ const GroupAdminSidebar = () => {
       <hr className="horizontal dark mt-0" />
       <div
         className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
-        id="sidenav-collapse-main">
+        id="sidenav-collapse-main"
+      >
         <ul className="navbar-nav">
           <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/group_admin/dashboard"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
@@ -59,7 +61,8 @@ const GroupAdminSidebar = () => {
             <NavLink
               className="nav-link"
               to="/group_admin/add-user"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
@@ -70,9 +73,10 @@ const GroupAdminSidebar = () => {
             <NavLink
               className="nav-link"
               to="/group_admin/user-list"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-              <FaCreditCard />
+                <FaCreditCard />
               </div>
               <span className="nav-link-text ms-1">User List</span>
             </NavLink>
@@ -81,11 +85,24 @@ const GroupAdminSidebar = () => {
             <NavLink
               className="nav-link"
               to="/group_admin/invoice-list"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCreditCard />
               </div>
               <span className="nav-link-text ms-1">Invoice List</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/client-contract-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCube />
+              </div>
+              <span className="nav-link-text ms-1">Client Contract List</span>
             </NavLink>
           </li>
         </ul>
@@ -93,7 +110,8 @@ const GroupAdminSidebar = () => {
       <div className="sidenav-footer mx-3 ">
         <div
           className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard">
+          id="sidenavCard"
+        >
           <div
             className="full-background"
             style={{
@@ -101,8 +119,8 @@ const GroupAdminSidebar = () => {
             }}
           />
         </div>
-       {/* LogOut Button - On Click, it triggers handleLogout function */}
-       <button
+        {/* LogOut Button - On Click, it triggers handleLogout function */}
+        <button
           className="btn mt-4 w-100"
           type="button"
           onClick={handleLogout}
