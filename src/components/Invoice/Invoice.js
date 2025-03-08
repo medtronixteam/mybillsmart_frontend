@@ -3,9 +3,9 @@ import { BsCloudUpload } from "react-icons/bs";
 import "./Invoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "../../contexts/AuthContext"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../contexts/AuthContext";
 const Invoice = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
@@ -40,9 +40,13 @@ const Invoice = () => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post("http://34.142.252.64:7000/api/file/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://34.142.252.64:7000/api/file/",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (response.data) {
         setResponseData(response.data);
@@ -69,23 +73,32 @@ const Invoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
-     
-      const matchResponse = await axios.post("http://34.142.252.64:7000/api/match/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const matchResponse = await axios.post(
+        "http://34.142.252.64:7000/api/match/",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       console.log("Match API Response:", matchResponse.data);
-      setSubmittedData(matchResponse.data); 
-  
-      
-      const responseForCards = await axios.post("http://34.142.252.64:8080/api/invoices",formData, {
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      });
-  
+      setSubmittedData(matchResponse.data);
+
+      const responseForCards = await axios.post(
+        "http://34.142.252.64:8080/api/invoices",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       console.log("Second API Response:", responseForCards.data);
-      setResponseData(responseForCards.data); 
-  
+      setResponseData(responseForCards.data);
+
       setStep(3);
       toast.success("Form submitted successfully!");
     } catch (error) {
@@ -93,7 +106,6 @@ const Invoice = () => {
       toast.error("Error submitting form. Please try again.");
     }
   };
-  
 
   const renderFormFields = (data) => {
     return Object.keys(data).map((key, index) => {
@@ -108,7 +120,12 @@ const Invoice = () => {
 
       return (
         <div key={index} className="form-field">
-          <label>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</label>
+          <label>
+            {key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase())}
+            :
+          </label>
           <input
             type="text"
             name={key}
@@ -137,63 +154,82 @@ const Invoice = () => {
       {/* Step 1: Upload Invoice */}
       {step === 1 && (
         <>
-          <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
-          <div className="invoice-file-upload-box" onClick={() => document.getElementById("file-input").click()}>
+          <h2 className="invoice-upload-heading text-center">
+            Upload your Invoice File
+          </h2>
+          <div
+            className="invoice-file-upload-box mx-auto"
+            onClick={() => document.getElementById("file-input").click()}
+          >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
               <p>{uploading ? "Uploading..." : "Click to Upload"}</p>
             </label>
-            <input type="file" id="file-input" className="invoice-file-input" onChange={handleFileChange} />
+            <input
+              type="file"
+              id="file-input"
+              className="invoice-file-input"
+              onChange={handleFileChange}
+            />
           </div>
         </>
       )}
 
       {/* Step 2: Fill the Form */}
       {step === 2 && responseData && (
-        <div className="invoice-form-container">
+        <div className="invoice-form-container container">
           <h2 className="invoice-form-heading">Verify your Invoice</h2>
           <form onSubmit={handleSubmit}>
-            <div className="form-row">
+            <div className="row">
               {renderFormFields(responseData).map((field, index) => (
-                <div key={index} className="form-row-item">
+                <div key={index} className="col-lg-6">
                   {field}
                 </div>
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn">Submit</button>
+              <button type="submit" className="invoice-submit-btn">
+                Submit
+              </button>
             </div>
           </form>
         </div>
       )}
 
-{step === 3 && submittedData && (
-  <div className="invoice-confirmation-container">
-    {submittedData.map((supplier, index) => (
-      <div className="invoice-card" key={index}>
-        <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
-        {Object.keys(supplier).map((key, keyIndex) => {
-          if (key !== "Supplier Name") {  
-            return (
-              <p key={keyIndex}>
-                <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</strong> {supplier[key]}
-              </p>
-            );
-          }
-          return null;
-        })}
+      {step === 3 && submittedData && (
+        <div className="invoice-confirmation-container">
+          {submittedData.map((supplier, index) => (
+            <div className="invoice-card" key={index}>
+              <h3 className="invoice-confirmation-heading">
+                {supplier["Supplier Name"]}
+              </h3>
+              {Object.keys(supplier).map((key, keyIndex) => {
+                if (key !== "Supplier Name") {
+                  return (
+                    <p key={keyIndex}>
+                      <strong>
+                        {key
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        :
+                      </strong>{" "}
+                      {supplier[key]}
+                    </p>
+                  );
+                }
+                return null;
+              })}
 
-        <button
-          className="invoice-confirmation-btn"
-          onClick={() => navigate("/agent/contract")} // Navigate to the route
-        >
-          Manage Contract
-        </button>
-      </div>
-    ))}
-  </div>
-)}
-
+              <button
+                className="invoice-confirmation-btn"
+                onClick={() => navigate("/agent/contract")} // Navigate to the route
+              >
+                Manage Contract
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
