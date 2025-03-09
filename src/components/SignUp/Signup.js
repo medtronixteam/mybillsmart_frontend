@@ -56,11 +56,11 @@ const Signup = () => {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("role", role);
-    formData.append("phone", phone);
-    formData.append("address", address);
-    formData.append("country", country);
-    formData.append("city", city);
-    formData.append("postal_code", postalCode);
+    // formData.append("phone", phone);
+    // formData.append("address", address);
+    // formData.append("country", country);
+    // formData.append("city", city);
+    // formData.append("postal_code", postalCode);
 
     const apiEndpoint =
       role === "agent"

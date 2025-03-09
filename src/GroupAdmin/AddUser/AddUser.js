@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./AddUser.css";
+import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
 
 const AddUser = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -12,16 +14,19 @@ const AddUser = ({ onAddUser }) => {
     country: "",
     city: "",
     postalCode: "",
-    role: "sale_agent",
+    role: "agent", // Default role
   });
+  const { token } = useAuth(); // Get token from AuthContext
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate all fields
     if (
       !formData.name ||
       !formData.email ||
@@ -34,18 +39,52 @@ const AddUser = ({ onAddUser }) => {
       toast.error("All fields are required!");
       return;
     }
-    onAddUser(formData);
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-      phone: "",
-      country: "",
-      city: "",
-      postalCode: "",
-      role: "sale_agent",
-    });
-    toast.success("User added successfully!");
+
+    try {
+      // Extract only required fields for API
+      const apiData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      };
+
+      // Call the API with the required data and token in headers
+      const response = await axios.post(
+        "http://34.142.252.64:8080/api/register",
+        apiData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Pass token in headers
+          },
+        }
+      );
+
+      // If the API call is successful, show success message
+      toast.success("User added successfully!");
+
+      // Reset the form
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        country: "",
+        city: "",
+        postalCode: "",
+        role: "agent", // Reset to default role
+      });
+
+      // Call the onAddUser prop if needed (optional)
+      if (onAddUser) {
+        onAddUser(formData);
+      }
+    } catch (error) {
+      // Handle API errors
+      console.error("Error adding user:", error);
+      toast.error("Failed to add user. Please try again.");
+    }
   };
 
   return (
@@ -58,6 +97,7 @@ const AddUser = ({ onAddUser }) => {
           placeholder="Name"
           value={formData.name}
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -65,6 +105,7 @@ const AddUser = ({ onAddUser }) => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -72,6 +113,7 @@ const AddUser = ({ onAddUser }) => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
+          required
         />
         <input
           type="text"
@@ -79,6 +121,7 @@ const AddUser = ({ onAddUser }) => {
           placeholder="Phone"
           value={formData.phone}
           onChange={handleChange}
+          required
         />
         <input
           type="text"
@@ -86,6 +129,7 @@ const AddUser = ({ onAddUser }) => {
           placeholder="Country"
           value={formData.country}
           onChange={handleChange}
+          required
         />
         <input
           type="text"
@@ -93,19 +137,20 @@ const AddUser = ({ onAddUser }) => {
           placeholder="City"
           value={formData.city}
           onChange={handleChange}
+          required
         />
         <input
-          type="text"
+          type="number"
           name="postalCode"
           placeholder="Postal Code"
           value={formData.postalCode}
           onChange={handleChange}
+          required
         />
-        <select name="role" value={formData.role} onChange={handleChange}>
-          <option value="sale_agent">Sale Agent</option>
-          <option value="sale_supervisor">supervisor</option>
-          <option value="provider">clients </option>
-          
+        <select name="role" value={formData.role} onChange={handleChange} required>
+          <option value="agent">Sale Agent</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="client">Clients</option>
         </select>
         <button type="submit">Add User</button>
       </form>

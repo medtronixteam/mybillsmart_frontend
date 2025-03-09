@@ -54,7 +54,7 @@ const ClientContractList = () => {
                 <td className="contract-table-cell">
                   <Link
                     className={`d-block text-center status-button status-${contract.status.toLowerCase()}`}
-                    to={`/group_admin/client-contract-docx`}
+                    to={`/client/contract-docx`}
                   >
                     {contract.status}
                   </Link>

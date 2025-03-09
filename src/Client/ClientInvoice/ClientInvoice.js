@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { BsCloudUpload } from "react-icons/bs";
-import "./Invoice.css";
+import "./ClientInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "../../contexts/AuthContext"; 
 
-const Invoice = () => {
+const ClientInvoice = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [file, setFile] = useState(null);
@@ -194,12 +194,12 @@ const Invoice = () => {
                 return null;
               })}
 
-              <button
+              {/* <button
                 className="invoice-confirmation-btn"
                 onClick={() => navigate("/agent/contract")} // Navigate to the route
               >
                 Manage Contract
-              </button>
+              </button> */}
             </div>
           ))}
         </div>
@@ -208,4 +208,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default ClientInvoice;

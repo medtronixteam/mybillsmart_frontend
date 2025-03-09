@@ -33,8 +33,13 @@ import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
 import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
 import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
 import InvoiceList from "./GroupAdmin/InvoiceList/InvoiceList";
-import ClientContractList from "./GroupAdmin/ClientContractList/ClientContractList";
-import ClientContractDocx from "./GroupAdmin/ClientContractDocx/ClientContractDocx";
+import ClientContractList from "./Client/ClientContractList/ClientContractList";
+import ClientContractDocx from "./Client/ClientContractDocx/ClientContractDocx";
+import ClientNavbar from "./Client/ClientNavbar/ClientNavbar";
+import ClientDashboard from "./Client/ClientDashboard";
+import ClientProfileSetting from "./Client/ClientProfileSetting/ClientProfileSetting";
+import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
+import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -104,7 +109,7 @@ const App = () => {
 
           {/* Provider Routes */}
           <Route
-            path="/provider/*"
+            path="/supervisor/*"
             element={
               <ProtectedRoute
                 element={
@@ -150,7 +155,7 @@ const App = () => {
                     </main>
                   </>
                 }
-                requiredRole="provider"
+                requiredRole="supervisor"
               />
             }
           />
@@ -210,6 +215,60 @@ const App = () => {
                   </>
                 }
                 requiredRole="group_admin"
+              />
+            }
+          />
+
+
+<Route
+            path="/client/*"
+            element={
+              <ProtectedRoute
+                element={
+                  <>
+                    <div
+                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                        isSidebarOpen ? "show-sidebar" : ""
+                      }`}
+                      id="sidenav-main"
+                    >
+                      <ClientSidebar />
+                    </div>
+                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                      <ClientNavbar toggleSidebar={toggleSidebar} />
+                      <Routes>
+                        <Route
+                          path="dashboard"
+                          element={<ClientDashboard />}
+                        />
+
+                        <Route
+                          path="profile-edit"
+                          element={<ClientProfileSetting />}
+                        />
+                        <Route path="contract-list" element={<ClientContractList />} />
+                        <Route path="contract-docx" element={<ClientContractDocx />} />
+                        <Route path="client-invoice" element={<ClientInvoice />} />
+
+                        {/* <Route
+                        path="/add-user"
+                        element={<AddUser onAddUser={handleAddUser} />}
+                      />
+                      <Route
+                        path="/user-list"
+                        element={
+                          <UserList
+                            users={users}
+                            onDeleteUser={handleDeleteUser}
+                            onEditUser={handleEditUser}
+                          />
+                        }
+                      /> */}
+                      </Routes>
+                    </main>
+                  </>
+                }
+                requiredRole="client"
               />
             }
           />

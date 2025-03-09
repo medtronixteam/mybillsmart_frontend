@@ -10,13 +10,13 @@ import {
   FaCreditCard,
   FaCube,
   FaCog,
-  FaUser,
+  FaUser, 
   FaSignInAlt,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import "./ProviderSidebar.css";
+import "./ClientSidebar.css";
 
-const ProviderSidebar = () => {
+const ClientSidebar = () => {
   const { logout } = useAuth();  
   const navigate = useNavigate();  
   const handleLogout = () => {
@@ -33,7 +33,7 @@ const ProviderSidebar = () => {
           aria-hidden="true"
           id="iconSidenav"
         />
-        <NavLink className="navbar-brand m-0" to="/provider/dashboard">
+        <NavLink className="navbar-brand m-0" to="/client/dashboard">
           <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
           {/* <span className="ms-1 font-weight-bold">MyBillSmart</span> */}
         </NavLink>
@@ -41,13 +41,15 @@ const ProviderSidebar = () => {
       <hr className="horizontal dark mt-0" />
       <div
         className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
-        id="sidenav-collapse-main">
+        id="sidenav-collapse-main"
+      >
         <ul className="navbar-nav">
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/supervisor/dashboard"
-              activeClassName="active-class">
+              to="/client/dashboard"
+              activeClassName="active-class"
+            >
               <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
@@ -58,34 +60,49 @@ const ProviderSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/supervisor/product-list"
-              activeClassName="active-class">
+              to="/client/contract-list"
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
-              <span className="nav-link-text ms-1">Product List</span>
+              <span className="nav-link-text ms-1">Contract List</span>
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/supervisor/add-product"
-              activeClassName="active-class">
+              to="/client/client-invoice"
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-              <FaCreditCard />
+                <FaCreditCard />
               </div>
-              <span className="nav-link-text ms-1">Add Product</span>
+              <span className="nav-link-text ms-1">Invoice</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/provider/billing"
-              activeClassName="active-class">
+              to="/group_admin/invoice-list"
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCreditCard />
               </div>
-              <span className="nav-link-text ms-1">Billing</span>
+              <span className="nav-link-text ms-1">Invoice List</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/client-contract-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCube />
+              </div>
+              <span className="nav-link-text ms-1">Client Contract List</span>
             </NavLink>
           </li> */}
         </ul>
@@ -93,7 +110,8 @@ const ProviderSidebar = () => {
       <div className="sidenav-footer mx-3 ">
         <div
           className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard">
+          id="sidenavCard"
+        >
           <div
             className="full-background"
             style={{
@@ -101,8 +119,8 @@ const ProviderSidebar = () => {
             }}
           />
         </div>
-       {/* LogOut Button - On Click, it triggers handleLogout function */}
-       <button
+        {/* LogOut Button - On Click, it triggers handleLogout function */}
+        <button
           className="btn mt-4 w-100"
           type="button"
           onClick={handleLogout}
@@ -115,4 +133,4 @@ const ProviderSidebar = () => {
   );
 };
 
-export default ProviderSidebar;
+export default ClientSidebar;

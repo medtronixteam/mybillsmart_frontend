@@ -389,6 +389,7 @@ button:not(:disabled),
 [type="button"]:not(:disabled),
 [type="reset"]:not(:disabled),
 [type="submit"]:not(:disabled) {
+  margin: 20px 0 !important;
   cursor: pointer;
 }
 
