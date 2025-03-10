@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useLocation } from "react-router-dom"; // Import useLocation
 import "./ContractForm.css";
 
 const ContractForm = () => {
+  const location = useLocation(); // Access the location object
+  const [supplierData, setSupplierData] = useState(null); // State to store the passed supplier data
+
   const [formData, setFormData] = useState({
     name: "",
     ContractedProvider: "",
@@ -13,6 +17,14 @@ const ContractForm = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
   const [modalMessage, setModalMessage] = useState(""); // Modal success message
+
+  // Get the supplier data from the location state
+  useEffect(() => {
+    if (location.state && location.state.supplierData) {
+      setSupplierData(location.state.supplierData); // Set the supplier data
+      console.log("Supplier Data Received:", location.state.supplierData); // Log the data to the console
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -102,6 +114,14 @@ const ContractForm = () => {
               OK
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Display Supplier Data (Optional) */}
+      {supplierData && (
+        <div className="supplier-data-container">
+          <h3>Supplier Data</h3>
+          <pre>{JSON.stringify(supplierData, null, 2)}</pre>
         </div>
       )}
     </>

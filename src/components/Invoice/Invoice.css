@@ -12,7 +12,19 @@
   margin-bottom: 20px;
   /* flex-wrap: wrap; Allow wrapping of steps on small screens */
 }
+.invoice-download-pdf-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
 
+.invoice-download-pdf-btn:hover {
+  background-color: #45a049;
+}
 .invoice-stepper .step {
   width: 30px;
   height: 30px;

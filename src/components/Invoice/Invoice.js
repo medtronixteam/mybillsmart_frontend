@@ -5,7 +5,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "../../contexts/AuthContext"; 
+import { useAuth } from "../../contexts/AuthContext";
+import jsPDF from "jspdf";
 
 const Invoice = () => {
   const [step, setStep] = useState(1);
@@ -14,10 +15,11 @@ const Invoice = () => {
   const [uploading, setUploading] = useState(false);
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
-  const [invoiceId, setInvoiceId] = useState(null); // State to store invoice_id
+  const [invoiceId, setInvoiceId] = useState(null);
   const navigate = useNavigate();
   const { token } = useAuth();
 
+  // Handle file upload
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -36,6 +38,7 @@ const Invoice = () => {
     }
   };
 
+  // Upload file to the server
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
     setUploading(true);
@@ -49,7 +52,7 @@ const Invoice = () => {
 
       if (response.data) {
         setResponseData(response.data);
-        setFormData(response.data); 
+        setFormData(response.data);
         setStep(2);
         toast.success("File uploaded successfully!");
       }
@@ -62,6 +65,7 @@ const Invoice = () => {
     document.getElementById("file-input").value = "";
   };
 
+  // Handle form input changes
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -70,16 +74,17 @@ const Invoice = () => {
     });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Step 1: Call match API
       const matchResponse = await axios.post("http://34.142.252.64:7000/api/match/", formData, {
         headers: { "Content-Type": "application/json" },
       });
       console.log("Match API Response:", matchResponse.data);
-      setSubmittedData(matchResponse.data); 
+      setSubmittedData(matchResponse.data);
 
       // Step 2: Call invoices API to get invoice_id
       const invoiceResponse = await axios.post("http://34.142.252.64:8080/api/invoices", formData, {
@@ -89,18 +94,18 @@ const Invoice = () => {
 
       // Extract invoice_id from the response
       const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId); // Store invoice_id in state
+      setInvoiceId(invoiceId);
 
       // Step 3: Call offers API with invoice_id and match API data
       const offersData = matchResponse.data.map((item) => ({
         ...item,
-        invoice_id: invoiceId, // Add invoice_id to each object
+        invoice_id: invoiceId,
       }));
 
-      // const offersResponse = await axios.post("http://34.142.252.64:8080/api/offers", offersData, {
-      //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      // });
-      // console.log("Offers API Response:", offersResponse.data);
+      const offersResponse = await axios.post("http://34.142.252.64:8080/api/offers", offersData, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      console.log("Offers API Response:", offersResponse.data);
 
       setStep(3);
       toast.success("Form submitted successfully!");
@@ -110,12 +115,12 @@ const Invoice = () => {
     }
   };
 
+  // Render form fields dynamically
   const renderFormFields = (data) => {
     return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object") // Filter out null and nested objects
+      .filter((key) => data[key] !== null && typeof data[key] !== "object")
       .map((key, index) => {
         const value = data[key];
-
         return (
           <div key={index} className="form-field">
             <label>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</label>
@@ -129,6 +134,45 @@ const Invoice = () => {
           </div>
         );
       });
+  };
+
+  // Function to generate PDF from text
+  const generatePDF = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    let yOffset = 20;
+
+    pdf.setFontSize(18);
+    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setLineWidth(0.5);
+    pdf.line(10, yOffset, pageWidth - 10, yOffset);
+    yOffset += 10;
+
+    pdf.setFontSize(12);
+    submittedData.forEach((supplier, index) => {
+      pdf.text(`Supplier ${index + 1}: ${supplier["Supplier Name"]}`, 10, yOffset);
+      yOffset += 10;
+
+      Object.keys(supplier).forEach((key) => {
+        if (key !== "Supplier Name") {
+          pdf.text(`${key}: ${supplier[key]}`, 15, yOffset);
+          yOffset += 10;
+        }
+      });
+
+      yOffset += 10;
+    });
+
+    pdf.save("invoice_details.pdf");
+  };
+
+  // Function to handle contract button click
+  const handleContractClick = (supplierData) => {
+    navigate("/agent/contract", { state: { supplierData } }); // Pass supplier data as state
   };
 
   return (
@@ -180,11 +224,18 @@ const Invoice = () => {
       {/* Step 3: Confirmation */}
       {step === 3 && submittedData && (
         <div className="invoice-confirmation-container">
+          {/* Add Download PDF Button */}
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
+            <button onClick={generatePDF} className="invoice-download-pdf-btn">
+              Download PDF
+            </button>
+          </div>
+
           {submittedData.map((supplier, index) => (
             <div className="invoice-card" key={index}>
               <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
               {Object.keys(supplier).map((key, keyIndex) => {
-                if (key !== "Supplier Name") {  
+                if (key !== "Supplier Name") {
                   return (
                     <p key={keyIndex}>
                       <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</strong> {supplier[key]}
@@ -196,7 +247,7 @@ const Invoice = () => {
 
               <button
                 className="invoice-confirmation-btn"
-                onClick={() => navigate("/agent/contract")} // Navigate to the route
+                onClick={() => handleContractClick(supplier)} // Pass supplier data
               >
                 Manage Contract
               </button>
