@@ -13,17 +13,21 @@
   /* flex-wrap: wrap; Allow wrapping of steps on small screens */
 }
 .invoice-download-pdf-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
+  border: 0px;
+  background: transparent;
+  color: #000000;
+  /* background-color: #4CAF50; */
+  border-bottom: 1px solid #000000 !important;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 0px;
   cursor: pointer;
   font-size: 16px;
+  top: 0;
+  right: 120px;
 }
 
 .invoice-download-pdf-btn:hover {
-  background-color: #45a049;
+  /* background-color: #45a049; */
 }
 .invoice-stepper .step {
   width: 30px;
@@ -57,7 +61,7 @@
 .invoice-form-container {
   /* width: 100%; */
   max-width: 800px;
-  background-image: url('../../assets/img/Formback.png');
+  background-image: url("../../assets/img/Formback.png");
   background-size: 100% 100%;
   border-radius: 10px;
   padding: 60px 40px;
@@ -168,11 +172,11 @@
   justify-content: center;
 }
 
-.invoice-card {
-  width: 400px;
+.invoice-card.invoice-card-responsive {
+  width: 100%;
   border-radius: 30px;
-  background-image: url('../../assets/img/cardback.png');
-  background-size: cover;
+  background-image: url("../../assets/img/cardback.png");
+  background-size: 100% 100%;
   background-position: center;
   padding: 30px;
   margin-top: 20px;
@@ -203,7 +207,22 @@
   display: block;
   box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
-
+@media screen and (max-width: 1199px) {
+  .invoice-download-pdf-btn {
+    right: 0;
+  }
+  .invoice-card.invoice-card-responsive {
+    /* padding: 40px; */
+  }
+}
+@media screen and (max-width: 991px) {
+  .invoice-download-pdf-btn {
+    position: static !important;
+  }
+  .invoice-card.invoice-card-responsive {
+    padding: 90px;
+  }
+}
 /* Media query for responsiveness */
 @media screen and (max-width: 768px) {
   .invoice-container {
@@ -276,6 +295,11 @@
   }
 
   .invoice-card {
-    width: 90%; /* Ensure card fits on smaller screens */
+    /* width: 90%; Ensure card fits on smaller screens */
+  }
+}
+@media screen and (max-width: 575px) {
+  .invoice-card.invoice-card-responsive {
+    padding: 30px;
   }
 }
