@@ -1,6 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; 
-import { useAuth } from "../../contexts/AuthContext"; 
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
 import {
@@ -17,13 +17,13 @@ import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
-  const { logout } = useAuth();  
-  const navigate = useNavigate();  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () => {
-    logout();  
-    localStorage.removeItem("authToken");  
-    localStorage.removeItem("role");  
-    navigate("/login");  
+    logout();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    navigate("/login");
   };
 
   return (
@@ -41,14 +41,16 @@ const Sidebar = () => {
       <hr className="horizontal dark mt-0" />
       <div
         className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
-        id="sidenav-collapse-main">
+        id="sidenav-collapse-main"
+      >
         <ul className="navbar-nav">
           <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/dashboard"
               activeClassName="active-class"
-              exact>
+              exact
+            >
               <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
@@ -60,7 +62,8 @@ const Sidebar = () => {
             <NavLink
               className="nav-link"
               to="/agent/invoice"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
@@ -71,11 +74,24 @@ const Sidebar = () => {
             <NavLink
               className="nav-link"
               to="/agent/contract-list"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCreditCard />
               </div>
               <span className="nav-link-text ms-1">Contract List</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/agent/invoice-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCreditCard />
+              </div>
+              <span className="nav-link-text ms-1">Invoice List</span>
             </NavLink>
           </li>
         </ul>
@@ -83,7 +99,8 @@ const Sidebar = () => {
       <div className="sidenav-footer mx-3">
         <div
           className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard">
+          id="sidenavCard"
+        >
           <div
             className="full-background"
             style={{

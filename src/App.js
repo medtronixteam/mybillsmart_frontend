@@ -22,7 +22,7 @@ import Signup from "./components/SignUp/Signup";
 // import UserList from "./Provider/userList/UserList";
 import ContractForm from "./components/ContractForm/ContractForm";
 
-import ProtectedRoute from './ProtectedRoute';
+import ProtectedRoute from "./ProtectedRoute";
 import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ContractList from "./components/ContractList/ContractList";
 import AddProduct from "./Provider/AddProduct/AddProduct";
@@ -33,6 +33,7 @@ import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
 import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
 import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
 import InvoiceList from "./GroupAdmin/InvoiceList/InvoiceList";
+import InvoiceListAgent from "./components/InvoiceList/InvoiceList";
 import ClientContractList from "./Client/ClientContractList/ClientContractList";
 import ClientContractDocx from "./Client/ClientContractDocx/ClientContractDocx";
 import ClientNavbar from "./Client/ClientNavbar/ClientNavbar";
@@ -97,6 +98,10 @@ const App = () => {
                         <Route
                           path="contract-list"
                           element={<ContractList />}
+                        />
+                        <Route
+                          path="invoice-list"
+                          element={<InvoiceListAgent />}
                         />
                       </Routes>
                     </main>
@@ -219,8 +224,7 @@ const App = () => {
             }
           />
 
-
-<Route
+          <Route
             path="/client/*"
             element={
               <ProtectedRoute
@@ -237,18 +241,24 @@ const App = () => {
                     <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                       <ClientNavbar toggleSidebar={toggleSidebar} />
                       <Routes>
-                        <Route
-                          path="dashboard"
-                          element={<ClientDashboard />}
-                        />
+                        <Route path="dashboard" element={<ClientDashboard />} />
 
                         <Route
                           path="profile-edit"
                           element={<ClientProfileSetting />}
                         />
-                        <Route path="contract-list" element={<ClientContractList />} />
-                        <Route path="contract-docx" element={<ClientContractDocx />} />
-                        <Route path="client-invoice" element={<ClientInvoice />} />
+                        <Route
+                          path="contract-list"
+                          element={<ClientContractList />}
+                        />
+                        <Route
+                          path="contract-docx"
+                          element={<ClientContractDocx />}
+                        />
+                        <Route
+                          path="client-invoice"
+                          element={<ClientInvoice />}
+                        />
 
                         {/* <Route
                         path="/add-user"
