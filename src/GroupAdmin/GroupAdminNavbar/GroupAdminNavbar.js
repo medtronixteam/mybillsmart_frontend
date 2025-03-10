@@ -16,7 +16,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
 
         <div className="d-flex align-items-center gap-2">
           <Link
-            to="/admin/profile-edit"
+            to="/group_admin/profile-edit"
             className="d-flex align-items-center text-decoration-none">
             <img
               src={team1}
