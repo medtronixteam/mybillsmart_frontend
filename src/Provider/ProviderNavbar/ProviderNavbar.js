@@ -16,7 +16,7 @@ const ProviderNavbar = ({ toggleSidebar }) => {
 
         <div className="d-flex align-items-center gap-2">
           <Link
-            to="/provider/profile-edit"
+            to="/supervisor/profile-edit"
             className="d-flex align-items-center text-decoration-none">
             <img
               src={team1}
