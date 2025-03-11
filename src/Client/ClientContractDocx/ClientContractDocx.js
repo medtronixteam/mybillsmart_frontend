@@ -7,7 +7,7 @@ const ClientContractDocx = () => {
       <h1>Client Contract Docx</h1>
       <form className="row">
         <div className="col-lg-6">
-          <label className="form-label text-white m-0" htmlFor="cnic">
+          <label className="form-label m-0" htmlFor="cnic">
             Upload Card/NIE (Front & Back)
           </label>
           <input
@@ -20,7 +20,7 @@ const ClientContractDocx = () => {
         </div>
         <div className="col-lg-6">
           <label
-            className="form-label text-white m-0"
+            className="form-label m-0"
             htmlFor="differentiation"
           >
             Differentiation between
@@ -32,7 +32,7 @@ const ClientContractDocx = () => {
           </select>
         </div>
         <div className="col-lg-6">
-          <label className="form-label text-white m-0" htmlFor="bank_receipt">
+          <label className="form-label m-0" htmlFor="bank_receipt">
             Upload Bank Receipt
           </label>
           <input
@@ -44,7 +44,7 @@ const ClientContractDocx = () => {
         </div>
         <div className="col-lg-6">
           <label
-            className="form-label text-white m-0"
+            className="form-label m-0"
             htmlFor="last_service_invoice"
           >
             Upload Last Service Invoice
@@ -58,7 +58,7 @@ const ClientContractDocx = () => {
         </div>
         <div className="col-lg-6">
           <label
-            className="form-label text-white m-0"
+            className="form-label m-0"
             htmlFor="lease_agreement"
           >
             Upload Lease Agreement (if applicable)
