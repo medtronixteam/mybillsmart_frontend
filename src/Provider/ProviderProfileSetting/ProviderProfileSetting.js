@@ -23,17 +23,21 @@ const ProviderProfileSetting = () => {
   return (
     <div className="profile-edit-container container mt-3">
       <form onSubmit={handleSubmit} className="profile-form row">
-        <div className="col-lg-6">
+        <div className="col-xl-6">
           {/* Name & Phone Number Card */}
           <div className="card profile-info-card h-100">
             <h3 className="profile-card-heading">Edit Your Profile Info</h3>
-            <div className="mb-3">
-              <label htmlFor="name" className="form-label profile-input-label">
-                Full Name
+            <div className="">
+              <label
+                htmlFor="name"
+                className="form-label profile-input-label "
+              >
+                Name
               </label>
               <input
                 type="text"
                 id="name"
+                placeholder="Enter your name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -41,14 +45,72 @@ const ProviderProfileSetting = () => {
                 required
               />
             </div>
-            <div className="mb-3">
-              <label htmlFor="phone" className="form-label profile-input-label">
-                Phone Number
+            <div className="">
+              <label
+                htmlFor="city"
+                className="form-label profile-input-label "
+              >
+                City
               </label>
               <input
-                type="number"
-                id="phone"
-                name="phone"
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Enter your city"
+                value={formData.phone}
+                onChange={handleChange}
+                className="form-control profile-input-field"
+                required
+              />
+            </div>
+            <div className="">
+              <label
+                htmlFor="country"
+                className="form-label profile-input-label "
+              >
+                Country
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                placeholder="Enter your Country"
+                value={formData.phone}
+                onChange={handleChange}
+                className="form-control profile-input-field"
+                required
+              />
+            </div>
+            <div className="">
+              <label
+                htmlFor="address"
+                className="form-label profile-input-label "
+              >
+                Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                placeholder="Enter your Address"
+                value={formData.phone}
+                onChange={handleChange}
+                className="form-control profile-input-field"
+                required
+              />
+            </div>
+            <div className="">
+              <label
+                htmlFor="postalCode"
+                className="form-label profile-input-label "
+              >
+                Postal Code
+              </label>
+              <input
+                type="text"
+                id="postalCode"
+                name="postalCode"
+                placeholder="Enter your Postal Code"
                 value={formData.phone}
                 onChange={handleChange}
                 className="form-control profile-input-field"
@@ -65,14 +127,14 @@ const ProviderProfileSetting = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-6">
+        <div className="col-xl-6">
           {/* Password Card */}
           <div className="card profile-password-card h-100">
             <h3 className="profile-card-heading">Update Your Password</h3>
-            <div className="mb-3">
+            <div className="">
               <label
                 htmlFor="password"
-                className="form-label profile-input-label"
+                className="form-label profile-input-label "
               >
                 Password
               </label>
@@ -80,16 +142,17 @@ const ProviderProfileSetting = () => {
                 type="password"
                 id="password"
                 name="password"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 className="form-control profile-input-field"
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="">
               <label
                 htmlFor="confirmPassword"
-                className="form-label profile-input-label"
+                className="form-label profile-input-label "
               >
                 Confirm Password
               </label>
@@ -97,6 +160,7 @@ const ProviderProfileSetting = () => {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
+                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="form-control profile-input-field"
