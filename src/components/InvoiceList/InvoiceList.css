@@ -10,7 +10,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  overflow-x: auto; /* Ensures table can scroll horizontally on small screens */
+  overflow-x: auto; 
 }
 
 .invoice-table-header {

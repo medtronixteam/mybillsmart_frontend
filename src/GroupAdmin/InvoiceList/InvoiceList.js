@@ -43,7 +43,6 @@ const InvoiceList = () => {
       console.log("Selected Invoice API Response:", invoiceData); // Log the response
       setSelectedInvoice(invoiceData.data); // Use data.data to access the nested invoice object
 
-      // Fetch offers data with invoice_id as a query parameter
       const offersResponse = await fetch(
         `http://34.142.252.64:8080/api/offers?invoice_id=${id}`, 
         {
