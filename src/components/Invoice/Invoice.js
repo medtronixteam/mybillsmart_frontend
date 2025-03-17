@@ -255,7 +255,7 @@ const Invoice = () => {
 
       {/* Step 2: Fill the Form */}
       {step === 2 && responseData && (
-        <div className="invoice-form-container">
+        <div className="invoice-form-container w-100">
           <h2 className="invoice-form-heading">Verify your Invoice</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-row">
@@ -277,26 +277,26 @@ const Invoice = () => {
       {/* Step 3: Confirmation */}
       {step === 3 && offers.length > 0 && (
         <>
-          <div className="position-relative text-center container">
+          <div className=" text-center container">
             <div className="row">
               <div className="col-12">
                 <h1>Vendor List</h1>
-                {/* Add Download PDF Button */}
+                {/* Add Download PDF Button
                 <button
                   onClick={generatePDF}
                   className="invoice-download-pdf-btn position-absolute"
                 >
                   Download PDF
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
 
           {/* Display Offers in Cards */}
-          <div className="justify-content-center row">
+          <div className="justify-content-center row w-100">
             {offers.map((offer, index) => (
-              <div className="col-xl-4 col-lg-6" key={index}>
-                <div className="invoice-card-responsive invoice-card h-100">
+              <div className="col-xl-4 col-md-6" key={index}>
+                <div className="invoice-card-responsive invoice-card h-100 w-100">
                   {/* Dynamically display offer data (excluding user_id, invoice_id, created_at, updated_at, id, Client_id) */}
                   {Object.keys(offer).map((key) => {
                     if (
@@ -332,6 +332,24 @@ const Invoice = () => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="row gy-3 w-xl-50 w-md-75 w-sm-100 text-center justify-content-center">
+            <div className="col-sm-4">
+              <button
+                onClick={generatePDF}
+                className="invoice-download-pdf-btn"
+              >
+                Download PDF
+              </button>
+            </div>
+            <div className="col-sm-4">
+              <button className="invoice-download-pdf-btn">Send Email</button>
+            </div>
+            <div className="col-sm-4">
+              <button className="invoice-download-pdf-btn">
+                Send WhatsApp
+              </button>
+            </div>
           </div>
         </>
       )}

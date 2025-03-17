@@ -174,14 +174,14 @@
   /* justify-content: center; */
 }
 .invoice-card.invoice-card-responsive {
-  max-width: 300px;
+  /* max-width: 300px; */
   /* width: 100%; */
   border-radius: 30px;
   background-image: url("../../assets/img/cardback.png");
   background-size: 100% 100%;
   background-position: center;
-  padding: 30px;
-  margin: 20px;
+  padding: 40px;
+  /* margin: 20px; */
 }
 
 
@@ -223,7 +223,8 @@
     position: static !important;
   }
   .invoice-card.invoice-card-responsive {
-    padding: 90px;
+    /* padding: 90px; */
+    padding: 60px;
   }
 }
 /* Media query for responsiveness */
