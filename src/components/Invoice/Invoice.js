@@ -333,20 +333,22 @@ const Invoice = () => {
               </div>
             ))}
           </div>
-          <div className="row gy-3 w-xl-50 w-md-75 w-sm-100 text-center justify-content-center">
-            <div className="col-sm-4">
+          <div className="row mt-3 gy-3 w-xl-75 w-lg-75 w-md-75 w-sm-100 text-center justify-content-center">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
               <button
                 onClick={generatePDF}
-                className="invoice-download-pdf-btn"
+                className="pdf-btn p-2 rounded-2 text-white border-0"
               >
                 Download PDF
               </button>
             </div>
-            <div className="col-sm-4">
-              <button className="invoice-download-pdf-btn">Send Email</button>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
+              <button className="email-btn p-2 rounded-2 text-white border-0">
+                Send Email
+              </button>
             </div>
-            <div className="col-sm-4">
-              <button className="invoice-download-pdf-btn">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
+              <button className="whatsapp-btn p-2 rounded-2 text-white border-0">
                 Send WhatsApp
               </button>
             </div>

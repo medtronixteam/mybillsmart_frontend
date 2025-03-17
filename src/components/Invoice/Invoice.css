@@ -12,22 +12,29 @@
   margin-bottom: 20px;
   /* flex-wrap: wrap; Allow wrapping of steps on small screens */
 }
-.invoice-download-pdf-btn {
-  border: 0px;
-  background: transparent;
-  color: #000000;
+.pdf-btn,
+.email-btn,
+.whatsapp-btn {
+  color: #fff;
   /* background-color: #4CAF50; */
-  border-bottom: 2px solid #000000 !important;
+  /* border-bottom: 2px solid #000000 !important; */
   /* padding: 10px 20px; */
-  margin-top: 1rem;
-  border-radius: 0px;
+  /* margin-top: 2rem; */
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  top: 0;
-  right: 120px;
+  /* top: 0;
+  right: 120px; */
 }
-
+.pdf-btn {
+  background-color: #3598db;
+}
+.email-btn {
+  background-color: #a52a2a;
+}
+.whatsapp-btn {
+  background-color: #008000;
+}
 .invoice-download-pdf-btn:hover {
   /* background-color: #45a049; */
 }
@@ -183,7 +190,6 @@
   padding: 40px;
   /* margin: 20px; */
 }
-
 
 .invoice-card h3 {
   color: #2b2b2b;
