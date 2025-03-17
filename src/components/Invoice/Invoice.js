@@ -16,6 +16,7 @@ const Invoice = () => {
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
   const [invoiceId, setInvoiceId] = useState(null);
+  const [offers, setOffers] = useState([]); // State to store offers data
   const navigate = useNavigate();
   const { token } = useAuth();
 
@@ -129,6 +130,11 @@ const Invoice = () => {
       );
       console.log("Offers API Response:", offersResponse.data);
 
+      // Set offers data from the API response
+      if (offersResponse.data && offersResponse.data.offers) {
+        setOffers(offersResponse.data.offers); // Store offers in state
+      }
+
       setStep(3);
       toast.success("Form submitted successfully!");
     } catch (error) {
@@ -202,8 +208,14 @@ const Invoice = () => {
   };
 
   // Function to handle contract button click
-  const handleContractClick = (supplierData) => {
-    navigate("/agent/contract", { state: { supplierData } }); // Pass supplier data as state
+  const handleContractClick = (offer) => {
+    // Pass the offer data (including id) as props
+    navigate("/agent/contract", {
+      state: {
+        offerData: offer, // Pass the entire offer object
+        offerId: offer.id, // Pass the id separately
+      },
+    });
   };
 
   return (
@@ -263,9 +275,9 @@ const Invoice = () => {
       )}
 
       {/* Step 3: Confirmation */}
-      {step === 3 && submittedData && (
+      {step === 3 && offers.length > 0 && (
         <>
-          <div className=" position-relative text-center container">
+          <div className="position-relative text-center container">
             <div className="row">
               <div className="col-12">
                 <h1>Vendor List</h1>
@@ -280,25 +292,31 @@ const Invoice = () => {
             </div>
           </div>
 
-          {/* invoice-confirmation-container */}
+          {/* Display Offers in Cards */}
           <div className="justify-content-center row">
-            {submittedData.map((supplier, index) => (
-              <div className="col-xl-4 col-lg-6">
-                <div className="invoice-card-responsive invoice-card h-100" key={index}>
-                  <h3 className="invoice-confirmation-heading">
-                    {supplier["Supplier Name"]}
-                  </h3>
-                  {Object.keys(supplier).map((key, keyIndex) => {
-                    if (key !== "Supplier Name") {
+            {offers.map((offer, index) => (
+              <div className="col-xl-4 col-lg-6" key={index}>
+                <div className="invoice-card-responsive invoice-card h-100">
+                  {/* Dynamically display offer data (excluding user_id, invoice_id, created_at, updated_at, id, Client_id) */}
+                  {Object.keys(offer).map((key) => {
+                    if (
+                      key !== "user_id" &&
+                      key !== "invoice_id" &&
+                      key !== "created_at" &&
+                      key !== "updated_at" &&
+                      key !== "id" &&
+                      key !== "Client_id" &&
+                      offer[key]
+                    ) {
                       return (
-                        <p key={keyIndex}>
+                        <p key={key}>
                           <strong>
                             {key
                               .replace(/([A-Z])/g, " $1")
                               .replace(/^./, (str) => str.toUpperCase())}
                             :
                           </strong>{" "}
-                          {supplier[key]}
+                          {offer[key]}
                         </p>
                       );
                     }
@@ -307,7 +325,7 @@ const Invoice = () => {
 
                   <button
                     className="invoice-confirmation-btn"
-                    onClick={() => handleContractClick(supplier)} // Pass supplier data
+                    onClick={() => handleContractClick(offer)} // Pass offer data (including id)
                   >
                     Manage Contract
                   </button>

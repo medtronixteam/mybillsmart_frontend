@@ -1,52 +1,196 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserList.css";
+import { useAuth } from "../../contexts/AuthContext";
 
-const UserList = ({ users, onDeleteUser, onEditUser }) => {
-  const [editIndex, setEditIndex] = useState(null); 
-  const [editData, setEditData] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+const UserList = () => {
+  const [users, setUsers] = useState([]); // State to store users list
+  const [editIndex, setEditIndex] = useState(null);
+  const [editData, setEditData] = useState({
+    id: "",
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+    country: "",
+    city: "",
+    postalCode: "",
+    role: "",
+    status: "",
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
 
-  const handleEditClick = (index, user) => {
-    setEditIndex(index);
-    setEditData(user); 
-    setIsModalOpen(true); 
+  // Fetch users when the component mounts
+  useEffect(() => {
+    fetchUsers();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://34.142.252.64:8080/api/users/list", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        setUsers(result.data); // Set users from the "data" array
+      } else {
+        toast.error("Failed to fetch users!");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to fetch users!");
+    } finally {
+      setLoading(false);
+    }
   };
- 
+
+  // Fetch user details for editing
+  const fetchUserDetails = async (id) => {
+    try {
+      const response = await fetch(`http://34.142.252.64:8080/api/user/detail/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        return result.data; // Return user details
+      } else {
+        toast.error("Failed to fetch user details!");
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      toast.error("Failed to fetch user details!");
+    }
+  };
+
+  // Disable a user
+  const handleDisableClick = async (id) => {
+    try {
+      const response = await fetch(`http://34.142.252.64:8080/api/user/disable/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        toast.success("User disabled successfully!");
+        fetchUsers(); // Refresh users list
+      } else {
+        toast.error("Failed to disable user!");
+      }
+    } catch (error) {
+      console.error("Error disabling user:", error);
+      toast.error("Failed to disable user!");
+    }
+  };
+
+  // Enable a user
+  const handleEnableClick = async (id) => {
+    try {
+      const response = await fetch(`http://34.142.252.64:8080/api/user/enable/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        toast.success("User enabled successfully!");
+        fetchUsers(); // Refresh users list
+      } else {
+        toast.error("Failed to enable user!");
+      }
+    } catch (error) {
+      console.error("Error enabling user:", error);
+      toast.error("Failed to enable user!");
+    }
+  };
+
+  // Delete a user
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await fetch(`http://34.142.252.64:8080/api/user/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        toast.success("User deleted successfully!");
+        fetchUsers(); // Refresh users list
+      } else {
+        toast.error("Failed to delete user!");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete user!");
+    }
+  };
+
+  // Handle edit click
+  const handleEditClick = async (index, user) => {
+    const userDetails = await fetchUserDetails(user.id); // Fetch user details
+    if (userDetails) {
+      setEditData({
+        id: userDetails.id,
+        name: userDetails.name,
+        email: userDetails.email,
+        password: "", // Password is usually not returned for security reasons
+        phone: userDetails.phone || "",
+        address: userDetails.address || "",
+        country: userDetails.country || "",
+        city: userDetails.city || "",
+        postalCode: userDetails.postal_code || "",
+        role: userDetails.role,
+        status: userDetails.status,
+      });
+      setIsModalOpen(true);
+    }
+  };
+
+  // Handle save click
   const handleSaveClick = () => {
     if (
       !editData.name ||
       !editData.email ||
-      !editData.password ||
       !editData.phone ||
       !editData.country ||
       !editData.city ||
       !editData.postalCode
     ) {
-      toast.error("All fields are required!"); 
+      toast.error("All fields are required!");
       return;
     }
-    onEditUser(editIndex, editData); 
+    // Call API to update user here (if needed)
     setIsModalOpen(false);
-    toast.success("User updated successfully!"); 
+    toast.success("User updated successfully!");
   };
 
-  const handleDeleteClick = (index) => {
-    onDeleteUser(index); 
-    toast.success("User deleted successfully!"); 
-  };
-
+  // Handle edit form change
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditData({ ...editData, [name]: value });
   };
 
+  // Display user status as "Active" or "Inactive"
+  const getStatusText = (status) => {
+    return status === 1 ? "Active" : "Inactive";
+  };
+
   return (
     <div className="user-list-container">
       <h1>User List</h1>
-      {users.length === 0 ? (
+      {loading ? (
+        <p>Loading users...</p>
+      ) : users.length === 0 ? (
         <p>
           No users added yet. <Link to="/group_admin/add-user">Add User</Link>
         </p>
@@ -56,6 +200,7 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
             <tr>
               <th>Name</th>
               <th>Role</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -64,11 +209,21 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
               <tr key={index}>
                 <td>{user.name}</td>
                 <td>{user.role}</td>
+                <td>{getStatusText(user.status)}</td>
                 <td>
                   <button onClick={() => handleEditClick(index, user)}>
                     Edit
                   </button>
-                  <button onClick={() => handleDeleteClick(index)}>
+                  {user.status === 1 ? (
+                    <button onClick={() => handleDisableClick(user.id)}>
+                      Disable
+                    </button>
+                  ) : (
+                    <button onClick={() => handleEnableClick(user.id)}>
+                      Enable
+                    </button>
+                  )}
+                  <button onClick={() => handleDeleteClick(user.id)}>
                     Delete
                   </button>
                 </td>
@@ -102,20 +257,20 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={editData.password || ""}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
                 <label>Phone</label>
                 <input
                   type="text"
                   name="phone"
                   value={editData.phone || ""}
+                  onChange={handleEditChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={editData.address || ""}
                   onChange={handleEditChange}
                 />
               </div>
@@ -150,12 +305,24 @@ const UserList = ({ users, onDeleteUser, onEditUser }) => {
                 <label>Role</label>
                 <select
                   name="role"
-                  value={editData.role || "sale_agent"}
+                  value={editData.role || ""}
                   onChange={handleEditChange}
                 >
-                  <option value="sale_agent">Sale Agent</option>
-                  <option value="sale_supervisor">Sale Supervisor</option>
+                  <option value="client">Client</option>
+                  <option value="supervisor">Supervisor</option>
                   <option value="provider">Provider</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  name="status"
+                  value={editData.status || ""}
+                  onChange={handleEditChange}
+                >
+                  <option value={1}>Active</option>
+                  <option value={0}>Inactive</option>
                 </select>
               </div>
               <div className="modal-actions">

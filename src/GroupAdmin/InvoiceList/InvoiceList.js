@@ -1,96 +1,175 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 
- const InvoiceList = () => {
+const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [showNewTable, setShowNewTable] = useState(false);
+  const [offers, setOffers] = useState([]); // State to store offers data
   const { token } = useAuth();
 
   useEffect(() => {
-    fetch("http://34.142.252.64:8080/api/invoices", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setInvoices(data))
-      .catch((error) => {
-        console.error("There was an error fetching the invoice list!", error);
-      });
+    const fetchInvoices = async () => {
+      try {
+        const response = await fetch("http://34.142.252.64:8080/api/invoices", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        console.log("Invoices API Response:", data); // Log the response
+        setInvoices(data);
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    };
+
+    fetchInvoices();
   }, [token]);
 
-  const handleViewInvoice = (id) => {
-    fetch(`http://34.142.252.64:8080/api/invoices/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setSelectedInvoice(data))
-      .catch((error) => {
-        console.error("There was an error fetching the single invoice!", error);
-      });
+  const fetchInvoiceDetails = async (id) => {
+    try {
+      // Fetch invoice details
+      const invoiceResponse = await fetch(
+        `http://34.142.252.64:8080/api/invoices/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const invoiceData = await invoiceResponse.json();
+      console.log("Selected Invoice API Response:", invoiceData); // Log the response
+      setSelectedInvoice(invoiceData.data); // Use data.data to access the nested invoice object
+
+      // Fetch offers data with invoice_id as a query parameter
+      const offersResponse = await fetch(
+        `http://34.142.252.64:8080/api/offers?invoice_id=${id}`, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const offersData = await offersResponse.json();
+      console.log("Offers API Response:", offersData); // Log the response
+      setOffers(offersData); // Store offers data in state
+
+      setShowNewTable(true);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // Function to filter and format the selected invoice data
+  const getFilteredInvoiceData = (invoice) => {
+    if (!invoice) return [];
+
+    // Fields to exclude
+    const excludedFields = ["id", "created_at", "updated_at", "agent_id"];
+
+    // Filter out excluded fields and null/empty values
+    const filteredData = Object.entries(invoice).filter(
+      ([key, value]) => !excludedFields.includes(key) && value !== null && value !== ""
+    );
+
+    // Handle nested bill_info object
+    if (invoice.bill_info) {
+      const filteredBillInfo = Object.entries(invoice.bill_info).filter(
+        ([key, value]) => key !== "taxes" && value !== null && value !== ""
+      );
+      filteredData.push(...filteredBillInfo); // Add bill_info fields to the main data
+    }
+
+    return filteredData;
+  };
+
+  // Function to render offer cards
+  const renderOfferCards = () => {
+    if (!offers.length) return <p>No offers available.</p>;
+
+    return offers.map((offer) => (
+      <div key={offer.id} className="offer-card">
+        <h3>Offer Details</h3>
+        {/* Exclude id, created_at, and updated_at fields */}
+        {Object.entries(offer).map(([key, value]) => {
+          if (["id", "created_at", "updated_at"].includes(key)) return null; // Skip these fields
+          return (
+            <p key={key}>
+              <strong>{key}:</strong> {value || "N/A"}
+            </p>
+          );
+        })}
+      </div>
+    ));
   };
 
   return (
     <div className="invoice-list-container">
       <h1 className="invoice-list-title">Invoice List</h1>
-      <div className="table-responsive">
-        <table className="invoice-table">
-          <thead>
-            <tr>
-              <th className="invoice-table-header">Invoice ID</th>
-              <th className="invoice-table-header">Bill Type</th>
-              <th className="invoice-table-header">Address</th>
-              <th className="invoice-table-header">Billing Period</th>
-              <th className="invoice-table-header">Total Consumption</th>
-              <th className="invoice-table-header">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice.id}>
-                <td className="invoice-table-cell">{invoice.id}</td>
-                <td className="invoice-table-cell">{invoice.billType}</td>
-                <td className="invoice-table-cell">{invoice.address}</td>
-                <td className="invoice-table-cell">{invoice.billingPeriod}</td>
-                <td className="invoice-table-cell">
-                  {invoice.totalConsumption}
-                </td>
-                <td className="invoice-table-cell">
-                  <button
-                    className="view-invoice-btn"
-                    onClick={() => handleViewInvoice(invoice.id)}
-                  >
-                    View Invoice
-                  </button>
-                </td>
+      {showNewTable && selectedInvoice ? (
+        <>
+          <div className="table-responsive">
+            <table className="invoice-table">
+              <thead>
+                <tr>
+                  <th className="invoice-table-header">Field</th>
+                  <th className="invoice-table-header">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getFilteredInvoiceData(selectedInvoice).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="invoice-table-cell">{key}</td>
+                    <td className="invoice-table-cell">
+                      {typeof value === "object" && value !== null
+                        ? JSON.stringify(value)
+                        : value || "N/A"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <h1 className="text-center pt-3 mb-0">Offer List</h1>
+          <div className="offer-list container">
+            <div className="row justify-content-center">
+              {renderOfferCards()} {/* Render offer cards here */}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="table-responsive">
+          <table className="invoice-table">
+            <thead>
+              <tr>
+                <th className="invoice-table-header">Invoice ID</th>
+                <th className="invoice-table-header">Bill Type</th>
+                <th className="invoice-table-header">Address</th>
+                <th className="invoice-table-header">Billing Period</th>
+                <th className="invoice-table-header">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {selectedInvoice && (
-        <div className="invoice-details">
-          <h2 className="invoice-details-title">Invoice Details</h2>
-          <p className="invoice-details-item">
-            <strong>Invoice ID:</strong> {selectedInvoice.id}
-          </p>
-          <p className="invoice-details-item">
-            <strong>Bill Type:</strong> {selectedInvoice.billType}
-          </p>
-          <p className="invoice-details-item">
-            <strong>Address:</strong> {selectedInvoice.address}
-          </p>
-          <p className="invoice-details-item">
-            <strong>Billing Period:</strong> {selectedInvoice.billingPeriod}
-          </p>
-          <p className="invoice-details-item">
-            <strong>Total Consumption:</strong>{" "}
-            {selectedInvoice.totalConsumption}
-          </p>
+            </thead>
+            <tbody>
+              {invoices.map((invoice) => (
+                <tr key={invoice.id}>
+                  <td className="invoice-table-cell">{invoice.id}</td>
+                  <td className="invoice-table-cell">{invoice.bill_type}</td>
+                  <td className="invoice-table-cell">{invoice.address}</td>
+                  <td className="invoice-table-cell">{invoice.billing_period}</td>
+                  <td className="invoice-table-cell">
+                    <button
+                      className="view-invoice-btn"
+                      onClick={() => fetchInvoiceDetails(invoice.id)}
+                    >
+                      Action
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

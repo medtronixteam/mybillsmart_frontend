@@ -21,7 +21,7 @@ const Products = () => {
   const fetchProducts = () => {
     setLoading(true);
     axios
-      .get(`${config.BASE_URL}/api/products`, {
+      .get(`${config.BASE_URL}/api/list/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

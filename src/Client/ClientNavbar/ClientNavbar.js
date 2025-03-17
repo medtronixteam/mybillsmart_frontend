@@ -13,7 +13,7 @@ const ClientNavbar= ({ toggleSidebar }) => {
         <h6 className="font-weight-bolder mb-0 d-none d-lg-block">
           Client Dashboard
         </h6>
-
+ 
         <div className="d-flex align-items-center gap-2">
           <Link
             to="/client/profile-edit"

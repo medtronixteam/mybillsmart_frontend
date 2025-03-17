@@ -22,8 +22,8 @@ const ContractList = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.json();
-        setContracts(data.contracts || []); // Ensure contracts is an array, even if empty
+        const result = await response.json();
+        setContracts(result.data || []); // Use result.data instead of result.contracts
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -46,7 +46,7 @@ const ContractList = () => {
   return (
     <div className="contract-list-container">
       <h1>Contract List</h1>
-      
+  
       <div className="table-responsive">
         {contracts.length === 0 ? (
           <div className="no-data-message text-center">No contracts found.</div>
@@ -54,7 +54,7 @@ const ContractList = () => {
           <table className="contract-table">
             <thead>
               <tr>
-                <th className="contract-table-header">Client Name</th>
+                <th className="contract-table-header">Client ID</th>
                 <th className="contract-table-header">Contracted Provider</th>
                 <th className="contract-table-header">Contracted Rate</th>
                 <th className="contract-table-header">Closure Date</th>
@@ -64,14 +64,14 @@ const ContractList = () => {
             <tbody>
               {contracts.map((contract, index) => (
                 <tr key={index} className="contract-table-row">
-                  <td className="contract-table-cell">{contract.clientName}</td>
+                  <td className="contract-table-cell">{contract.client_id}</td>
                   <td className="contract-table-cell">
-                    {contract.contractedProvider}
+                    {contract.contracted_provider}
                   </td>
                   <td className="contract-table-cell">
-                    {contract.contractedRate}
+                    {contract.contracted_rate}
                   </td>
-                  <td className="contract-table-cell">{contract.closureDate}</td>
+                  <td className="contract-table-cell">{contract.closure_date}</td>
                   <td className="contract-table-cell">
                     <button
                       className={`w-100 status-button status-${contract.status.toLowerCase()}`}

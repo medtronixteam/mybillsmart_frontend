@@ -1,62 +1,152 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useLocation } from "react-router-dom"; // Import useLocation
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 import "./ContractForm.css";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ContractForm = () => {
-  const location = useLocation(); // Access the location object
-  const [supplierData, setSupplierData] = useState(null); // State to store the passed supplier data
-
+  const location = useLocation();
+  const [supplierData, setSupplierData] = useState(null);
+  const [offerData, setOfferData] = useState(null);
+  const [clients, setClients] = useState([]);
+  const { token } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
-    ContractedProvider: "",
-    ContractedRate: "",
-    ClosureDate: "",
+    selectedClient: "",
+    client_id: "",
+    contracted_provider: "",
+    contracted_rate: "",
+    status: "",
+    closure_date: "",
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // To control modal visibility
-  const [modalMessage, setModalMessage] = useState(""); // Modal success message
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
-  // Get the supplier data from the location state
+  // Define status options
+  const statusOptions = ["Pending", "Confirmed", "Rejected"];
+
   useEffect(() => {
-    if (location.state && location.state.supplierData) {
-      setSupplierData(location.state.supplierData); // Set the supplier data
-      console.log("Supplier Data Received:", location.state.supplierData); // Log the data to the console
+    if (location.state) {
+      if (location.state.supplierData) {
+        setSupplierData(location.state.supplierData);
+      }
+      if (location.state.offerData) {
+        setOfferData(location.state.offerData);
+      }
     }
   }, [location.state]);
 
+  useEffect(() => {
+    let isMounted = true; // Track if the component is mounted
+
+    const fetchClients = async () => {
+      try {
+        const response = await axios.get("http://34.142.252.64:8080/api/client/list", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (isMounted && response.data && Array.isArray(response.data.data)) {
+          setClients(response.data.data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error("Error fetching clients:", error);
+          toast.error("Failed to fetch clients.");
+        }
+      }
+    };
+
+    fetchClients();
+
+    return () => {
+      isMounted = false; // Cleanup function to prevent state updates after unmount
+    };
+  }, [token]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "selectedClient") {
+      const selectedClient = clients.find((client) => client.name === value);
+      setFormData({
+        ...formData,
+        selectedClient: value,
+        client_id: selectedClient ? selectedClient.id : "",
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form submitted"); // Debugging line
+
+    if (!offerData) {
+      toast.error("Offer data is missing!");
+      return;
+    }
+
     if (
       !formData.name ||
-      !formData.ContractedProvider ||
-      !formData.ContractedRate ||
-      !formData.ClosureDate
+      !formData.selectedClient ||
+      !formData.contracted_provider ||
+      !formData.contracted_rate ||
+      !formData.status ||
+      !formData.closure_date
     ) {
       toast.error("All fields are required!");
       return;
     }
 
-    // Simulate adding data to the list (you can add logic to send data to an API or store here)
-    console.log("Form Data Submitted:", formData);
+    const payload = {
+      name: formData.name,
+      client_id: formData.client_id,
+      offer_id: offerData.id,
+      contracted_provider: formData.contracted_provider,
+      contracted_rate: formData.contracted_rate,
+      status: formData.status,
+      closure_date: formData.closure_date,
+    };
 
-    // Show modal on success
-    setModalMessage("Contract added successfully!");
-    setIsModalOpen(true);
+    console.log("Payload:", payload); // Log the payload
+    console.log("Headers:", {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    }); // Log the headers
 
-    // Reset the form
-    setFormData({
-      name: "",
-      ContractedProvider: "",
-      ContractedRate: "",
-      ClosureDate: "",
-    });
+    try {
+      const response = await axios.post(
+        "http://34.142.252.64:8080/api/contracts",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("API Response:", response.data); // Log the response
+      setModalMessage("Contract added successfully!");
+      setIsModalOpen(true);
+      setFormData({
+        name: "",
+        selectedClient: "",
+        client_id: "",
+        contracted_provider: "",
+        contracted_rate: "",
+        status: "",
+        closure_date: "",
+      });
+    } catch (error) {
+      console.error("API Error:", error.response ? error.response.data : error); // Log the error
+      toast.error("Failed to submit contract.");
+    }
   };
 
   const handleModalClose = () => {
@@ -71,57 +161,81 @@ const ContractForm = () => {
           <input
             type="text"
             name="name"
-            placeholder="Please Enter Name"
+            placeholder="Please Enter Contract Name"
             value={formData.name}
             onChange={handleChange}
+            required
           />
+
+          <select
+            name="selectedClient"
+            value={formData.selectedClient}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select a Client</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.name}>
+                {client.name}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
-            name="ContractedProvider"
+            name="contracted_provider"
             placeholder="Please Enter Contracted Provider"
-            value={formData.ContractedProvider}
+            value={formData.contracted_provider}
             onChange={handleChange}
+            required
           />
+
           <input
             type="number"
-            name="ContractedRate"
+            name="contracted_rate"
             placeholder="Please Enter Contracted Rate"
-            value={formData.ContractedRate}
+            value={formData.contracted_rate}
             onChange={handleChange}
+            required
           />
+
+          {/* Replace the status input with a dropdown */}
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Status</option>
+            {statusOptions.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+
           <input
             type="date"
-            name="ClosureDate"
+            name="closure_date"
             placeholder="Please Enter Closure Date"
-            value={formData.ClosureDate}
+            value={formData.closure_date}
             onChange={handleChange}
+            required
           />
 
           <button type="submit">Add Contract</button>
         </form>
       </div>
 
-      {/* Modal for success message */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="modal-icon">
-              {/* Add any icon you like (this is an example using emoji) */}
-              ✔️
-            </div>
+            <div className="modal-icon">✔️</div>
             <p className="modal-message">{modalMessage}</p>
             <button className="modal-ok-button" onClick={handleModalClose}>
               OK
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Display Supplier Data (Optional) */}
-      {supplierData && (
-        <div className="supplier-data-container">
-          <h3>Supplier Data</h3>
-          <pre>{JSON.stringify(supplierData, null, 2)}</pre>
         </div>
       )}
     </>
