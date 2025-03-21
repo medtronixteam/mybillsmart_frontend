@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import "./GroupAdminProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
+import { ToastContainer, toast } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css"; // Import toast CSS
 
 const GroupAdminProfileSetting = () => {
+  // State for profile data
   const [profileData, setProfileData] = useState({
     name: "",
     phone: "",
@@ -12,41 +15,100 @@ const GroupAdminProfileSetting = () => {
     postalCode: "",
   });
 
+  // State for password data
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "", // Add current password field
-    newPassword: "", // Rename password to newPassword
-    confirmPassword: "",
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
   });
 
+  // Loading states
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+
+  // Get token from AuthContext
   const { token } = useAuth();
 
+  // Handle profile input change
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData({ ...profileData, [name]: value });
   };
 
+  // Handle password input change
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
   };
 
+  // Handle profile form submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    console.log("Profile Data Submitted:", profileData);
-    alert("Profile Info Updated Successfully!");
+
+    // Validate profile fields
+    if (
+      !profileData.name ||
+      !profileData.city ||
+      !profileData.country ||
+      !profileData.address ||
+      !profileData.postalCode
+    ) {
+      toast.error("Please fill all the fields!"); // Replace alert with toast
+      return;
+    }
+
+    setLoadingProfile(true);
+
+    try {
+      const transformedProfileData = {
+        ...profileData,
+        postal_code: profileData.postalCode,
+      };
+
+      const response = await fetch("http://34.142.252.64:8080/api/user/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(transformedProfileData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Profile updated successfully!"); // Replace alert with toast
+        console.log("Profile updated:", result);
+      } else {
+        toast.error(`Failed to update profile: ${result.message || "Unknown error"}`); // Replace alert with toast
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile. Please try again."); // Replace alert with toast
+    } finally {
+      setLoadingProfile(false);
+    }
   };
 
+  // Handle password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
     // Check if new password and confirm password match
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("New password and confirm password do not match!");
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      toast.error("New password and confirm password do not match!"); // Replace alert with toast
       return;
     }
 
+    // Check if current password is provided
+    if (!passwordData.current_password) {
+      toast.error("Please enter your current password!"); // Replace alert with toast
+      return;
+    }
+
+    setLoadingPassword(true);
+
     try {
-      // Make API call to update password
       const response = await fetch("http://34.142.252.64:8080/api/change-password", {
         method: "POST",
         headers: {
@@ -54,28 +116,43 @@ const GroupAdminProfileSetting = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          currentPassword: passwordData.currentPassword, // Include current password
-          newPassword: passwordData.newPassword, // Include new password
-          confirmPassword: passwordData.confirmPassword, // Include confirm password
+          current_password: passwordData.current_password,
+          new_password: passwordData.new_password,
+          confirm_password: passwordData.confirm_password,
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        alert("Password updated successfully!");
+        toast.success("Password updated successfully!"); // Replace alert with toast
         console.log("Password updated:", result);
       } else {
-        alert(`Failed to update password: ${result.message || "Unknown error"}`);
+        toast.error(`Failed to update password: ${result.message || "Unknown error"}`); // Replace alert with toast
       }
     } catch (error) {
       console.error("Error updating password:", error);
-      alert("Failed to update password. Please try again.");
+      toast.error("Failed to update password. Please try again."); // Replace alert with toast
+    } finally {
+      setLoadingPassword(false);
     }
   };
 
   return (
     <div className="profile-edit-container container mt-3">
+      {/* Add ToastContainer to display toasts */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">
@@ -146,7 +223,7 @@ const GroupAdminProfileSetting = () => {
                 Postal Code
               </label>
               <input
-                type="text"
+                type="number"
                 id="postalCode"
                 name="postalCode"
                 placeholder="Enter your Postal Code"
@@ -160,8 +237,9 @@ const GroupAdminProfileSetting = () => {
               <button
                 type="submit"
                 className="btn btn-primary profile-submit-btn"
+                disabled={loadingProfile}
               >
-                Update Profile Info
+                {loadingProfile ? "Updating..." : "Update Profile Info"}
               </button>
             </div>
           </form>
@@ -172,45 +250,45 @@ const GroupAdminProfileSetting = () => {
           <form onSubmit={handlePasswordSubmit} className="card profile-password-card h-100">
             <h3 className="profile-card-heading">Update Your Password</h3>
             <div className="">
-              <label htmlFor="currentPassword" className="form-label profile-input-label">
+              <label htmlFor="current_password" className="form-label profile-input-label">
                 Current Password
               </label>
               <input
                 type="password"
-                id="currentPassword"
-                name="currentPassword"
+                id="current_password"
+                name="current_password"
                 placeholder="Enter your current password"
-                value={passwordData.currentPassword}
+                value={passwordData.current_password}
                 onChange={handlePasswordChange}
                 className="form-control profile-input-field"
                 required
               />
             </div>
             <div className="">
-              <label htmlFor="newPassword" className="form-label profile-input-label">
+              <label htmlFor="new_password" className="form-label profile-input-label">
                 New Password
               </label>
               <input
                 type="password"
-                id="newPassword"
-                name="newPassword"
+                id="new_password"
+                name="new_password"
                 placeholder="Enter your new password"
-                value={passwordData.newPassword}
+                value={passwordData.new_password}
                 onChange={handlePasswordChange}
                 className="form-control profile-input-field"
                 required
               />
             </div>
             <div className="">
-              <label htmlFor="confirmPassword" className="form-label profile-input-label">
+              <label htmlFor="confirm_password" className="form-label profile-input-label">
                 Confirm Password
               </label>
               <input
                 type="password"
-                id="confirmPassword"
-                name="confirmPassword"
+                id="confirm_password"
+                name="confirm_password"
                 placeholder="Confirm your new password"
-                value={passwordData.confirmPassword}
+                value={passwordData.confirm_password}
                 onChange={handlePasswordChange}
                 className="form-control profile-input-field"
                 required
@@ -220,8 +298,9 @@ const GroupAdminProfileSetting = () => {
               <button
                 type="submit"
                 className="btn btn-primary profile-submit-btn"
+                disabled={loadingPassword}
               >
-                Update Password
+                {loadingPassword ? "Updating..." : "Update Password"}
               </button>
             </div>
           </form>

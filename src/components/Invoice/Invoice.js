@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BsCloudUpload } from "react-icons/bs";
+import { BsCloudUpload, BsDownload, BsEnvelope, BsWhatsapp } from "react-icons/bs";
 import "./Invoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -16,9 +16,18 @@ const Invoice = () => {
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
   const [invoiceId, setInvoiceId] = useState(null);
-  const [offers, setOffers] = useState([]); // State to store offers data
+  const [offers, setOffers] = useState([]);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [selectedClient, setSelectedClient] = useState(""); // State for selected client
   const navigate = useNavigate();
   const { token } = useAuth();
+
+  // Dummy client data
+  const clients = [
+    { id: 1, name: "Client 1" },
+    { id: 2, name: "Client 2" },
+    { id: 3, name: "Client 3" },
+  ];
 
   // Handle file upload
   const handleFileChange = (e) => {
@@ -132,7 +141,7 @@ const Invoice = () => {
 
       // Set offers data from the API response
       if (offersResponse.data && offersResponse.data.offers) {
-        setOffers(offersResponse.data.offers); // Store offers in state
+        setOffers(offersResponse.data.offers);
       }
 
       setStep(3);
@@ -209,13 +218,38 @@ const Invoice = () => {
 
   // Function to handle contract button click
   const handleContractClick = (offer) => {
-    // Pass the offer data (including id) as props
     navigate("/agent/contract", {
       state: {
-        offerData: offer, // Pass the entire offer object
-        offerId: offer.id, // Pass the id separately
+        offerData: offer,
+        offerId: offer.id,
       },
     });
+  };
+
+  // Function to handle "Send to Client Portal" button click
+  const handleSendToClientPortal = () => {
+    setShowModal(true); // Show modal
+  };
+
+  // Function to handle modal close
+  const handleModalClose = () => {
+    setShowModal(false); // Hide modal
+    setSelectedClient(""); // Reset selected client
+  };
+
+  // Function to handle client selection
+  const handleClientSelect = (e) => {
+    setSelectedClient(e.target.value);
+  };
+
+  // Function to handle form submission in modal
+  const handleModalSubmit = () => {
+    if (!selectedClient) {
+      toast.error("Please select a client!");
+      return;
+    }
+    toast.success(`Invoice sent to ${selectedClient}`);
+    handleModalClose();
   };
 
   return (
@@ -277,17 +311,10 @@ const Invoice = () => {
       {/* Step 3: Confirmation */}
       {step === 3 && offers.length > 0 && (
         <>
-          <div className=" text-center container">
+          <div className="text-center container">
             <div className="row">
               <div className="col-12">
                 <h1>Vendor List</h1>
-                {/* Add Download PDF Button
-                <button
-                  onClick={generatePDF}
-                  className="invoice-download-pdf-btn position-absolute"
-                >
-                  Download PDF
-                </button> */}
               </div>
             </div>
           </div>
@@ -297,7 +324,6 @@ const Invoice = () => {
             {offers.map((offer, index) => (
               <div className="col-xl-4 col-md-6" key={index}>
                 <div className="invoice-card-responsive invoice-card h-100 w-100">
-                  {/* Dynamically display offer data (excluding user_id, invoice_id, created_at, updated_at, id, Client_id) */}
                   {Object.keys(offer).map((key) => {
                     if (
                       key !== "user_id" &&
@@ -325,7 +351,7 @@ const Invoice = () => {
 
                   <button
                     className="invoice-confirmation-btn"
-                    onClick={() => handleContractClick(offer)} // Pass offer data (including id)
+                    onClick={() => handleContractClick(offer)}
                   >
                     Manage Contract
                   </button>
@@ -333,27 +359,70 @@ const Invoice = () => {
               </div>
             ))}
           </div>
+
+          {/* Buttons for PDF, Email, WhatsApp, and Send to Client Portal */}
           <div className="row mt-3 gy-3 w-xl-75 w-lg-75 w-md-75 w-sm-100 text-center justify-content-center">
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
               <button
                 onClick={generatePDF}
                 className="pdf-btn p-2 rounded-2 text-white border-0"
               >
+                <BsDownload className="me-2" />
                 Download PDF
               </button>
             </div>
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
-              <button className="email-btn p-2 rounded-2 text-white border-0">
+              <button className="pdf-btn p-2 rounded-2 text-white border-0">
+                <BsEnvelope className="me-2" />
                 Send Email
               </button>
             </div>
             <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
-              <button className="whatsapp-btn p-2 rounded-2 text-white border-0">
+              <button className="pdf-btn p-2 rounded-2 text-white border-0">
+                <BsWhatsapp className="me-2" />
                 Send WhatsApp
+              </button>
+            </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
+              <button
+                onClick={handleSendToClientPortal}
+                className="pdf-btn p-2 rounded-2 text-white border-0"
+              >
+                Send to Client Portal
               </button>
             </div>
           </div>
         </>
+      )}
+
+      {/* Modal for Send to Client Portal */}
+      {showModal && (
+        <div className="send-to-client-modal">
+          <div className="send-to-client-modal-content">
+            <h2>Send to Client Portal</h2>
+            <p>Select a client to send the invoice:</p>
+            <select
+              value={selectedClient}
+              onChange={handleClientSelect}
+              className="form-select"
+            >
+              <option value="">Select a client</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.name}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+            <div className="modal-buttons">
+              <button onClick={handleModalClose} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button onClick={handleModalSubmit} className="btn btn-primary">
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

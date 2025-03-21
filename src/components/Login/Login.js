@@ -10,29 +10,40 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { login } = useAuth();
+  const { login, token, role } = useAuth(); // Add token and role from AuthContext
   const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    console.log("Token:", token); // Debug token
+    console.log("Role:", role); // Debug role
+    if (token && role) {
+      const redirectUrl = localStorage.getItem("redirectUrl") || `/${role}/dashboard`;
+      localStorage.removeItem("redirectUrl");
+      navigate(redirectUrl);
+    }
+  }, [token, role, navigate]);
 
   // Check if there's an email in localStorage on component mount
   useEffect(() => {
     const savedEmail = localStorage.getItem("email");
     if (savedEmail) {
       setEmail(savedEmail);
-      setRememberMe(true); 
+      setRememberMe(true);
     }
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!email || !password) {
       setError("Email and password are required!");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       const response = await fetch(`${config.BASE_URL}/api/login`, {
         method: "POST",
@@ -41,25 +52,23 @@ const Login = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+      console.log("API Response:", data); // Debug API response
+
       if (response.ok) {
-        login(data.token, data.user.role);
-  
+        login(data.token, data.user.role, data.user.id); // Update AuthContext
+
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("role", data.user.role);
-  
+
         if (rememberMe) {
           localStorage.setItem("email", email);
         } else {
           localStorage.removeItem("email");
         }
-  
-        const redirectUrl = localStorage.getItem("redirectUrl") || `/${data.user.role}/dashboard`; 
-        localStorage.removeItem("redirectUrl");
-  
-        navigate(redirectUrl);
+
+        console.log("AuthContext updated. Waiting for redirect..."); // Debug
       } else {
         setError(data.message || "Login failed!");
       }
@@ -69,7 +78,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="container-login">
@@ -89,7 +97,7 @@ const Login = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={loading} 
+            disabled={loading}
           />
         </div>
         <div className="text">
@@ -103,7 +111,7 @@ const Login = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading} 
+            disabled={loading}
           />
         </div>
 
@@ -123,11 +131,7 @@ const Login = () => {
         </button>
 
         <p className="conditions pt-3">
-         If You Forgot Your Password / <a href="/forget-password">Forgot Password?</a>
-        </p>
-
-        <p className="forgot-password">
-         
+          If You Forgot Your Password / <a href="/forget-password">Forgot Password?</a>
         </p>
       </div>
       <div className="text-container">

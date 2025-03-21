@@ -172,7 +172,68 @@
 .invoice-file-input {
   display: none;
 }
+/* Modal Styles */
+.send-to-client-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.send-to-client-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.send-to-client-modal-content h2 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.send-to-client-modal-content p {
+  margin-bottom: 10px;
+}
+
+.send-to-client-modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.modal-buttons button.btn-primary {
+  background: #007bff;
+  color: white;
+}
 .invoice-confirmation-container {
   display: flex;
   flex-direction: row;

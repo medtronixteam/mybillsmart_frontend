@@ -5,35 +5,41 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("authToken") || null);
   const [role, setRole] = useState(localStorage.getItem("role") || null);
+  const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
 
-  const login = (newToken, newRole) => {
+  const login = (newToken, newRole, newUserId) => {
+    console.log("Updating AuthContext with:", { newToken, newRole, newUserId }); // Debug
     setToken(newToken);
     setRole(newRole);
-    // Save to localStorage to persist after page refresh
+    setUserId(newUserId);
     localStorage.setItem("authToken", newToken);
     localStorage.setItem("role", newRole);
+    localStorage.setItem("userId", newUserId);
   };
 
   const logout = () => {
     setToken(null);
     setRole(null);
-    // Remove from localStorage to clear session
+    setUserId(null);
     localStorage.removeItem("authToken");
     localStorage.removeItem("role");
+    localStorage.removeItem("userId");
   };
 
-  // Ensure token and role are set from localStorage on initial load
+  // Ensure token, role, and userId are set from localStorage on initial load
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     const storedRole = localStorage.getItem("role");
-    if (storedToken && storedRole) {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedToken && storedRole && storedUserId) {
       setToken(storedToken);
       setRole(storedRole);
+      setUserId(storedUserId);
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, role, login, logout }}>
+    <AuthContext.Provider value={{ token, role, userId, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,7 +6,9 @@ const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showNewTable, setShowNewTable] = useState(false);
-  const [offers, setOffers] = useState([]); // State to store offers data
+  const [offers, setOffers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // Current page state
+  const [itemsPerPage] = useState(10); // Number of items per page
   const { token } = useAuth();
 
   useEffect(() => {
@@ -18,7 +20,7 @@ const InvoiceList = () => {
           },
         });
         const data = await response.json();
-        console.log("Invoices API Response:", data); // Log the response
+        console.log("Invoices API Response:", data);
         setInvoices(data);
       } catch (error) {
         console.error("Error fetching invoices:", error);
@@ -28,9 +30,9 @@ const InvoiceList = () => {
     fetchInvoices();
   }, [token]);
 
+  // Fetch invoice details and offers
   const fetchInvoiceDetails = async (id) => {
     try {
-      // Fetch invoice details
       const invoiceResponse = await fetch(
         `http://34.142.252.64:8080/api/invoices/${id}`,
         {
@@ -40,11 +42,11 @@ const InvoiceList = () => {
         }
       );
       const invoiceData = await invoiceResponse.json();
-      console.log("Selected Invoice API Response:", invoiceData); // Log the response
-      setSelectedInvoice(invoiceData.data); // Use data.data to access the nested invoice object
+      console.log("Selected Invoice API Response:", invoiceData);
+      setSelectedInvoice(invoiceData.data);
 
       const offersResponse = await fetch(
-        `http://34.142.252.64:8080/api/offers?invoice_id=${id}`, 
+        `http://34.142.252.64:8080/api/offers?invoice_id=${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -52,8 +54,8 @@ const InvoiceList = () => {
         }
       );
       const offersData = await offersResponse.json();
-      console.log("Offers API Response:", offersData); // Log the response
-      setOffers(offersData); // Store offers data in state
+      console.log("Offers API Response:", offersData);
+      setOffers(offersData);
 
       setShowNewTable(true);
     } catch (error) {
@@ -61,39 +63,34 @@ const InvoiceList = () => {
     }
   };
 
-  // Function to filter and format the selected invoice data
+  // Filter and format the selected invoice data
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
 
-    // Fields to exclude
     const excludedFields = ["id", "created_at", "updated_at", "agent_id"];
 
-    // Filter out excluded fields and null/empty values
     const filteredData = Object.entries(invoice).filter(
       ([key, value]) => !excludedFields.includes(key) && value !== null && value !== ""
     );
 
-    // Handle nested bill_info object
     if (invoice.bill_info) {
       const filteredBillInfo = Object.entries(invoice.bill_info).filter(
         ([key, value]) => key !== "taxes" && value !== null && value !== ""
       );
-      filteredData.push(...filteredBillInfo); // Add bill_info fields to the main data
+      filteredData.push(...filteredBillInfo);
     }
 
     return filteredData;
   };
 
-  // Function to render offer cards
   const renderOfferCards = () => {
     if (!offers.length) return <p>No offers available.</p>;
 
     return offers.map((offer) => (
       <div key={offer.id} className="offer-card">
         <h3>Offer Details</h3>
-        {/* Exclude id, created_at, and updated_at fields */}
         {Object.entries(offer).map(([key, value]) => {
-          if (["id", "created_at", "updated_at"].includes(key)) return null; // Skip these fields
+          if (["id", "created_at", "updated_at"].includes(key)) return null;
           return (
             <p key={key}>
               <strong>{key}:</strong> {value || "N/A"}
@@ -103,6 +100,12 @@ const InvoiceList = () => {
       </div>
     ));
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInvoices = invoices.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="invoice-list-container">
@@ -134,42 +137,63 @@ const InvoiceList = () => {
           <h1 className="text-center pt-3 mb-0">Offer List</h1>
           <div className="offer-list container">
             <div className="row justify-content-center">
-              {renderOfferCards()} {/* Render offer cards here */}
+              {renderOfferCards()}
             </div>
           </div>
         </>
       ) : (
-        <div className="table-responsive">
-          <table className="invoice-table">
-            <thead>
-              <tr>
-                <th className="invoice-table-header">Invoice ID</th>
-                <th className="invoice-table-header">Bill Type</th>
-                <th className="invoice-table-header">Address</th>
-                <th className="invoice-table-header">Billing Period</th>
-                <th className="invoice-table-header">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td className="invoice-table-cell">{invoice.id}</td>
-                  <td className="invoice-table-cell">{invoice.bill_type}</td>
-                  <td className="invoice-table-cell">{invoice.address}</td>
-                  <td className="invoice-table-cell">{invoice.billing_period}</td>
-                  <td className="invoice-table-cell">
-                    <button
-                      className="view-invoice-btn"
-                      onClick={() => fetchInvoiceDetails(invoice.id)}
-                    >
-                      Action
-                    </button>
-                  </td>
+        <>
+          <div className="table-responsive">
+            <table className="invoice-table">
+              <thead>
+                <tr>
+                  <th className="invoice-table-header">Invoice ID</th>
+                  <th className="invoice-table-header">Bill Type</th>
+                  <th className="invoice-table-header">Address</th>
+                  <th className="invoice-table-header">Billing Period</th>
+                  <th className="invoice-table-header">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {currentInvoices.map((invoice) => (
+                  <tr key={invoice.id}>
+                    <td className="invoice-table-cell">{invoice.id}</td>
+                    <td className="invoice-table-cell">{invoice.bill_type}</td>
+                    <td className="invoice-table-cell">{invoice.address}</td>
+                    <td className="invoice-table-cell">{invoice.billing_period}</td>
+                    <td className="invoice-table-cell">
+                      <button
+                        className="view-invoice-btn"
+                        onClick={() => fetchInvoiceDetails(invoice.id)}
+                      >
+                        Action
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="pagination">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              Previous
+            </button>
+            <span className="current-page">{currentPage}</span>
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === Math.ceil(invoices.length / itemsPerPage)}
+              className="pagination-button"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
