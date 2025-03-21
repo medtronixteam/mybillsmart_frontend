@@ -278,12 +278,15 @@
   box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 @media screen and (max-width: 1199px) {
-  .invoice-download-pdf-btn {
+  /* .invoice-download-pdf-btn {
     right: 0;
   }
   .invoice-card.invoice-card-responsive {
-    /* padding: 40px; */
-  }
+    padding: 40px; 
+  } */
+  /* .pdf-btn {
+    font-size: 13px;
+  } */
 }
 @media screen and (max-width: 991px) {
   .invoice-download-pdf-btn {

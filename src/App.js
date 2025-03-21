@@ -41,6 +41,8 @@ import ClientDashboard from "./Client/ClientDashboard";
 import ClientProfileSetting from "./Client/ClientProfileSetting/ClientProfileSetting";
 import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
 import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
+import AddClient from "./Provider/AddClient/AddClient";
+import ClientList from "./Provider/ClientList/ClientList";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -141,6 +143,8 @@ const App = () => {
                         />
                         <Route path="product-list" element={<Products />} />
                         <Route path="add-product" element={<AddProduct />} />
+                        <Route path="add-client" element={<AddClient />} />
+                        <Route path="client-list" element={<ClientList />} />
 
                         {/* <Route
                         path="/add-user"

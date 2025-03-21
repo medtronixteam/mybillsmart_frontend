@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { BsCloudUpload, BsDownload, BsEnvelope, BsWhatsapp } from "react-icons/bs";
+import {
+  BsCloudUpload,
+  BsDownload,
+  BsEnvelope,
+  BsWhatsapp,
+} from "react-icons/bs";
 import "./Invoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +12,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
+import { IoIosSend } from "react-icons/io";
 
 const Invoice = () => {
   const [step, setStep] = useState(1);
@@ -361,33 +367,34 @@ const Invoice = () => {
           </div>
 
           {/* Buttons for PDF, Email, WhatsApp, and Send to Client Portal */}
-          <div className="row mt-3 gy-3 w-xl-75 w-lg-75 w-md-75 w-sm-100 text-center justify-content-center">
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
+          <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
+            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
               <button
                 onClick={generatePDF}
-                className="pdf-btn p-2 rounded-2 text-white border-0"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
               >
                 <BsDownload className="me-2" />
                 Download PDF
               </button>
             </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
-              <button className="pdf-btn p-2 rounded-2 text-white border-0">
+            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+              <button className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto">
                 <BsEnvelope className="me-2" />
                 Send Email
               </button>
             </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
-              <button className="pdf-btn p-2 rounded-2 text-white border-0">
+            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+              <button className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto">
                 <BsWhatsapp className="me-2" />
                 Send WhatsApp
               </button>
             </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-4">
+            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
               <button
                 onClick={handleSendToClientPortal}
-                className="pdf-btn p-2 rounded-2 text-white border-0"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
               >
+                <IoIosSend className="me-2" />
                 Send to Client Portal
               </button>
             </div>

@@ -1,8 +1,8 @@
 import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
-import { useNavigate } from "react-router-dom"; 
-import { useAuth } from "../../contexts/AuthContext"; 
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   FaGem,
   FaHome,
@@ -17,13 +17,13 @@ import { NavLink } from "react-router-dom";
 import "./ProviderSidebar.css";
 
 const ProviderSidebar = () => {
-  const { logout } = useAuth();  
-  const navigate = useNavigate();  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () => {
-    logout();  
-    localStorage.removeItem("authToken");  
-    localStorage.removeItem("role");  
-    navigate("/login");  
+    logout();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    navigate("/login");
   };
   return (
     <div>
@@ -41,13 +41,15 @@ const ProviderSidebar = () => {
       <hr className="horizontal dark mt-0" />
       <div
         className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
-        id="sidenav-collapse-main">
+        id="sidenav-collapse-main"
+      >
         <ul className="navbar-nav">
           <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/dashboard"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
@@ -59,7 +61,8 @@ const ProviderSidebar = () => {
             <NavLink
               className="nav-link"
               to="/supervisor/product-list"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
@@ -70,11 +73,36 @@ const ProviderSidebar = () => {
             <NavLink
               className="nav-link"
               to="/supervisor/add-product"
-              activeClassName="active-class">
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-              <FaCreditCard />
+                <FaCreditCard />
               </div>
               <span className="nav-link-text ms-1">Add Product</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/supervisor/add-client"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCreditCard />
+              </div>
+              <span className="nav-link-text ms-1">Add Client</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/supervisor/client-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCreditCard />
+              </div>
+              <span className="nav-link-text ms-1">Client List</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">
@@ -93,7 +121,8 @@ const ProviderSidebar = () => {
       <div className="sidenav-footer mx-3 ">
         <div
           className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard">
+          id="sidenavCard"
+        >
           <div
             className="full-background"
             style={{
@@ -101,8 +130,8 @@ const ProviderSidebar = () => {
             }}
           />
         </div>
-       {/* LogOut Button - On Click, it triggers handleLogout function */}
-       <button
+        {/* LogOut Button - On Click, it triggers handleLogout function */}
+        <button
           className="btn mt-4 w-100"
           type="button"
           onClick={handleLogout}
