@@ -33,7 +33,7 @@ const ProviderSidebar = () => {
           aria-hidden="true"
           id="iconSidenav"
         />
-        <NavLink className="navbar-brand m-0" to="/provider/dashboard">
+        <NavLink className="navbar-brand m-0" to="/supervisor/dashboard">
           <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
           {/* <span className="ms-1 font-weight-bold">MyBillSmart</span> */}
         </NavLink>

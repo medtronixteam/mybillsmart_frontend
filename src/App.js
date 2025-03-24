@@ -43,6 +43,7 @@ import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
 import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 import AddClient from "./Provider/AddClient/AddClient";
 import ClientList from "./Provider/ClientList/ClientList";
+import Notifications from "./Provider/Notifications/Notifications";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -145,6 +146,10 @@ const App = () => {
                         <Route path="add-product" element={<AddProduct />} />
                         <Route path="add-client" element={<AddClient />} />
                         <Route path="client-list" element={<ClientList />} />
+                        <Route
+                          path="notifications"
+                          element={<Notifications />}
+                        />
 
                         {/* <Route
                         path="/add-user"
