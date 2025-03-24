@@ -40,7 +40,9 @@ const UserList = () => {
       });
       const result = await response.json();
       if (result.status === "success") {
-        setUsers(result.data); // Set users from the "data" array
+        // Filter users to only include clients
+        const clients = result.data.filter((user) => user.role === "client");
+        setUsers(clients); // Set filtered clients list
       } else {
         toast.error("Failed to fetch users!");
       }
@@ -151,6 +153,7 @@ const UserList = () => {
   const handleEditClick = async (index, user) => {
     const userDetails = await fetchUserDetails(user.id); // Fetch user details
     if (userDetails) {
+      console.log("User Details:", userDetails); // Debugging: Log the API response
       setEditData({
         id: userDetails.id,
         name: userDetails.name,
@@ -164,7 +167,7 @@ const UserList = () => {
         role: userDetails.role,
         status: userDetails.status,
       });
-      setIsModalOpen(true);
+      setIsModalOpen(true); // Open the modal
     }
   };
 
@@ -204,7 +207,7 @@ const UserList = () => {
         <p>Loading users...</p>
       ) : users.length === 0 ? (
         <p>
-          No users added yet. <Link to="/group_admin/add-user">Add User</Link>
+          No clients added yet. <Link to="/group_admin/add-user">Add Client</Link>
         </p>
       ) : (
         <table>

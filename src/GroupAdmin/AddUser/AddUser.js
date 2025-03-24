@@ -49,7 +49,6 @@ const AddUser = ({ onAddUser }) => {
         role: formData.role,
       };
 
-      // Call the API with the required data and token in headers
       const response = await axios.post(
         "http://34.142.252.64:8080/api/register",
         apiData,

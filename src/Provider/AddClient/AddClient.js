@@ -14,7 +14,7 @@ const AddUser = ({ onAddUser }) => {
     country: "",
     city: "",
     postalCode: "",
-    role: "agent", // Default role
+    role: "agent", // Default role for the first API call
   });
   const { token } = useAuth(); // Get token from AuthContext
 
@@ -41,16 +41,16 @@ const AddUser = ({ onAddUser }) => {
     }
 
     try {
-      // Extract only required fields for API
+      // Extract only required fields for the first API call
       const apiData = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
+        role: formData.role, // Role for the first API call (agent)
       };
 
-      // Call the API with the required data and token in headers
-      const response = await axios.post(
+      // First API call to register the user
+      const registerResponse = await axios.post(
         "http://34.142.252.64:8080/api/register",
         apiData,
         {
@@ -61,10 +61,21 @@ const AddUser = ({ onAddUser }) => {
         }
       );
 
-      // If the API call is successful, show success message
-      toast.success("User added successfully!");
+      // If the first API call is successful, show success message
+      toast.success("User registered successfully!");
 
-      // Reset the form
+      // Prepare data for the second API call
+      const supervisorData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: "client", // Role for the second API call (client)
+      };
+
+    
+
+      toast.success("User added as client successfully!");
+
       setFormData({
         name: "",
         email: "",
@@ -82,8 +93,8 @@ const AddUser = ({ onAddUser }) => {
       }
     } catch (error) {
       // Handle API errors
-      console.error("Error adding user:", error);
-      toast.error("Failed to add user. Please try again.");
+      console.error("Error:", error);
+      toast.error("Failed to process. Please try again.");
     }
   };
 
