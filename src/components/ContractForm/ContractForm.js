@@ -18,15 +18,12 @@ const ContractForm = () => {
     client_id: "",
     contracted_provider: "",
     contracted_rate: "",
-    status: "",
+    status: "pending", // Default status set to "Pending"
     closure_date: "",
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-
-  // Define status options
-  const statusOptions = ["Pending", "Confirmed", "Rejected"];
 
   useEffect(() => {
     if (location.state) {
@@ -40,11 +37,11 @@ const ContractForm = () => {
   }, [location.state]);
 
   useEffect(() => {
-    let isMounted = true; // Track if the component is mounted
+    let isMounted = true;
 
     const fetchClients = async () => {
       try {
-        const response = await axios.get("http://34.142.252.64:8080/api/client/list", {
+        const response = await axios.get("http://34.142.252.64:8080/api/agent/client/list", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -65,7 +62,7 @@ const ContractForm = () => {
     fetchClients();
 
     return () => {
-      isMounted = false; // Cleanup function to prevent state updates after unmount
+      isMounted = false;
     };
   }, [token]);
 
@@ -85,7 +82,7 @@ const ContractForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted"); // Debugging line
+    console.log("Form submitted");
 
     if (!offerData) {
       toast.error("Offer data is missing!");
@@ -97,7 +94,6 @@ const ContractForm = () => {
       !formData.selectedClient ||
       !formData.contracted_provider ||
       !formData.contracted_rate ||
-      !formData.status ||
       !formData.closure_date
     ) {
       toast.error("All fields are required!");
@@ -110,19 +106,13 @@ const ContractForm = () => {
       offer_id: offerData.id,
       contracted_provider: formData.contracted_provider,
       contracted_rate: formData.contracted_rate,
-      status: formData.status,
+      status: formData.status, // Will always be "Pending"
       closure_date: formData.closure_date,
     };
 
-    console.log("Payload:", payload); // Log the payload
-    console.log("Headers:", {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    }); // Log the headers
-
     try {
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/contracts",
+        "http://34.142.252.64:8080/api/agent/contracts",
         payload,
         {
           headers: {
@@ -131,7 +121,6 @@ const ContractForm = () => {
           },
         }
       );
-      console.log("API Response:", response.data); // Log the response
       setModalMessage("Contract added successfully!");
       setIsModalOpen(true);
       setFormData({
@@ -140,11 +129,11 @@ const ContractForm = () => {
         client_id: "",
         contracted_provider: "",
         contracted_rate: "",
-        status: "",
+        status: "pending", // Reset to "Pending"
         closure_date: "",
       });
     } catch (error) {
-      console.error("API Error:", error.response ? error.response.data : error); // Log the error
+      console.error("API Error:", error.response ? error.response.data : error);
       toast.error("Failed to submit contract.");
     }
   };
@@ -199,20 +188,11 @@ const ContractForm = () => {
             required
           />
 
-          {/* Replace the status input with a dropdown */}
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Status</option>
-            {statusOptions.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          {/* Display Pending status as small text instead of dropdown */}
+          {/* <div className="status-display">
+            <small>Status: Pending</small>
+            <input type="hidden" name="status" value="Pending" />
+          </div> */}
 
           <input
             type="date"

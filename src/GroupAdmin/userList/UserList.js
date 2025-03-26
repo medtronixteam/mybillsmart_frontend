@@ -33,7 +33,7 @@ const UserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/users/list", {
+      const response = await fetch("http://34.142.252.64:8080/api/group/users/list", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ const UserList = () => {
   // Fetch user details for editing
   const fetchUserDetails = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/user/detail/${id}`, {
+      const response = await fetch(`http://34.142.252.64:8080/api/group/user/detail/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -75,7 +75,7 @@ const UserList = () => {
   // Disable a user
   const handleDisableClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/user/disable/${id}`, {
+      const response = await fetch(`http://34.142.252.64:8080/api/group/user/disable/${id}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ const UserList = () => {
   // Enable a user
   const handleEnableClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/user/enable/${id}`, {
+      const response = await fetch(`http://34.142.252.64:8080/api/group/user/enable/${id}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -117,7 +117,7 @@ const UserList = () => {
   // Delete a user
   const handleDeleteClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/user/delete/${id}`, {
+      const response = await fetch(`http://34.142.252.64:8080/api/group/user/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

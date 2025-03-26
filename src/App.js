@@ -44,6 +44,7 @@ import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 import AddClient from "./Provider/AddClient/AddClient";
 import ClientList from "./Provider/ClientList/ClientList";
 import Notifications from "./Provider/Notifications/Notifications";
+import AddClients from "./components/AddClient/AddClient";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -98,6 +99,7 @@ const App = () => {
                         <Route path="profile-edit" element={<ProfileEdit />} />
                         <Route path="invoice" element={<Invoice />} />
                         <Route path="contract" element={<ContractForm />} />
+                        <Route path="add-client" element={<AddClients />} />
                         <Route
                           path="contract-list"
                           element={<ContractList />}

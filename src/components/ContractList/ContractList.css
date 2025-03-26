@@ -12,7 +12,82 @@
     align-items: center;
    margin-top: 2rem;
   }
-  
+  /* Document View Styles */
+.document-view-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.back-button:hover {
+  background: #5a6268;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.document-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.document-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background: #f8f9fa;
+}
+
+.document-file {
+  padding: 20px;
+  text-align: center;
+  background: #f8f9fa;
+}
+
+.document-file a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.document-meta {
+  padding: 10px;
+  background: #f8f9fa;
+  border-top: 1px solid #ddd;
+  text-align: right;
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+/* View Document Button */
+.view-document-button {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.view-document-button:hover {
+  background: #138496;
+}
   .custom-loader {
     border: 5px solid #f3f3f3;
     border-top: 5px solid #2162a6;

@@ -8,11 +8,11 @@ const ClientContractList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
-
+ 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch("http://34.142.252.64:8080/api/client/contracts/list", {
+        const response = await fetch("http://34.142.252.64:8080/api/client/contracts", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -377,3 +377,130 @@
     padding: 30px;
   }
 }
+
+
+
+/* WhatsApp Modal Styles */
+.whatsapp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.whatsapp-modal-content {
+  background-color: white;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.whatsapp-modal-header {
+  padding: 15px 20px;
+  background-color: #25D366;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.whatsapp-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.whatsapp-modal-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.whatsapp-modal-body {
+  padding: 20px;
+}
+
+.whatsapp-input-group {
+  margin-bottom: 15px;
+}
+
+.whatsapp-input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.whatsapp-input-group input,
+.whatsapp-input-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.whatsapp-input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.whatsapp-input-hint {
+  display: block;
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.whatsapp-pdf-info {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.whatsapp-modal-footer {
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.whatsapp-modal-cancel-btn {
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.whatsapp-modal-send-btn {
+  padding: 8px 15px;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.whatsapp-modal-send-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.whatsapp-modal-send-btn svg {
+  margin-right: 5px;
+}

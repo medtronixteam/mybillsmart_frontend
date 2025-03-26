@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./AddUser.css";
+import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 
-const AddUser = ({ onAddUser }) => {
+const AddClients = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,9 +14,9 @@ const AddUser = ({ onAddUser }) => {
     country: "",
     city: "",
     postalCode: "",
-    role: "agent", // Default role
+    // role field removed from state as it will be hardcoded now
   });
-  const { token } = useAuth(); // Get token from AuthContext
+  const { token } = useAuth(); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,26 +41,29 @@ const AddUser = ({ onAddUser }) => {
     }
 
     try {
-      // Extract only required fields for API
+      // Prepare data for API with hardcoded role as "client"
       const apiData = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        role: "client", // Hardcoded role as "client"
       };
 
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/group/user",
+        "http://34.142.252.64:8080/api/agent/user", // Changed endpoint
         apiData,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Pass token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      // If the API call is successful, show success message
       toast.success("User added successfully!");
 
       // Reset the form
@@ -72,15 +75,9 @@ const AddUser = ({ onAddUser }) => {
         country: "",
         city: "",
         postalCode: "",
-        role: "agent", // Reset to default role
       });
 
-      // Call the onAddUser prop if needed (optional)
-      if (onAddUser) {
-        onAddUser(formData);
-      }
     } catch (error) {
-      // Handle API errors
       console.error("Error adding user:", error);
       toast.error("Failed to add user. Please try again.");
     }
@@ -146,15 +143,13 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
-        <select name="role" value={formData.role} onChange={handleChange} required>
-          <option value="agent">Sale Agent</option>
-          <option value="supervisor">Supervisor</option>
-          <option value="client">Clients</option>
-        </select>
-        <button type="submit">Add User</button>
+
       </form>
+      <button type="submit" onClick={handleSubmit}>Add User</button>
+
+
     </div>
   );
 };
 
-export default AddUser;
+export default AddClients;

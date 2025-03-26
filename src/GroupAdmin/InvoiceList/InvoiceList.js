@@ -12,13 +12,13 @@ const InvoiceList = () => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await fetch("http://34.142.252.64:8080/api/invoices", {
+        const response = await fetch("http://34.142.252.64:8080/api/group/invoices", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
-        console.log("Invoices API Response:", data); // Log the response
+        console.log("Invoices API Response:", data); 
         setInvoices(data);
       } catch (error) {
         console.error("Error fetching invoices:", error);
@@ -32,7 +32,7 @@ const InvoiceList = () => {
     try {
       // Fetch invoice details
       const invoiceResponse = await fetch(
-        `http://34.142.252.64:8080/api/invoices/${id}`,
+        `http://34.142.252.64:8080/api/group/list/invoices/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ const InvoiceList = () => {
       setSelectedInvoice(invoiceData.data); // Use data.data to access the nested invoice object
 
       const offersResponse = await fetch(
-        `http://34.142.252.64:8080/api/offers?invoice_id=${id}`, 
+        `http://34.142.252.64:8080/api/group/invoice/offers/${id}`, 
         {
           headers: {
             Authorization: `Bearer ${token}`,
