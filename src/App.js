@@ -67,6 +67,29 @@ const App = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const NotFound = () => {
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        localStorage.clear();
+        window.location.href = '/login';
+      }, 5000);
+  
+      return () => clearTimeout(timer);
+    }, []);
+  
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column'
+      }}>
+        <h1>404 - Page Not Found</h1>
+        <p>Redirecting to login page in 5 seconds...</p>
+      </div>
+    );
+  };
 
   return (
     <AuthProvider>

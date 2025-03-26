@@ -82,7 +82,7 @@ const ClientInvoice = () => {
       setSubmittedData(matchResponse.data); 
 
       // Step 2: Call invoices API to get invoice_id
-      const invoiceResponse = await axios.post("http://34.142.252.64:8080/api/invoices", formData, {
+      const invoiceResponse = await axios.post("http://34.142.252.64:8080/api/agent/invoices", formData, {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       });
       console.log("Invoice API Response:", invoiceResponse.data);
