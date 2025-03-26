@@ -377,9 +377,6 @@
     padding: 30px;
   }
 }
-
-
-
 /* WhatsApp Modal Styles */
 .whatsapp-modal-overlay {
   position: fixed;
@@ -440,18 +437,12 @@
   font-weight: 500;
 }
 
-.whatsapp-input-group input,
-.whatsapp-input-group textarea {
+.whatsapp-input-group input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-}
-
-.whatsapp-input-group textarea {
-  min-height: 100px;
-  resize: vertical;
 }
 
 .whatsapp-input-hint {
@@ -461,17 +452,47 @@
   margin-top: 5px;
 }
 
-.whatsapp-pdf-info {
-  background-color: #f5f5f5;
+.whatsapp-input-group textarea {
+  width: 100%;
   padding: 10px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.whatsapp-pdf-preview {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.whatsapp-pdf-label {
+  font-weight: 500;
+  margin-bottom: 10px;
   color: #555;
+}
+
+.whatsapp-pdf-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.whatsapp-pdf-icon {
+  font-size: 30px;
+  color: #25D366;
+  margin-bottom: 5px;
 }
 
 .whatsapp-modal-footer {
   padding: 15px 20px;
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -481,7 +502,7 @@
   padding: 8px 15px;
   background-color: #f0f0f0;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -490,7 +511,7 @@
   background-color: #25D366;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -501,6 +522,36 @@
   cursor: not-allowed;
 }
 
-.whatsapp-modal-send-btn svg {
-  margin-right: 5px;
+/* Existing modal styles (keep these) */
+.send-to-client-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.send-to-client-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.no-clients-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
 }

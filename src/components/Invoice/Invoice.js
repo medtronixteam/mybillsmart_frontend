@@ -610,47 +610,70 @@ const Invoice = () => {
       )}
 
       {/* Client Selection Modal */}
-      {showModal && (
-        <div className="send-to-client-modal">
-          <div className="send-to-client-modal-content">
-            <h2>{modalType === "email" ? "Send Email" : "Send to Client Portal"}</h2>
-            {loadingClients ? (
-              <div>Loading clients...</div>
-            ) : clients.length > 0 ? (
-              <>
-                <p>Select a client:</p>
-                <select
-                  value={selectedClient}
-                  onChange={handleClientSelect}
-                  className="form-select"
-                >
-                  <option value="">Select a client</option>
-                  {clients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.name || `Client ${client.id}`}
-                    </option>
-                  ))}
-                </select>
-                <div className="modal-buttons">
-                  <button onClick={handleModalClose} className="btn btn-secondary">
-                    Cancel
-                  </button>
-                  <button onClick={handleModalSubmit} className="btn btn-primary">
-                    Send
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="no-clients-message">
-                <p>No clients available</p>
-                <button onClick={handleModalClose} className="btn btn-secondary">
-                  Close
-                </button>
-              </div>
-            )}
+      {showWhatsappModal && (
+  <div className="whatsapp-modal-overlay">
+    <div className="whatsapp-modal-content">
+      <div className="whatsapp-modal-header">
+        <h3>Send via WhatsApp</h3>
+        <button 
+          onClick={handleWhatsappModalClose}
+          className="whatsapp-modal-close-btn"
+        >
+          &times;
+        </button>
+      </div>
+      <div className="whatsapp-modal-body">
+        <div className="whatsapp-input-group">
+          <label>Phone Number (with country code):</label>
+          <input
+            type="text"
+            name="to"
+            value={whatsappData.to}
+            onChange={handleWhatsappChange}
+            placeholder="e.g., +923001234567"
+            required
+          />
+          <small className="whatsapp-input-hint">
+            Include country code (e.g., +92 for Pakistan)
+          </small>
+        </div>
+        <div className="whatsapp-input-group">
+          <label>Message:</label>
+          <textarea
+            name="message"
+            value={whatsappData.message}
+            onChange={handleWhatsappChange}
+            placeholder="Type your message here..."
+            rows={5}
+          />
+        </div>
+        <div className="whatsapp-pdf-preview">
+          <p>PDF Attachment:</p>
+          <div className="pdf-preview">
+            <BsDownload className="pdf-icon" />
+            <span>Invoice_{invoiceId}.pdf</span>
           </div>
         </div>
-      )}
+      </div>
+      <div className="whatsapp-modal-footer">
+        <button 
+          onClick={handleWhatsappModalClose} 
+          className="whatsapp-modal-cancel-btn"
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleWhatsappSubmit} 
+          className="whatsapp-modal-send-btn"
+          disabled={!whatsappData.to}
+        >
+          <BsWhatsapp className="me-2" />
+          Send Message
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
