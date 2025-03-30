@@ -6,8 +6,7 @@ import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 
 const UserList = () => {
-  const [users, setUsers] = useState([]); // State to store users list
-  const [editIndex, setEditIndex] = useState(null);
+  const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
     name: "",
@@ -25,10 +24,9 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  // Fetch users when the component mounts
   useEffect(() => {
     fetchUsers();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -40,7 +38,7 @@ const UserList = () => {
       });
       const result = await response.json();
       if (result.status === "success") {
-        setUsers(result.data); // Set users from the "data" array
+        setUsers(result.data);
       } else {
         toast.error("Failed to fetch users!");
       }
@@ -52,7 +50,6 @@ const UserList = () => {
     }
   };
 
-  // Fetch user details for editing
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(`http://34.142.252.64:8080/api/group/user/detail/${id}`, {
@@ -62,17 +59,18 @@ const UserList = () => {
       });
       const result = await response.json();
       if (result.status === "success") {
-        return result.data; // Return user details
+        return result.data;
       } else {
         toast.error("Failed to fetch user details!");
+        return null;
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
       toast.error("Failed to fetch user details!");
+      return null;
     }
   };
 
-  // Disable a user
   const handleDisableClick = async (id) => {
     try {
       const response = await fetch(`http://34.142.252.64:8080/api/group/user/disable/${id}`, {
@@ -83,7 +81,7 @@ const UserList = () => {
       });
       if (response.ok) {
         toast.success("User disabled successfully!");
-        fetchUsers(); // Refresh users list
+        fetchUsers();
       } else {
         toast.error("Failed to disable user!");
       }
@@ -93,7 +91,6 @@ const UserList = () => {
     }
   };
 
-  // Enable a user
   const handleEnableClick = async (id) => {
     try {
       const response = await fetch(`http://34.142.252.64:8080/api/group/user/enable/${id}`, {
@@ -104,7 +101,7 @@ const UserList = () => {
       });
       if (response.ok) {
         toast.success("User enabled successfully!");
-        fetchUsers(); // Refresh users list
+        fetchUsers();
       } else {
         toast.error("Failed to enable user!");
       }
@@ -114,7 +111,6 @@ const UserList = () => {
     }
   };
 
-  // Delete a user
   const handleDeleteClick = async (id) => {
     try {
       const response = await fetch(`http://34.142.252.64:8080/api/group/user/delete/${id}`, {
@@ -125,7 +121,7 @@ const UserList = () => {
       });
       if (response.ok) {
         toast.success("User deleted successfully!");
-        fetchUsers(); // Refresh users list
+        fetchUsers();
       } else {
         toast.error("Failed to delete user!");
       }
@@ -135,20 +131,19 @@ const UserList = () => {
     }
   };
 
-  // Handle edit click
   const handleEditClick = async (index, user) => {
-    const userDetails = await fetchUserDetails(user.id); // Fetch user details
+    const userDetails = await fetchUserDetails(user.id);
     if (userDetails) {
       setEditData({
         id: userDetails.id,
         name: userDetails.name,
         email: userDetails.email,
-        password: "", // Password is usually not returned for security reasons
+        password: "",
         phone: userDetails.phone || "",
         address: userDetails.address || "",
         country: userDetails.country || "",
         city: userDetails.city || "",
-        postalCode: userDetails.postal_code || "",
+        postalCode: userDetails.postal_code || "", // Note: API uses postal_code
         role: userDetails.role,
         status: userDetails.status,
       });
@@ -156,7 +151,6 @@ const UserList = () => {
     }
   };
 
-  // Handle save click
   const handleSaveClick = () => {
     if (
       !editData.name ||
@@ -169,18 +163,15 @@ const UserList = () => {
       toast.error("All fields are required!");
       return;
     }
-    // Call API to update user here (if needed)
     setIsModalOpen(false);
     toast.success("User updated successfully!");
   };
 
-  // Handle edit form change
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditData({ ...editData, [name]: value });
   };
 
-  // Display user status as "Active" or "Inactive"
   const getStatusText = (status) => {
     return status === 1 ? "Active" : "Inactive";
   };
@@ -243,7 +234,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="name"
-                  value={editData.name || ""}
+                  value={editData.name}
                   onChange={handleEditChange}
                 />
               </div>
@@ -252,7 +243,7 @@ const UserList = () => {
                 <input
                   type="email"
                   name="email"
-                  value={editData.email || ""}
+                  value={editData.email}
                   onChange={handleEditChange}
                 />
               </div>
@@ -261,7 +252,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="phone"
-                  value={editData.phone || ""}
+                  value={editData.phone}
                   onChange={handleEditChange}
                 />
               </div>
@@ -270,7 +261,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="address"
-                  value={editData.address || ""}
+                  value={editData.address}
                   onChange={handleEditChange}
                 />
               </div>
@@ -279,7 +270,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="country"
-                  value={editData.country || ""}
+                  value={editData.country}
                   onChange={handleEditChange}
                 />
               </div>
@@ -288,7 +279,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="city"
-                  value={editData.city || ""}
+                  value={editData.city}
                   onChange={handleEditChange}
                 />
               </div>
@@ -297,7 +288,7 @@ const UserList = () => {
                 <input
                   type="text"
                   name="postalCode"
-                  value={editData.postalCode || ""}
+                  value={editData.postalCode}
                   onChange={handleEditChange}
                 />
               </div>
@@ -305,7 +296,7 @@ const UserList = () => {
                 <label>Role</label>
                 <select
                   name="role"
-                  value={editData.role || ""}
+                  value={editData.role}
                   onChange={handleEditChange}
                 >
                   <option value="client">Client</option>
@@ -318,7 +309,7 @@ const UserList = () => {
                 <label>Status</label>
                 <select
                   name="status"
-                  value={editData.status || ""}
+                  value={editData.status}
                   onChange={handleEditChange}
                 >
                   <option value={1}>Active</option>

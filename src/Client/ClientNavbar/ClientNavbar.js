@@ -2,6 +2,7 @@ import React from "react";
 import team1 from "../../assets/img/team-2.jpg";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
+import { IoIosNotificationsOutline } from "react-icons/io";
 
 const ClientNavbar= ({ toggleSidebar }) => {
   return (
@@ -15,6 +16,9 @@ const ClientNavbar= ({ toggleSidebar }) => {
         </h6>
  
         <div className="d-flex align-items-center gap-2">
+          <Link to="/client/notifications">
+                      <IoIosNotificationsOutline size={30} color="#344767" />
+                    </Link>
           <Link
             to="/client/profile-edit"
             className="d-flex align-items-center text-decoration-none">

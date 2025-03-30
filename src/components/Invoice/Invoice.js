@@ -34,7 +34,7 @@ const Invoice = () => {
     message: ""
   });
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, groupId } = useAuth();
 
   useEffect(() => {
     if (showModal) {
@@ -134,9 +134,14 @@ const Invoice = () => {
     e.preventDefault();
 
     try {
+      const matchData = {
+        ...formData,
+        group_id: groupId
+      };
+
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
-        formData,
+        matchData,
         {
           headers: { "Content-Type": "application/json" },
         }
@@ -216,74 +221,92 @@ const Invoice = () => {
   const generatePDF = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
     let yOffset = 20;
-
+  
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
+  
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
+  
     pdf.setFontSize(12);
-    submittedData.forEach((supplier, index) => {
-      pdf.text(
-        `Supplier ${index + 1}: ${supplier["Supplier Name"]}`,
-        10,
-        yOffset
-      );
-      yOffset += 10;
-
-      Object.keys(supplier).forEach((key) => {
-        if (key !== "Supplier Name") {
-          pdf.text(`${key}: ${supplier[key]}`, 15, yOffset);
-          yOffset += 10;
-        }
+    
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
+        
+        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
+        yOffset += 10;
+  
+        Object.keys(supplier).forEach((key) => {
+          if (
+            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+            
+            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
+            yOffset += 10;
+          }
+        });
+  
+        yOffset += 10;
       });
-
-      yOffset += 10;
-    });
-
+    } else {
+      pdf.text("No supplier data available", 10, yOffset);
+    }
+  
     pdf.save("invoice_details.pdf");
   };
-
+  
   const generatePDFBlob = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
     let yOffset = 20;
-
+  
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
+  
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
+  
     pdf.setFontSize(12);
-    submittedData.forEach((supplier, index) => {
-      pdf.text(
-        `Supplier ${index + 1}: ${supplier["Supplier Name"]}`,
-        10,
-        yOffset
-      );
-      yOffset += 10;
-
-      Object.keys(supplier).forEach((key) => {
-        if (key !== "Supplier Name") {
-          pdf.text(`${key}: ${supplier[key]}`, 15, yOffset);
-          yOffset += 10;
-        }
+    
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
+        
+        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
+        yOffset += 10;
+  
+        Object.keys(supplier).forEach((key) => {
+          if (
+            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+            
+            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
+            yOffset += 10;
+          }
+        });
+  
+        yOffset += 10;
       });
-
-      yOffset += 10;
-    });
-
+    } else {
+      pdf.text("No supplier data available", 10, yOffset);
+    }
+  
     return pdf.output("blob");
   };
 
@@ -370,7 +393,7 @@ const Invoice = () => {
       toast.error("Please select a client!");
       return;
     }
-
+  
     try {
       if (modalType === "email") {
         await axios.post(
@@ -387,13 +410,35 @@ const Invoice = () => {
         );
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
-        toast.success("Invoice sent to client portal!");
+        // Send to client portal API call
+        const response = await axios.post(
+          "http://34.142.252.64:8080/api/notifications",
+          {
+            client_id: selectedClient,
+            // offer_ids: offers.map(offer => offer.id), 
+            invoice_id: invoiceId,
+            // type: "invoice_notification",
+            // message: "New invoice available for review"
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+          }
+        );
+        
+        if (response.data.success) {
+          toast.success("Invoice sent to client portal successfully!");
+        } else {
+          toast.error("Failed to send to client portal");
+        }
       }
     } catch (error) {
       console.error("Error sending data", error);
       toast.error("Failed to send. Please try again.");
     }
-
+  
     handleModalClose();
   };
 
@@ -529,19 +574,89 @@ const Invoice = () => {
               </button>
             </div>
             <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
-              <button
+              {/* <button
                 onClick={handleSendToClientPortal}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
               >
                 <IoIosSend className="me-2" />
                 Send to Client Portal
-              </button>
+              </button> */}
             </div>
           </div>
         </>
       )}
 
-      {/* WhatsApp Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>
+                {modalType === "email" ? "Send Email" : "Send to Client Portal"}
+              </h3>
+              <button 
+                onClick={handleModalClose}
+                className="modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              {loadingClients ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <p className="mt-2">Loading clients...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label">Select Client:</label>
+                    <select
+                      className="form-select"
+                      value={selectedClient}
+                      onChange={handleClientSelect}
+                    >
+                      <option value="">Select a client</option>
+                      {clients.map((client) => (
+                        <option key={client.id} value={client.id}>
+                          {client.name || `Client ${client.id}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                onClick={handleModalClose}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleModalSubmit}
+                className="btn btn-primary"
+                disabled={!selectedClient || loadingClients}
+              >
+                {modalType === "email" ? (
+                  <>
+                    <BsEnvelope className="me-2" />
+                    Send Email
+                  </>
+                ) : (
+                  <>
+                    <IoIosSend className="me-2" />
+                    Send to Portal
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showWhatsappModal && (
         <div className="whatsapp-modal-overlay">
           <div className="whatsapp-modal-content">
@@ -608,72 +723,6 @@ const Invoice = () => {
           </div>
         </div>
       )}
-
-      {/* Client Selection Modal */}
-      {showWhatsappModal && (
-  <div className="whatsapp-modal-overlay">
-    <div className="whatsapp-modal-content">
-      <div className="whatsapp-modal-header">
-        <h3>Send via WhatsApp</h3>
-        <button 
-          onClick={handleWhatsappModalClose}
-          className="whatsapp-modal-close-btn"
-        >
-          &times;
-        </button>
-      </div>
-      <div className="whatsapp-modal-body">
-        <div className="whatsapp-input-group">
-          <label>Phone Number (with country code):</label>
-          <input
-            type="text"
-            name="to"
-            value={whatsappData.to}
-            onChange={handleWhatsappChange}
-            placeholder="e.g., +923001234567"
-            required
-          />
-          <small className="whatsapp-input-hint">
-            Include country code (e.g., +92 for Pakistan)
-          </small>
-        </div>
-        <div className="whatsapp-input-group">
-          <label>Message:</label>
-          <textarea
-            name="message"
-            value={whatsappData.message}
-            onChange={handleWhatsappChange}
-            placeholder="Type your message here..."
-            rows={5}
-          />
-        </div>
-        <div className="whatsapp-pdf-preview">
-          <p>PDF Attachment:</p>
-          <div className="pdf-preview">
-            <BsDownload className="pdf-icon" />
-            <span>Invoice_{invoiceId}.pdf</span>
-          </div>
-        </div>
-      </div>
-      <div className="whatsapp-modal-footer">
-        <button 
-          onClick={handleWhatsappModalClose} 
-          className="whatsapp-modal-cancel-btn"
-        >
-          Cancel
-        </button>
-        <button 
-          onClick={handleWhatsappSubmit} 
-          className="whatsapp-modal-send-btn"
-          disabled={!whatsappData.to}
-        >
-          <BsWhatsapp className="me-2" />
-          Send Message
-        </button>
-      </div>
-    </div>
-  </div>
-)}
     </div>
   );
 };

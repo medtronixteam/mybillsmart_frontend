@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import "./assets/css/soft-ui-dashboard.css?v=1.0.3";
 import "./App.css";
@@ -11,17 +11,13 @@ import Navbar from "./components/Navbar/Navbar";
 import Dashboard from "./components/Dashboard";
 import Invoice from "./components/Invoice/Invoice";
 import ProfileEdit from "./components/ProfileSetting/ProfileSetting";
-
 import ProviderSidebar from "./Provider/ProviderSidebar/ProviderSidebar";
 import ProviderDashboard from "./Provider/ProviderDashboard";
 import ProviderProfileSetting from "./Provider/ProviderProfileSetting/ProviderProfileSetting";
 import Products from "./Provider/Products/Products";
 import ProviderNavbar from "./Provider/ProviderNavbar/ProviderNavbar";
 import Signup from "./components/SignUp/Signup";
-// import AddUser from "./Provider/AddUser/AddUser";
-// import UserList from "./Provider/userList/UserList";
 import ContractForm from "./components/ContractForm/ContractForm";
-
 import ProtectedRoute from "./ProtectedRoute";
 import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ContractList from "./components/ContractList/ContractList";
@@ -43,8 +39,33 @@ import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
 import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 import AddClient from "./Provider/AddClient/AddClient";
 import ClientList from "./Provider/ClientList/ClientList";
-import Notifications from "./Provider/Notifications/Notifications";
+
 import AddClients from "./components/AddClient/AddClient";
+import Notifications from "./Client/Notifications/Notifications";
+
+const NotFound = () => { 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.clear();
+      window.location.href = '/login';
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      flexDirection: 'column'
+    }}>
+      <h1>404 - Page Not Found</h1>
+      <p>Redirecting to login page in 5 seconds...</p>
+    </div>
+  );
+};
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -64,31 +85,9 @@ const App = () => {
     );
     setUsers(updatedUsers);
   };
+  
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-  };
-  const NotFound = () => {
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        localStorage.clear();
-        window.location.href = '/login';
-      }, 5000);
-  
-      return () => clearTimeout(timer);
-    }, []);
-  
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column'
-      }}>
-        <h1>404 - Page Not Found</h1>
-        <p>Redirecting to login page in 5 seconds...</p>
-      </div>
-    );
   };
 
   return (
@@ -96,6 +95,7 @@ const App = () => {
       <Router>
         <ToastContainer />
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
@@ -123,14 +123,9 @@ const App = () => {
                         <Route path="invoice" element={<Invoice />} />
                         <Route path="contract" element={<ContractForm />} />
                         <Route path="add-client" element={<AddClients />} />
-                        <Route
-                          path="contract-list"
-                          element={<ContractList />}
-                        />
-                        <Route
-                          path="invoice-list"
-                          element={<InvoiceListAgent />}
-                        />
+                        <Route path="contract-list" element={<ContractList />} />
+                        <Route path="invoice-list" element={<InvoiceListAgent />} />
+                        <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
                   </>
@@ -158,38 +153,14 @@ const App = () => {
                     <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                       <ProviderNavbar toggleSidebar={toggleSidebar} />
                       <Routes>
-                        <Route
-                          path="dashboard"
-                          element={<ProviderDashboard />}
-                        />
-
-                        <Route
-                          path="profile-edit"
-                          element={<ProviderProfileSetting />}
-                        />
+                        <Route path="dashboard" element={<ProviderDashboard />} />
+                        <Route path="profile-edit" element={<ProviderProfileSetting />} />
                         <Route path="product-list" element={<Products />} />
                         <Route path="add-product" element={<AddProduct />} />
                         <Route path="add-client" element={<AddClient />} />
                         <Route path="client-list" element={<ClientList />} />
-                        <Route
-                          path="notifications"
-                          element={<Notifications />}
-                        />
-
-                        {/* <Route
-                        path="/add-user"
-                        element={<AddUser onAddUser={handleAddUser} />}
-                      />
-                      <Route
-                        path="/user-list"
-                        element={
-                          <UserList
-                            users={users}
-                            onDeleteUser={handleDeleteUser}
-                            onEditUser={handleEditUser}
-                          />
-                        }
-                      /> */}
+                      
+                        <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
                   </>
@@ -198,7 +169,8 @@ const App = () => {
               />
             }
           />
-          {/* Group Admin */}
+
+          {/* Group Admin Routes */}
           <Route
             path="/group_admin/*"
             element={
@@ -216,39 +188,20 @@ const App = () => {
                     <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                       <GroupAdminNavbar toggleSidebar={toggleSidebar} />
                       <Routes>
-                        <Route
-                          path="dashboard"
-                          element={<GroupAdminDashboard />}
-                        />
-
-                        <Route
-                          path="profile-edit"
-                          element={<GroupAdminProfileSetting />}
-                        />
+                        <Route path="dashboard" element={<GroupAdminDashboard />} />
+                        <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
                         <Route path="invoice-list" element={<InvoiceList />} />
-
-                        <Route
-                          path="/add-user"
-                          element={<AddUser onAddUser={handleAddUser} />}
-                        />
-                        <Route
-                          path="/user-list"
-                          element={
-                            <UserList
-                              users={users}
-                              onDeleteUser={handleDeleteUser}
-                              onEditUser={handleEditUser}
-                            />
-                          }
-                        />
-                        <Route
-                          path="/client-contract-list"
-                          element={<ClientContractList />}
-                        />
-                        <Route
-                          path="/client-contract-docx"
-                          element={<ClientContractDocx />}
-                        />
+                        <Route path="add-user" element={<AddUser onAddUser={handleAddUser} />} />
+                        <Route path="user-list" element={
+                          <UserList
+                            users={users}
+                            onDeleteUser={handleDeleteUser}
+                            onEditUser={handleEditUser}
+                          />
+                        } />
+                        <Route path="client-contract-list" element={<ClientContractList />} />
+                        <Route path="client-contract-docx" element={<ClientContractDocx />} />
+                        <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
                   </>
@@ -258,6 +211,7 @@ const App = () => {
             }
           />
 
+          {/* Client Routes */}
           <Route
             path="/client/*"
             element={
@@ -276,38 +230,12 @@ const App = () => {
                       <ClientNavbar toggleSidebar={toggleSidebar} />
                       <Routes>
                         <Route path="dashboard" element={<ClientDashboard />} />
-
-                        <Route
-                          path="profile-edit"
-                          element={<ClientProfileSetting />}
-                        />
-                        <Route
-                          path="contract-list"
-                          element={<ClientContractList />}
-                        />
-                        <Route
-                          path="contract-docx"
-                          element={<ClientContractDocx />}
-                        />
-                        <Route
-                          path="client-invoice"
-                          element={<ClientInvoice />}
-                        />
-
-                        {/* <Route
-                        path="/add-user"
-                        element={<AddUser onAddUser={handleAddUser} />}
-                      />
-                      <Route
-                        path="/user-list"
-                        element={
-                          <UserList
-                            users={users}
-                            onDeleteUser={handleDeleteUser}
-                            onEditUser={handleEditUser}
-                          />
-                        }
-                      /> */}
+                        <Route path="profile-edit" element={<ClientProfileSetting />} />
+                        <Route path="contract-list" element={<ClientContractList />} />
+                        <Route path="contract-docx" element={<ClientContractDocx />} />
+                        <Route path="client-invoice" element={<ClientInvoice />} />
+                        <Route path="*" element={<NotFound />} />
+                        <Route path="notifications" element={<Notifications />} />
                       </Routes>
                     </main>
                   </>
@@ -316,6 +244,9 @@ const App = () => {
               />
             }
           />
+
+          {/* Catch-all route for any undefined paths */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

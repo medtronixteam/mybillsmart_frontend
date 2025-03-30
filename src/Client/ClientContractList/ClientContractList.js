@@ -1,33 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ClientContractList.css";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const ClientContractList = () => {
-  const [contracts, setContracts] = useState([]); // Default to an empty array
+  const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch("http://34.142.252.64:8080/api/client/contracts/list", {
+        const response = await fetch(`${config.BASE_URL}/api/client/contracts/list`, {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data = await response.json();
-
-        // Ensure data is an array
-        if (Array.isArray(data)) {
-          setContracts(data);
-        } else {
-          setContracts([]); // Set to empty array if data is not an array
-        }
+        if (!response.ok) throw new Error("Network response was not ok");
+        const result = await response.json();
+        setContracts(result.data || []);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -38,52 +33,63 @@ const ClientContractList = () => {
     fetchContracts();
   }, [token]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Function to handle view details click
+  const handleViewDetails = (contractId) => {
+    navigate(`/client/contract-docx`, { state: { contractId } });
+  };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading)
+    return (
+      <div className="loader-container">
+        <div className="custom-loader"></div>
+      </div>
+    );
+
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="contract-list-container">
       <h1>Contract List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (
-          <div className="no-contracts-message">
-            <p className="text-center">No contracts list available.</p>
-           
-          </div>
+          <div className="no-data-message text-center">No contracts found.</div>
         ) : (
           <table className="contract-table">
             <thead>
               <tr>
-                <th className="contract-table-header">Client Name</th>
+                <th className="contract-table-header">Client ID</th>
                 <th className="contract-table-header">Contracted Provider</th>
                 <th className="contract-table-header">Contracted Rate</th>
                 <th className="contract-table-header">Closure Date</th>
                 <th className="contract-table-header">Status</th>
+                <th className="contract-table-header">Action</th>
               </tr>
             </thead>
             <tbody>
               {contracts.map((contract, index) => (
                 <tr key={index} className="contract-table-row">
-                  <td className="contract-table-cell">{contract.clientName}</td>
+                  <td className="contract-table-cell">{contract.client_id}</td>
                   <td className="contract-table-cell">
-                    {contract.contractedProvider}
+                    {contract.contracted_provider}
                   </td>
                   <td className="contract-table-cell">
-                    {contract.contractedRate}
+                    {contract.contracted_rate}
                   </td>
-                  <td className="contract-table-cell">{contract.closureDate}</td>
+                  <td className="contract-table-cell">{contract.closure_date}</td>
                   <td className="contract-table-cell">
-                    <Link
-                      className={`d-block text-center status-button status-${contract.status.toLowerCase()}`}
-                      to={`/client/contract-docx`}
+                    <button
+                      className={`w-100 status-button status-${contract.status.toLowerCase()}`}
                     >
                       {contract.status}
-                    </Link>
+                    </button>
+                  </td>
+                  <td className="contract-table-cell">
+                    <button
+                      onClick={() => handleViewDetails(contract.id)}
+                      className="view-document-button"
+                    >
+                      View Details
+                    </button>
                   </td>
                 </tr>
               ))}

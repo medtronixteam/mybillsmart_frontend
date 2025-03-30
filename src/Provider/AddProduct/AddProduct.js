@@ -42,7 +42,7 @@ const AddProduct = () => {
     }
 
     try {
-      const response = await fetch(`${config.BASE_URL}/api/products`, {
+      const response = await fetch(`${config.BASE_URL}/api/supervisor/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

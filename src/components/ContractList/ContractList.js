@@ -15,7 +15,7 @@ const ContractList = () => {
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch(`${config.BASE_URL}/api/agent/contracts`, {
+        const response = await fetch(`${config.BASE_URL}/api/agent/contract`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

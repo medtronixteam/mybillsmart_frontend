@@ -377,7 +377,7 @@
     padding: 30px;
   }
 }
-/* WhatsApp Modal Styles */
+/* WhatsApp Modal Styling */
 .whatsapp-modal-overlay {
   position: fixed;
   top: 0;
@@ -393,7 +393,7 @@
 
 .whatsapp-modal-content {
   background-color: white;
-  border-radius: 10px;
+  border-radius: 8px;
   width: 90%;
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -402,11 +402,12 @@
 
 .whatsapp-modal-header {
   padding: 15px 20px;
-  background-color: #25D366;
-  color: white;
+  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: #25D366;
+  color: white;
 }
 
 .whatsapp-modal-header h3 {
@@ -420,7 +421,7 @@
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
-  line-height: 1;
+  padding: 0 5px;
 }
 
 .whatsapp-modal-body {
@@ -435,64 +436,56 @@
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
+  color: #333;
 }
 
-.whatsapp-input-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.whatsapp-input-hint {
-  display: block;
-  color: #666;
-  font-size: 0.8rem;
-  margin-top: 5px;
-}
-
+.whatsapp-input-group input,
 .whatsapp-input-group textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 14px;
+}
+
+.whatsapp-input-group textarea {
   min-height: 100px;
   resize: vertical;
 }
 
+.whatsapp-input-hint {
+  color: #666;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 5px;
+}
+
 .whatsapp-pdf-preview {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 }
 
 .whatsapp-pdf-label {
+  margin: 0 0 10px 0;
   font-weight: 500;
-  margin-bottom: 10px;
-  color: #555;
 }
 
 .whatsapp-pdf-placeholder {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
+  color: #555;
 }
 
 .whatsapp-pdf-icon {
-  font-size: 30px;
-  color: #25D366;
-  margin-bottom: 5px;
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
 .whatsapp-modal-footer {
   padding: 15px 20px;
-  background-color: #f5f5f5;
+  border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -500,10 +493,16 @@
 
 .whatsapp-modal-cancel-btn {
   padding: 8px 15px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  background-color: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.whatsapp-modal-cancel-btn:hover {
+  background-color: #e2e2e2;
 }
 
 .whatsapp-modal-send-btn {
@@ -511,47 +510,18 @@
   background-color: #25D366;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  transition: background-color 0.2s;
+}
+
+.whatsapp-modal-send-btn:hover {
+  background-color: #128C7E;
 }
 
 .whatsapp-modal-send-btn:disabled {
-  background-color: #cccccc;
+  background-color: #a0a0a0;
   cursor: not-allowed;
-}
-
-/* Existing modal styles (keep these) */
-.send-to-client-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.send-to-client-modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-}
-
-.no-clients-message {
-  text-align: center;
-  padding: 20px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  gap: 10px;
 }

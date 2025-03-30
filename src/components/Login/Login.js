@@ -4,17 +4,16 @@ import { useAuth } from "../../contexts/AuthContext";
 import "./Login.css";
 import config from "../../config";
 
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Check for saved email on component mount
   useEffect(() => {
     const savedEmail = localStorage.getItem("email");
     if (savedEmail) {
@@ -23,7 +22,6 @@ const Login = () => {
     }
   }, []);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -35,6 +33,7 @@ const Login = () => {
 
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       const response = await fetch(`${config.BASE_URL}/api/login`, {
@@ -51,20 +50,20 @@ const Login = () => {
         throw new Error(data.message || "Login failed!");
       }
 
-      // Store remember me preference
       if (rememberMe) {
         localStorage.setItem("email", email);
       } else {
         localStorage.removeItem("email");
       }
 
-      // Update auth context and store tokens
-      login(data.token, data.user.role, data.user.id);
-
-      // Immediate navigation
-      const redirectUrl = localStorage.getItem("redirectUrl") || `/${data.user.role}/dashboard`;
-      localStorage.removeItem("redirectUrl");
-      navigate(redirectUrl);
+      login(data.token, data.user.role, data.user.id, data.user.group_id);
+      setSuccess("Login successful! Redirecting...");
+      
+      setTimeout(() => {
+        const redirectUrl = localStorage.getItem("redirectUrl") || `/${data.user.role}/dashboard`;
+        localStorage.removeItem("redirectUrl");
+        navigate(redirectUrl);
+      }, 1000);
 
     } catch (err) {
       setError(err.message || "An error occurred. Please try again later.");
@@ -73,7 +72,6 @@ const Login = () => {
     }
   };
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       const role = localStorage.getItem("role");
@@ -86,7 +84,23 @@ const Login = () => {
       <div className="sign-up">
         <h1 className="heading">Login</h1>
 
-        {error && <p className="error-message">{error}</p>}
+        {error && (
+          <div className="alert error">
+            <span>{error}</span>
+            <button onClick={() => setError("")} className="close-btn">
+              &times;
+            </button>
+          </div>
+        )}
+
+        {success && (
+          <div className="alert success">
+            <span>{success}</span>
+            <button onClick={() => setSuccess("")} className="close-btn">
+              &times;
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="text">
@@ -131,8 +145,10 @@ const Login = () => {
             <label htmlFor="rememberMe">Remember Me</label>
           </div>
 
-          <button type="submit" className="mt-3" disabled={loading}>
-            {loading ? "Logging in..." : "LOGIN"}
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? (
+              <div className="spinner"></div>
+            ) : "LOGIN"}
           </button>
         </form>
 

@@ -3,7 +3,6 @@ import team1 from "../../assets/img/team-2.jpg";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 // import { IoIosNotifications } from "react-icons/io";
-import { IoIosNotificationsOutline } from "react-icons/io";
 
 const ProviderNavbar = ({ toggleSidebar }) => {
   return (
@@ -18,9 +17,7 @@ const ProviderNavbar = ({ toggleSidebar }) => {
         </h6>
 
         <div className="d-flex align-items-center gap-3">
-          <Link to="/supervisor/notifications">
-            <IoIosNotificationsOutline size={30} color="#344767" />
-          </Link>
+          
           <Link
             to="/supervisor/profile-edit"
             className="d-flex align-items-center text-decoration-none"

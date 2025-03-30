@@ -21,7 +21,7 @@ const Products = () => {
   const fetchProducts = () => {
     setLoading(true);
     axios
-      .get(`${config.BASE_URL}/api/list/products`, {
+      .get(`${config.BASE_URL}/api/supervisor/list/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,7 +64,7 @@ const Products = () => {
   // Delete a product
   const deleteProduct = (id) => {
     axios
-      .delete(`${config.BASE_URL}/api/products/${id}`, {
+      .delete(`${config.BASE_URL}/api/supervisor/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -113,12 +113,11 @@ const Products = () => {
       return;
     }
 
-    const apiUrl = `${config.BASE_URL}/api/products/${id}`; // Construct the URL with the product ID
-    console.log("API URL:", apiUrl); // Debug: Check the full API URL
+    const apiUrl = `${config.BASE_URL}/api/supervisor/products/${id}`;
+    console.log("API URL:", apiUrl); 
 
-    // Request body with edited data
-    const requestBody = { ...editProductData, fixed_rate: fixedRate }; // Ensure fixed_rate is a number
-    console.log("Request Body:", requestBody); // Debug: Check if all fields are present
+    const requestBody = { ...editProductData, fixed_rate: fixedRate };
+    // console.log("Request Body:", requestBody); 
 
     axios
       .put(apiUrl, requestBody, {

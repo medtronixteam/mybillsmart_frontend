@@ -5,7 +5,7 @@ import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 
-const AddUser = ({ onAddUser }) => {
+const AddClient = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,7 +14,7 @@ const AddUser = ({ onAddUser }) => {
     country: "",
     city: "",
     postalCode: "",
-    role: "agent", // Default role for the first API call
+    role: "agent", 
   });
   const { token } = useAuth(); // Get token from AuthContext
 
@@ -41,17 +41,16 @@ const AddUser = ({ onAddUser }) => {
     }
 
     try {
-      // Extract only required fields for the first API call
+      // Extract only required fields for API
       const apiData = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role, // Role for the first API call (agent)
+        role: formData.role,
       };
 
-      // First API call to register the user
-      const registerResponse = await axios.post(
-        "http://34.142.252.64:8080/api/register",
+      const response = await axios.post(
+        "http://34.142.252.64:8080/api/supervisor/user",
         apiData,
         {
           headers: {
@@ -61,21 +60,10 @@ const AddUser = ({ onAddUser }) => {
         }
       );
 
-      // If the first API call is successful, show success message
-      toast.success("User registered successfully!");
+      // If the API call is successful, show success message
+      toast.success("User added successfully!");
 
-      // Prepare data for the second API call
-      const supervisorData = {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: "client", // Role for the second API call (client)
-      };
-
-    
-
-      toast.success("User added as client successfully!");
-
+      // Reset the form
       setFormData({
         name: "",
         email: "",
@@ -93,14 +81,14 @@ const AddUser = ({ onAddUser }) => {
       }
     } catch (error) {
       // Handle API errors
-      console.error("Error:", error);
-      toast.error("Failed to process. Please try again.");
+      console.error("Error adding user:", error);
+      toast.error("Failed to add user. Please try again.");
     }
   };
 
   return (
     <div className="add-user-container">
-      <h1>Add Client</h1>
+      <h1>Add User</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -158,12 +146,15 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
-        <button type="submit" className="w-100">
-          Add Client
-        </button>
+        <select name="role" value={formData.role} onChange={handleChange} required>
+          <option value="agent">Sale Agent</option>
+          {/* <option value="supervisor">Supervisor</option> */}
+          <option value="client">Clients</option>
+        </select>
+        <button type="submit">Add User</button>
       </form>
     </div>
   );
 };
 
-export default AddUser;
+export default AddClient;
