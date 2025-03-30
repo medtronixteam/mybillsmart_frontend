@@ -7,7 +7,6 @@ import "./ClientList.css";
 
 const ClientList = () => {
   const [users, setUsers] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
   const [editData, setEditData] = useState({
     id: "",
     name: "",
@@ -66,11 +65,13 @@ const ClientList = () => {
       if (result.status === "success") {
         return result.data;
       } else {
-        toast.error("Failed to fetch user details!");
+        toast.error(result.message || "Failed to fetch user details!");
+        return null;
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
       toast.error("Failed to fetch user details!");
+      return null;
     }
   };
 
@@ -85,11 +86,12 @@ const ClientList = () => {
           },
         }
       );
-      if (response.ok) {
+      const result = await response.json();
+      if (response.ok && result.status === "success") {
         toast.success("User disabled successfully!");
         fetchUsers();
       } else {
-        toast.error("Failed to disable user!");
+        toast.error(result.message || "Failed to disable user!");
       }
     } catch (error) {
       console.error("Error disabling user:", error);
@@ -108,11 +110,12 @@ const ClientList = () => {
           },
         }
       );
-      if (response.ok) {
+      const result = await response.json();
+      if (response.ok && result.status === "success") {
         toast.success("User enabled successfully!");
         fetchUsers();
       } else {
-        toast.error("Failed to enable user!");
+        toast.error(result.message || "Failed to enable user!");
       }
     } catch (error) {
       console.error("Error enabling user:", error);
@@ -133,11 +136,12 @@ const ClientList = () => {
           },
         }
       );
-      if (response.ok) {
+      const result = await response.json();
+      if (response.ok && result.status === "success") {
         toast.success("User deleted successfully!");
         fetchUsers();
       } else {
-        toast.error("Failed to delete user!");
+        toast.error(result.message || "Failed to delete user!");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -145,7 +149,7 @@ const ClientList = () => {
     }
   };
 
-  const handleEditClick = async (index, user) => {
+  const handleEditClick = async (user) => {
     const userDetails = await fetchUserDetails(user.id);
     if (userDetails) {
       setEditData({
@@ -173,9 +177,9 @@ const ClientList = () => {
 
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/user/update/${editData.id}`,
+        `http://34.142.252.64:8080/api/supervisor/user/edit/${editData.id}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -193,13 +197,14 @@ const ClientList = () => {
           }),
         }
       );
-
-      if (response.ok) {
+      const result = await response.json();
+      
+      if (response.ok && result.status === "success") {
         toast.success("User updated successfully!");
         fetchUsers();
         setIsModalOpen(false);
       } else {
-        toast.error("Failed to update user!");
+        toast.error(result.message || "Failed to update user!");
       }
     } catch (error) {
       console.error("Error updating user:", error);
@@ -251,18 +256,16 @@ const ClientList = () => {
               <tr>
                 <th>Name</th>
                 <th>Email</th>
-                {/* <th>Phone</th> */}
                 <th>Role</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
+              {users.map((user) => (
                 <tr key={user.id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  {/* <td>{user.phone || "-"}</td> */}
                   <td>
                     <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
                       {user.role}
@@ -276,7 +279,7 @@ const ClientList = () => {
                   <td className="actions-cell">
                     <button 
                       className="edit-btn"
-                      onClick={() => handleEditClick(index, user)}
+                      onClick={() => handleEditClick(user)}
                     >
                       Edit
                     </button>
