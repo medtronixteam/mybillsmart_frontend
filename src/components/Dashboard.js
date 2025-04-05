@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaFileAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaUsers, FaFileAlt, FaCheckCircle, FaTimesCircle, FaCoins } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 
 const Dashboard = () => {
@@ -72,12 +72,12 @@ const Dashboard = () => {
                     Total Users
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.total_users || 0}
+                    {dashboardData?.data?.total_users || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#3498db' }}>
                   <FaUsers className="text-white text-lg opacity-10" />
                 </div>
               </div>
@@ -93,12 +93,12 @@ const Dashboard = () => {
                     Pending Contracts
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.pending_contracts || 0}
+                    {dashboardData?.data?.pending_contracts || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#f39c12' }}>
                   <FaFileAlt className="text-white text-lg opacity-10" />
                 </div>
               </div>
@@ -114,12 +114,12 @@ const Dashboard = () => {
                     Completed Contracts
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.completed_contracts || 0}
+                    {dashboardData?.data?.completed_contracts || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#2ecc71' }}>
                   <FaCheckCircle className="text-white text-lg opacity-10" />
                 </div>
               </div>
@@ -127,7 +127,7 @@ const Dashboard = () => {
           </div>
 
           {/* Rejected Contracts Card */}
-          <div className="col-xl-3 col-sm-6">
+          <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div className="card bg-white">
               <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
                 <div className="numbers text-center">
@@ -135,12 +135,12 @@ const Dashboard = () => {
                     Rejected Contracts
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.rejected_contracts || 0}
+                    {dashboardData?.data?.rejected_contracts || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#e74c3c' }}>
                   <FaTimesCircle className="text-white text-lg opacity-10" />
                 </div>
               </div>
@@ -156,13 +156,34 @@ const Dashboard = () => {
                     Total Invoice
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.total_invoices || 0}
+                    {dashboardData?.data?.total_invoices || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#9b59b6' }}>
                   <FaFileAlt className="text-white text-lg opacity-10" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Referral Points Card - Will show 0 since not in API */}
+          <div className="col-xl-3 col-sm-6 mt-4">
+            <div className="card bg-white">
+              <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
+                <div className="numbers text-center">
+                  <p className="text-sm mb-0 text-capitalize font-weight-bold">
+                    Referral Points
+                  </p>
+                  <h5 className="font-weight-bolder mb-0">
+                    0
+                  </h5>
+                </div>
+                <div
+                  className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
+                  style={{ backgroundColor: '#1abc9c' }}>
+                  <FaCoins className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>

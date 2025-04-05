@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaFileAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaUsers, FaFileAlt, FaCheckCircle, FaTimesCircle, FaCoins } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 
 const ProviderDashboard = () => {
@@ -77,15 +77,15 @@ const ProviderDashboard = () => {
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#3498db' }}>
                   <FaUsers className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Rejected Contracts Card */}
-          <div className="col-xl-3 col-sm-6">
+          {/* Total Products Card */}
+          <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div className="card bg-white">
               <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
                 <div className="numbers text-center">
@@ -98,8 +98,29 @@ const ProviderDashboard = () => {
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
-                  <FaTimesCircle className="text-white text-lg opacity-10" />
+                  style={{ backgroundColor: '#f39c12' }}>
+                  <FaFileAlt className="text-white text-lg opacity-10" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Referral Points Card */}
+          <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div className="card bg-white">
+              <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
+                <div className="numbers text-center">
+                  <p className="text-sm mb-0 text-capitalize font-weight-bold">
+                    Referral Points
+                  </p>
+                  <h5 className="font-weight-bolder mb-0">
+                    0
+                  </h5>
+                </div>
+                <div
+                  className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
+                  style={{ backgroundColor: '#1abc9c' }}>
+                  <FaCoins className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>

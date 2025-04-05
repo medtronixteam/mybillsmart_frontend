@@ -1,0 +1,154 @@
+/* Base Styles */
+.subscription-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+  
+  .section-subtitle {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 3rem;
+  }
+  
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .subscription-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .subscription-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  .featured {
+    border: 2px solid #3498db;
+  }
+  
+  .popular-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background: #3498db;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .plan-name {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+  
+  .price-container {
+    margin-bottom: 2rem;
+  }
+  
+  .price {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3498db;
+  }
+  
+  .period {
+    font-size: 1rem;
+    color: #7f8c8d;
+  }
+  
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+  
+  .feature-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+  }
+  
+  .feature-icon {
+    color: #2ecc71;
+    margin-right: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .subscribe-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+  }
+  
+  .subscribe-btn:hover {
+    background: #2980b9;
+  }
+  
+  .featured .subscribe-btn {
+    background: #2980b9;
+  }
+  
+  .featured .subscribe-btn:hover {
+    background: #3498db;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .cards-container {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .subscription-card {
+      max-width: 100%;
+    }
+    
+    .section-title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .subscription-container {
+      padding: 1rem;
+    }
+    
+    .plan-name {
+      font-size: 1.5rem;
+    }
+    
+    .price {
+      font-size: 2.5rem;
+    }
+  }

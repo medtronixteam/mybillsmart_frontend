@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
+import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 
 const Invoice = () => {
   const [step, setStep] = useState(1);
@@ -71,6 +72,83 @@ const Invoice = () => {
       setClients([]);
     } finally {
       setLoadingClients(false);
+    }
+  };
+
+  // Utility functions for file exports
+  const convertToCSV = (data) => {
+    if (!Array.isArray(data) || data.length === 0) return "";
+    
+    // Get all unique keys from all objects
+    const allKeys = data.reduce((keys, item) => {
+      Object.keys(item).forEach(key => {
+        if (!keys.includes(key) && 
+            !["user_id", "invoice_id", "created_at", "updated_at", "id", "Client_id"].includes(key)) {
+          keys.push(key);
+        }
+      });
+      return keys;
+    }, []);
+
+    // Create CSV headers
+    const headers = allKeys
+      .map(key => `"${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}"`)
+      .join(",");
+
+    // Create CSV rows
+    const rows = data.map(item => {
+      return allKeys.map(key => {
+        // Handle missing values and escape quotes
+        const value = item[key] !== undefined ? item[key] : "";
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }).join(",");
+    }).join("\n");
+
+    return `${headers}\n${rows}`;
+  };
+
+  const downloadFile = (content, fileName, mimeType) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadCSV = () => {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+      toast.error("No data available to download");
+      return;
+    }
+
+    try {
+      const csvContent = convertToCSV(submittedData);
+      downloadFile(csvContent, `invoice_${invoiceId}_data.csv`, "text/csv;charset=utf-8;");
+      toast.success("CSV downloaded successfully");
+    } catch (error) {
+      console.error("Error generating CSV:", error);
+      toast.error("Failed to generate CSV file");
+    }
+  };
+
+  const downloadExcel = () => {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+      toast.error("No data available to download");
+      return;
+    }
+
+    try {
+      // For proper Excel format, we need to add BOM (Byte Order Mark) for UTF-8
+      const csvContent = "\uFEFF" + convertToCSV(submittedData);
+      downloadFile(csvContent, `invoice_${invoiceId}_data.xls`, "application/vnd.ms-excel;charset=utf-8;");
+      toast.success("Excel file downloaded successfully");
+    } catch (error) {
+      console.error("Error generating Excel:", error);
+      toast.error("Failed to generate Excel file");
     }
   };
 
@@ -410,15 +488,11 @@ const Invoice = () => {
         );
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
-        // Send to client portal API call
         const response = await axios.post(
           "http://34.142.252.64:8080/api/notifications",
           {
             client_id: selectedClient,
-            // offer_ids: offers.map(offer => offer.id), 
             invoice_id: invoiceId,
-            // type: "invoice_notification",
-            // message: "New invoice available for review"
           },
           {
             headers: {
@@ -546,41 +620,61 @@ const Invoice = () => {
           </div>
 
           <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
-            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={generatePDF}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
               >
                 <BsDownload className="me-2" />
                 Download PDF
               </button>
             </div>
-            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+              <button
+                onClick={downloadCSV}
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                disabled={!submittedData || submittedData.length === 0}
+              >
+                <FaFileCsv className="me-2" />
+                Download CSV
+              </button>
+            </div>
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+              <button
+                onClick={downloadExcel}
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                disabled={!submittedData || submittedData.length === 0}
+              >
+                <FaFileExcel className="me-2" />
+                Export Excel
+              </button>
+            </div>
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleSendEmail}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
               >
                 <BsEnvelope className="me-2" />
                 Send Email
               </button>
             </div>
-            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleWhatsappClick}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
               >
                 <BsWhatsapp className="me-2" />
                 Send WhatsApp
               </button>
             </div>
-            <div className="col-xl-3 col-lg-6 col-md-6 col-sm-6">
-              {/* <button
+            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+              <button
                 onClick={handleSendToClientPortal}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100 w-xl-auto"
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
               >
                 <IoIosSend className="me-2" />
-                Send to Client Portal
-              </button> */}
+                Client Portal
+              </button>
             </div>
           </div>
         </>

@@ -42,6 +42,9 @@ import ClientList from "./Provider/ClientList/ClientList";
 
 import AddClients from "./components/AddClient/AddClient";
 import Notifications from "./Client/Notifications/Notifications";
+import AgentNotifications from "./components/AgentNotifications/AgentNotifications";
+import Subscription from "./GroupAdmin/Subscription/Subscription";
+import SubmissionLink from "./GroupAdmin/SubmissionLink/SubmissionLink";
 
 const NotFound = () => { 
   useEffect(() => {
@@ -125,6 +128,7 @@ const App = () => {
                         <Route path="add-client" element={<AddClients />} />
                         <Route path="contract-list" element={<ContractList />} />
                         <Route path="invoice-list" element={<InvoiceListAgent />} />
+                        <Route path="notifications" element={<AgentNotifications />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
@@ -201,6 +205,8 @@ const App = () => {
                         } />
                         <Route path="client-contract-list" element={<ClientContractList />} />
                         <Route path="client-contract-docx" element={<ClientContractDocx />} />
+                        <Route path="subscription" element={<Subscription />} />
+                        <Route path="submission-link" element={<SubmissionLink />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>

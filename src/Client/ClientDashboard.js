@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaFileAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaFileAlt, FaGift, FaCoins } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 
 const ClientDashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardData, setDashboardData] = useState({
+    total_contracts: 0,
+    total_documents: 0,
+    referral_points: 0 // Adding referral points to initial state
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
@@ -23,7 +27,10 @@ const ClientDashboard = () => {
         }
 
         const data = await response.json();
-        setDashboardData(data);
+        setDashboardData({
+          ...data.data, // Spread existing API data
+          referral_points: data.data.referral_points || 0 // Add referral points with fallback
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -63,106 +70,64 @@ const ClientDashboard = () => {
     <div>
       <div className="container-fluid py-4">
         <div className="row">
-          {/* Total Users Card */}
+          {/* Total Contracts Card */}
           <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div className="card bg-white">
               <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
                 <div className="numbers text-center">
                   <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Total Users
+                    Total Contracts
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.total_users || 0}
+                    {dashboardData?.total_contracts || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
-                  <FaUsers className="text-white text-lg opacity-10" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Pending Contracts Card */}
-          <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-            <div className="card bg-white">
-              <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-                <div className="numbers text-center">
-                  <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Pending Contracts
-                  </p>
-                  <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.pending_contracts || 0}
-                  </h5>
-                </div>
-                <div
-                  className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
+                  style={{ backgroundColor: '#3498db' }}>
                   <FaFileAlt className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Completed Contracts Card */}
+          {/* Total Documents Card */}
           <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div className="card bg-white">
               <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
                 <div className="numbers text-center">
                   <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Completed Contracts
+                    Total Documents
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.completed_contracts || 0}
+                    {dashboardData?.total_documents || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
-                  <FaCheckCircle className="text-white text-lg opacity-10" />
+                  style={{ backgroundColor: '#2ecc71' }}>
+                  <FaFileAlt className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Rejected Contracts Card */}
-          <div className="col-xl-3 col-sm-6">
+          {/* Referral Points Card */}
+          <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div className="card bg-white">
               <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
                 <div className="numbers text-center">
                   <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Rejected Contracts
+                    Referral Points
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.rejected_contracts || 0}
+                    {dashboardData?.referral_points || 0}
                   </h5>
                 </div>
                 <div
                   className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
-                  <FaTimesCircle className="text-white text-lg opacity-10" />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Invoice Card */}
-          <div className="col-xl-3 col-sm-6 mt-4">
-            <div className="card bg-white">
-              <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-                <div className="numbers text-center">
-                  <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Total Invoice
-                  </p>
-                  <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.total_invoices || 0}
-                  </h5>
-                </div>
-                <div
-                  className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                  id="dashboard-icon">
-                  <FaFileAlt className="text-white text-lg opacity-10" />
+                  style={{ backgroundColor: '#e74c3c' }}>
+                  <FaCoins className="text-white text-lg opacity-10" />
                 </div>
               </div>
             </div>
