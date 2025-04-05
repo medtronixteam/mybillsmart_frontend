@@ -16,7 +16,7 @@ const AddClients = () => {
     postalCode: "",
     // role field removed from state as it will be hardcoded now
   });
-  const { token } = useAuth(); 
+  const { token } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,7 +76,6 @@ const AddClients = () => {
         city: "",
         postalCode: "",
       });
-
     } catch (error) {
       console.error("Error adding user:", error);
       toast.error("Failed to add user. Please try again.");
@@ -143,11 +142,11 @@ const AddClients = () => {
           onChange={handleChange}
           required
         />
-
+        <textarea name="address" placeholder="Address"></textarea>
       </form>
-      <button type="submit" onClick={handleSubmit}>Add User</button>
-
-
+      <button type="submit" onClick={handleSubmit}>
+        Add User
+      </button>
     </div>
   );
 };

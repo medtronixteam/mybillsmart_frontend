@@ -14,7 +14,7 @@ const AddClient = ({ onAddUser }) => {
     country: "",
     city: "",
     postalCode: "",
-    role: "agent", 
+    role: "agent",
   });
   const { token } = useAuth(); // Get token from AuthContext
 
@@ -146,11 +146,21 @@ const AddClient = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
-        <select name="role" value={formData.role} onChange={handleChange} required>
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          required
+        >
           <option value="agent">Sale Agent</option>
           {/* <option value="supervisor">Supervisor</option> */}
           <option value="client">Clients</option>
         </select>
+        <textarea
+          name="address"
+          placeholder="Address"
+          className="w-100"
+        ></textarea>
         <button type="submit">Add User</button>
       </form>
     </div>
