@@ -1,7 +1,7 @@
 import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
-import { useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom"; 
 import { useAuth } from "../../contexts/AuthContext"; 
 import {
   FaGem,
@@ -119,9 +119,20 @@ const ClientSidebar = () => {
             }}
           />
         </div>
+        <Link to="/client/subscription">
+                  <button
+                    className="btn mt-5 w-100"
+                    
+                    type="button"
+                    id="icon-color"
+                  >
+                    <FaGem className="me-2" />
+                    Subscription
+                  </button>
+                </Link>
         {/* LogOut Button - On Click, it triggers handleLogout function */}
         <button
-          className="btn mt-4 w-100"
+          className="btn mt-1 w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"

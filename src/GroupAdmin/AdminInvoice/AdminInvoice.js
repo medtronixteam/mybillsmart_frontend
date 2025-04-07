@@ -5,7 +5,7 @@ import {
   BsEnvelope,
   BsWhatsapp,
 } from "react-icons/bs";
-import "./Invoice.css";
+import "./AdminInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -15,7 +15,7 @@ import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 
-const Invoice = () => {
+const AdminInvoice = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [file, setFile] = useState(null);
@@ -210,13 +210,13 @@ const Invoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const matchData = {
         ...formData,
         group_id: groupId
       };
-  
+
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
         matchData,
@@ -224,16 +224,12 @@ const Invoice = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+      console.log("Match API Response:", matchResponse.data);
       setSubmittedData(matchResponse.data);
-  
-      const invoiceData = {
-        ...formData,
-        group_id: groupId
-      };
-  
+
       const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/invoices",
-        invoiceData,
+        "http://34.142.252.64:8080/api/group/invoices",
+        formData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -242,16 +238,15 @@ const Invoice = () => {
         }
       );
       console.log("Invoice API Response:", invoiceResponse.data);
-  
+
       const invoiceId = invoiceResponse.data.invoice;
       setInvoiceId(invoiceId);
-  
+
       const offersData = matchResponse.data.map((item) => ({
         ...item,
         invoice_id: invoiceId,
-        group_id: groupId  // Also include group_id in offers
       }));
-  
+
       const offersResponse = await axios.post(
         "http://34.142.252.64:8080/api/agent/offers",
         offersData,
@@ -263,11 +258,11 @@ const Invoice = () => {
         }
       );
       console.log("Offers API Response:", offersResponse.data);
-  
+
       if (offersResponse.data && offersResponse.data.offers) {
         setOffers(offersResponse.data.offers);
       }
-  
+
       setStep(3);
       toast.success("Form submitted successfully!");
     } catch (error) {
@@ -394,7 +389,7 @@ const Invoice = () => {
   };
 
   const handleContractClick = (offer) => {
-    navigate("/agent/contract", {
+    navigate("/group-admin/admin-contract", {
       state: {
         offerData: offer,
         offerId: offer.id,
@@ -566,7 +561,7 @@ const Invoice = () => {
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn mb-3">
+              <button type="submit" className="invoice-submit-btn">
                 Submit
               </button>
             </div>
@@ -826,4 +821,4 @@ const Invoice = () => {
   );
 };
 
-export default Invoice;
+export default AdminInvoice;

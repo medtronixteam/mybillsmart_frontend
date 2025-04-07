@@ -4,16 +4,15 @@ import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
 import {
-  FaGem,
   FaHome,
-  FaTable,
-  FaCreditCard,
-  FaCube,
-  FaCog,
-  FaUser,
-  FaSignInAlt,
+  FaFileInvoiceDollar,
+  FaFileContract,
+  FaUserPlus,
+  FaGem,
+  FaSignOutAlt,
+  FaLink
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
@@ -65,7 +64,7 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCube />
+                <FaFileInvoiceDollar />
               </div>
               <span className="nav-link-text ms-1">Invoice</span>
             </NavLink>
@@ -77,7 +76,7 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaFileContract />
               </div>
               <span className="nav-link-text ms-1">Contract List</span>
             </NavLink>
@@ -89,7 +88,7 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaFileInvoiceDollar />
               </div>
               <span className="nav-link-text ms-1">Invoice List</span>
             </NavLink>
@@ -101,9 +100,21 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaUserPlus />
               </div>
               <span className="nav-link-text ms-1">Add Client</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/agent/submission-link"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
         </ul>
@@ -120,13 +131,27 @@ const Sidebar = () => {
             }}
           />
         </div>
-        {/* LogOut Button - On Click, it triggers handleLogout function */}
+        
+        {/* Subscription Button */}
+        <Link to="/agent/subscription">
+          <button
+            className="btn mt-4 w-100"
+            type="button"
+            id="icon-color"
+          >
+            <FaGem className="me-2" />
+            Subscription
+          </button>
+        </Link>
+        
+        {/* LogOut Button */}
         <button
-          className="btn mt-4 w-100"
+          className="btn w-100 mt-2"
           type="button"
           onClick={handleLogout}
           id="icon-color"
         >
+          <FaSignOutAlt className="me-2" />
           LogOut
         </button>
       </div>

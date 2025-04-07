@@ -132,20 +132,7 @@
     background: #2980b9;
   }
   
- .copy-icon{
-    font-size: 3rem;
-    color: #3498db;
-    cursor: pointer;
-    border: 2px solid #3498db;
-    border-radius: 10px;
-    margin-left: 2rem;
-    padding: 5px;
- }
- .copy-btn{
-    background: none;
-    border: none;
-    cursor: pointer;
- }
+  /* Loading Spinner */
   .spinner {
     width: 20px;
     height: 20px;

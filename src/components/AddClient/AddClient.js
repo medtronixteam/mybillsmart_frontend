@@ -142,7 +142,7 @@ const AddClients = () => {
           onChange={handleChange}
           required
         />
-        <textarea name="address" placeholder="Address"></textarea>
+      
       </form>
       <button type="submit" onClick={handleSubmit}>
         Add User

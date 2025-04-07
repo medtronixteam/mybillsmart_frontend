@@ -1,61 +1,151 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./Notifications.css";
+import { useAuth } from "../../contexts/AuthContext";
+
 const Notifications = () => {
-  const [notificationDetail, setnotificationDetail] = useState(false);
-  const notifications = [
-    { id: 1, message: "Notification_1" },
-    { id: 2, message: "Notification_2" },
-    { id: 3, message: "Notification_3" },
-    { id: 4, message: "Notification_4" },
-    { id: 4, message: "Notification_5" },
-  ];
+  const [notificationDetail, setNotificationDetail] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [loading, setLoading] = useState(true); // Start with loading true
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
+  const api = axios.create({
+    baseURL: "http://34.142.252.64:8080",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/api/notifications");
+      // Access the notifications array from response data
+      setNotifications(response.data.notifications || []);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch notifications");
+      console.error("Error fetching notifications:", err);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNotificationDetails = async (id) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/notification/${id}`);
+      setSelectedNotification(response.data);
+      setNotificationDetail(true);
+      
+      await api.put(`/api/notification/read/${id}`);
+    } catch (err) {
+      setError("Failed to fetch notification details");
+      console.error("Error fetching notification details:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="container mt-4">
-      <h2 className="text-center">Notifications List</h2>
-      <div className="card notifications_card">
-        <div className="card-body">
-          <ul className="list-group list-group-flush">
-            {notificationDetail ? (
-              <div className="">
-                <h3>Notification_1</h3>
-                <p>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.
-                </p>
-              </div>
-            ) : (
-              <>
-                {notifications.map((notification) => (
-                  <li
-                    key={notification.id}
-                    className="list-group-item d-flex justify-content-between align-items-center"
-                  >
-                    <span>{notification.message}</span>
-                    <div className="text-center mt-3">
-                      <Link
-                        className="btn  see-more-notification mb-0"
-                        onClick={() => setnotificationDetail(true)}
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </>
-            )}
-          </ul>
+      <h2 className="text-center">Notifications</h2>
+      
+      {loading ? (
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading notifications...</p>
         </div>
-      </div>
+      ) : error ? (
+        <div className="alert alert-danger text-center">
+          {error}
+          <button 
+            className="btn btn-sm btn-outline-danger ms-3"
+            onClick={fetchNotifications}
+          >
+            Retry
+          </button>
+        </div>
+      ) : notificationDetail ? (
+        <div className="card">
+          <div className="card-body">
+            <button 
+              className="btn btn-sm btn-outline-secondary mb-3"
+              onClick={() => setNotificationDetail(false)}
+            >
+              ← Back to notifications
+            </button>
+            <h3>{selectedNotification?.title || "Notification Details"}</h3>
+            <div className="card-text">
+              <p>{selectedNotification?.message || "No details available"}</p>
+              {selectedNotification?.timestamp && (
+                <small className="text-muted">
+                  {new Date(selectedNotification.timestamp).toLocaleString()}
+                </small>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="card">
+          <div className="card-body text-center py-5">
+            <i className="bi bi-bell-slash fs-1 text-muted mb-3"></i>
+            <h5>No notifications yet</h5>
+            <p className="text-muted">You'll see notifications here when they become available</p>
+            <button 
+              className="btn btn-outline-primary mt-2"
+              onClick={fetchNotifications}
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="card">
+          <div className="card-body p-0">
+            <ul className="list-group list-group-flush">
+              {notifications.map((notification) => (
+                <li
+                  key={notification.id}
+                  className={`list-group-item ${notification.read ? "" : "unread-notification"}`}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 className="mb-1">{notification.title || "Notification"}</h6>
+                      <p className="mb-1 text-muted">
+                        {notification.message.length > 50 
+                          ? `${notification.message.substring(0, 50)}...` 
+                          : notification.message}
+                      </p>
+                      {notification.timestamp && (
+                        <small className="text-muted">
+                          {new Date(notification.timestamp).toLocaleString()}
+                        </small>
+                      )}
+                    </div>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => fetchNotificationDetails(notification.id)}
+                    >
+                      View
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,7 +12,8 @@ import {
   FaLink,
   FaGem,
   FaSignOutAlt,
-  FaCog
+  FaFileUpload,
+  FaListAlt
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./GroupAdminSidebar.css";
@@ -56,7 +57,30 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Dashboard</span>
             </NavLink>
           </li>
-
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/admin-invoice"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaFileUpload /> {/* Changed to upload icon for invoice submission */}
+              </div>
+              <span className="nav-link-text ms-1">Invoice Submit</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/invoice-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaListAlt /> {/* Changed to list icon for invoice list */}
+              </div>
+              <span className="nav-link-text ms-1">Invoice List</span>
+            </NavLink>
+          </li>
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -84,25 +108,13 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/group_admin/invoice-list"
-              activeClassName="active-class"
-            >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaFileInvoiceDollar />
-              </div>
-              <span className="nav-link-text ms-1">Invoice List</span>
-            </NavLink>
-          </li>
-          <li className="nav-item">
-            <NavLink
-              className="nav-link"
               to="/group_admin/client-contract-list"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaFileContract />
               </div>
-              <span className="nav-link-text ms-1">Client Contract List</span>
+              <span className="nav-link-text ms-1">Contract List</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -142,7 +154,7 @@ const GroupAdminSidebar = () => {
         </button>
        </Link>
         <button
-          className="btn w-100"
+          className="btn mt-1 w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"

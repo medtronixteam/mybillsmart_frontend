@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import "./assets/css/soft-ui-dashboard.css?v=1.0.3";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 import Login from "./components/Login/Login";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Navbar from "./components/Navbar/Navbar";
@@ -39,12 +40,22 @@ import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
 import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 import AddClient from "./Provider/AddClient/AddClient";
 import ClientList from "./Provider/ClientList/ClientList";
-
 import AddClients from "./components/AddClient/AddClient";
 import Notifications from "./Client/Notifications/Notifications";
 import AgentNotifications from "./components/AgentNotifications/AgentNotifications";
 import Subscription from "./GroupAdmin/Subscription/Subscription";
 import SubmissionLink from "./GroupAdmin/SubmissionLink/SubmissionLink";
+import ProviderSubmissionLink from "./Provider/ProviderSubmissionLink/ProviderSubmissionLink";
+import ProviderSubscription from "./Provider/ProviderSubscription/ProviderSubscription";
+import AgentSubmissionLink from "./components/AgentSubmissionLink/AgentSubmissionLink";
+import AgentSubscription from "./components/AgentSubscription/AgentSubscription";
+import ClientSubscription from "./Client/ClientSubscription/ClientSubscription";
+import AdminInvoice from "./GroupAdmin/AdminInvoice/AdminInvoice";
+import AdminContractForm from "./GroupAdmin/AdminContractForm/AdminContractForm";
+import CheckoutForm from "./GroupAdmin/CheckoutForm/CheckoutForm";
+import LinkSidebar from "./LinkInvoice/LinkSidebar/LinkSidebar";
+import LinkNavbar from "./LinkInvoice/LinkNavbar/Navbar";
+import LinkInvoice from "./LinkInvoice/Invoice/LinkInvoice";
 
 const NotFound = () => { 
   useEffect(() => {
@@ -67,6 +78,97 @@ const NotFound = () => {
       <h1>404 - Page Not Found</h1>
       <p>Redirecting to login page in 5 seconds...</p>
     </div>
+  );
+};
+
+const PublicInvoiceSubmission = () => {
+  const { id } = useParams();
+  const [isValid, setIsValid] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  useEffect(() => {
+    const checkLinkValidity = async () => {
+      try {
+        const response = await axios.get(`http://34.142.252.64:8080/api/verify-url/${id}`);
+        if (response.data.status === "success") {
+          setIsValid(true);
+          setError(null);
+        } else {
+          setIsValid(false);
+          setError(response.data.message || 'Link is not available');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to validate link');
+        setIsValid(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkLinkValidity();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+      }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isValid) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column'
+      }}>
+        <h1>Invalid Link</h1>
+        <p>{error || 'This invoice submission link is not available.'}</p>
+        <button 
+          className="btn btn-primary mt-3"
+          onClick={() => window.location.href = '/login'}
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      
+      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+        <LinkNavbar toggleSidebar={toggleSidebar} />
+        <div className="container-fluid py-4">
+          <div className="row">
+            <div className="col-12">
+              <div className="card mb-4">
+                
+                <div className="card-body px-0 pt-0 pb-2">
+                  <LinkInvoice publicMode={true} linkId={id} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
   );
 };
 
@@ -102,6 +204,9 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
+          
+          {/* Public Invoice Submission Route */}
+          <Route path="/u/invoice/:id" element={<PublicInvoiceSubmission />} />
 
           {/* Agent Routes */}
           <Route
@@ -129,6 +234,8 @@ const App = () => {
                         <Route path="contract-list" element={<ContractList />} />
                         <Route path="invoice-list" element={<InvoiceListAgent />} />
                         <Route path="notifications" element={<AgentNotifications />} />
+                        <Route path="submission-link" element={<AgentSubmissionLink />} />
+                        <Route path="subscription" element={<AgentSubscription />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
@@ -163,7 +270,8 @@ const App = () => {
                         <Route path="add-product" element={<AddProduct />} />
                         <Route path="add-client" element={<AddClient />} />
                         <Route path="client-list" element={<ClientList />} />
-                      
+                        <Route path="submission-link" element={<ProviderSubmissionLink />} />
+                        <Route path="subscription" element={<ProviderSubscription />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
@@ -195,6 +303,9 @@ const App = () => {
                         <Route path="dashboard" element={<GroupAdminDashboard />} />
                         <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
                         <Route path="invoice-list" element={<InvoiceList />} />
+                        <Route path="admin-invoice" element={<AdminInvoice />} />
+                        <Route path="admin-contract" element={<AdminContractForm />} />
+                        <Route path="checkout" element={<CheckoutForm />} />
                         <Route path="add-user" element={<AddUser onAddUser={handleAddUser} />} />
                         <Route path="user-list" element={
                           <UserList
@@ -240,8 +351,9 @@ const App = () => {
                         <Route path="contract-list" element={<ClientContractList />} />
                         <Route path="contract-docx" element={<ClientContractDocx />} />
                         <Route path="client-invoice" element={<ClientInvoice />} />
-                        <Route path="*" element={<NotFound />} />
                         <Route path="notifications" element={<Notifications />} />
+                        <Route path="subscription" element={<ClientSubscription />} />
+                        <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
                   </>

@@ -1,17 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Subscription.css';
-import axios from 'axios';
-import { useAuth } from "../../contexts/AuthContext";
+import './ProviderSubscription.css';
 
-const Subscription = () => {
-  const navigate = useNavigate();
-  const { token } = useAuth();
-  const [loading, setLoading] = React.useState(false);
-
+const ProviderSubscription = () => {
   const plans = [
     {
-      id: "basic",
       name: "Basic Plan",
       price: "9.99",
       period: "month",
@@ -24,7 +16,6 @@ const Subscription = () => {
       featured: false
     },
     {
-      id: "pro",
       name: "Pro Plan",
       price: "19.99",
       period: "month",
@@ -38,7 +29,6 @@ const Subscription = () => {
       featured: true
     },
     {
-      id: "enterprise",
       name: "Enterprise Plan",
       price: "49.99",
       period: "month",
@@ -54,39 +44,6 @@ const Subscription = () => {
     }
   ];
 
-  const handleSubscription = async (selectedPlan) => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        'http://34.142.252.64:8080/api/create-payment-intent',
-        {
-          plan_id: selectedPlan.id,
-          amount: parseFloat(selectedPlan.price) * 100, // Convert to cents
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        navigate('/group_admin/checkout', {  
-          state: {
-            planDetails: selectedPlan,
-            paymentIntent: response.data
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert(error.response?.data?.message || 'Payment processing failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="subscription-container">
       <h2 className="section-title">Choose Your Plan</h2>
@@ -95,7 +52,7 @@ const Subscription = () => {
       <div className="cards-container">
         {plans.map((plan, index) => (
           <div 
-            key={plan.id} 
+            key={index} 
             className={`subscription-card ${plan.featured ? 'featured' : ''}`}
           >
             {plan.featured && <div className="popular-badge">Most Popular</div>}
@@ -112,12 +69,8 @@ const Subscription = () => {
                 </li>
               ))}
             </ul>
-            <button 
-              className="subscribe-btn"
-              onClick={() => handleSubscription(plan)}
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Get Started'}
+            <button className="subscribe-btn">
+              Get Started
             </button>
           </div>
         ))}
@@ -126,4 +79,4 @@ const Subscription = () => {
   );
 };
 
-export default Subscription;
+export default ProviderSubscription;

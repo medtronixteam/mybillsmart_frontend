@@ -12,7 +12,7 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://34.142.252.64:8080/api/agent/data", {
+        const response = await fetch("http://34.142.252.64:8080/api/agent/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

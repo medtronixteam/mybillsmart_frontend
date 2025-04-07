@@ -156,11 +156,7 @@ const AddClient = ({ onAddUser }) => {
           {/* <option value="supervisor">Supervisor</option> */}
           <option value="client">Clients</option>
         </select>
-        <textarea
-          name="address"
-          placeholder="Address"
-          className="w-100"
-        ></textarea>
+        
         <button type="submit">Add User</button>
       </form>
     </div>

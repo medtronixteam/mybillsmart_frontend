@@ -1,0 +1,527 @@
+.invoice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.invoice-stepper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  /* flex-wrap: wrap; Allow wrapping of steps on small screens */
+}
+.pdf-btn,
+.email-btn,
+.whatsapp-btn {
+  color: #fff;
+  /* background-color: #4CAF50; */
+  /* border-bottom: 2px solid #000000 !important; */
+  /* padding: 10px 20px; */
+  /* margin-top: 2rem; */
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  /* top: 0;
+  right: 120px; */
+}
+.pdf-btn {
+  background-color: #3598db;
+}
+.email-btn {
+  background-color: #a52a2a;
+}
+.whatsapp-btn {
+  background-color: #008000;
+}
+.invoice-download-pdf-btn:hover {
+  /* background-color: #45a049; */
+}
+.invoice-stepper .step {
+  width: 30px;
+  height: 30px;
+  background-color: #3897d8;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  margin: 5px;
+}
+
+.invoice-stepper .step.active {
+  background-color: black;
+}
+
+.invoice-stepper .line {
+  width: 300px;
+  height: 5px;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s;
+}
+
+.invoice-stepper .line.active-line {
+  background-color: #e0e0e0;
+}
+
+.invoice-form-container {
+  /* width: 100%; */
+  max-width: 800px;
+  background-image: url("../../assets/img/Formback.png");
+  background-size: 100% 100%;
+  border-radius: 10px;
+  padding: 60px 40px;
+  margin: 20px auto;
+}
+
+.invoice-form-heading {
+  text-align: center;
+  font-size: 32px;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.invoice-form-container .form-field {
+  margin-bottom: 15px;
+}
+
+.invoice-form-container .form-field label {
+  font-size: 18px;
+  color: #fff;
+  display: block;
+}
+
+.invoice-form-container .form-field input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box; /* Prevents overflow */
+}
+
+.invoice-form-container .form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.invoice-form-container .form-row-item {
+  width: calc(50% - 10px);
+  box-sizing: border-box;
+}
+
+.invoice-submit-btn {
+  margin: 10px auto;
+  padding: 12px 20px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 50%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+}
+
+.invoice-upload-heading {
+  margin-bottom: 20px;
+}
+
+.invoice-file-upload-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #9c9c9c;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  height: 300px;
+  max-width: 800px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.invoice-file-upload-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.invoice-file-upload-btn .invoice-upload-icon {
+  font-size: 60px;
+  color: #3598db;
+  margin-right: 10px;
+}
+
+.invoice-file-upload-btn p {
+  font-size: 24px;
+  color: #3598db;
+  margin: 0;
+}
+
+.invoice-file-input {
+  display: none;
+}
+/* Modal Styles */
+.send-to-client-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.send-to-client-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.send-to-client-modal-content h2 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.send-to-client-modal-content p {
+  margin-bottom: 10px;
+}
+
+.send-to-client-modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.modal-buttons button.btn-primary {
+  background: #007bff;
+  color: white;
+}
+.invoice-confirmation-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  /* justify-content: center; */
+}
+.invoice-card.invoice-card-responsive {
+  /* max-width: 300px; */
+  /* width: 100%; */
+  border-radius: 30px;
+  background-image: url("../../assets/img/cardback.png");
+  background-size: 100% 100%;
+  background-position: center;
+  padding: 40px;
+  /* margin: 20px; */
+}
+
+.invoice-card h3 {
+  color: #2b2b2b;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.invoice-card p {
+  color: #fff;
+}
+
+.invoice-card button {
+  margin: 20px auto !important;
+  padding: 8px 0px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 60%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+@media screen and (max-width: 1199px) {
+  /* .invoice-download-pdf-btn {
+    right: 0;
+  }
+  .invoice-card.invoice-card-responsive {
+    padding: 40px; 
+  } */
+  /* .pdf-btn {
+    font-size: 13px;
+  } */
+}
+@media screen and (max-width: 991px) {
+  .invoice-download-pdf-btn {
+    position: static !important;
+  }
+  .invoice-card.invoice-card-responsive {
+    /* padding: 90px; */
+    padding: 60px;
+  }
+}
+/* Media query for responsiveness */
+@media screen and (max-width: 768px) {
+  .invoice-container {
+    padding: 10px;
+  }
+
+  .invoice-stepper {
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 0px;
+  }
+
+  .invoice-stepper .line {
+    width: 90px;
+    height: 5px;
+    background-color: #e0e0e0;
+    transition: background-color 0.3s;
+  }
+
+  /* .invoice-form-container {
+    width: 100%;
+    max-width: 100%;
+    background-image: url('../../assets/img/Formback.png');
+    background-size: cover;
+    border-radius: 10px;
+    padding: 30px 0px 40px -30px;
+  } */
+
+  .invoice-upload-heading {
+    font-size: 24px;
+    margin: 10px 0 20px 0;
+  }
+
+  .invoice-file-upload-box {
+    height: 250px;
+  }
+
+  .invoice-form-heading {
+    font-size: 28px;
+  }
+
+  .invoice-form-container .form-field label {
+    font-size: 16px;
+  }
+
+  .invoice-form-container .form-field input {
+    font-size: 14px;
+  }
+
+  .invoice-form-container button {
+    font-size: 16px;
+  }
+
+  .invoice-form-container .form-row {
+    flex-direction: column; /* Stack form items on smaller screens */
+    width: 100%; /* Ensure form rows take full width */
+  }
+
+  .invoice-form-container .form-row-item {
+    width: 100%; /* Ensure form row items take full width */
+  }
+
+  .invoice-submit-btn {
+    width: 100%; /* Full width for submit button */
+  }
+
+  .invoice-file-upload-box {
+    width: 100%; /* Full width for upload box */
+  }
+
+  .invoice-card {
+    /* width: 90%; Ensure card fits on smaller screens */
+  }
+}
+@media screen and (max-width: 575px) {
+  .invoice-card.invoice-card-responsive {
+    padding: 30px;
+  }
+}
+/* WhatsApp Modal Styling */
+.whatsapp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.whatsapp-modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.whatsapp-modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #25D366;
+  color: white;
+}
+
+.whatsapp-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.whatsapp-modal-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.whatsapp-modal-body {
+  padding: 20px;
+}
+
+.whatsapp-input-group {
+  margin-bottom: 15px;
+}
+
+.whatsapp-input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.whatsapp-input-group input,
+.whatsapp-input-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.whatsapp-input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.whatsapp-input-hint {
+  color: #666;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 5px;
+}
+
+.whatsapp-pdf-preview {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.whatsapp-pdf-label {
+  margin: 0 0 10px 0;
+  font-weight: 500;
+}
+
+.whatsapp-pdf-placeholder {
+  display: flex;
+  align-items: center;
+  color: #555;
+}
+
+.whatsapp-pdf-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.whatsapp-modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.whatsapp-modal-cancel-btn {
+  padding: 8px 15px;
+  background-color: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.whatsapp-modal-cancel-btn:hover {
+  background-color: #e2e2e2;
+}
+
+.whatsapp-modal-send-btn {
+  padding: 8px 15px;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.whatsapp-modal-send-btn:hover {
+  background-color: #128C7E;
+}
+
+.whatsapp-modal-send-btn:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}

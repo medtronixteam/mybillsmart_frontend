@@ -11,7 +11,7 @@ const GroupAdminDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://34.142.252.64:8080/api/group/data", {
+        const response = await fetch("http://34.142.252.64:8080/api/group/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

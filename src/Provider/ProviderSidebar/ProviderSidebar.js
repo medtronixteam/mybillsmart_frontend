@@ -1,17 +1,17 @@
 import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
-  FaGem,
   FaHome,
-  FaTable,
-  FaCreditCard,
-  FaCube,
-  FaCog,
-  FaUser,
-  FaSignInAlt,
+  FaBoxes,
+  FaPlusCircle,
+  FaUserPlus,
+  FaUsers,
+  FaLink,
+  FaGem,
+  FaSignOutAlt
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./ProviderSidebar.css";
@@ -35,7 +35,6 @@ const ProviderSidebar = () => {
         />
         <NavLink className="navbar-brand m-0" to="/supervisor/dashboard">
           <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
-          {/* <span className="ms-1 font-weight-bold">MyBillSmart</span> */}
         </NavLink>
       </div>
       <hr className="horizontal dark mt-0" />
@@ -64,7 +63,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCube />
+                <FaBoxes />
               </div>
               <span className="nav-link-text ms-1">Product List</span>
             </NavLink>
@@ -76,7 +75,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaPlusCircle />
               </div>
               <span className="nav-link-text ms-1">Add Product</span>
             </NavLink>
@@ -88,7 +87,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaUserPlus />
               </div>
               <span className="nav-link-text ms-1">Add User</span>
             </NavLink>
@@ -100,22 +99,23 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaUsers />
               </div>
               <span className="nav-link-text ms-1">User List</span>
             </NavLink>
           </li>
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/provider/billing"
-              activeClassName="active-class">
+              to="/supervisor/submission-link"
+              activeClassName="active-class"
+            >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
+                <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Billing</span>
+              <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
-          </li> */}
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
@@ -130,13 +130,23 @@ const ProviderSidebar = () => {
             }}
           />
         </div>
-        {/* LogOut Button - On Click, it triggers handleLogout function */}
+        <Link to="/supervisor/subscription">
+          <button
+            className="btn mt-4 w-100"
+            type="button"
+            id="icon-color"
+          >
+            <FaGem className="me-2" />
+            Subscription
+          </button>
+        </Link>
         <button
-          className="btn mt-4 w-100"
+          className="btn w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"
         >
+          <FaSignOutAlt className="me-2" />
           LogOut
         </button>
       </div>

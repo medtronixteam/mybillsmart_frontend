@@ -13,7 +13,7 @@ const ProviderNavbar = ({ toggleSidebar }) => {
     >
       <div className="container-fluid py-1 px-3 d-flex justify-content-between align-items-center">
         <h6 className="font-weight-bolder mb-0 d-none d-lg-block">
-          Provider Dashboard
+          Supervisor Dashboard
         </h6>
 
         <div className="d-flex align-items-center gap-3">

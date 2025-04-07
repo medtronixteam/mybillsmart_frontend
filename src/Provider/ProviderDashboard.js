@@ -12,7 +12,7 @@ const ProviderDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://34.142.252.64:8080/api/supervisor/data", {
+        const response = await fetch("http://34.142.252.64:8080/api/supervisor/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

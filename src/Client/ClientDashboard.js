@@ -6,7 +6,7 @@ const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     total_contracts: 0,
     total_documents: 0,
-    referral_points: 0 // Adding referral points to initial state
+
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,7 +16,7 @@ const ClientDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://34.142.252.64:8080/api/client/data", {
+        const response = await fetch("http://34.142.252.64:8080/api/client/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -29,7 +29,7 @@ const ClientDashboard = () => {
         const data = await response.json();
         setDashboardData({
           ...data.data, // Spread existing API data
-          referral_points: data.data.referral_points || 0 // Add referral points with fallback
+         
         });
       } catch (err) {
         setError(err.message);
@@ -121,7 +121,7 @@ const ClientDashboard = () => {
                     Referral Points
                   </p>
                   <h5 className="font-weight-bolder mb-0">
-                    {dashboardData?.referral_points || 0}
+                   0
                   </h5>
                 </div>
                 <div

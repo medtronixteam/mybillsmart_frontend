@@ -3,22 +3,22 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import "./ContractForm.css";
+import "./AdminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
 
-const ContractForm = () => {
+const AdminContractForm = () => {
   const location = useLocation();
   const [supplierData, setSupplierData] = useState(null);
   const [offerData, setOfferData] = useState(null);
   const [clients, setClients] = useState([]);
-  const { token, groupId } = useAuth();
+  const { token } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     selectedClient: "",
     client_id: "",
     contracted_provider: "",
     contracted_rate: "",
-    status: "pending",
+    status: "pending", // Default status set to "Pending"
     closure_date: "",
   });
 
@@ -89,11 +89,6 @@ const ContractForm = () => {
       return;
     }
 
-    if (!groupId) {
-      toast.error("Group information is missing!");
-      return;
-    }
-
     if (
       !formData.name ||
       !formData.selectedClient ||
@@ -111,9 +106,8 @@ const ContractForm = () => {
       offer_id: offerData.id,
       contracted_provider: formData.contracted_provider,
       contracted_rate: formData.contracted_rate,
-      status: formData.status,
+      status: formData.status, // Will always be "Pending"
       closure_date: formData.closure_date,
-      group_id: groupId, // Include group_id from auth context
     };
 
     try {
@@ -135,7 +129,7 @@ const ContractForm = () => {
         client_id: "",
         contracted_provider: "",
         contracted_rate: "",
-        status: "pending",
+        status: "pending", // Reset to "Pending"
         closure_date: "",
       });
     } catch (error) {
@@ -194,6 +188,12 @@ const ContractForm = () => {
             required
           />
 
+          {/* Display Pending status as small text instead of dropdown */}
+          {/* <div className="status-display">
+            <small>Status: Pending</small>
+            <input type="hidden" name="status" value="Pending" />
+          </div> */}
+
           <input
             type="date"
             name="closure_date"
@@ -222,4 +222,4 @@ const ContractForm = () => {
   );
 };
 
-export default ContractForm;
+export default AdminContractForm;

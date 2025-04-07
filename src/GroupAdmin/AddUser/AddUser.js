@@ -47,6 +47,11 @@ const AddUser = ({ onAddUser }) => {
         email: formData.email,
         password: formData.password,
         role: formData.role,
+        phone: formData.phone,
+        address: formData.address,
+        country: formData.country,
+        city: formData.city,
+        postal_code: formData.postalCode, 
       };
 
       const response = await axios.post(
@@ -73,6 +78,7 @@ const AddUser = ({ onAddUser }) => {
         city: "",
         postalCode: "",
         role: "agent", // Reset to default role
+        address: "",
       });
 
       // Call the onAddUser prop if needed (optional)
@@ -146,11 +152,19 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
+        
         <select name="role" value={formData.role} onChange={handleChange} required>
           <option value="agent">Sale Agent</option>
           <option value="supervisor">Supervisor</option>
           <option value="client">Clients</option>
         </select>
+        {/* <textarea
+          name="address"
+          placeholder="Please enter address"
+          value={formData.address}
+          onChange={handleChange}
+          required
+        /> */}
         <button type="submit">Add User</button>
       </form>
     </div>
