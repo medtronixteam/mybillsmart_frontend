@@ -57,11 +57,12 @@ const Subscription = () => {
   const handleSubscription = async (selectedPlan) => {
     setLoading(true);
     try {
+      const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
         'http://34.142.252.64:8080/api/create-payment-intent',
         {
           plan_id: selectedPlan.id,
-          amount: parseFloat(selectedPlan.price) * 100, // Convert to cents
+          amount: amountInCents,
         },
         {
           headers: {
@@ -70,12 +71,15 @@ const Subscription = () => {
           }
         }
       );
-
+  
       if (response.status === 200) {
-        navigate('/group_admin/checkout', {  
+        navigate('/group_admin/checkout', {
           state: {
             planDetails: selectedPlan,
-            paymentIntent: response.data
+            clientSecret: response.data.clientSecret,
+            paymentIntentId: response.data.id,
+            amount: amountInCents, // Use the amount you calculated
+            currency: 'usd' // Or get from API if available
           }
         });
       }
@@ -93,7 +97,7 @@ const Subscription = () => {
       <p className="section-subtitle">Select the perfect plan for your needs</p>
       
       <div className="cards-container">
-        {plans.map((plan, index) => (
+        {plans.map((plan) => (
           <div 
             key={plan.id} 
             className={`subscription-card ${plan.featured ? 'featured' : ''}`}

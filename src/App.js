@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "react-router-dom";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import config from './config';
 import { AuthProvider } from "./contexts/AuthContext";
 import "./assets/css/soft-ui-dashboard.css?v=1.0.3";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import Login from "./components/Login/Login";
+
+// Layout Components
 import Sidebar from "./components/Sidebar/Sidebar";
 import Navbar from "./components/Navbar/Navbar";
+import ProviderSidebar from "./Provider/ProviderSidebar/ProviderSidebar";
+import ProviderNavbar from "./Provider/ProviderNavbar/ProviderNavbar";
+import GroupAdminSidebar from "./GroupAdmin/GroupAdminSidebar/GroupAdminSidebar";
+import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
+import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
+import ClientNavbar from "./Client/ClientNavbar/ClientNavbar";
+import LinkSidebar from "./LinkInvoice/LinkSidebar/LinkSidebar";
+import LinkNavbar from "./LinkInvoice/LinkNavbar/Navbar";
+
+// Page Components
+import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard";
 import Invoice from "./components/Invoice/Invoice";
 import ProfileEdit from "./components/ProfileSetting/ProfileSetting";
-import ProviderSidebar from "./Provider/ProviderSidebar/ProviderSidebar";
 import ProviderDashboard from "./Provider/ProviderDashboard";
 import ProviderProfileSetting from "./Provider/ProviderProfileSetting/ProviderProfileSetting";
 import Products from "./Provider/Products/Products";
-import ProviderNavbar from "./Provider/ProviderNavbar/ProviderNavbar";
 import Signup from "./components/SignUp/Signup";
 import ContractForm from "./components/ContractForm/ContractForm";
 import ProtectedRoute from "./ProtectedRoute";
@@ -25,18 +38,14 @@ import ContractList from "./components/ContractList/ContractList";
 import AddProduct from "./Provider/AddProduct/AddProduct";
 import AddUser from "./GroupAdmin/AddUser/AddUser";
 import UserList from "./GroupAdmin/userList/UserList";
-import GroupAdminSidebar from "./GroupAdmin/GroupAdminSidebar/GroupAdminSidebar";
-import GroupAdminNavbar from "./GroupAdmin/GroupAdminNavbar/GroupAdminNavbar";
 import GroupAdminDashboard from "./GroupAdmin/GroupAdminDashboard";
 import GroupAdminProfileSetting from "./GroupAdmin/GroupAdminProfileSetting/GroupAdminProfileSetting";
 import InvoiceList from "./GroupAdmin/InvoiceList/InvoiceList";
 import InvoiceListAgent from "./components/InvoiceList/InvoiceList";
 import ClientContractList from "./Client/ClientContractList/ClientContractList";
 import ClientContractDocx from "./Client/ClientContractDocx/ClientContractDocx";
-import ClientNavbar from "./Client/ClientNavbar/ClientNavbar";
 import ClientDashboard from "./Client/ClientDashboard";
 import ClientProfileSetting from "./Client/ClientProfileSetting/ClientProfileSetting";
-import ClientSidebar from "./Client/ClientSidebar/ClientSidebar";
 import ClientInvoice from "./Client/ClientInvoice/ClientInvoice";
 import AddClient from "./Provider/AddClient/AddClient";
 import ClientList from "./Provider/ClientList/ClientList";
@@ -53,9 +62,10 @@ import ClientSubscription from "./Client/ClientSubscription/ClientSubscription";
 import AdminInvoice from "./GroupAdmin/AdminInvoice/AdminInvoice";
 import AdminContractForm from "./GroupAdmin/AdminContractForm/AdminContractForm";
 import CheckoutForm from "./GroupAdmin/CheckoutForm/CheckoutForm";
-import LinkSidebar from "./LinkInvoice/LinkSidebar/LinkSidebar";
-import LinkNavbar from "./LinkInvoice/LinkNavbar/Navbar";
 import LinkInvoice from "./LinkInvoice/Invoice/LinkInvoice";
+import PaymentSuccess from "./components/PaymentSuccess/PaymentSuccess";
+
+const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
 const NotFound = () => { 
   useEffect(() => {
@@ -152,14 +162,12 @@ const PublicInvoiceSubmission = () => {
 
   return (
     <>
-      
       <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
         <LinkNavbar toggleSidebar={toggleSidebar} />
         <div className="container-fluid py-4">
           <div className="row">
             <div className="col-12">
               <div className="card mb-4">
-                
                 <div className="card-body px-0 pt-0 pb-2">
                   <LinkInvoice publicMode={true} linkId={id} />
                 </div>
@@ -197,176 +205,177 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <Router>
-        <ToastContainer />
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forget-password" element={<ForgetPassword />} />
-          
-          {/* Public Invoice Submission Route */}
-          <Route path="/u/invoice/:id" element={<PublicInvoiceSubmission />} />
+      <Elements stripe={stripePromise}>
+        <Router>
+          <ToastContainer />
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            
+            <Route path="/u/invoice/:id" element={<PublicInvoiceSubmission />} />
 
-          {/* Agent Routes */}
-          <Route
-            path="/agent/*"
-            element={
-              <ProtectedRoute
-                element={
-                  <>
-                    <div
-                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
-                        isSidebarOpen ? "show-sidebar" : ""
-                      }`}
-                      id="sidenav-main"
-                    >
-                      <Sidebar />
-                    </div>
-                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                      <Navbar toggleSidebar={toggleSidebar} />
-                      <Routes>
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="profile-edit" element={<ProfileEdit />} />
-                        <Route path="invoice" element={<Invoice />} />
-                        <Route path="contract" element={<ContractForm />} />
-                        <Route path="add-client" element={<AddClients />} />
-                        <Route path="contract-list" element={<ContractList />} />
-                        <Route path="invoice-list" element={<InvoiceListAgent />} />
-                        <Route path="notifications" element={<AgentNotifications />} />
-                        <Route path="submission-link" element={<AgentSubmissionLink />} />
-                        <Route path="subscription" element={<AgentSubscription />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </>
-                }
-                requiredRole="agent"
-              />
-            }
-          />
+            {/* Agent Routes */}
+            <Route
+              path="/agent/*"
+              element={
+                <ProtectedRoute
+                  element={
+                    <>
+                      <div
+                        className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                          isSidebarOpen ? "show-sidebar" : ""
+                        }`}
+                        id="sidenav-main"
+                      >
+                        <Sidebar />
+                      </div>
+                      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                        <Navbar toggleSidebar={toggleSidebar} />
+                        <Routes>
+                          <Route path="dashboard" element={<Dashboard />} />
+                          <Route path="profile-edit" element={<ProfileEdit />} />
+                          <Route path="invoice" element={<Invoice />} />
+                          <Route path="contract" element={<ContractForm />} />
+                          <Route path="add-client" element={<AddClients />} />
+                          <Route path="contract-list" element={<ContractList />} />
+                          <Route path="invoice-list" element={<InvoiceListAgent />} />
+                          <Route path="notifications" element={<AgentNotifications />} />
+                          <Route path="submission-link" element={<AgentSubmissionLink />} />
+                          <Route path="subscription" element={<AgentSubscription />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </>
+                  }
+                  requiredRole="agent"
+                />
+              }
+            />
 
-          {/* Provider Routes */}
-          <Route
-            path="/supervisor/*"
-            element={
-              <ProtectedRoute
-                element={
-                  <>
-                    <div
-                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
-                        isSidebarOpen ? "show-sidebar" : ""
-                      }`}
-                      id="sidenav-main"
-                    >
-                      <ProviderSidebar />
-                    </div>
-                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                      <ProviderNavbar toggleSidebar={toggleSidebar} />
-                      <Routes>
-                        <Route path="dashboard" element={<ProviderDashboard />} />
-                        <Route path="profile-edit" element={<ProviderProfileSetting />} />
-                        <Route path="product-list" element={<Products />} />
-                        <Route path="add-product" element={<AddProduct />} />
-                        <Route path="add-client" element={<AddClient />} />
-                        <Route path="client-list" element={<ClientList />} />
-                        <Route path="submission-link" element={<ProviderSubmissionLink />} />
-                        <Route path="subscription" element={<ProviderSubscription />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </>
-                }
-                requiredRole="supervisor"
-              />
-            }
-          />
+            {/* Provider Routes */}
+            <Route
+              path="/supervisor/*"
+              element={
+                <ProtectedRoute
+                  element={
+                    <>
+                      <div
+                        className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                          isSidebarOpen ? "show-sidebar" : ""
+                        }`}
+                        id="sidenav-main"
+                      >
+                        <ProviderSidebar />
+                      </div>
+                      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                        <ProviderNavbar toggleSidebar={toggleSidebar} />
+                        <Routes>
+                          <Route path="dashboard" element={<ProviderDashboard />} />
+                          <Route path="profile-edit" element={<ProviderProfileSetting />} />
+                          <Route path="product-list" element={<Products />} />
+                          <Route path="add-product" element={<AddProduct />} />
+                          <Route path="add-client" element={<AddClient />} />
+                          <Route path="client-list" element={<ClientList />} />
+                          <Route path="submission-link" element={<ProviderSubmissionLink />} />
+                          <Route path="subscription" element={<ProviderSubscription />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </>
+                  }
+                  requiredRole="supervisor"
+                />
+              }
+            />
 
-          {/* Group Admin Routes */}
-          <Route
-            path="/group_admin/*"
-            element={
-              <ProtectedRoute
-                element={
-                  <>
-                    <div
-                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
-                        isSidebarOpen ? "show-sidebar" : ""
-                      }`}
-                      id="sidenav-main"
-                    >
-                      <GroupAdminSidebar />
-                    </div>
-                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                      <GroupAdminNavbar toggleSidebar={toggleSidebar} />
-                      <Routes>
-                        <Route path="dashboard" element={<GroupAdminDashboard />} />
-                        <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
-                        <Route path="invoice-list" element={<InvoiceList />} />
-                        <Route path="admin-invoice" element={<AdminInvoice />} />
-                        <Route path="admin-contract" element={<AdminContractForm />} />
-                        <Route path="checkout" element={<CheckoutForm />} />
-                        <Route path="add-user" element={<AddUser onAddUser={handleAddUser} />} />
-                        <Route path="user-list" element={
-                          <UserList
-                            users={users}
-                            onDeleteUser={handleDeleteUser}
-                            onEditUser={handleEditUser}
-                          />
-                        } />
-                        <Route path="client-contract-list" element={<ClientContractList />} />
-                        <Route path="client-contract-docx" element={<ClientContractDocx />} />
-                        <Route path="subscription" element={<Subscription />} />
-                        <Route path="submission-link" element={<SubmissionLink />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </>
-                }
-                requiredRole="group_admin"
-              />
-            }
-          />
+            {/* Group Admin Routes */}
+            <Route
+              path="/group_admin/*"
+              element={
+                <ProtectedRoute
+                  element={
+                    <>
+                      <div
+                        className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                          isSidebarOpen ? "show-sidebar" : ""
+                        }`}
+                        id="sidenav-main"
+                      >
+                        <GroupAdminSidebar />
+                      </div>
+                      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                        <GroupAdminNavbar toggleSidebar={toggleSidebar} />
+                        <Routes>
+                          <Route path="dashboard" element={<GroupAdminDashboard />} />
+                          <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
+                          <Route path="invoice-list" element={<InvoiceList />} />
+                          <Route path="admin-invoice" element={<AdminInvoice />} />
+                          <Route path="admin-contract" element={<AdminContractForm />} />
+                          <Route path="checkout" element={<CheckoutForm />} />
+                          <Route path="payment-success" element={<PaymentSuccess />} />
+                          <Route path="add-user" element={<AddUser onAddUser={handleAddUser} />} />
+                          <Route path="user-list" element={
+                            <UserList
+                              users={users}
+                              onDeleteUser={handleDeleteUser}
+                              onEditUser={handleEditUser}
+                            />
+                          } />
+                          <Route path="client-contract-list" element={<ClientContractList />} />
+                          <Route path="client-contract-docx" element={<ClientContractDocx />} />
+                          <Route path="subscription" element={<Subscription />} />
+                          <Route path="submission-link" element={<SubmissionLink />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </>
+                  }
+                  requiredRole="group_admin"
+                />
+              }
+            />
 
-          {/* Client Routes */}
-          <Route
-            path="/client/*"
-            element={
-              <ProtectedRoute
-                element={
-                  <>
-                    <div
-                      className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
-                        isSidebarOpen ? "show-sidebar" : ""
-                      }`}
-                      id="sidenav-main"
-                    >
-                      <ClientSidebar />
-                    </div>
-                    <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
-                      <ClientNavbar toggleSidebar={toggleSidebar} />
-                      <Routes>
-                        <Route path="dashboard" element={<ClientDashboard />} />
-                        <Route path="profile-edit" element={<ClientProfileSetting />} />
-                        <Route path="contract-list" element={<ClientContractList />} />
-                        <Route path="contract-docx" element={<ClientContractDocx />} />
-                        <Route path="client-invoice" element={<ClientInvoice />} />
-                        <Route path="notifications" element={<Notifications />} />
-                        <Route path="subscription" element={<ClientSubscription />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </>
-                }
-                requiredRole="client"
-              />
-            }
-          />
+            {/* Client Routes */}
+            <Route
+              path="/client/*"
+              element={
+                <ProtectedRoute
+                  element={
+                    <>
+                      <div
+                        className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                          isSidebarOpen ? "show-sidebar" : ""
+                        }`}
+                        id="sidenav-main"
+                      >
+                        <ClientSidebar />
+                      </div>
+                      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                        <ClientNavbar toggleSidebar={toggleSidebar} />
+                        <Routes>
+                          <Route path="dashboard" element={<ClientDashboard />} />
+                          <Route path="profile-edit" element={<ClientProfileSetting />} />
+                          <Route path="contract-list" element={<ClientContractList />} />
+                          <Route path="contract-docx" element={<ClientContractDocx />} />
+                          <Route path="client-invoice" element={<ClientInvoice />} />
+                          <Route path="notifications" element={<Notifications />} />
+                          <Route path="subscription" element={<ClientSubscription />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </>
+                  }
+                  requiredRole="client"
+                />
+              }
+            />
 
-          {/* Catch-all route for any undefined paths */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </Elements>
     </AuthProvider>
   );
 };

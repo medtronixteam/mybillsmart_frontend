@@ -4,8 +4,9 @@ import { useAuth } from "../contexts/AuthContext";
 
 const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
-    total_contracts: 0,
+    total_contracts: 0, 
     total_documents: 0,
+
 
   });
   const [loading, setLoading] = useState(true);
