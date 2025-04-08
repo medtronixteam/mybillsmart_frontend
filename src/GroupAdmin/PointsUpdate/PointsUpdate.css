@@ -1,0 +1,73 @@
+.PointsUpdate-container {
+    max-width: 550px;
+    margin: 20px auto;
+    padding: 40px;
+    
+    border-radius: 10px;
+    background-image: url('../../assets/img/Formback.png');
+    background-size: 100% 100%;
+    border-radius: 10px;
+    /* padding: 30px 30px 40px 50px; */
+    
+  }
+  textarea{
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .PointsUpdate-container form{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between !important;
+    flex-wrap: wrap;
+  }
+  .PointsUpdate-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    
+  }
+  
+  .PointsUpdate-container input,
+  .PointsUpdate-container select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+  }
+  
+  .PointsUpdate-container button {
+    margin: 10px auto;
+  padding: 12px 20px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 50%;
+  font-size: 18px;
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+  }
+  
+  /* .add-user-container button:hover {
+    background-color: #266894;
+  } */
+
+
+  @media screen and (max-width: 600px) {
+
+    .add-user-container input,
+    .add-user-container select {
+      width: 100%;
+    }
+    .add-user-container {
+      max-width: 100%;
+     
+      
+    }
+    
+  }

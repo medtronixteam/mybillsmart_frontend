@@ -9,49 +9,49 @@ import "./RefferalLink.css";
 import { useAuth } from "../../contexts/AuthContext";
 
 const RefferalLink = () => {
-  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
-  const [copyStatus, setCopyStatus] = useState();
+  const [copyStatus, setCopyStatus] = useState("");
   const { token } = useAuth();
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setIsLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  //     try {
-  //       const response = await fetch(
-  //         "http://34.142.252.64:8080/api/generate-url",
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //           body: JSON.stringify({ email }),
-  //         }
-  //       );
+    try {
+      const response = await fetch(
+        "http://34.142.252.64:8080/api/agent/referral-url", 
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        
+        }
+      );
 
-  //       if (!response.ok) {
-  //         throw new Error("Failed to generate link");
-  //       }
+      if (!response.ok) {
+        throw new Error("Failed to generate referral link");
+      }
 
-  //       const data = await response.json();
-  //       setGeneratedLink(data.url);
-  //       setIsSubmitted(true);
-  //     } catch (error) {
-  //       console.error("Error:", error);
-  //       alert("Failed to send link. Please try again.");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
+      const data = await response.json();
+      setGeneratedLink(data.referral_url); 
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to generate link. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const copyToClipboard = () => {
+    if (!generatedLink) return;
+    
     navigator.clipboard.writeText(generatedLink);
     setCopyStatus("Copied!");
-    setTimeout(() => setCopyStatus(), 2000);
+    setTimeout(() => setCopyStatus(""), 2000);
   };
 
   return (
@@ -60,17 +60,15 @@ const RefferalLink = () => {
         <div className="submission-card">
           <div className="card-header">
             <FaEnvelope className="email-icon" />
-            <h2>Send Refferal Link</h2>
+            <h2>Get Referral Link</h2>
             <p>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry's standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book.
+              Click the button below to generate your unique referral link.
+              Share this link with others to invite them to join.
             </p>
           </div>
 
           <button
-            onClick={() => setIsSubmitted(true)}
+            onClick={handleSubmit}
             disabled={isLoading}
             className="submit-btn"
           >
@@ -79,7 +77,7 @@ const RefferalLink = () => {
             ) : (
               <>
                 <FaPaperPlane className="send-icon" />
-                Send Link
+                Generate Link
               </>
             )}
           </button>
@@ -88,13 +86,12 @@ const RefferalLink = () => {
         <div className="success-card">
           <div className="success-content">
             <FaCheckCircle className="success-icon" />
-            <h2>Link Sent Successfully!</h2>
+            <h2>Link Generated Successfully!</h2>
             <p>
-              The submission link has been sent to <strong>{email}</strong>
+              Your unique referral link is ready to share:
             </p>
 
             <div className="generated-link-container">
-              {/* <p className="link-label">Generated Link:</p> */}
               <div className="link-box">
                 <a
                   href={generatedLink}
@@ -106,6 +103,7 @@ const RefferalLink = () => {
                 </a>
                 <button onClick={copyToClipboard} className="copy-btn">
                   <FaCopy className="copy-icon" />
+                  {copyStatus && <span className="copy-status">{copyStatus}</span>}
                 </button>
               </div>
             </div>
@@ -113,12 +111,11 @@ const RefferalLink = () => {
             <button
               onClick={() => {
                 setIsSubmitted(false);
-                setEmail("");
                 setGeneratedLink("");
               }}
               className="back-btn mt-3"
             >
-              Send Another Link
+              Generate New Link
             </button>
           </div>
         </div>
@@ -128,3 +125,4 @@ const RefferalLink = () => {
 };
 
 export default RefferalLink;
+

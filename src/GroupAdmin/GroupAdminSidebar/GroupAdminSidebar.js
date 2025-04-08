@@ -133,13 +133,13 @@ const GroupAdminSidebar = () => {
           <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/group_admin/refferal-link"
+              to="/group_admin/points-update"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Refferal Link</span>
+              <span className="nav-link-text ms-1">Points Update</span>
             </NavLink>
           </li>
         </ul>

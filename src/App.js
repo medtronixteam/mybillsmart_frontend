@@ -74,7 +74,7 @@ import AgentCheckoutForm from "./components/CheckoutForm/CheckoutForm";
 import ProviderCheckoutForm from "./Provider/CheckoutForm/CheckoutForm";
 import AgentRefferalLink from "./components/RefferalLink/RefferalLink";
 import ProviderRefferalLink from "./Provider/RefferalLink/RefferalLink";
-import GroupAdminRefferalLink from "./GroupAdmin/RefferalLink/RefferalLink";
+import PointsUpdate from "./GroupAdmin/PointsUpdate/PointsUpdate";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -433,8 +433,8 @@ const App = () => {
                             element={<SubmissionLink />}
                           />
                           <Route
-                            path="refferal-link"
-                            element={<GroupAdminRefferalLink />}
+                            path="points-update"
+                            element={<PointsUpdate/>}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

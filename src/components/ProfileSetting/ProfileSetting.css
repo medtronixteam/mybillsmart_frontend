@@ -93,3 +93,35 @@
     padding: 10px;
   }
 }
+
+.profile-2fa-card {
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-2fa-card code {
+  background: #f8f9fa;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  word-break: break-all;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.profile-2fa-card .btn {
+  min-width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .profile-2fa-card .d-flex {
+    flex-direction: column;
+    gap: 10px !important;
+  }
+  
+  .profile-2fa-card .btn {
+    width: 100%;
+  }
+}

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./GroupAdminProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
-import { ToastContainer, toast } from "react-toastify"; // Import toast
-import "react-toastify/dist/ReactToastify.css"; // Import toast CSS
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const GroupAdminProfileSetting = () => {
   // State for profile data
@@ -22,12 +22,25 @@ const GroupAdminProfileSetting = () => {
     confirm_password: "",
   });
 
+  // State for 2FA
+  const [twoFA, setTwoFA] = useState({
+    qrCode: "",
+    secret: "",
+    code: "",
+    loading: false,
+  });
+
   // Loading states
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
 
-  // Get token from AuthContext
-  const { token } = useAuth();
+  // Get auth context
+  const { token, is2FAEnabled, update2FAStatus } = useAuth();
+
+  // Initialize 2FA status from auth context
+  useEffect(() => {
+    // You can fetch initial profile data here if needed
+  }, []);
 
   // Handle profile input change
   const handleProfileChange = (e) => {
@@ -41,24 +54,21 @@ const GroupAdminProfileSetting = () => {
     setPasswordData({ ...passwordData, [name]: value });
   };
 
+  // Handle 2FA input change
+  const handle2FAChange = (e) => {
+    const { name, value } = e.target;
+    setTwoFA({ ...twoFA, [name]: value });
+  };
+
   // Handle profile form submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate profile fields
-    if (
-      !profileData.name ||
-      !profileData.city ||
-      !profileData.country ||
-      !profileData.address ||
-      !profileData.postalCode
-    ) {
-      toast.error("Please fill all the fields!"); // Replace alert with toast
+    if (!profileData.name || !profileData.city || !profileData.country || !profileData.address || !profileData.postalCode) {
+      toast.error("Please fill all the fields!");
       return;
     }
 
     setLoadingProfile(true);
-
     try {
       const transformedProfileData = {
         ...profileData,
@@ -75,16 +85,13 @@ const GroupAdminProfileSetting = () => {
       });
 
       const result = await response.json();
-
       if (response.ok) {
-        toast.success("Profile updated successfully!"); // Replace alert with toast
-        console.log("Profile updated:", result);
+        toast.success("Profile updated successfully!");
       } else {
-        toast.error(`Failed to update profile: ${result.message || "Unknown error"}`); // Replace alert with toast
+        toast.error(`Failed to update profile: ${result.message || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again."); // Replace alert with toast
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setLoadingProfile(false);
     }
@@ -93,21 +100,17 @@ const GroupAdminProfileSetting = () => {
   // Handle password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if new password and confirm password match
     if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error("New password and confirm password do not match!"); // Replace alert with toast
+      toast.error("New password and confirm password do not match!");
       return;
     }
 
-    // Check if current password is provided
     if (!passwordData.current_password) {
-      toast.error("Please enter your current password!"); // Replace alert with toast
+      toast.error("Please enter your current password!");
       return;
     }
 
     setLoadingPassword(true);
-
     try {
       const response = await fetch("http://34.142.252.64:8080/api/change-password", {
         method: "POST",
@@ -123,24 +126,110 @@ const GroupAdminProfileSetting = () => {
       });
 
       const result = await response.json();
-
       if (response.ok) {
-        toast.success("Password updated successfully!"); // Replace alert with toast
-        console.log("Password updated:", result);
+        toast.success("Password updated successfully!");
       } else {
-        toast.error(`Failed to update password: ${result.message || "Unknown error"}`); // Replace alert with toast
+        toast.error(`Failed to update password: ${result.message || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error updating password:", error);
-      toast.error("Failed to update password. Please try again."); // Replace alert with toast
+      toast.error("Failed to update password. Please try again.");
     } finally {
       setLoadingPassword(false);
     }
   };
 
+  // Enable 2FA
+  const handleEnable2FA = async () => {
+    setTwoFA(prev => ({ ...prev, loading: true }));
+    try {
+      const response = await fetch("http://34.142.252.64:8080/api/auth/enable-2fa", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      
+      if (data.qrCodeUrl || data.qrCode) {
+        setTwoFA(prev => ({
+          ...prev,
+          qrCode: data.qrCodeUrl || data.qrCode,
+          secret: data.secret,
+          loading: false,
+        }));
+      }
+    } catch (error) {
+      toast.error("Failed to enable 2FA");
+      setTwoFA(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Verify 2FA
+  const handleVerify2FA = async () => {
+    if (!twoFA.code) {
+      toast.error("Please enter the verification code");
+      return;
+    }
+    
+    setTwoFA(prev => ({ ...prev, loading: true }));
+    try {
+      const response = await fetch("http://34.142.252.64:8080/api/auth/verify-2fa", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code: twoFA.code }),
+      });
+      
+      if (response.ok) {
+        update2FAStatus(true); // Update context with new 2FA status
+        setTwoFA(prev => ({
+          ...prev,
+          code: "",
+          loading: false,
+        }));
+        toast.success("2FA enabled successfully!");
+      } else {
+        throw new Error("Verification failed");
+      }
+    } catch (error) {
+      toast.error("Invalid code. Please try again.");
+      setTwoFA(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Disable 2FA
+  const handleDisable2FA = async () => {
+    setTwoFA(prev => ({ ...prev, loading: true }));
+    try {
+      const response = await fetch("http://34.142.252.64:8080/api/auth/disable-2fa", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        update2FAStatus(false); // Update context with new 2FA status
+        setTwoFA(prev => ({
+          ...prev,
+          qrCode: "",
+          secret: "",
+          loading: false,
+        }));
+        toast.success("2FA disabled successfully!");
+      } else {
+        throw new Error("Failed to disable");
+      }
+    } catch (error) {
+      toast.error("Failed to disable 2FA");
+      setTwoFA(prev => ({ ...prev, loading: false }));
+    }
+  };
+
   return (
     <div className="profile-edit-container container mt-3">
-      {/* Add ToastContainer to display toasts */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -305,9 +394,102 @@ const GroupAdminProfileSetting = () => {
             </div>
           </form>
         </div>
+
+        {/* 2FA Card */} 
+        <div className="col-12 mt-4">
+          <div className="card profile-2fa-card">
+            <h3 className="profile-card-heading">Two-Factor Authentication (2FA)</h3>
+            
+            {is2FAEnabled ? (
+              <div className="text-center">
+                <p className="text-success">✓ 2FA is currently enabled</p>
+                <button
+                  onClick={handleDisable2FA}
+                  className="btn btn-danger"
+                  disabled={twoFA.loading}
+                >
+                  {twoFA.loading ? "Processing..." : "Disable 2FA"}
+                </button>
+              </div>
+            ) : (
+              <div className="text-center">
+                {twoFA.qrCode ? (
+                  <>
+                    <div className="mb-3">
+                      <p>Scan this QR code with your authenticator app:</p>
+                      {twoFA.qrCode.startsWith('data:image') || twoFA.qrCode.startsWith('http') ? (
+                        <img 
+                          src={twoFA.qrCode} 
+                          alt="2FA QR Code"
+                          style={{ 
+                            maxWidth: "200px", 
+                            margin: "0 auto",
+                            border: "1px solid #ddd",
+                            padding: "10px",
+                            backgroundColor: "white"
+                          }}
+                        />
+                      ) : (
+                        <div 
+                          dangerouslySetInnerHTML={{ __html: twoFA.qrCode }}
+                          style={{ 
+                            maxWidth: "200px", 
+                            margin: "0 auto",
+                            border: "1px solid #ddd",
+                            padding: "10px",
+                            backgroundColor: "white"
+                          }}
+                        />
+                      )}
+                      <p className="mt-2">Or enter this secret manually: <code>{twoFA.secret}</code></p>
+                    </div>
+                    <div className="mb-3">  
+                      <p>Enter the 6-digit code from your authenticator app:</p>
+                      <input
+                        type="text"
+                        name="code"
+                        value={twoFA.code}
+                        onChange={handle2FAChange}
+                        placeholder="123456"
+                        className="form-control text-center"
+                        style={{ maxWidth: "200px", margin: "0 auto" }}
+                      />
+                    </div>
+                    <div className="d-flex justify-content-center gap-2">
+                      <button
+                        onClick={handleVerify2FA}
+                        className="btn btn-success"
+                        disabled={twoFA.loading}
+                      >
+                        {twoFA.loading ? "Verifying..." : "Verify & Enable"}
+                      </button>
+                      <button
+                        onClick={() => setTwoFA(prev => ({ ...prev, qrCode: "", secret: "" }))}
+                        className="btn btn-secondary"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p>Add an extra layer of security to your account</p>
+                    <button
+                      onClick={handleEnable2FA}
+                      className="btn btn-primary"
+                      disabled={twoFA.loading}
+                    >
+                      {twoFA.loading ? "Loading..." : "Enable 2FA"}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default GroupAdminProfileSetting;
+export default GroupAdminProfileSetting; 

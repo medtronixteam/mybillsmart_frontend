@@ -1,6 +1,5 @@
-
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Signup.css"; 
 import config from "../../config";
 
@@ -9,15 +8,24 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("agent"); // Set default role to 'agent'
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [error, setError] = useState("");
+  const [referralId, setReferralId] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setReferralId(ref);
+    }
+  }, [searchParams]);
 
   const handleCityChange = (e) => {
     const cityName = e.target.value;
@@ -56,19 +64,18 @@ const Signup = () => {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("role", role);
-    // formData.append("phone", phone);
-    // formData.append("address", address);
-    // formData.append("country", country);
-    // formData.append("city", city);
-    // formData.append("postal_code", postalCode);
-
-    const apiEndpoint =
-      role === "agent"
-        ? `${config.BASE_URL}/api/agent`
-        : `${config.BASE_URL}/api/provider`;
+    formData.append("phone", phone);
+    formData.append("address", address);
+    formData.append("country", country);
+    formData.append("city", city);
+    formData.append("postal_code", postalCode);
+    
+    if (referralId) {
+      formData.append("referal_code", referralId);
+    }
 
     try {
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch(`${config.BASE_URL}/api/signup`, {
         method: "POST",
         body: formData,
       });
@@ -197,24 +204,15 @@ const Signup = () => {
                 required
               />
             </div>
-            <div className="mb-3 col-md-6">
-              <select
-                className="form-control"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="agent">agent</option>
-                <option value="provider">Provider</option>
-              </select>
-            </div>
-            <button type="submit" className="submit-btn" onClick={handleSubmit}>
+            {/* Hidden role field since it's always 'agent' */}
+            <input type="hidden" value={role} />
+            
+            <button type="submit" className="submit-btn">
               Sign Up
             </button>
-            <div class="switch-form">
-              Don't have an account?{" "}
-              <a href="/login" onclick="toggleForm()">
+            <div className="switch-form">
+              Already have an account?{" "}
+              <a href="/login">
                 Login
               </a>
             </div>
