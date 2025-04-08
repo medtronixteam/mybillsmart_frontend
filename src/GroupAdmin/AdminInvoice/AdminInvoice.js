@@ -35,13 +35,28 @@ const AdminInvoice = () => {
     message: ""
   });
   const navigate = useNavigate();
-  const { token, groupId } = useAuth();
+  const { token } = useAuth();
 
   useEffect(() => {
     if (showModal) {
       fetchClients();
     }
   }, [showModal]);
+
+  const fetchGroupId = async () => {
+    try {
+      const response = await axios.get("http://34.142.252.64:8080/api/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.id;
+    } catch (error) {
+      console.error("Error fetching group ID:", error);
+      toast.error("Failed to fetch group information");
+      throw error;
+    }
+  };
 
   const fetchClients = async () => {
     setLoadingClients(true);
@@ -79,7 +94,6 @@ const AdminInvoice = () => {
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
     
-    // Get all unique keys from all objects
     const allKeys = data.reduce((keys, item) => {
       Object.keys(item).forEach(key => {
         if (!keys.includes(key) && 
@@ -90,15 +104,12 @@ const AdminInvoice = () => {
       return keys;
     }, []);
 
-    // Create CSV headers
     const headers = allKeys
       .map(key => `"${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}"`)
       .join(",");
 
-    // Create CSV rows
     const rows = data.map(item => {
       return allKeys.map(key => {
-        // Handle missing values and escape quotes
         const value = item[key] !== undefined ? item[key] : "";
         return `"${String(value).replace(/"/g, '""')}"`;
       }).join(",");
@@ -142,7 +153,6 @@ const AdminInvoice = () => {
     }
 
     try {
-      // For proper Excel format, we need to add BOM (Byte Order Mark) for UTF-8
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
       downloadFile(csvContent, `invoice_${invoiceId}_data.xls`, "application/vnd.ms-excel;charset=utf-8;");
       toast.success("Excel file downloaded successfully");
@@ -212,6 +222,9 @@ const AdminInvoice = () => {
     e.preventDefault();
 
     try {
+      
+      const groupId = await fetchGroupId();
+      
       const matchData = {
         ...formData,
         group_id: groupId
@@ -227,9 +240,15 @@ const AdminInvoice = () => {
       console.log("Match API Response:", matchResponse.data);
       setSubmittedData(matchResponse.data);
 
+      // Include group_id in the invoice API call
+      const invoicePayload = {
+        ...formData,
+        group_id: groupId
+      };
+
       const invoiceResponse = await axios.post(
         "http://34.142.252.64:8080/api/group/invoices",
-        formData,
+        invoicePayload,
         {
           headers: {
             "Content-Type": "application/json",
@@ -270,6 +289,7 @@ const AdminInvoice = () => {
       toast.error("Error submitting form. Please try again.");
     }
   };
+
 
   const renderFormFields = (data) => {
     return Object.keys(data)
@@ -389,7 +409,7 @@ const AdminInvoice = () => {
   };
 
   const handleContractClick = (offer) => {
-    navigate("/group-admin/admin-contract", {
+    navigate("/group_admin/admin-contract", {
       state: {
         offerData: offer,
         offerId: offer.id,

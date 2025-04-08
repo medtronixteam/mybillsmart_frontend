@@ -73,7 +73,7 @@ const AgentSubscription = () => {
       );
 
       if (response.status === 200) {
-        navigate("/group_admin/checkout", {
+        navigate("/agent/checkout", {
           state: {
             planDetails: selectedPlan,
             clientSecret: response.data.clientSecret,

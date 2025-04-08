@@ -64,6 +64,8 @@ import AdminContractForm from "./GroupAdmin/AdminContractForm/AdminContractForm"
 import CheckoutForm from "./GroupAdmin/CheckoutForm/CheckoutForm";
 import LinkInvoice from "./LinkInvoice/Invoice/LinkInvoice";
 import PaymentSuccess from "./components/PaymentSuccess/PaymentSuccess";
+import AgentCheckoutForm from "./components/CheckoutForm/CheckoutForm";
+import ProviderCheckoutForm from "./Provider/CheckoutForm/CheckoutForm";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -244,6 +246,8 @@ const App = () => {
                           <Route path="notifications" element={<AgentNotifications />} />
                           <Route path="submission-link" element={<AgentSubmissionLink />} />
                           <Route path="subscription" element={<AgentSubscription />} />
+                          <Route path="checkout" element={<AgentCheckoutForm />} />
+
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
@@ -280,6 +284,7 @@ const App = () => {
                           <Route path="client-list" element={<ClientList />} />
                           <Route path="submission-link" element={<ProviderSubmissionLink />} />
                           <Route path="subscription" element={<ProviderSubscription />} />
+                          <Route path="checkout" element={<ProviderCheckoutForm />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
