@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from "react-router-dom";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import config from './config';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+  useParams,
+} from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import config from "./config";
 import { AuthProvider } from "./contexts/AuthContext";
 import "./assets/css/soft-ui-dashboard.css?v=1.0.3";
 import "./App.css";
@@ -66,27 +72,32 @@ import LinkInvoice from "./LinkInvoice/Invoice/LinkInvoice";
 import PaymentSuccess from "./components/PaymentSuccess/PaymentSuccess";
 import AgentCheckoutForm from "./components/CheckoutForm/CheckoutForm";
 import ProviderCheckoutForm from "./Provider/CheckoutForm/CheckoutForm";
+import AgentRefferalLink from "./components/RefferalLink/RefferalLink";
+import ProviderRefferalLink from "./Provider/RefferalLink/RefferalLink";
+import GroupAdminRefferalLink from "./GroupAdmin/RefferalLink/RefferalLink";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
-const NotFound = () => { 
+const NotFound = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       localStorage.clear();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      flexDirection: 'column'
-    }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        flexDirection: "column",
+      }}
+    >
       <h1>404 - Page Not Found</h1>
       <p>Redirecting to login page in 5 seconds...</p>
     </div>
@@ -107,16 +118,18 @@ const PublicInvoiceSubmission = () => {
   useEffect(() => {
     const checkLinkValidity = async () => {
       try {
-        const response = await axios.get(`http://34.142.252.64:8080/api/verify-url/${id}`);
+        const response = await axios.get(
+          `http://34.142.252.64:8080/api/verify-url/${id}`
+        );
         if (response.data.status === "success") {
           setIsValid(true);
           setError(null);
         } else {
           setIsValid(false);
-          setError(response.data.message || 'Link is not available');
+          setError(response.data.message || "Link is not available");
         }
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to validate link');
+        setError(err.response?.data?.message || "Failed to validate link");
         setIsValid(false);
       } finally {
         setLoading(false);
@@ -128,12 +141,14 @@ const PublicInvoiceSubmission = () => {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -143,18 +158,20 @@ const PublicInvoiceSubmission = () => {
 
   if (!isValid) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        flexDirection: 'column'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          flexDirection: "column",
+        }}
+      >
         <h1>Invalid Link</h1>
-        <p>{error || 'This invoice submission link is not available.'}</p>
-        <button 
+        <p>{error || "This invoice submission link is not available."}</p>
+        <button
           className="btn btn-primary mt-3"
-          onClick={() => window.location.href = '/login'}
+          onClick={() => (window.location.href = "/login")}
         >
           Go to Login
         </button>
@@ -200,7 +217,7 @@ const App = () => {
     );
     setUsers(updatedUsers);
   };
-  
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -215,8 +232,11 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
-            
-            <Route path="/u/invoice/:id" element={<PublicInvoiceSubmission />} />
+
+            <Route
+              path="/u/invoice/:id"
+              element={<PublicInvoiceSubmission />}
+            />
 
             {/* Agent Routes */}
             <Route
@@ -237,16 +257,41 @@ const App = () => {
                         <Navbar toggleSidebar={toggleSidebar} />
                         <Routes>
                           <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="profile-edit" element={<ProfileEdit />} />
+                          <Route
+                            path="profile-edit"
+                            element={<ProfileEdit />}
+                          />
                           <Route path="invoice" element={<Invoice />} />
                           <Route path="contract" element={<ContractForm />} />
                           <Route path="add-client" element={<AddClients />} />
-                          <Route path="contract-list" element={<ContractList />} />
-                          <Route path="invoice-list" element={<InvoiceListAgent />} />
-                          <Route path="notifications" element={<AgentNotifications />} />
-                          <Route path="submission-link" element={<AgentSubmissionLink />} />
-                          <Route path="subscription" element={<AgentSubscription />} />
-                          <Route path="checkout" element={<AgentCheckoutForm />} />
+                          <Route
+                            path="contract-list"
+                            element={<ContractList />}
+                          />
+                          <Route
+                            path="invoice-list"
+                            element={<InvoiceListAgent />}
+                          />
+                          <Route
+                            path="notifications"
+                            element={<AgentNotifications />}
+                          />
+                          <Route
+                            path="submission-link"
+                            element={<AgentSubmissionLink />}
+                          />
+                          <Route
+                            path="refferal-link"
+                            element={<AgentRefferalLink />}
+                          />
+                          <Route
+                            path="subscription"
+                            element={<AgentSubscription />}
+                          />
+                          <Route
+                            path="checkout"
+                            element={<AgentCheckoutForm />}
+                          />
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
@@ -276,15 +321,34 @@ const App = () => {
                       <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                         <ProviderNavbar toggleSidebar={toggleSidebar} />
                         <Routes>
-                          <Route path="dashboard" element={<ProviderDashboard />} />
-                          <Route path="profile-edit" element={<ProviderProfileSetting />} />
+                          <Route
+                            path="dashboard"
+                            element={<ProviderDashboard />}
+                          />
+                          <Route
+                            path="profile-edit"
+                            element={<ProviderProfileSetting />}
+                          />
                           <Route path="product-list" element={<Products />} />
                           <Route path="add-product" element={<AddProduct />} />
                           <Route path="add-client" element={<AddClient />} />
                           <Route path="client-list" element={<ClientList />} />
-                          <Route path="submission-link" element={<ProviderSubmissionLink />} />
-                          <Route path="subscription" element={<ProviderSubscription />} />
-                          <Route path="checkout" element={<ProviderCheckoutForm />} />
+                          <Route
+                            path="submission-link"
+                            element={<ProviderSubmissionLink />}
+                          />
+                          <Route
+                            path="refferal-link"
+                            element={<ProviderRefferalLink />}
+                          />
+                          <Route
+                            path="subscription"
+                            element={<ProviderSubscription />}
+                          />
+                          <Route
+                            path="checkout"
+                            element={<ProviderCheckoutForm />}
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
@@ -313,25 +377,65 @@ const App = () => {
                       <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                         <GroupAdminNavbar toggleSidebar={toggleSidebar} />
                         <Routes>
-                          <Route path="dashboard" element={<GroupAdminDashboard />} />
-                          <Route path="profile-edit" element={<GroupAdminProfileSetting />} />
-                          <Route path="invoice-list" element={<InvoiceList />} />
-                          <Route path="admin-invoice" element={<AdminInvoice />} />
-                          <Route path="admin-contract" element={<AdminContractForm />} />
+                          <Route
+                            path="dashboard"
+                            element={<GroupAdminDashboard />}
+                          />
+                          <Route
+                            path="profile-edit"
+                            element={<GroupAdminProfileSetting />}
+                          />
+                          <Route
+                            path="invoice-list"
+                            element={<InvoiceList />}
+                          />
+                          <Route
+                            path="admin-invoice"
+                            element={<AdminInvoice />}
+                          />
+                          <Route
+                            path="admin-contract"
+                            element={<AdminContractForm />}
+                          />
                           <Route path="checkout" element={<CheckoutForm />} />
-                          <Route path="payment-success" element={<PaymentSuccess />} />
-                          <Route path="add-user" element={<AddUser onAddUser={handleAddUser} />} />
-                          <Route path="user-list" element={
-                            <UserList
-                              users={users}
-                              onDeleteUser={handleDeleteUser}
-                              onEditUser={handleEditUser}
-                            />
-                          } />
-                          <Route path="client-contract-list" element={<ClientContractList />} />
-                          <Route path="client-contract-docx" element={<ClientContractDocx />} />
-                          <Route path="subscription" element={<Subscription />} />
-                          <Route path="submission-link" element={<SubmissionLink />} />
+                          <Route
+                            path="payment-success"
+                            element={<PaymentSuccess />}
+                          />
+                          <Route
+                            path="add-user"
+                            element={<AddUser onAddUser={handleAddUser} />}
+                          />
+                          <Route
+                            path="user-list"
+                            element={
+                              <UserList
+                                users={users}
+                                onDeleteUser={handleDeleteUser}
+                                onEditUser={handleEditUser}
+                              />
+                            }
+                          />
+                          <Route
+                            path="client-contract-list"
+                            element={<ClientContractList />}
+                          />
+                          <Route
+                            path="client-contract-docx"
+                            element={<ClientContractDocx />}
+                          />
+                          <Route
+                            path="subscription"
+                            element={<Subscription />}
+                          />
+                          <Route
+                            path="submission-link"
+                            element={<SubmissionLink />}
+                          />
+                          <Route
+                            path="refferal-link"
+                            element={<GroupAdminRefferalLink />}
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
@@ -360,13 +464,34 @@ const App = () => {
                       <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
                         <ClientNavbar toggleSidebar={toggleSidebar} />
                         <Routes>
-                          <Route path="dashboard" element={<ClientDashboard />} />
-                          <Route path="profile-edit" element={<ClientProfileSetting />} />
-                          <Route path="contract-list" element={<ClientContractList />} />
-                          <Route path="contract-docx" element={<ClientContractDocx />} />
-                          <Route path="client-invoice" element={<ClientInvoice />} />
-                          <Route path="notifications" element={<Notifications />} />
-                          <Route path="subscription" element={<ClientSubscription />} />
+                          <Route
+                            path="dashboard"
+                            element={<ClientDashboard />}
+                          />
+                          <Route
+                            path="profile-edit"
+                            element={<ClientProfileSetting />}
+                          />
+                          <Route
+                            path="contract-list"
+                            element={<ClientContractList />}
+                          />
+                          <Route
+                            path="contract-docx"
+                            element={<ClientContractDocx />}
+                          />
+                          <Route
+                            path="client-invoice"
+                            element={<ClientInvoice />}
+                          />
+                          <Route
+                            path="notifications"
+                            element={<Notifications />}
+                          />
+                          <Route
+                            path="subscription"
+                            element={<ClientSubscription />}
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

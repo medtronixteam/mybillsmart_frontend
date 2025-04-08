@@ -1,8 +1,8 @@
 import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
-import { Link, useNavigate } from "react-router-dom"; 
-import { useAuth } from "../../contexts/AuthContext"; 
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   FaHome,
   FaUserPlus,
@@ -13,19 +13,19 @@ import {
   FaGem,
   FaSignOutAlt,
   FaFileUpload,
-  FaListAlt
+  FaListAlt,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./GroupAdminSidebar.css";
 
 const GroupAdminSidebar = () => {
-  const { logout } = useAuth();  
-  const navigate = useNavigate();  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () => {
-    logout();  
-    localStorage.removeItem("authToken");  
-    localStorage.removeItem("role");  
-    navigate("/login");  
+    logout();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    navigate("/login");
   };
   return (
     <div>
@@ -64,7 +64,8 @@ const GroupAdminSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaFileUpload /> {/* Changed to upload icon for invoice submission */}
+                <FaFileUpload />{" "}
+                {/* Changed to upload icon for invoice submission */}
               </div>
               <span className="nav-link-text ms-1">Invoice Submit</span>
             </NavLink>
@@ -129,6 +130,18 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/refferal-link"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Refferal Link</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
@@ -143,16 +156,12 @@ const GroupAdminSidebar = () => {
             }}
           />
         </div>
-       <Link to="/group_admin/subscription">
-       <button
-          className="btn mt-4 w-100"
-          type="button"
-          id="icon-color"
-        >
-          <FaGem className="me-2" />
-          Subscription
-        </button>
-       </Link>
+        <Link to="/group_admin/subscription">
+          <button className="btn mt-4 w-100" type="button" id="icon-color">
+            <FaGem className="me-2" />
+            Subscription
+          </button>
+        </Link>
         <button
           className="btn mt-1 w-100"
           type="button"

@@ -640,7 +640,7 @@ const AdminInvoice = () => {
           </div>
 
           <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={generatePDF}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -649,7 +649,7 @@ const AdminInvoice = () => {
                 Download PDF
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={downloadCSV}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -659,7 +659,7 @@ const AdminInvoice = () => {
                 Download CSV
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={downloadExcel}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -669,7 +669,7 @@ const AdminInvoice = () => {
                 Export Excel
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleSendEmail}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -678,7 +678,7 @@ const AdminInvoice = () => {
                 Send Email
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleWhatsappClick}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -687,7 +687,7 @@ const AdminInvoice = () => {
                 Send WhatsApp
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleSendToClientPortal}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"

@@ -32,7 +32,7 @@ const Invoice = () => {
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: ""
+    message: "",
   });
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
@@ -46,12 +46,15 @@ const Invoice = () => {
   const fetchClients = async () => {
     setLoadingClients(true);
     try {
-      const response = await axios.get("http://34.142.252.64:8080/api/agent/client/list", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await axios.get(
+        "http://34.142.252.64:8080/api/agent/client/list",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -60,9 +63,9 @@ const Invoice = () => {
       } else if (response.data && Array.isArray(response.data.clients)) {
         clientsData = response.data.clients;
       }
-      
+
       setClients(clientsData || []);
-      
+
       if (clientsData.length === 0) {
         toast.info("No clients found");
       }
@@ -78,12 +81,21 @@ const Invoice = () => {
   // Utility functions for file exports
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
-    
+
     // Get all unique keys from all objects
     const allKeys = data.reduce((keys, item) => {
-      Object.keys(item).forEach(key => {
-        if (!keys.includes(key) && 
-            !["user_id", "invoice_id", "created_at", "updated_at", "id", "Client_id"].includes(key)) {
+      Object.keys(item).forEach((key) => {
+        if (
+          !keys.includes(key) &&
+          ![
+            "user_id",
+            "invoice_id",
+            "created_at",
+            "updated_at",
+            "id",
+            "Client_id",
+          ].includes(key)
+        ) {
           keys.push(key);
         }
       });
@@ -92,17 +104,26 @@ const Invoice = () => {
 
     // Create CSV headers
     const headers = allKeys
-      .map(key => `"${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}"`)
+      .map(
+        (key) =>
+          `"${key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())}"`
+      )
       .join(",");
 
     // Create CSV rows
-    const rows = data.map(item => {
-      return allKeys.map(key => {
-        // Handle missing values and escape quotes
-        const value = item[key] !== undefined ? item[key] : "";
-        return `"${String(value).replace(/"/g, '""')}"`;
-      }).join(",");
-    }).join("\n");
+    const rows = data
+      .map((item) => {
+        return allKeys
+          .map((key) => {
+            // Handle missing values and escape quotes
+            const value = item[key] !== undefined ? item[key] : "";
+            return `"${String(value).replace(/"/g, '""')}"`;
+          })
+          .join(",");
+      })
+      .join("\n");
 
     return `${headers}\n${rows}`;
   };
@@ -120,14 +141,22 @@ const Invoice = () => {
   };
 
   const downloadCSV = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       toast.error("No data available to download");
       return;
     }
 
     try {
       const csvContent = convertToCSV(submittedData);
-      downloadFile(csvContent, `invoice_${invoiceId}_data.csv`, "text/csv;charset=utf-8;");
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.csv`,
+        "text/csv;charset=utf-8;"
+      );
       toast.success("CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
@@ -136,7 +165,11 @@ const Invoice = () => {
   };
 
   const downloadExcel = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       toast.error("No data available to download");
       return;
     }
@@ -144,7 +177,11 @@ const Invoice = () => {
     try {
       // For proper Excel format, we need to add BOM (Byte Order Mark) for UTF-8
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
-      downloadFile(csvContent, `invoice_${invoiceId}_data.xls`, "application/vnd.ms-excel;charset=utf-8;");
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.xls`,
+        "application/vnd.ms-excel;charset=utf-8;"
+      );
       toast.success("Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
@@ -210,13 +247,13 @@ const Invoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const matchData = {
         ...formData,
-        group_id: groupId
+        group_id: groupId,
       };
-  
+
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
         matchData,
@@ -225,12 +262,12 @@ const Invoice = () => {
         }
       );
       setSubmittedData(matchResponse.data);
-  
+
       const invoiceData = {
         ...formData,
-        group_id: groupId
+        group_id: groupId,
       };
-  
+
       const invoiceResponse = await axios.post(
         "http://34.142.252.64:8080/api/agent/invoices",
         invoiceData,
@@ -242,16 +279,16 @@ const Invoice = () => {
         }
       );
       console.log("Invoice API Response:", invoiceResponse.data);
-  
+
       const invoiceId = invoiceResponse.data.invoice;
       setInvoiceId(invoiceId);
-  
+
       const offersData = matchResponse.data.map((item) => ({
         ...item,
         invoice_id: invoiceId,
-        group_id: groupId  // Also include group_id in offers
+        group_id: groupId, // Also include group_id in offers
       }));
-  
+
       const offersResponse = await axios.post(
         "http://34.142.252.64:8080/api/agent/offers",
         offersData,
@@ -263,11 +300,11 @@ const Invoice = () => {
         }
       );
       console.log("Offers API Response:", offersResponse.data);
-  
+
       if (offersResponse.data && offersResponse.data.offers) {
         setOffers(offersResponse.data.offers);
       }
-  
+
       setStep(3);
       toast.success("Form submitted successfully!");
     } catch (error) {
@@ -305,91 +342,111 @@ const Invoice = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-  
+
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-  
+
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-  
+
     pdf.setFontSize(12);
-    
+
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
-        
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-  
+
         Object.keys(supplier).forEach((key) => {
           if (
-            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-            
+
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-  
+
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-  
+
     pdf.save("invoice_details.pdf");
   };
-  
+
   const generatePDFBlob = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-  
+
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-  
+
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-  
+
     pdf.setFontSize(12);
-    
+
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
-        
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-  
+
         Object.keys(supplier).forEach((key) => {
           if (
-            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-            
+
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-  
+
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-  
+
     return pdf.output("blob");
   };
 
@@ -425,7 +482,7 @@ const Invoice = () => {
     const { name, value } = e.target;
     setWhatsappData({
       ...whatsappData,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -439,7 +496,7 @@ const Invoice = () => {
       const formData = new FormData();
       formData.append("to", whatsappData.to);
       formData.append("message", whatsappData.message);
-      
+
       const pdfBlob = generatePDFBlob();
       formData.append("pdf", pdfBlob, `invoice_${invoiceId}.pdf`);
 
@@ -476,7 +533,7 @@ const Invoice = () => {
       toast.error("Please select a client!");
       return;
     }
-  
+
     try {
       if (modalType === "email") {
         await axios.post(
@@ -502,11 +559,11 @@ const Invoice = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
           }
         );
-        
+
         if (response.data.success) {
           toast.success("Invoice sent to client portal successfully!");
         } else {
@@ -517,7 +574,7 @@ const Invoice = () => {
       console.error("Error sending data", error);
       toast.error("Failed to send. Please try again.");
     }
-  
+
     handleModalClose();
   };
 
@@ -625,7 +682,7 @@ const Invoice = () => {
           </div>
 
           <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={generatePDF}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -634,7 +691,7 @@ const Invoice = () => {
                 Download PDF
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={downloadCSV}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -644,7 +701,7 @@ const Invoice = () => {
                 Download CSV
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={downloadExcel}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -654,7 +711,7 @@ const Invoice = () => {
                 Export Excel
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleSendEmail}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -663,7 +720,7 @@ const Invoice = () => {
                 Send Email
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleWhatsappClick}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -672,7 +729,7 @@ const Invoice = () => {
                 Send WhatsApp
               </button>
             </div>
-            <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
               <button
                 onClick={handleSendToClientPortal}
                 className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
@@ -692,10 +749,7 @@ const Invoice = () => {
               <h3>
                 {modalType === "email" ? "Send Email" : "Send to Client Portal"}
               </h3>
-              <button 
-                onClick={handleModalClose}
-                className="modal-close-btn"
-              >
+              <button onClick={handleModalClose} className="modal-close-btn">
                 &times;
               </button>
             </div>
@@ -728,10 +782,7 @@ const Invoice = () => {
               )}
             </div>
             <div className="modal-footer">
-              <button
-                onClick={handleModalClose}
-                className="btn btn-secondary"
-              >
+              <button onClick={handleModalClose} className="btn btn-secondary">
                 Cancel
               </button>
               <button
@@ -761,7 +812,7 @@ const Invoice = () => {
           <div className="whatsapp-modal-content">
             <div className="whatsapp-modal-header">
               <h3>Send via WhatsApp</h3>
-              <button 
+              <button
                 onClick={handleWhatsappModalClose}
                 className="whatsapp-modal-close-btn"
               >

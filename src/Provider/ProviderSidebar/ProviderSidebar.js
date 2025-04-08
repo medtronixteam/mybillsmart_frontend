@@ -11,7 +11,7 @@ import {
   FaUsers,
   FaLink,
   FaGem,
-  FaSignOutAlt
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./ProviderSidebar.css";
@@ -116,6 +116,18 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/supervisor/refferal-link"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Refferal Link</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
@@ -131,11 +143,7 @@ const ProviderSidebar = () => {
           />
         </div>
         <Link to="/supervisor/subscription">
-          <button
-            className="btn mt-4 w-100"
-            type="button"
-            id="icon-color"
-          >
+          <button className="btn mt-4 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>

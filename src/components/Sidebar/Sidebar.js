@@ -10,7 +10,7 @@ import {
   FaUserPlus,
   FaGem,
   FaSignOutAlt,
-  FaLink
+  FaLink,
 } from "react-icons/fa";
 import { NavLink, Link } from "react-router-dom";
 import "./Sidebar.css";
@@ -117,6 +117,18 @@ const Sidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/agent/refferal-link"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Refferal Link</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3">
@@ -131,19 +143,15 @@ const Sidebar = () => {
             }}
           />
         </div>
-        
+
         {/* Subscription Button */}
         <Link to="/agent/subscription">
-          <button
-            className="btn mt-4 w-100"
-            type="button"
-            id="icon-color"
-          >
+          <button className="btn mt-4 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>
         </Link>
-        
+
         {/* LogOut Button */}
         <button
           className="btn w-100 mt-2"
