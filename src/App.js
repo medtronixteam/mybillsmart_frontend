@@ -75,6 +75,7 @@ import ProviderCheckoutForm from "./Provider/CheckoutForm/CheckoutForm";
 import AgentRefferalLink from "./components/RefferalLink/RefferalLink";
 import ProviderRefferalLink from "./Provider/RefferalLink/RefferalLink";
 import PointsUpdate from "./GroupAdmin/PointsUpdate/PointsUpdate";
+import WhatsappIntigation from "./components/Whatsapp/Whatsapp";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -287,6 +288,10 @@ const App = () => {
                           <Route
                             path="subscription"
                             element={<AgentSubscription />}
+                          />
+                          <Route
+                            path="whatsapp"
+                            element={<WhatsappIntigation />}
                           />
                           <Route
                             path="checkout"
