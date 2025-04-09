@@ -235,7 +235,7 @@ const ClientList = () => {
     <div className="user-management-container">
       <div className="header-section">
         <h1>User Management</h1>
-        <Link to="/group_admin/add-user" className="add-user-btn">
+        <Link to="/supervisor/add-client" className="add-user-btn">
           Add New User
         </Link>
       </div>

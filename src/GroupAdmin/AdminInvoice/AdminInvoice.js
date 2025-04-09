@@ -267,7 +267,7 @@ const AdminInvoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/offers",
+        "http://34.142.252.64:8080/api/group/offers",
         offersData,
         {
           headers: {

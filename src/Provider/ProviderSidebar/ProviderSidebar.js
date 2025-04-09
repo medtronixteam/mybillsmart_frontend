@@ -116,7 +116,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/refferal-link"
@@ -127,7 +127,7 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Refferal Link</span>
             </NavLink>
-          </li>
+          </li> */}
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">

@@ -16,7 +16,7 @@ const Navbar = ({ toggleSidebar }) => {
       initials += names[names.length - 1].substring(0, 1).toUpperCase();
     }
     return initials;
-  };
+  };  
 
   return (
     <nav

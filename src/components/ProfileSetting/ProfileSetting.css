@@ -109,6 +109,9 @@
   display: inline-block;
   margin-top: 5px;
 }
+.text-success{
+  color: #000000 !important;
+}
 
 .profile-2fa-card .btn {
   min-width: 120px;
