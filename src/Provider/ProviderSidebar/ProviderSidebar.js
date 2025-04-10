@@ -116,7 +116,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/whatsapp"
@@ -127,7 +127,7 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">WhatsApp Link</span>
             </NavLink>
-          </li>
+          </li> */}
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

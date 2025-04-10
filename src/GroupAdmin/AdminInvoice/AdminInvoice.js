@@ -30,17 +30,13 @@ const AdminInvoice = () => {
   const [modalType, setModalType] = useState("");
   const [loadingClients, setLoadingClients] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
-    const auth = useAuth();
-  
-  const email = auth.email || '';
-
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: "",
+    message: ""
   });
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
-  const { token, groupId } = useAuth();
+  const { token, email } = useAuth();
 
   useEffect(() => {
     if (showModal) {
@@ -90,18 +86,30 @@ const AdminInvoice = () => {
     };
   }, []);
 
+  const fetchGroupId = async () => {
+    try {
+      const response = await axios.get("http://34.142.252.64:8080/api/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.id;
+    } catch (error) {
+      console.error("Error fetching group ID:", error);
+      toast.error("Failed to fetch group information");
+      throw error;
+    }
+  };
+
   const fetchClients = async () => {
     setLoadingClients(true);
     try {
-      const response = await axios.get(
-        "http://34.142.252.64:8080/api/AdminInvoice/client/list",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await axios.get("http://34.142.252.64:8080/api/agent/client/list", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -110,9 +118,9 @@ const AdminInvoice = () => {
       } else if (response.data && Array.isArray(response.data.clients)) {
         clientsData = response.data.clients;
       }
-
+      
       setClients(clientsData || []);
-
+      
       if (clientsData.length === 0) {
         toast.info("No clients found");
       }
@@ -194,9 +202,11 @@ const AdminInvoice = () => {
     e.preventDefault();
 
     try {
+      const groupId = await fetchGroupId();
+      
       const matchData = {
         ...formData,
-        group_id: groupId,
+        group_id: groupId
       };
 
       const matchResponse = await axios.post(
@@ -208,14 +218,14 @@ const AdminInvoice = () => {
       );
       setSubmittedData(matchResponse.data);
 
-      const invoiceData = {
+      const invoicePayload = {
         ...formData,
-        group_id: groupId,
+        group_id: groupId
       };
 
       const invoiceResponse = await axios.post(
         "http://34.142.252.64:8080/api/group/invoices",
-        invoiceData,
+        invoicePayload,
         {
           headers: {
             "Content-Type": "application/json",
@@ -230,7 +240,6 @@ const AdminInvoice = () => {
       const offersData = matchResponse.data.map((item) => ({
         ...item,
         invoice_id: invoiceId,
-        group_id: groupId,
       }));
 
       const offersResponse = await axios.post(
@@ -283,20 +292,11 @@ const AdminInvoice = () => {
 
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
-
+    
     const allKeys = data.reduce((keys, item) => {
-      Object.keys(item).forEach((key) => {
-        if (
-          !keys.includes(key) &&
-          ![
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id",
-            "Client_id",
-          ].includes(key)
-        ) {
+      Object.keys(item).forEach(key => {
+        if (!keys.includes(key) && 
+            !["user_id", "invoice_id", "created_at", "updated_at", "id", "Client_id"].includes(key)) {
           keys.push(key);
         }
       });
@@ -304,24 +304,15 @@ const AdminInvoice = () => {
     }, []);
 
     const headers = allKeys
-      .map(
-        (key) =>
-          `"${key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase())}"`
-      )
+      .map(key => `"${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}"`)
       .join(",");
 
-    const rows = data
-      .map((item) => {
-        return allKeys
-          .map((key) => {
-            const value = item[key] !== undefined ? item[key] : "";
-            return `"${String(value).replace(/"/g, '""')}"`;
-          })
-          .join(",");
-      })
-      .join("\n");
+    const rows = data.map(item => {
+      return allKeys.map(key => {
+        const value = item[key] !== undefined ? item[key] : "";
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }).join(",");
+    }).join("\n");
 
     return `${headers}\n${rows}`;
   };
@@ -339,22 +330,14 @@ const AdminInvoice = () => {
   };
 
   const downloadCSV = () => {
-    if (
-      !submittedData ||
-      !Array.isArray(submittedData) ||
-      submittedData.length === 0
-    ) {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
       toast.error("No data available to download");
       return;
     }
 
     try {
       const csvContent = convertToCSV(submittedData);
-      downloadFile(
-        csvContent,
-        `invoice_${invoiceId}_data.csv`,
-        "text/csv;charset=utf-8;"
-      );
+      downloadFile(csvContent, `invoice_${invoiceId}_data.csv`, "text/csv;charset=utf-8;");
       toast.success("CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
@@ -363,22 +346,14 @@ const AdminInvoice = () => {
   };
 
   const downloadExcel = () => {
-    if (
-      !submittedData ||
-      !Array.isArray(submittedData) ||
-      submittedData.length === 0
-    ) {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
       toast.error("No data available to download");
       return;
     }
 
     try {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
-      downloadFile(
-        csvContent,
-        `invoice_${invoiceId}_data.xls`,
-        "application/vnd.ms-excel;charset=utf-8;"
-      );
+      downloadFile(csvContent, `invoice_${invoiceId}_data.xls`, "application/vnd.ms-excel;charset=utf-8;");
       toast.success("Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
@@ -390,116 +365,96 @@ const AdminInvoice = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-
+  
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
+  
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
+  
     pdf.setFontSize(12);
-
+    
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName =
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`;
-
+        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
+        
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-
+  
         Object.keys(supplier).forEach((key) => {
           if (
-            ![
-              "Supplier Name",
-              "supplierName",
-              "user_id",
-              "invoice_id",
-              "created_at",
-              "updated_at",
-            ].includes(key) &&
+            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-
+            
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-
+  
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-
+  
     pdf.save("invoice_details.pdf");
   };
-
+  
   const generatePDFBlob = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-
+  
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
+  
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
+  
     pdf.setFontSize(12);
-
+    
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName =
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`;
-
+        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
+        
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-
+  
         Object.keys(supplier).forEach((key) => {
           if (
-            ![
-              "Supplier Name",
-              "supplierName",
-              "user_id",
-              "invoice_id",
-              "created_at",
-              "updated_at",
-            ].includes(key) &&
+            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-
+            
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-
+  
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-
+  
     return pdf.output("blob");
   };
 
   const handleContractClick = (offer) => {
-    navigate("/agent/contract", {
+    navigate("/group_admin/admin-contract", {
       state: {
         offerData: offer,
         offerId: offer.id,
@@ -530,7 +485,7 @@ const AdminInvoice = () => {
     const { name, value } = e.target;
     setWhatsappData({
       ...whatsappData,
-      [name]: value,
+      [name]: value
     });
   };
 
@@ -600,6 +555,7 @@ const AdminInvoice = () => {
       toast.error(errorMessage);
     }
   };
+
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");
@@ -614,7 +570,7 @@ const AdminInvoice = () => {
       toast.error("Please select a client!");
       return;
     }
-
+  
     try {
       if (modalType === "email") {
         await axios.post(
@@ -632,7 +588,7 @@ const AdminInvoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "http://34.142.252.64:8080/api/agent/send-offers-email",
+          "http://34.142.252.64:8080/api/notifications",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -640,11 +596,11 @@ const AdminInvoice = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              "Content-Type": "application/json"
             },
           }
         );
-
+        
         if (response.data.success) {
           toast.success("Invoice sent to client portal successfully!");
         } else {
@@ -655,7 +611,7 @@ const AdminInvoice = () => {
       console.error("Error sending data", error);
       toast.error("Failed to send. Please try again.");
     }
-
+  
     handleModalClose();
   };
 
@@ -693,10 +649,9 @@ const AdminInvoice = () => {
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Upload a File here"}</p>
+              <p>{uploading ? "Uploading..." : "Upload File Here"}</p>
               {file && (
                 <div className="file-preview">
-                  {/* <p>Selected file: {file.name}</p>  */}
                   <p>({Math.round(file.size / 1024)} KB)</p>
                 </div>
               )}
@@ -724,7 +679,7 @@ const AdminInvoice = () => {
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn mb-3">
+              <button type="submit" className="invoice-submit-btn">
                 Submit
               </button>
             </div>
@@ -850,7 +805,10 @@ const AdminInvoice = () => {
               <h3>
                 {modalType === "email" ? "Send Email" : "Send to Client Portal"}
               </h3>
-              <button onClick={handleModalClose} className="modal-close-btn">
+              <button 
+                onClick={handleModalClose}
+                className="modal-close-btn"
+              >
                 &times;
               </button>
             </div>
@@ -883,7 +841,10 @@ const AdminInvoice = () => {
               )}
             </div>
             <div className="modal-footer">
-              <button onClick={handleModalClose} className="btn btn-secondary">
+              <button
+                onClick={handleModalClose}
+                className="btn btn-secondary"
+              >
                 Cancel
               </button>
               <button
@@ -908,72 +869,72 @@ const AdminInvoice = () => {
         </div>
       )}
 
-     {showWhatsappModal && (
-  <div className="whatsapp-modal-overlay">
-    <div className="whatsapp-modal-content">
-      <div className="whatsapp-modal-header">
-        <h3>Send via WhatsApp</h3>
-        <button
-          onClick={handleWhatsappModalClose}
-          className="whatsapp-modal-close-btn"
-        >
-          &times;
-        </button>
-      </div>
-      <div className="whatsapp-modal-body">
-        <div className="whatsapp-input-group">
-          <label htmlFor="whatsapp-to">Phone Number:</label>
-          <input
-            type="text"
-            id="whatsapp-to"
-            name="to"
-            value={whatsappData.to}
-            onChange={handleWhatsappChange}
-            placeholder="e.g., 923001234567"
-            required
-          />
-          <small className="whatsapp-input-hint">
-            Enter phone number with country code but without + sign (e.g., 923001234567 for Pakistan)
-          </small>
-        </div>
-        {/* <div className="whatsapp-input-group">
-          <label htmlFor="whatsapp-message">Message (optional):</label>
-          <textarea
-            id="whatsapp-message"
-            name="message"
-            value={whatsappData.message}
-            onChange={handleWhatsappChange}
-            placeholder="Type your message here..."
-            rows={5}
-          />
-        </div> */}
-        <div className="whatsapp-pdf-preview">
-          <p className="whatsapp-pdf-label">PDF Attachment:</p>
-          <div className="whatsapp-pdf-placeholder">
-            <BsDownload className="whatsapp-pdf-icon" />
-            <p>Invoice_{invoiceId}.pdf</p>
+      {showWhatsappModal && (
+        <div className="whatsapp-modal-overlay">
+          <div className="whatsapp-modal-content">
+            <div className="whatsapp-modal-header">
+              <h3>Send via WhatsApp</h3>
+              <button 
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="whatsapp-modal-body">
+              <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-to">Phone Number:</label>
+                <input
+                  type="text"
+                  id="whatsapp-to"
+                  name="to"
+                  value={whatsappData.to}
+                  onChange={handleWhatsappChange}
+                  placeholder="e.g., 923001234567"
+                  required
+                />
+                <small className="whatsapp-input-hint">
+                  Enter phone number with country code but without + sign (e.g., 923001234567 for Pakistan)
+                </small>
+              </div>
+              {/* <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-message">Message (optional):</label>
+                <textarea
+                  id="whatsapp-message"
+                  name="message"
+                  value={whatsappData.message}
+                  onChange={handleWhatsappChange}
+                  placeholder="Type your message here..."
+                  rows={5}
+                />
+              </div> */}
+              <div className="whatsapp-pdf-preview">
+                <p className="whatsapp-pdf-label">PDF Attachment:</p>
+                <div className="whatsapp-pdf-placeholder">
+                  <BsDownload className="whatsapp-pdf-icon" />
+                  <p>Invoice_{invoiceId}.pdf</p>
+                </div>
+              </div>
+            </div>
+            <div className="whatsapp-modal-footer">
+              <button
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWhatsappSubmit}
+                className="whatsapp-modal-send-btn"
+                disabled={!whatsappData.to}
+              >
+                <BsWhatsapp className="me-2" />
+                Send Message
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="whatsapp-modal-footer">
-        <button
-          onClick={handleWhatsappModalClose}
-          className="whatsapp-modal-cancel-btn"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleWhatsappSubmit}
-          className="whatsapp-modal-send-btn"
-          disabled={!whatsappData.to}
-        >
-          <BsWhatsapp className="me-2" />
-          Send Message
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };
