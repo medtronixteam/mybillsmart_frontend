@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   BsCloudUpload,
   BsDownload,
@@ -30,10 +30,15 @@ const Invoice = () => {
   const [modalType, setModalType] = useState("");
   const [loadingClients, setLoadingClients] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+    const auth = useAuth();
+  
+  const email = auth.email || '';
+
   const [whatsappData, setWhatsappData] = useState({
     to: "",
     message: "",
   });
+  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
 
@@ -42,6 +47,48 @@ const Invoice = () => {
       fetchClients();
     }
   }, [showModal]);
+
+  useEffect(() => {
+    const preventDefaults = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    };
+
+    const handleDragEnter = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    window.addEventListener('dragenter', handleDragEnter);
+    window.addEventListener('dragleave', handleDragLeave);
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('drop', handleDrop);
+
+    return () => {
+      window.removeEventListener('dragenter', handleDragEnter);
+      window.removeEventListener('dragleave', handleDragLeave);
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('drop', handleDrop);
+    };
+  }, []);
 
   const fetchClients = async () => {
     setLoadingClients(true);
@@ -78,11 +125,165 @@ const Invoice = () => {
     }
   };
 
-  // Utility functions for file exports
+  const handleFiles = useCallback((files) => {
+    const selectedFile = files[0];
+    if (!selectedFile) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      toast.error("Only JPEG, PNG, and PDF files are allowed.");
+      return;
+    }
+
+    if (file) {
+      toast.info("A file is already uploaded. Please submit the form.");
+      return;
+    }
+
+    uploadFile(selectedFile);
+  }, [file]);
+
+  const handleFileChange = (e) => {
+    e.stopPropagation();
+    if (e.target.files && e.target.files.length > 0) {
+      handleFiles(e.target.files);
+    }
+    e.target.value = '';
+  };
+
+  const uploadFile = async (selectedFile) => {
+    if (!selectedFile) return;
+    setUploading(true);
+    setFile(selectedFile);
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await axios.post(
+        "http://34.142.252.64:7000/api/file/",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data) {
+        setResponseData(response.data);
+        setFormData(response.data);
+        setStep(2);
+        toast.success("File uploaded successfully!");
+      }
+    } catch (error) {
+      console.error("Error uploading file", error);
+      toast.error("Error uploading file. Please try again.");
+      setFile(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const matchData = {
+        ...formData,
+        group_id: groupId,
+      };
+
+      const matchResponse = await axios.post(
+        "http://34.142.252.64:7000/api/match/",
+        matchData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setSubmittedData(matchResponse.data);
+
+      const invoiceData = {
+        ...formData,
+        group_id: groupId,
+      };
+
+      const invoiceResponse = await axios.post(
+        "http://34.142.252.64:8080/api/agent/invoices",
+        invoiceData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const invoiceId = invoiceResponse.data.invoice;
+      setInvoiceId(invoiceId);
+
+      const offersData = matchResponse.data.map((item) => ({
+        ...item,
+        invoice_id: invoiceId,
+        group_id: groupId,
+      }));
+
+      const offersResponse = await axios.post(
+        "http://34.142.252.64:8080/api/agent/offers",
+        offersData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (offersResponse.data && offersResponse.data.offers) {
+        setOffers(offersResponse.data.offers);
+      }
+
+      setStep(3);
+      toast.success("Form submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting data", error);
+      toast.error("Error submitting form. Please try again.");
+    }
+  };
+
+  const renderFormFields = (data) => {
+    return Object.keys(data)
+      .filter((key) => data[key] !== null && typeof data[key] !== "object")
+      .map((key, index) => {
+        const value = data[key];
+        return (
+          <div key={index} className="form-field">
+            <label>
+              {key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
+              :
+            </label>
+            <input
+              type="text"
+              name={key}
+              value={value || ""}
+              onChange={handleFormChange}
+              required
+            />
+          </div>
+        );
+      });
+  };
+
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
 
-    // Get all unique keys from all objects
     const allKeys = data.reduce((keys, item) => {
       Object.keys(item).forEach((key) => {
         if (
@@ -102,7 +303,6 @@ const Invoice = () => {
       return keys;
     }, []);
 
-    // Create CSV headers
     const headers = allKeys
       .map(
         (key) =>
@@ -112,12 +312,10 @@ const Invoice = () => {
       )
       .join(",");
 
-    // Create CSV rows
     const rows = data
       .map((item) => {
         return allKeys
           .map((key) => {
-            // Handle missing values and escape quotes
             const value = item[key] !== undefined ? item[key] : "";
             return `"${String(value).replace(/"/g, '""')}"`;
           })
@@ -175,7 +373,6 @@ const Invoice = () => {
     }
 
     try {
-      // For proper Excel format, we need to add BOM (Byte Order Mark) for UTF-8
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
       downloadFile(
         csvContent,
@@ -187,155 +384,6 @@ const Invoice = () => {
       console.error("Error generating Excel:", error);
       toast.error("Failed to generate Excel file");
     }
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-      if (!allowedTypes.includes(selectedFile.type)) {
-        toast.error("Only JPEG, PNG, and PDF files are allowed.");
-        return;
-      }
-
-      if (file) {
-        toast.info("A file is already uploaded. Please submit the form.");
-        return;
-      }
-      setFile(selectedFile);
-      uploadFile(selectedFile);
-    }
-  };
-
-  const uploadFile = async (selectedFile) => {
-    if (!selectedFile) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
-    try {
-      const response = await axios.post(
-        "http://34.142.252.64:7000/api/file/",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      if (response.data) {
-        setResponseData(response.data);
-        setFormData(response.data);
-        setStep(2);
-        toast.success("File uploaded successfully!");
-      }
-    } catch (error) {
-      console.error("Error uploading file", error);
-      toast.error("Error uploading file. Please try again.");
-    }
-    setUploading(false);
-    setFile(selectedFile);
-    document.getElementById("file-input").value = "";
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const matchData = {
-        ...formData,
-        group_id: groupId,
-      };
-
-      const matchResponse = await axios.post(
-        "http://34.142.252.64:7000/api/match/",
-        matchData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setSubmittedData(matchResponse.data);
-
-      const invoiceData = {
-        ...formData,
-        group_id: groupId,
-      };
-
-      const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/invoices",
-        invoiceData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Invoice API Response:", invoiceResponse.data);
-
-      const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId);
-
-      const offersData = matchResponse.data.map((item) => ({
-        ...item,
-        invoice_id: invoiceId,
-        group_id: groupId, // Also include group_id in offers
-      }));
-
-      const offersResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/offers",
-        offersData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Offers API Response:", offersResponse.data);
-
-      if (offersResponse.data && offersResponse.data.offers) {
-        setOffers(offersResponse.data.offers);
-      }
-
-      setStep(3);
-      toast.success("Form submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting data", error);
-      toast.error("Error submitting form. Please try again.");
-    }
-  };
-
-  const renderFormFields = (data) => {
-    return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object")
-      .map((key, index) => {
-        const value = data[key];
-        return (
-          <div key={index} className="form-field">
-            <label>
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
-              :
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={value || ""}
-              onChange={handleFormChange}
-              required
-            />
-          </div>
-        );
-      });
   };
 
   const generatePDF = () => {
@@ -487,38 +535,71 @@ const Invoice = () => {
   };
 
   const handleWhatsappSubmit = async () => {
+    // Validate phone number
     if (!whatsappData.to.trim()) {
       toast.error("Phone number is required");
       return;
     }
-
+  
+    // Validate phone number format (minimum 11 digits)
+    const phoneRegex = /^\d{11,}$/;
+    const rawPhone = whatsappData.to.replace(/^\+/, '');
+    if (!phoneRegex.test(rawPhone)) {
+      toast.error("Please enter a valid phone number (e.g., 923001234567)");
+      return;
+    }
+  
     try {
-      const formData = new FormData();
-      formData.append("to", whatsappData.to);
-      formData.append("message", whatsappData.message);
-
       const pdfBlob = generatePDFBlob();
-      formData.append("pdf", pdfBlob, `invoice_${invoiceId}.pdf`);
-
+      const formattedPhone = `${rawPhone}@c.us`;
+      const filename = `invoice_${invoiceId}.pdf`;
+  
+      // Get email from auth context and replace special characters
+      const sessionEmail = email.replace(/[@.]/g, '_');
+  
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+  
+      const payload = {
+        chatId: formattedPhone,
+        caption: whatsappData.message || 'Invoice details',
+        session: sessionEmail, // Using modified email as session
+        file: {
+          data: base64data,
+          filename: filename,
+          mimeType: 'application/pdf'
+        }
+      };
+  
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/whatsapp/pdf",
-        formData,
+        'http://34.142.252.64:3000/api/sendFile',
+        payload,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         }
       );
-
-      toast.success("WhatsApp message sent successfully!");
-      handleWhatsappModalClose();
+  
+      if (response.status === 201) {
+        toast.success("WhatsApp message sent successfully!");
+        handleWhatsappModalClose();
+      } else {
+        toast.success("WhatsApp message sent successfully!");
+      }
     } catch (error) {
-      console.error("Error sending WhatsApp message:", error);
-      toast.error("Failed to send WhatsApp message. Please try again.");
+      console.error("WhatsApp send error:", error);
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Failed to send WhatsApp message";
+      toast.error(errorMessage);
     }
   };
-
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");
@@ -582,6 +663,16 @@ const Invoice = () => {
     <div className="invoice-container">
       <ToastContainer />
 
+      {isDragging && (
+        <div className="drag-drop-overlay">
+          <div className="drag-drop-content">
+            <BsCloudUpload className="drag-drop-icon" />
+            <h3>Drop your file here</h3>
+            <p>Supported formats: JPEG, PNG, PDF</p>
+          </div>
+        </div>
+      )}
+
       <div className="invoice-stepper">
         <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
         <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -594,18 +685,28 @@ const Invoice = () => {
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
           <div
-            className="invoice-file-upload-box"
-            onClick={() => document.getElementById("file-input").click()}
+            className={`invoice-file-upload-box ${isDragging ? 'dragging' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              document.getElementById("file-input").click();
+            }}
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Click to Upload"}</p>
+              <p>{uploading ? "Uploading..." : "Upload a File here"}</p>
+              {file && (
+                <div className="file-preview">
+                  {/* <p>Selected file: {file.name}</p>  */}
+                  <p>({Math.round(file.size / 1024)} KB)</p>
+                </div>
+              )}
             </label>
             <input
               type="file"
               id="file-input"
               className="invoice-file-input"
               onChange={handleFileChange}
+              accept=".jpg,.jpeg,.png,.pdf"
             />
           </div>
         </>
@@ -807,72 +908,72 @@ const Invoice = () => {
         </div>
       )}
 
-      {showWhatsappModal && (
-        <div className="whatsapp-modal-overlay">
-          <div className="whatsapp-modal-content">
-            <div className="whatsapp-modal-header">
-              <h3>Send via WhatsApp</h3>
-              <button
-                onClick={handleWhatsappModalClose}
-                className="whatsapp-modal-close-btn"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="whatsapp-modal-body">
-              <div className="whatsapp-input-group">
-                <label htmlFor="whatsapp-to">Phone Number:</label>
-                <input
-                  type="text"
-                  id="whatsapp-to"
-                  name="to"
-                  value={whatsappData.to}
-                  onChange={handleWhatsappChange}
-                  placeholder="e.g., +923001234567"
-                  required
-                />
-                <small className="whatsapp-input-hint">
-                  Include country code (e.g., +92 for Pakistan)
-                </small>
-              </div>
-              <div className="whatsapp-input-group">
-                <label htmlFor="whatsapp-message">Message:</label>
-                <textarea
-                  id="whatsapp-message"
-                  name="message"
-                  value={whatsappData.message}
-                  onChange={handleWhatsappChange}
-                  placeholder="Type your message here..."
-                  rows={5}
-                />
-              </div>
-              <div className="whatsapp-pdf-preview">
-                <p className="whatsapp-pdf-label">PDF Attachment:</p>
-                <div className="whatsapp-pdf-placeholder">
-                  <BsDownload className="whatsapp-pdf-icon" />
-                  <p>Invoice_{invoiceId}.pdf</p>
-                </div>
-              </div>
-            </div>
-            <div className="whatsapp-modal-footer">
-              <button
-                onClick={handleWhatsappModalClose}
-                className="whatsapp-modal-cancel-btn"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleWhatsappSubmit}
-                className="whatsapp-modal-send-btn"
-                disabled={!whatsappData.to}
-              >
-                <BsWhatsapp className="me-2" />
-                Send Message
-              </button>
-            </div>
+     {showWhatsappModal && (
+  <div className="whatsapp-modal-overlay">
+    <div className="whatsapp-modal-content">
+      <div className="whatsapp-modal-header">
+        <h3>Send via WhatsApp</h3>
+        <button
+          onClick={handleWhatsappModalClose}
+          className="whatsapp-modal-close-btn"
+        >
+          &times;
+        </button>
+      </div>
+      <div className="whatsapp-modal-body">
+        <div className="whatsapp-input-group">
+          <label htmlFor="whatsapp-to">Phone Number:</label>
+          <input
+            type="text"
+            id="whatsapp-to"
+            name="to"
+            value={whatsappData.to}
+            onChange={handleWhatsappChange}
+            placeholder="e.g., 923001234567"
+            required
+          />
+          <small className="whatsapp-input-hint">
+            Enter phone number with country code but without + sign (e.g., 923001234567 for Pakistan)
+          </small>
+        </div>
+        {/* <div className="whatsapp-input-group">
+          <label htmlFor="whatsapp-message">Message (optional):</label>
+          <textarea
+            id="whatsapp-message"
+            name="message"
+            value={whatsappData.message}
+            onChange={handleWhatsappChange}
+            placeholder="Type your message here..."
+            rows={5}
+          />
+        </div> */}
+        <div className="whatsapp-pdf-preview">
+          <p className="whatsapp-pdf-label">PDF Attachment:</p>
+          <div className="whatsapp-pdf-placeholder">
+            <BsDownload className="whatsapp-pdf-icon" />
+            <p>Invoice_{invoiceId}.pdf</p>
           </div>
         </div>
-      )}
+      </div>
+      <div className="whatsapp-modal-footer">
+        <button
+          onClick={handleWhatsappModalClose}
+          className="whatsapp-modal-cancel-btn"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleWhatsappSubmit}
+          className="whatsapp-modal-send-btn"
+          disabled={!whatsappData.to}
+        >
+          <BsWhatsapp className="me-2" />
+          Send Message
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

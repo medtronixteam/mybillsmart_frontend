@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { BsCloudUpload } from "react-icons/bs";
 import "./LinkInvoice.css";
 import axios from "axios";
@@ -14,52 +14,108 @@ const LinkInvoice = () => {
   const [uploading, setUploading] = useState(false);
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
-  const [invoiceId, setInvoiceId] = useState(null); // State to store invoice_id
+  const [invoiceId, setInvoiceId] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
   const { token } = useAuth();
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-      if (!allowedTypes.includes(selectedFile.type)) {
-        toast.error("Only JPEG, PNG, and PDF files are allowed.");
-        return;
-      }
+  useEffect(() => {
+    const preventDefaults = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
 
-      if (file) {
-        toast.info("A file is already uploaded. Please submit the form.");
-        return;
+    const handleDrop = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
       }
-      setFile(selectedFile);
-      uploadFile(selectedFile);
+    };
+
+    const handleDragEnter = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    window.addEventListener('dragenter', handleDragEnter);
+    window.addEventListener('dragleave', handleDragLeave);
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('drop', handleDrop);
+
+    return () => {
+      window.removeEventListener('dragenter', handleDragEnter);
+      window.removeEventListener('dragleave', handleDragLeave);
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('drop', handleDrop);
+    };
+  }, []);
+
+  const handleFiles = useCallback((files) => {
+    const selectedFile = files[0];
+    if (!selectedFile) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowedTypes.includes(selectedFile.type)) {
+      toast.error("Only JPEG, PNG, and PDF files are allowed.");
+      return;
     }
+
+    if (file) {
+      toast.info("A file is already uploaded. Please submit the form.");
+      return;
+    }
+
+    uploadFile(selectedFile);
+  }, [file]);
+
+  const handleFileChange = (e) => {
+    e.stopPropagation();
+    if (e.target.files && e.target.files.length > 0) {
+      handleFiles(e.target.files);
+    }
+    e.target.value = '';
   };
 
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
     setUploading(true);
+    setFile(selectedFile);
     const formData = new FormData();
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post("http://34.142.252.64:7000/api/file/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://34.142.252.64:7000/api/file/", 
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (response.data) {
         setResponseData(response.data);
-        setFormData(response.data); 
+        setFormData(response.data);
         setStep(2);
         toast.success("File uploaded successfully!");
       }
     } catch (error) {
       console.error("Error uploading file", error);
       toast.error("Error uploading file. Please try again.");
+      setFile(null);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    setFile(selectedFile);
-    document.getElementById("file-input").value = "";
   };
 
   const handleFormChange = (e) => {
@@ -75,32 +131,47 @@ const LinkInvoice = () => {
   
     try {
       // Step 1: Call match API
-      const matchResponse = await axios.post("http://34.142.252.64:7000/api/match/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log("Match API Response:", matchResponse.data);
-      setSubmittedData(matchResponse.data); 
+      const matchResponse = await axios.post(
+        "http://34.142.252.64:7000/api/match/", 
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setSubmittedData(matchResponse.data);
 
       // Step 2: Call invoices API to get invoice_id
-      const invoiceResponse = await axios.post("http://34.142.252.64:8080/api/agent/invoices", formData, {
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      });
-      console.log("Invoice API Response:", invoiceResponse.data);
+      const invoiceResponse = await axios.post(
+        "http://34.142.252.64:8080/api/agent/invoices", 
+        formData,
+        {
+          headers: { 
+            "Content-Type": "application/json", 
+            Authorization: `Bearer ${token}` 
+          },
+        }
+      );
 
       // Extract invoice_id from the response
       const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId); // Store invoice_id in state
+      setInvoiceId(invoiceId);
 
       // Step 3: Call offers API with invoice_id and match API data
       const offersData = matchResponse.data.map((item) => ({
         ...item,
-        invoice_id: invoiceId, // Add invoice_id to each object
+        invoice_id: invoiceId,
       }));
 
-      // const offersResponse = await axios.post("http://34.142.252.64:8080/api/offers", offersData, {
-      //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      // });
-      // console.log("Offers API Response:", offersResponse.data);
+      // const offersResponse = await axios.post(
+      //   "http://34.142.252.64:8080/api/offers", 
+      //   offersData,
+      //   {
+      //     headers: { 
+      //       "Content-Type": "application/json", 
+      //       Authorization: `Bearer ${token}` 
+      //     },
+      //   }
+      // );
 
       setStep(3);
       toast.success("Form submitted successfully!");
@@ -112,13 +183,14 @@ const LinkInvoice = () => {
 
   const renderFormFields = (data) => {
     return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object") // Filter out null and nested objects
+      .filter((key) => data[key] !== null && typeof data[key] !== "object")
       .map((key, index) => {
         const value = data[key];
-
         return (
           <div key={index} className="form-field">
-            <label>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</label>
+            <label>
+              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
+            </label>
             <input
               type="text"
               name={key}
@@ -135,7 +207,16 @@ const LinkInvoice = () => {
     <div className="invoice-container">
       <ToastContainer />
 
-      {/* Stepper Navigation */}
+      {isDragging && (
+        <div className="drag-drop-overlay">
+          <div className="drag-drop-content">
+            <BsCloudUpload className="drag-drop-icon" />
+            <h3>Drop your file here</h3>
+            <p>Supported formats: JPEG, PNG, PDF</p>
+          </div>
+        </div>
+      )}
+
       <div className="invoice-stepper">
         <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
         <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -144,21 +225,37 @@ const LinkInvoice = () => {
         <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
       </div>
 
-      {/* Step 1: Upload Invoice */}
       {step === 1 && (
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
-          <div className="invoice-file-upload-box" onClick={() => document.getElementById("file-input").click()}>
+          <div
+            className={`invoice-file-upload-box ${isDragging ? 'dragging' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              document.getElementById("file-input").click();
+            }}
+          >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Click to Upload"}</p>
+              <p>{uploading ? "Uploading..." : "Click to Upload or Drag & Drop"}</p>
+              {file && (
+                <div className="file-preview">
+                  <p>Selected file: {file.name}</p>
+                  <p>({Math.round(file.size / 1024)} KB)</p>
+                </div>
+              )}
             </label>
-            <input type="file" id="file-input" className="invoice-file-input" onChange={handleFileChange} />
+            <input
+              type="file"
+              id="file-input"
+              className="invoice-file-input"
+              onChange={handleFileChange}
+              accept=".jpg,.jpeg,.png,.pdf"
+            />
           </div>
         </>
       )}
 
-      {/* Step 2: Fill the Form */}
       {step === 2 && responseData && (
         <div className="invoice-form-container">
           <h2 className="invoice-form-heading">Verify your Invoice</h2>
@@ -177,29 +274,25 @@ const LinkInvoice = () => {
         </div>
       )}
 
-      {/* Step 3: Confirmation */}
       {step === 3 && submittedData && (
         <div className="invoice-confirmation-container">
           {submittedData.map((supplier, index) => (
             <div className="invoice-card" key={index}>
-              <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
+              <h3 className="invoice-confirmation-heading">
+                {supplier["Supplier Name"] || `Supplier ${index + 1}`}
+              </h3>
               {Object.keys(supplier).map((key, keyIndex) => {
                 if (key !== "Supplier Name") {  
                   return (
                     <p key={keyIndex}>
-                      <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</strong> {supplier[key]}
+                      <strong>
+                        {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
+                      </strong> {supplier[key]}
                     </p>
                   );
                 }
                 return null;
               })}
-
-              {/* <button
-                className="invoice-confirmation-btn"
-                onClick={() => navigate("/agent/contract")} // Navigate to the route
-              >
-                Manage Contract
-              </button> */}
             </div>
           ))}
         </div>

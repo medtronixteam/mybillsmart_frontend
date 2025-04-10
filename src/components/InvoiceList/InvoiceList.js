@@ -18,7 +18,7 @@ const InvoiceList = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch("http://34.142.252.64:8080/api/agent/list/invoices", {
+        const response = await fetch("http://34.142.252.64:8080/api/agent/invoices", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -92,23 +92,92 @@ const InvoiceList = () => {
     }
   };
 
+  const formatFieldName = (name) => {
+    return name
+      .replace(/_/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const formatValue = (value) => {
+    if (value === null || value === undefined || value === "") return "N/A";
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (typeof value === "number") return value.toLocaleString();
+    return value.toString();
+  };
+
+  const flattenObject = (obj, prefix = '') => {
+    return Object.entries(obj).reduce((acc, [key, value]) => {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+      
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return [...acc, ...flattenObject(value, newKey)];
+      } else {
+        return [...acc, [newKey, value]];
+      }
+    }, []);
+  };
+
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
 
-    const excludedFields = ["id", "created_at", "updated_at", "agent_id"];
+    // Exclude all fields containing 'id' (case insensitive)
+    const excludedFields = ["created_at", "updated_at"];
+    const excludedPattern = /id$/i; // Regex to match any field ending with 'id'
 
-    const filteredData = Object.entries(invoice).filter(
-      ([key, value]) => !excludedFields.includes(key) && value !== null && value !== ""
+    // Flatten the entire invoice object first
+    const flattenedInvoice = flattenObject(invoice);
+
+    return flattenedInvoice
+      .filter(([key]) => {
+        // Exclude specific fields and any field ending with 'id'
+        const baseKey = key.split('.')[0];
+        return !excludedFields.includes(baseKey) && 
+               !excludedPattern.test(key); // This will exclude any field ending with 'id'
+      })
+      .filter(([_, value]) => {
+        // Filter out empty values
+        return value !== null && 
+               value !== undefined && 
+               value !== "" && 
+               !(Array.isArray(value) && value.length === 0);
+      })
+      .map(([key, value]) => {
+        // Format the keys for display
+        const displayKey = key.split('.')
+          .map(part => formatFieldName(part))
+          .join(' → ');
+        return [displayKey, value];
+      });
+  };
+
+  const renderInvoiceDetails = () => {
+    if (!selectedInvoice) return null;
+
+    const filteredData = getFilteredInvoiceData(selectedInvoice);
+
+    return (
+      <div className="invoice-details-container">
+        <div className="invoice-details-header">
+          <h2>Invoice Details</h2>
+          <button 
+            className="back-button"
+            onClick={() => setShowNewTable(false)}
+          >
+            Back to List
+          </button>
+        </div>
+
+        <div className="details-grid">
+          {filteredData.map(([key, value]) => (
+            <div key={key} className="detail-item">
+              <div className="detail-label">{key}:</div>
+              <div className="detail-value">{formatValue(value)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     );
-
-    if (invoice.bill_info) {
-      const filteredBillInfo = Object.entries(invoice.bill_info).filter(
-        ([key, value]) => key !== "taxes" && value !== null && value !== ""
-      );
-      filteredData.push(...filteredBillInfo);
-    }
-
-    return filteredData;
   };
 
   const renderOfferCards = () => {
@@ -116,38 +185,42 @@ const InvoiceList = () => {
       return <div className="no-offers">No offers available for this invoice</div>;
     }
 
-    return offers.map((offer, index) => (
-      <div key={offer.id || index} className="offer-card">
-        <div className="offer-card-header">
-          <h3>Offer #{index + 1}</h3>
-          {/* <span className="offer-status active">
-            Available
-          </span> */}
-        </div>
-        
-        <div className="offer-card-body">
-          <div className="offer-field">
-            <span className="offer-label">Provider:</span>
-            <span className="offer-value">{offer.provider_name || "N/A"}</span>
-          </div>
-          
-          <div className="offer-field">
-            <span className="offer-label">Product:</span>
-            <span className="offer-value">{offer.product_name || "N/A"}</span>
-          </div>
-          
-          <div className="offer-field">
-            <span className="offer-label">Savings:</span>
-            <span className="offer-value">{offer.saving || "0"}%</span>
-          </div>
-          
-          <div className="offer-field">
-            <span className="offer-label">Commission:</span>
-            <span className="offer-value">{offer.sales_commission || "0"}%</span>
-          </div>
+    return (
+      <div className="offers-section">
+        <h2 className="offers-title">Available Offers</h2>
+        <div className="offers-grid">
+          {offers.map((offer, index) => (
+            <div key={offer.id || index} className="offer-card">
+              <div className="offer-card-header">
+                <h3>Offer #{index + 1}</h3>
+              </div>
+              
+              <div className="offer-card-body">
+                <div className="offer-field">
+                  <span className="offer-label">Provider:</span>
+                  <span className="offer-value">{offer.provider_name || "N/A"}</span>
+                </div>
+                
+                <div className="offer-field">
+                  <span className="offer-label">Product:</span>
+                  <span className="offer-value">{offer.product_name || "N/A"}</span>
+                </div>
+                
+                <div className="offer-field">
+                  <span className="offer-label">Savings:</span>
+                  <span className="offer-value">{offer.saving || "0"}%</span>
+                </div>
+                
+                <div className="offer-field">
+                  <span className="offer-label">Commission:</span>
+                  <span className="offer-value">{offer.sales_commission || "0"}%</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    ));
+    );
   };
 
   const totalPages = Math.ceil(invoices.length / itemsPerPage);
@@ -173,42 +246,10 @@ const InvoiceList = () => {
     <div className="invoice-list-container">
       <h1 className="invoice-list-title">Invoice List</h1>
       
-      {showNewTable && selectedInvoice ? (
+      {showNewTable ? (
         <>
-          <button 
-            className="back-button"
-            onClick={() => setShowNewTable(false)}
-          >
-            Back to List
-          </button>
-          
-          <div className="table-responsive">
-            <table className="invoice-table">
-              <thead>
-                <tr>
-                  <th className="invoice-table-header">Field</th>
-                  <th className="invoice-table-header">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getFilteredInvoiceData(selectedInvoice).map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="invoice-table-cell">{key}</td>
-                    <td className="invoice-table-cell">
-                      {typeof value === "object" && value !== null
-                        ? JSON.stringify(value)
-                        : value || "N/A"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          <h2 className="offers-title">Available Offers</h2>
-          <div className="offers-container">
-            {renderOfferCards()}
-          </div>
+          {renderInvoiceDetails()}
+          {renderOfferCards()}
         </>
       ) : (
         <>
