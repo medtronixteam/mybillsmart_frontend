@@ -116,6 +116,18 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Submission Link</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/supervisor/whatsapp"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">WhatsApp Link</span>
+            </NavLink>
+          </li>
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

@@ -76,6 +76,8 @@ import AgentRefferalLink from "./components/RefferalLink/RefferalLink";
 import ProviderRefferalLink from "./Provider/RefferalLink/RefferalLink";
 import PointsUpdate from "./GroupAdmin/PointsUpdate/PointsUpdate";
 import WhatsappIntigation from "./components/Whatsapp/Whatsapp";
+import GroupAdminWhatsapp from "./GroupAdmin/GroupAdminWhatsapp/GroupAdminWhatsapp";
+import ProviderWhatsapp from "./Provider/ProviderWhatsapp/ProviderWhatsapp";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -347,6 +349,11 @@ const App = () => {
                             element={<ProviderRefferalLink />}
                           />
                           <Route
+                            path="whatsapp"
+                            element={<ProviderWhatsapp />}
+                          />
+
+                          <Route
                             path="subscription"
                             element={<ProviderSubscription />}
                           />
@@ -402,6 +409,10 @@ const App = () => {
                             path="admin-contract"
                             element={<AdminContractForm />}
                           />
+                          <Route
+                            path="whatsapp"
+                            element={<GroupAdminWhatsapp />}
+                          />
                           <Route path="checkout" element={<CheckoutForm />} />
                           <Route
                             path="payment-success"
@@ -439,7 +450,7 @@ const App = () => {
                           />
                           <Route
                             path="points-update"
-                            element={<PointsUpdate/>}
+                            element={<PointsUpdate />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
