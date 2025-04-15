@@ -3,9 +3,10 @@ import { BsCloudUpload } from "react-icons/bs";
 import "./LinkInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "../../contexts/AuthContext"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../contexts/AuthContext";
+import logo from "../../assets/img/logo2.png";
 
 const LinkInvoice = () => {
   const [step, setStep] = useState(1);
@@ -48,43 +49,46 @@ const LinkInvoice = () => {
       setIsDragging(true);
     };
 
-    window.addEventListener('dragenter', handleDragEnter);
-    window.addEventListener('dragleave', handleDragLeave);
-    window.addEventListener('dragover', handleDragOver);
-    window.addEventListener('drop', handleDrop);
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
 
     return () => {
-      window.removeEventListener('dragenter', handleDragEnter);
-      window.removeEventListener('dragleave', handleDragLeave);
-      window.removeEventListener('dragover', handleDragOver);
-      window.removeEventListener('drop', handleDrop);
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
     };
   }, []);
 
-  const handleFiles = useCallback((files) => {
-    const selectedFile = files[0];
-    if (!selectedFile) return;
+  const handleFiles = useCallback(
+    (files) => {
+      const selectedFile = files[0];
+      if (!selectedFile) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Only JPEG, PNG, and PDF files are allowed.");
-      return;
-    }
+      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        return;
+      }
 
-    if (file) {
-      toast.info("A file is already uploaded. Please submit the form.");
-      return;
-    }
+      if (file) {
+        toast.info("A file is already uploaded. Please submit the form.");
+        return;
+      }
 
-    uploadFile(selectedFile);
-  }, [file]);
+      uploadFile(selectedFile);
+    },
+    [file]
+  );
 
   const handleFileChange = (e) => {
     e.stopPropagation();
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const uploadFile = async (selectedFile) => {
@@ -96,7 +100,7 @@ const LinkInvoice = () => {
 
     try {
       const response = await axios.post(
-        "http://34.142.252.64:7000/api/file/", 
+        "http://34.142.252.64:7000/api/file/",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -128,11 +132,11 @@ const LinkInvoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Step 1: Call match API
       const matchResponse = await axios.post(
-        "http://34.142.252.64:7000/api/match/", 
+        "http://34.142.252.64:7000/api/match/",
         formData,
         {
           headers: { "Content-Type": "application/json" },
@@ -142,12 +146,12 @@ const LinkInvoice = () => {
 
       // Step 2: Call invoices API to get invoice_id
       const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/invoices", 
+        "http://34.142.252.64:8080/api/agent/invoices",
         formData,
         {
-          headers: { 
-            "Content-Type": "application/json", 
-            Authorization: `Bearer ${token}` 
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -163,12 +167,12 @@ const LinkInvoice = () => {
       }));
 
       // const offersResponse = await axios.post(
-      //   "http://34.142.252.64:8080/api/offers", 
+      //   "http://34.142.252.64:8080/api/offers",
       //   offersData,
       //   {
-      //     headers: { 
-      //       "Content-Type": "application/json", 
-      //       Authorization: `Bearer ${token}` 
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Authorization: `Bearer ${token}`
       //     },
       //   }
       // );
@@ -189,7 +193,10 @@ const LinkInvoice = () => {
         return (
           <div key={index} className="form-field">
             <label>
-              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
+              {key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
+              :
             </label>
             <input
               type="text"
@@ -205,6 +212,10 @@ const LinkInvoice = () => {
 
   return (
     <div className="invoice-container">
+      <div className="navbar-brand mb-3">
+        <img src={logo} className="img-fluid w-25" alt="main_logo" />
+      </div>
+
       <ToastContainer />
 
       {isDragging && (
@@ -229,7 +240,9 @@ const LinkInvoice = () => {
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
           <div
-            className={`invoice-file-upload-box ${isDragging ? 'dragging' : ''}`}
+            className={`invoice-file-upload-box ${
+              isDragging ? "dragging" : ""
+            }`}
             onClick={(e) => {
               e.stopPropagation();
               document.getElementById("file-input").click();
@@ -237,7 +250,9 @@ const LinkInvoice = () => {
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Click to Upload or Drag & Drop"}</p>
+              <p>
+                {uploading ? "Uploading..." : "Click to Upload or Drag & Drop"}
+              </p>
               {file && (
                 <div className="file-preview">
                   <p>Selected file: {file.name}</p>
@@ -268,7 +283,9 @@ const LinkInvoice = () => {
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn">Submit</button>
+              <button type="submit" className="invoice-submit-btn">
+                Submit
+              </button>
             </div>
           </form>
         </div>
@@ -282,12 +299,16 @@ const LinkInvoice = () => {
                 {supplier["Supplier Name"] || `Supplier ${index + 1}`}
               </h3>
               {Object.keys(supplier).map((key, keyIndex) => {
-                if (key !== "Supplier Name") {  
+                if (key !== "Supplier Name") {
                   return (
                     <p key={keyIndex}>
                       <strong>
-                        {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
-                      </strong> {supplier[key]}
+                        {key
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        :
+                      </strong>{" "}
+                      {supplier[key]}
                     </p>
                   );
                 }
