@@ -212,8 +212,8 @@ const LinkInvoice = () => {
 
   return (
     <div className="invoice-container">
-      <div className="navbar-brand mb-3">
-        <img src={logo} className="img-fluid w-25" alt="main_logo" />
+      <div className="w-100 text-start">
+        <img src={logo} className="img-fluid" width={180} height={30} alt="main_logo" />
       </div>
 
       <ToastContainer />
