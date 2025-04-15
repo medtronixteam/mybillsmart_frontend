@@ -1,106 +1,107 @@
 .invoice-list-container {
-    padding: 20px;
-  }
-  
-  .invoice-list-title {
-    text-align: center;
-  }
-  
-  .invoice-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    overflow-x: auto; /* Ensures table can scroll horizontally on small screens */
-  }
-  
-  .invoice-table-header {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    background-color: #f2f2f2;
-  }
-  
-  .invoice-table-cell {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .view-invoice-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
+  padding: 20px;
+}
+
+.invoice-list-title {
+  text-align: center;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow-x: auto; /* Ensures table can scroll horizontally on small screens */
+}
+
+.invoice-table-header {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  background-color: #f2f2f2;
+}
+
+.invoice-table-cell {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.view-invoice-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.view-invoice-btn:hover {
+  background-color: #45a049;
+}
+
+.invoice-details {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.invoice-details-title {
+  text-align: center;
+}
+
+.invoice-details-item {
+  font-size: 16px;
+}
+
+/* Media Query for Smaller Screens */
+@media screen and (max-width: 768px) {
+  .invoice-list-container {
     padding: 10px;
-    cursor: pointer;
-    border-radius: 5px;
   }
-  
-  .view-invoice-btn:hover {
-    background-color: #45a049;
+
+  .invoice-list-title {
+    font-size: 24px;
   }
-  
+
+  .invoice-table {
+    font-size: 14px;
+    margin-top: 10px;
+    /* display: block; */
+    overflow-x: auto; /* Makes the table scrollable horizontally */
+    white-space: nowrap; /* Prevents table contents from wrapping */
+  }
+
+  .invoice-table-header {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  .invoice-table-cell {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  .view-invoice-btn {
+    /* padding: 8px; */
+    /* font-size: 14px; */
+  }
+
   .invoice-details {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
+    padding: 15px;
   }
-  
+
   .invoice-details-title {
-    text-align: center;
+    font-size: 20px;
   }
-  
+
   .invoice-details-item {
-    font-size: 16px;
+    font-size: 14px;
   }
-  
-  /* Media Query for Smaller Screens */
-  @media screen and (max-width: 768px) {
-    .invoice-list-container {
-      padding: 10px;
-    }
-  
-    .invoice-list-title {
-      font-size: 24px;
-    }
-  
-    .invoice-table {
-      font-size: 14px;
-      margin-top: 10px;
-      /* display: block; */
-      overflow-x: auto;  /* Makes the table scrollable horizontally */
-      white-space: nowrap;  /* Prevents table contents from wrapping */
-    }
-  
-    .invoice-table-header {
-      font-size: 14px;
-      padding: 6px;
-    }
-  
-    .invoice-table-cell {
-      font-size: 14px;
-      padding: 6px;
-    }
-  
-    .view-invoice-btn {
-      padding: 8px;
-      font-size: 14px;
-    }
-  
-    .invoice-details {
-      padding: 15px;
-    }
-  
-    .invoice-details-title {
-      font-size: 20px;
-    }
-  
-    .invoice-details-item {
-      font-size: 14px;
-    }
-  }
-  
-  /* Invoice Details Styles */
+}
+
+/* Invoice Details Styles */
 .invoice-details-container {
   background: #fff;
   border-radius: 8px;

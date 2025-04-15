@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const Invoice = () => {
   const [step, setStep] = useState(1);
@@ -30,9 +31,9 @@ const Invoice = () => {
   const [modalType, setModalType] = useState("");
   const [loadingClients, setLoadingClients] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
-    const auth = useAuth();
-  
-  const email = auth.email || '';
+  const auth = useAuth();
+
+  const email = auth.email || "";
 
   const [whatsappData, setWhatsappData] = useState({
     to: "",
@@ -77,16 +78,16 @@ const Invoice = () => {
       setIsDragging(true);
     };
 
-    window.addEventListener('dragenter', handleDragEnter);
-    window.addEventListener('dragleave', handleDragLeave);
-    window.addEventListener('dragover', handleDragOver);
-    window.addEventListener('drop', handleDrop);
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
 
     return () => {
-      window.removeEventListener('dragenter', handleDragEnter);
-      window.removeEventListener('dragleave', handleDragLeave);
-      window.removeEventListener('dragover', handleDragOver);
-      window.removeEventListener('drop', handleDrop);
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
     };
   }, []);
 
@@ -125,30 +126,33 @@ const Invoice = () => {
     }
   };
 
-  const handleFiles = useCallback((files) => {
-    const selectedFile = files[0];
-    if (!selectedFile) return;
+  const handleFiles = useCallback(
+    (files) => {
+      const selectedFile = files[0];
+      if (!selectedFile) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Only JPEG, PNG, and PDF files are allowed.");
-      return;
-    }
+      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        return;
+      }
 
-    if (file) {
-      toast.info("A file is already uploaded. Please submit the form.");
-      return;
-    }
+      if (file) {
+        toast.info("A file is already uploaded. Please submit the form.");
+        return;
+      }
 
-    uploadFile(selectedFile);
-  }, [file]);
+      uploadFile(selectedFile);
+    },
+    [file]
+  );
 
   const handleFileChange = (e) => {
     e.stopPropagation();
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const uploadFile = async (selectedFile) => {
@@ -540,51 +544,51 @@ const Invoice = () => {
       toast.error("Phone number is required");
       return;
     }
-  
+
     // Validate phone number format (minimum 11 digits)
     const phoneRegex = /^\d{11,}$/;
-    const rawPhone = whatsappData.to.replace(/^\+/, '');
+    const rawPhone = whatsappData.to.replace(/^\+/, "");
     if (!phoneRegex.test(rawPhone)) {
       toast.error("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
-  
+
     try {
       const pdfBlob = generatePDFBlob();
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `invoice_${invoiceId}.pdf`;
-  
+
       // Get email from auth context and replace special characters
-      const sessionEmail = email.replace(/[@.]/g, '_');
-  
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
       });
-  
+
       const payload = {
         chatId: formattedPhone,
-        caption: whatsappData.message || 'Invoice details',
+        caption: whatsappData.message || "Invoice details",
         session: sessionEmail, // Using modified email as session
         file: {
           data: base64data,
           filename: filename,
-          mimeType: 'application/pdf'
-        }
+          mimeType: "application/pdf",
+        },
       };
-  
+
       const response = await axios.post(
-        'http://34.142.252.64:3000/api/sendFile',
+        "http://34.142.252.64:3000/api/sendFile",
         payload,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-  
+
       if (response.status === 201) {
         toast.success("WhatsApp message sent successfully!");
         handleWhatsappModalClose();
@@ -593,10 +597,11 @@ const Invoice = () => {
       }
     } catch (error) {
       console.error("WhatsApp send error:", error);
-      const errorMessage = error.response?.data?.error || 
-                          error.response?.data?.message || 
-                          error.message || 
-                          "Failed to send WhatsApp message";
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send WhatsApp message";
       toast.error(errorMessage);
     }
   };
@@ -685,7 +690,9 @@ const Invoice = () => {
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
           <div
-            className={`invoice-file-upload-box ${isDragging ? 'dragging' : ''}`}
+            className={`invoice-file-upload-box ${
+              isDragging ? "dragging" : ""
+            }`}
             onClick={(e) => {
               e.stopPropagation();
               document.getElementById("file-input").click();
@@ -737,7 +744,9 @@ const Invoice = () => {
           <div className="text-center container">
             <div className="row">
               <div className="col-12">
-                <h1>Vendor List</h1>
+                <h1 className="best-offers-heading mb-0">
+                  Here is some best offers for you choose one of them
+                </h1>
               </div>
             </div>
           </div>
@@ -845,13 +854,16 @@ const Invoice = () => {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content w-100">
             <div className="modal-header">
-              <h3>
+              <h3 className="mb-0">
                 {modalType === "email" ? "Send Email" : "Send to Client Portal"}
               </h3>
-              <button onClick={handleModalClose} className="modal-close-btn">
-                &times;
+              <button
+                onClick={handleModalClose}
+                className="modal-close-btn bg-transparent border-0"
+              >
+                <IoClose size={25} />
               </button>
             </div>
             <div className="modal-body">
@@ -865,7 +877,7 @@ const Invoice = () => {
               ) : (
                 <>
                   <div className="mb-3">
-                    <label className="form-label">Select Client:</label>
+                    <label className="form-label text-start d-block pb-1">Select Client:</label>
                     <select
                       className="form-select"
                       value={selectedClient}
@@ -888,7 +900,7 @@ const Invoice = () => {
               </button>
               <button
                 onClick={handleModalSubmit}
-                className="btn btn-primary"
+                className="btn btn-secondary"
                 disabled={!selectedClient || loadingClients}
               >
                 {modalType === "email" ? (
@@ -908,35 +920,36 @@ const Invoice = () => {
         </div>
       )}
 
-     {showWhatsappModal && (
-  <div className="whatsapp-modal-overlay">
-    <div className="whatsapp-modal-content">
-      <div className="whatsapp-modal-header">
-        <h3>Send via WhatsApp</h3>
-        <button
-          onClick={handleWhatsappModalClose}
-          className="whatsapp-modal-close-btn"
-        >
-          &times;
-        </button>
-      </div>
-      <div className="whatsapp-modal-body">
-        <div className="whatsapp-input-group">
-          <label htmlFor="whatsapp-to">Phone Number:</label>
-          <input
-            type="text"
-            id="whatsapp-to"
-            name="to"
-            value={whatsappData.to}
-            onChange={handleWhatsappChange}
-            placeholder="e.g., 923001234567"
-            required
-          />
-          <small className="whatsapp-input-hint">
-            Enter phone number with country code but without + sign (e.g., 923001234567 for Pakistan)
-          </small>
-        </div>
-        {/* <div className="whatsapp-input-group">
+      {showWhatsappModal && (
+        <div className="whatsapp-modal-overlay">
+          <div className="whatsapp-modal-content">
+            <div className="whatsapp-modal-header">
+              <h3>Send via WhatsApp</h3>
+              <button
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="whatsapp-modal-body">
+              <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-to">Phone Number:</label>
+                <input
+                  type="text"
+                  id="whatsapp-to"
+                  name="to"
+                  value={whatsappData.to}
+                  onChange={handleWhatsappChange}
+                  placeholder="e.g., 923001234567"
+                  required
+                />
+                <small className="whatsapp-input-hint">
+                  Enter phone number with country code but without + sign (e.g.,
+                  923001234567 for Pakistan)
+                </small>
+              </div>
+              {/* <div className="whatsapp-input-group">
           <label htmlFor="whatsapp-message">Message (optional):</label>
           <textarea
             id="whatsapp-message"
@@ -947,33 +960,33 @@ const Invoice = () => {
             rows={5}
           />
         </div> */}
-        <div className="whatsapp-pdf-preview">
-          <p className="whatsapp-pdf-label">PDF Attachment:</p>
-          <div className="whatsapp-pdf-placeholder">
-            <BsDownload className="whatsapp-pdf-icon" />
-            <p>Invoice_{invoiceId}.pdf</p>
+              <div className="whatsapp-pdf-preview">
+                <p className="whatsapp-pdf-label">PDF Attachment:</p>
+                <div className="whatsapp-pdf-placeholder">
+                  <BsDownload className="whatsapp-pdf-icon" />
+                  <p>Invoice_{invoiceId}.pdf</p>
+                </div>
+              </div>
+            </div>
+            <div className="whatsapp-modal-footer">
+              <button
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWhatsappSubmit}
+                className="whatsapp-modal-send-btn"
+                disabled={!whatsappData.to}
+              >
+                <BsWhatsapp className="me-2" />
+                Send Message
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="whatsapp-modal-footer">
-        <button
-          onClick={handleWhatsappModalClose}
-          className="whatsapp-modal-cancel-btn"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleWhatsappSubmit}
-          className="whatsapp-modal-send-btn"
-          disabled={!whatsappData.to}
-        >
-          <BsWhatsapp className="me-2" />
-          Send Message
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };

@@ -67,7 +67,7 @@ const GroupAdminSidebar = () => {
                 <FaFileUpload />{" "}
                 {/* Changed to upload icon for invoice submission */}
               </div>
-              <span className="nav-link-text ms-1">Invoice Submit</span>
+              <span className="nav-link-text ms-1">Manage Invoices</span>
             </NavLink>
           </li>
           <li className="nav-item">

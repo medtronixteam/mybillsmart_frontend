@@ -245,7 +245,10 @@ const ProviderProfileSetting = () => {
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">
-          <form onSubmit={handleProfileSubmit} className="card profile-info-card h-100">
+          <form
+            onSubmit={handleProfileSubmit}
+            className="card profile-info-card h-100"
+          >
             <h3 className="profile-card-heading">Edit Your Profile Info</h3>
             <div className="">
               <label htmlFor="name" className="form-label profile-input-label">
@@ -278,7 +281,10 @@ const ProviderProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="country" className="form-label profile-input-label">
+              <label
+                htmlFor="country"
+                className="form-label profile-input-label"
+              >
                 Country
               </label>
               <input
@@ -293,7 +299,10 @@ const ProviderProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="address" className="form-label profile-input-label">
+              <label
+                htmlFor="address"
+                className="form-label profile-input-label"
+              >
                 Address
               </label>
               <input
@@ -308,7 +317,10 @@ const ProviderProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="postalCode" className="form-label profile-input-label">
+              <label
+                htmlFor="postalCode"
+                className="form-label profile-input-label"
+              >
                 Postal Code
               </label>
               <input
@@ -336,10 +348,16 @@ const ProviderProfileSetting = () => {
 
         {/* Password Card */}
         <div className="col-xl-6">
-          <form onSubmit={handlePasswordSubmit} className="card profile-password-card h-100">
+          <form
+            onSubmit={handlePasswordSubmit}
+            className="card profile-password-card h-100"
+          >
             <h3 className="profile-card-heading">Update Your Password</h3>
             <div className="">
-              <label htmlFor="current_password" className="form-label profile-input-label">
+              <label
+                htmlFor="current_password"
+                className="form-label profile-input-label"
+              >
                 Current Password
               </label>
               <input
@@ -354,7 +372,10 @@ const ProviderProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="new_password" className="form-label profile-input-label">
+              <label
+                htmlFor="new_password"
+                className="form-label profile-input-label"
+              >
                 New Password
               </label>
               <input
@@ -369,7 +390,10 @@ const ProviderProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="confirm_password" className="form-label profile-input-label">
+              <label
+                htmlFor="confirm_password"
+                className="form-label profile-input-label"
+              >
                 Confirm Password
               </label>
               <input
@@ -395,14 +419,16 @@ const ProviderProfileSetting = () => {
           </form>
         </div>
 
-        {/* 2FA Card */} 
+        {/* 2FA Card */}
         <div className="col-12 mt-4">
           <div className="card profile-2fa-card">
-            <h3 className="profile-card-heading">Two-Factor Authentication (2FA)</h3>
-            
+            <h3 className="profile-card-heading">
+              Two-Factor Authentication (2FA)
+            </h3>
+
             {is2FAEnabled ? (
               <div className="text-center">
-                <p className="text-success">✓ 2FA is currently enabled</p>
+                <p className="text-white">✓ 2FA is currently enabled</p>
                 <button
                   onClick={handleDisable2FA}
                   className="btn btn-danger"
@@ -416,35 +442,43 @@ const ProviderProfileSetting = () => {
                 {twoFA.qrCode ? (
                   <>
                     <div className="mb-3">
-                      <p>Scan this QR code with your authenticator app:</p>
-                      {twoFA.qrCode.startsWith('data:image') || twoFA.qrCode.startsWith('http') ? (
-                        <img 
-                          src={twoFA.qrCode} 
+                      <p className="text-white">
+                        Scan this QR code with your authenticator app:
+                      </p>
+                      {twoFA.qrCode.startsWith("data:image") ||
+                      twoFA.qrCode.startsWith("http") ? (
+                        <img
+                          src={twoFA.qrCode}
                           alt="2FA QR Code"
-                          style={{ 
-                            maxWidth: "200px", 
+                          style={{
+                            maxWidth: "200px",
                             margin: "0 auto",
                             border: "1px solid #ddd",
                             padding: "10px",
-                            backgroundColor: "white"
+                            backgroundColor: "white",
                           }}
                         />
                       ) : (
-                        <div 
+                        <div
                           dangerouslySetInnerHTML={{ __html: twoFA.qrCode }}
-                          style={{ 
-                            maxWidth: "200px", 
+                          style={{
+                            maxWidth: "200px",
                             margin: "0 auto",
                             border: "1px solid #ddd",
                             padding: "10px",
-                            backgroundColor: "white"
+                            backgroundColor: "white",
                           }}
                         />
                       )}
-                      <p className="mt-2">Or enter this secret manually: <code>{twoFA.secret}</code></p>
+                      <p className="mt-2 text-white">
+                        Or enter this secret manually:{" "}
+                        <code>{twoFA.secret}</code>
+                      </p>
                     </div>
-                    <div className="mb-3">  
-                      <p>Enter the 6-digit code from your authenticator app:</p>
+                    <div className="mb-3">
+                      <p className="text-white">
+                        Enter the 6-digit code from your authenticator app:
+                      </p>
                       <input
                         type="text"
                         name="code"
@@ -464,7 +498,13 @@ const ProviderProfileSetting = () => {
                         {twoFA.loading ? "Verifying..." : "Verify & Enable"}
                       </button>
                       <button
-                        onClick={() => setTwoFA(prev => ({ ...prev, qrCode: "", secret: "" }))}
+                        onClick={() =>
+                          setTwoFA((prev) => ({
+                            ...prev,
+                            qrCode: "",
+                            secret: "",
+                          }))
+                        }
                         className="btn btn-secondary"
                       >
                         Cancel
@@ -473,7 +513,7 @@ const ProviderProfileSetting = () => {
                   </>
                 ) : (
                   <>
-                    <p>Add an extra layer of security to your account</p>
+                    <p className="text-white">Add an extra layer of security to your account</p>
                     <button
                       onClick={handleEnable2FA}
                       className="btn btn-primary"

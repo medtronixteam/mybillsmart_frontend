@@ -68,7 +68,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Product List</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/add-product"
@@ -79,7 +79,7 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Add Product</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"

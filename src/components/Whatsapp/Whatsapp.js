@@ -250,22 +250,22 @@ const WhatsappIntegration = () => {
             <p className="wai-card-description">
               Connect your WhatsApp Business account to get started
             </p>
-            
+
             <div className="wai-session-info">
               <p>Session: {currentSession}</p>
               <p>Status: {sessionStatus}</p>
             </div>
-            
+
             <div className="wai-action-buttons">
-              <button 
+              <button
                 className="wai-primary-btn"
                 onClick={createSession}
                 disabled={isLoading}
               >
-                {isLoading ? 'Initializing...' : 'Connect WhatsApp'}
+                {isLoading ? "Initializing..." : "Connect WhatsApp"}
               </button>
             </div>
-            
+
             {error && <div className="wai-error-message">{error}</div>}
           </div>
         )}
@@ -274,22 +274,24 @@ const WhatsappIntegration = () => {
         {step === 2 && (
           <div className="wai-connect-card">
             <div className="wai-card-header">
-              <h2>Create New Session</h2>
+              <h2 className='mb-0'>Create New Session</h2>
               <div className="wai-whatsapp-icon">➕</div>
             </div>
             <p className="wai-card-description">
-              A new WhatsApp session will be created for: {currentSession}
+              You have not link Whatsapp please click at create session to link
+              the Whatsapp. Scan the QR code then your whatsapp will be link.
+              {/* A new WhatsApp session will be created for: {currentSession} */}
             </p>
-            
+
             <div className="wai-action-buttons">
-              <button 
+              <button
                 className="wai-primary-btn"
                 onClick={createSession}
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating...' : 'Create Session'}
+                {isLoading ? "Creating..." : "Create Session"}
               </button>
-              <button 
+              <button
                 className="wai-secondary-btn"
                 onClick={() => setStep(1)}
                 disabled={isLoading}
@@ -297,7 +299,7 @@ const WhatsappIntegration = () => {
                 Cancel
               </button>
             </div>
-            
+
             {error && <div className="wai-error-message">{error}</div>}
           </div>
         )}
@@ -309,8 +311,10 @@ const WhatsappIntegration = () => {
               <h2>Scan QR Code</h2>
               <div className="wai-qr-icon">📱</div>
             </div>
-            <p className="wai-card-description">Open WhatsApp on your phone and scan this code</p>
-            
+            <p className="wai-card-description">
+              Open WhatsApp on your phone and scan this code
+            </p>
+
             <div className="wai-qr-code-container">
               {isLoading ? (
                 <div className="wai-spinner-container">
@@ -320,10 +324,7 @@ const WhatsappIntegration = () => {
               ) : error ? (
                 <div className="wai-error-message">
                   {error}
-                  <button 
-                    className="wai-retry-btn"
-                    onClick={getQRCode}
-                  >
+                  <button className="wai-retry-btn" onClick={getQRCode}>
                     Retry
                   </button>
                 </div>
@@ -331,20 +332,23 @@ const WhatsappIntegration = () => {
                 renderQRCode()
               )}
             </div>
-            
+
             <div className="wai-status-indicator">
-              Status: {sessionStatus === 'connected' ? '✅ Connected' : '⌛ Waiting for scan...'}
+              Status:{" "}
+              {sessionStatus === "connected"
+                ? "✅ Connected"
+                : "⌛ Waiting for scan..."}
             </div>
-            
+
             <div className="wai-action-buttons">
-              <button 
+              <button
                 className="wai-secondary-btn"
                 onClick={stopSession}
                 disabled={isLoading}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 className="wai-secondary-btn"
                 onClick={getQRCode}
                 disabled={isLoading}
@@ -362,7 +366,7 @@ const WhatsappIntegration = () => {
               <h2>Connected Successfully</h2>
               <div className="wai-success-icon">✅</div>
             </div>
-            
+
             {profileInfo && (
               <div className="wai-profile-info">
                 <div className="wai-info-row">
@@ -371,28 +375,28 @@ const WhatsappIntegration = () => {
                 </div>
                 <div className="wai-info-row">
                   <span>Name:</span>
-                  <span>{profileInfo.pushname || 'Not available'}</span>
+                  <span>{profileInfo.pushname || "Not available"}</span>
                 </div>
                 <div className="wai-info-row">
                   <span>Phone:</span>
-                  <span>{profileInfo?.wid?.user || 'Not available'}</span>
+                  <span>{profileInfo?.wid?.user || "Not available"}</span>
                 </div>
               </div>
             )}
-            
+
             <div className="wai-status-indicator wai-connected">
               WhatsApp is connected and ready to use
             </div>
-            
+
             <div className="wai-action-buttons">
-              <button 
+              <button
                 className="wai-secondary-btn"
                 onClick={stopSession}
                 disabled={isLoading}
               >
                 Disconnect
               </button>
-              <button 
+              <button
                 className="wai-danger-btn"
                 onClick={deleteSession}
                 disabled={isLoading}
@@ -400,7 +404,7 @@ const WhatsappIntegration = () => {
                 Delete Session
               </button>
             </div>
-            
+
             {error && <div className="wai-error-message">{error}</div>}
           </div>
         )}
@@ -412,11 +416,12 @@ const WhatsappIntegration = () => {
               <h2>Session Stopped</h2>
               <div className="wai-stopped-icon">⏹️</div>
             </div>
-            
+
             <p className="wai-card-description">
-              Your WhatsApp session has been stopped. You can start a new session whenever you're ready.
+              Your WhatsApp session has been stopped. You can start a new
+              session whenever you're ready.
             </p>
-            
+
             <div className="wai-action-buttons">
               {/* <button 
                 className="wai-primary-btn"
@@ -425,7 +430,7 @@ const WhatsappIntegration = () => {
               >
                 {isLoading ? 'Starting...' : 'Connect WhatsApp'}
               </button> */}
-              <button 
+              <button
                 className="wai-danger-btn"
                 onClick={deleteSession}
                 disabled={isLoading}
@@ -433,7 +438,7 @@ const WhatsappIntegration = () => {
                 Delete Session
               </button>
             </div>
-            
+
             {error && <div className="wai-error-message">{error}</div>}
           </div>
         )}

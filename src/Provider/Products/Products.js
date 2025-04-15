@@ -5,6 +5,8 @@ import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "react-toastify"; // For toast messages
 import "react-toastify/dist/ReactToastify.css"; // Toast CSS
+import { IoClose } from "react-icons/io5";
+import {Link} from "react-router-dom";
 
 const Products = () => {
   const [products, setProducts] = useState([]); // State to store products
@@ -44,7 +46,10 @@ const Products = () => {
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -80,7 +85,7 @@ const Products = () => {
   };
 
   const enterEditMode = (product) => {
-    console.log("Product Data:", product); 
+    console.log("Product Data:", product);
     setEditProductData(product);
     setIsEditMode(true);
   };
@@ -114,10 +119,10 @@ const Products = () => {
     }
 
     const apiUrl = `${config.BASE_URL}/api/supervisor/products/${id}`;
-    console.log("API URL:", apiUrl); 
+    console.log("API URL:", apiUrl);
 
     const requestBody = { ...editProductData, fixed_rate: fixedRate };
-    // console.log("Request Body:", requestBody); 
+    // console.log("Request Body:", requestBody);
 
     axios
       .put(apiUrl, requestBody, {
@@ -149,7 +154,10 @@ const Products = () => {
   return (
     <div className="products-container">
       <div className="products-header">
-        <h2>Products</h2>
+        <h2 className="mb-0">Products</h2>
+        <Link to="/supervisor/add-product">
+          <button className="btn btn-primary mb-0">Add Product</button>
+        </Link>
       </div>
 
       {loading ? (
@@ -160,22 +168,25 @@ const Products = () => {
           <h3>Edit Product</h3>
           <form>
             <div className="edit-form-grid">
-              {Object.entries(editProductData).map(([key, value]) => (
-                // Skip 'id' and 'created_at' fields
-                (key !== 'id' && key !== 'created_at') && (
-                  <div className="form-group" key={key}>
-                    <label>
-                      {key.replace(/_/g, " ")}: {/* Replace underscores with spaces */}
-                      <input
-                        type={key.includes("date") ? "date" : "text"} // Use "date" type for date fields
-                        name={key}
-                        value={value || ""}
-                        onChange={handleEditChange}
-                      />
-                    </label>
-                  </div>
-                )
-              ))}
+              {Object.entries(editProductData).map(
+                ([key, value]) =>
+                  // Skip 'id' and 'created_at' fields
+                  key !== "id" &&
+                  key !== "created_at" && (
+                    <div className="form-group" key={key}>
+                      <label>
+                        {key.replace(/_/g, " ")}:{" "}
+                        {/* Replace underscores with spaces */}
+                        <input
+                          type={key.includes("date") ? "date" : "text"} // Use "date" type for date fields
+                          name={key}
+                          value={value || ""}
+                          onChange={handleEditChange}
+                        />
+                      </label>
+                    </div>
+                  )
+              )}
             </div>
             <div className="form-actions">
               <button type="button" onClick={saveEditedProduct}>
@@ -207,7 +218,10 @@ const Products = () => {
                     <td>{product.light_category}</td>
                     <td>{product.fixed_rate}</td>
                     <td>
-                      <button className="btn" onClick={() => openModal(product)}>
+                      <button
+                        className="btn"
+                        onClick={() => openModal(product)}
+                      >
                         View Details
                       </button>{" "}
                       <button
@@ -235,7 +249,10 @@ const Products = () => {
 
           {/* Pagination */}
           <div className="pagination">
-            <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
               Prev
             </button>
             <span>Page {currentPage}</span>
@@ -254,7 +271,7 @@ const Products = () => {
         <div className="product-modal-overlay">
           <div className="product-modal-content">
             <button className="close-btn" onClick={closeModal}>
-              ✖
+              <IoClose size={25} />
             </button>
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">

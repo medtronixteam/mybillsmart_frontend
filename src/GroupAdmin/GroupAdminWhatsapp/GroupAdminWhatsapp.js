@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { QRCodeSVG } from 'qrcode.react';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../../contexts/AuthContext";
 import "./GroupAdminWhatsapp.css";
 
@@ -282,11 +282,13 @@ const GroupAdminWhatsapp = () => {
         {step === 2 && (
           <div className="wai-connect-card">
             <div className="wai-card-header">
-              <h2>Create New Session</h2>
+              <h2 className="mb-0">Create New Session</h2>
               <div className="wai-whatsapp-icon">➕</div>
             </div>
             <p className="wai-card-description">
-              A new WhatsApp session will be created for: {currentSession}
+              You have not link Whatsapp please click at create session to link
+              the Whatsapp. Scan the QR code then your whatsapp will be link.
+              {/* A new WhatsApp session will be created for: {currentSession} */}
             </p>
 
             <div className="wai-action-buttons">

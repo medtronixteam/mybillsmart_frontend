@@ -195,7 +195,7 @@
   font-size: 1.2rem !important;
   cursor: pointer !important;
   padding: 0 !important;
-  color: transparent !important;
+  /* color: transparent !important; */
   box-shadow: none !important;
 }
 

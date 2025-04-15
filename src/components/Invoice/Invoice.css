@@ -1,3 +1,7 @@
+.best-offers-heading {
+  font-size: 40px;
+  line-height: 46px;
+}
 .invoice-container {
   display: flex;
   flex-direction: column;
@@ -289,6 +293,10 @@
   } */
 }
 @media screen and (max-width: 991px) {
+  .best-offers-heading {
+    font-size: 30px;
+    line-height: 36px;
+  }
   .invoice-download-pdf-btn {
     position: static !important;
   }
@@ -373,6 +381,10 @@
   }
 }
 @media screen and (max-width: 575px) {
+  .best-offers-heading {
+    font-size: 25px;
+    line-height: 31px;
+  }
   .invoice-card.invoice-card-responsive {
     padding: 30px;
   }
@@ -406,7 +418,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #25D366;
+  background-color: #25d366;
   color: white;
 }
 
@@ -507,7 +519,7 @@
 
 .whatsapp-modal-send-btn {
   padding: 8px 15px;
-  background-color: #25D366;
+  background-color: #25d366;
   color: white;
   border: none;
   border-radius: 4px;
@@ -518,7 +530,7 @@
 }
 
 .whatsapp-modal-send-btn:hover {
-  background-color: #128C7E;
+  background-color: #128c7e;
 }
 
 .whatsapp-modal-send-btn:disabled {

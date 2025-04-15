@@ -416,7 +416,7 @@ const ClientProfileSetting = () => {
                 {twoFA.qrCode ? (
                   <>
                     <div className="mb-3">
-                      <p>Scan this QR code with your authenticator app:</p>
+                      <p className="text-white">Scan this QR code with your authenticator app:</p>
                       {twoFA.qrCode.startsWith('data:image') || twoFA.qrCode.startsWith('http') ? (
                         <img 
                           src={twoFA.qrCode} 
@@ -441,10 +441,10 @@ const ClientProfileSetting = () => {
                           }}
                         />
                       )}
-                      <p className="mt-2">Or enter this secret manually: <code>{twoFA.secret}</code></p>
+                      <p className="mt-2 text-white">Or enter this secret manually: <code>{twoFA.secret}</code></p>
                     </div>
                     <div className="mb-3">  
-                      <p>Enter the 6-digit code from your authenticator app:</p>
+                      <p className="text-white">Enter the 6-digit code from your authenticator app:</p>
                       <input
                         type="text"
                         name="code"
@@ -473,7 +473,7 @@ const ClientProfileSetting = () => {
                   </>
                 ) : (
                   <>
-                    <p>Add an extra layer of security to your account</p>
+                    <p className="text-white">Add an extra layer of security to your account</p>
                     <button
                       onClick={handleEnable2FA}
                       className="btn btn-primary"

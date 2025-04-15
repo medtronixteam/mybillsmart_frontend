@@ -274,7 +274,7 @@ const InvoiceList = () => {
                       <td className="invoice-table-cell">{invoice.billing_period}</td>
                       <td className="invoice-table-cell">
                         <button
-                          className="view-invoice-btn"
+                          className="view-invoice-btn py-1 px-2"
                           onClick={() => fetchInvoiceDetails(invoice.id)}
                         >
                           View Details
