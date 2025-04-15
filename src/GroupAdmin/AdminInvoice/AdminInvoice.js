@@ -14,6 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const AdminInvoice = () => {
   const [step, setStep] = useState(1);
@@ -641,7 +642,9 @@ const AdminInvoice = () => {
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
           <div
-            className={`invoice-file-upload-box ${isDragging ? 'dragging' : ''}`}
+            className={`invoice-file-upload-box ${
+              isDragging ? "dragging" : ""
+            }`}
             onClick={(e) => {
               e.stopPropagation();
               document.getElementById("file-input").click();
@@ -692,7 +695,9 @@ const AdminInvoice = () => {
           <div className="text-center container">
             <div className="row">
               <div className="col-12">
-                <h1>Vendor List</h1>
+                <h1 className="best-offers-heading mb-0">
+                  Here is some best offers for you choose one of them
+                </h1>
               </div>
             </div>
           </div>
@@ -800,16 +805,16 @@ const AdminInvoice = () => {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content w-100">
             <div className="modal-header">
-              <h3>
+              <h3 className="mb-0">
                 {modalType === "email" ? "Send Email" : "Send to Client Portal"}
               </h3>
-              <button 
+              <button
                 onClick={handleModalClose}
-                className="modal-close-btn"
+                className="modal-close-btn bg-transparent border-0"
               >
-                &times;
+                <IoClose size={25} />
               </button>
             </div>
             <div className="modal-body">
@@ -823,7 +828,9 @@ const AdminInvoice = () => {
               ) : (
                 <>
                   <div className="mb-3">
-                    <label className="form-label">Select Client:</label>
+                    <label className="form-label d-block pb-1 text-start">
+                      Select Client:
+                    </label>
                     <select
                       className="form-select"
                       value={selectedClient}
@@ -841,10 +848,7 @@ const AdminInvoice = () => {
               )}
             </div>
             <div className="modal-footer">
-              <button
-                onClick={handleModalClose}
-                className="btn btn-secondary"
-              >
+              <button onClick={handleModalClose} className="btn btn-secondary">
                 Cancel
               </button>
               <button
@@ -874,7 +878,7 @@ const AdminInvoice = () => {
           <div className="whatsapp-modal-content">
             <div className="whatsapp-modal-header">
               <h3>Send via WhatsApp</h3>
-              <button 
+              <button
                 onClick={handleWhatsappModalClose}
                 className="whatsapp-modal-close-btn"
               >
@@ -894,7 +898,8 @@ const AdminInvoice = () => {
                   required
                 />
                 <small className="whatsapp-input-hint">
-                  Enter phone number with country code but without + sign (e.g., 923001234567 for Pakistan)
+                  Enter phone number with country code but without + sign (e.g.,
+                  923001234567 for Pakistan)
                 </small>
               </div>
               {/* <div className="whatsapp-input-group">

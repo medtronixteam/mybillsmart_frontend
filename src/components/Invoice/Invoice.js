@@ -900,7 +900,7 @@ const Invoice = () => {
               </button>
               <button
                 onClick={handleModalSubmit}
-                className="btn btn-secondary"
+                className="btn btn-primary"
                 disabled={!selectedClient || loadingClients}
               >
                 {modalType === "email" ? (
