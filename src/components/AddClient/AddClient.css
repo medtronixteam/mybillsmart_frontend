@@ -43,6 +43,7 @@
   transition: background-color 0.3s;
   display: block;
   box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+  font-weight: 700;
 }
 
 /* .add-user-container button:hover {

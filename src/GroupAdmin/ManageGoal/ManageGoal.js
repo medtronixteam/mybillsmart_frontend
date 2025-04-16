@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./ManageGoal.css";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const ManageGoal = () => {
   const [formData, setFormData] = useState({
-    task_name: '',
-    start_date: '',
-    end_date: '',
-    points: '',
+    task_name: "",
+    start_date: "",
+    end_date: "",
+    points: "",
     user_ids: [],
-    status: 'pending'
+    status: "pending",
   });
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const { token } = useAuth();
 
   useEffect(() => {
@@ -26,22 +27,25 @@ const ManageGoal = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://34.142.252.64:8080/api/group/users/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await axios.get(
+        "http://34.142.252.64:8080/api/group/users/list",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
-      const filteredUsers = response.data.data.filter(user => 
-        user.role === 'supervisor' || user.role === 'agent'
+      const filteredUsers = response.data.data.filter(
+        (user) => user.role === "supervisor" || user.role === "agent"
       );
 
       setUsers(filteredUsers);
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch users. Please try again.');
+      setError("Failed to fetch users. Please try again.");
       setLoading(false);
-      console.error('Error fetching users:', err);
+      console.error("Error fetching users:", err);
     }
   };
 
@@ -49,71 +53,84 @@ const ManageGoal = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleUserCheckbox = (userId) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const newUserIds = prev.user_ids.includes(userId)
-        ? prev.user_ids.filter(id => id !== userId)
+        ? prev.user_ids.filter((id) => id !== userId)
         : [...prev.user_ids, userId];
-      
+
       return {
         ...prev,
-        user_ids: newUserIds
+        user_ids: newUserIds,
       };
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     // Validation
-    if (!formData.task_name || !formData.start_date || !formData.end_date || !formData.points || formData.user_ids.length === 0) {
-      setError('Please fill in all fields');
+    if (
+      !formData.task_name ||
+      !formData.start_date ||
+      !formData.end_date ||
+      !formData.points ||
+      formData.user_ids.length === 0
+    ) {
+      setError("Please fill in all fields");
       return;
     }
 
     if (new Date(formData.end_date) < new Date(formData.start_date)) {
-      setError('End date must be after start date');
+      setError("End date must be after start date");
       return;
     }
 
-   
-
     try {
       setLoading(true);
-      const response = await axios.post('http://34.142.252.64:8080/api/group/goals', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        "http://34.142.252.64:8080/api/group/goals",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
-      setSuccess('Goal created successfully!');
+      setSuccess("Goal created successfully!");
       setFormData({
-        task_name: '',
-        start_date: '',
-        end_date: '',
-        points: '',
+        task_name: "",
+        start_date: "",
+        end_date: "",
+        points: "",
         user_ids: [],
-        status: 'pending'
+        status: "pending",
       });
     } catch (err) {
-      setError('Failed to create goal. Please try again.');
-      console.error('Error creating goal:', err);
+      setError("Failed to create goal. Please try again.");
+      console.error("Error creating goal:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="manage-goal-container">
-      <h2>Create New Goal</h2>
-      
+    <div className="manage-goal-container p-md-5 p-4 mt-5">
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
+        <h2 className="mb-0">Create New Goal</h2>
+        <Link to="/group_admin/goal-list">
+          <button className="btn bg-white goal-btn px-3 py-2">View Goal List</button>
+        </Link>
+      </div>
+
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
@@ -180,7 +197,7 @@ const ManageGoal = () => {
             {loading ? (
               <div>Loading users...</div>
             ) : (
-              users.map(user => (
+              users.map((user) => (
                 <div key={user.id} className="user-checkbox-item">
                   <input
                     type="checkbox"
@@ -194,12 +211,18 @@ const ManageGoal = () => {
             )}
           </div>
           {formData.user_ids.length === 0 && (
-            <small className="text-danger">Please select at least one user</small>
+            <small className="text-danger d-none">
+              Please select at least one user
+            </small>
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Submitting...' : 'Create Goal'}
+        <button
+          type="submit"
+          className="btn bg-white  goal-btn p-3 w-50 mx-auto rounded-pill d-block"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Create Goal"}
         </button>
       </form>
     </div>

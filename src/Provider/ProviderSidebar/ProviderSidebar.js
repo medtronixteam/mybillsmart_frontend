@@ -146,12 +146,12 @@ const ProviderSidebar = () => {
       <div id="google_translate_element">
         
         </div>
-        <Link to="/supervisor/subscription">
+        {/* <Link to="/supervisor/subscription">
           <button className="btn mt-4 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>
-        </Link>
+        </Link> */}
         <button
           className="btn w-100"
           type="button"

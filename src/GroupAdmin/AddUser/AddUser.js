@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./AddUser.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const AddUser = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -51,7 +52,7 @@ const AddUser = ({ onAddUser }) => {
         address: formData.address,
         country: formData.country,
         city: formData.city,
-        postal_code: formData.postalCode, 
+        postal_code: formData.postalCode,
       };
 
       const response = await axios.post(
@@ -94,7 +95,14 @@ const AddUser = ({ onAddUser }) => {
 
   return (
     <div className="add-user-container">
-      <h1>Add User</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
+        <h2 className="mb-0">Add User</h2>
+        <Link to="/group_admin/user-list">
+          <button className=" w-100 fs-6 rounded px-3 py-2 btn bg-white">
+            View User List
+          </button>
+        </Link>
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -152,8 +160,13 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
-        
-        <select name="role" value={formData.role} onChange={handleChange} required>
+
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          required
+        >
           <option value="agent">Sale Agent</option>
           <option value="supervisor">Supervisor</option>
           <option value="client">Clients</option>
@@ -165,7 +178,12 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         /> */}
-        <button type="submit">Add User</button>
+        <button
+          type="submit"
+          // className="btn bg-white p-3 w-50 mx-auto rounded-pill d-block"
+        >
+          Add User
+        </button>
       </form>
     </div>
   );

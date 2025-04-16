@@ -171,12 +171,12 @@ const Sidebar = () => {
       </div>
 
         {/* Subscription Button */}
-        <Link to="/agent/subscription">
+        {/* <Link to="/agent/subscription">
           <button className="btn mt-3 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>
-        </Link>
+        </Link> */}
 
         {/* LogOut Button */}
         <button

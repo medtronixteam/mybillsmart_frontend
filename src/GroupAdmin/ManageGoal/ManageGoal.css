@@ -1,12 +1,16 @@
 .manage-goal-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
+    /* padding: 20px; */
+    background-image: url(/src/assets/img/Formback.png);
+    background-size: 100% 100%;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
   }
-  
+.goal-btn{
+  box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+  color: #000000 !important;
+}
   .manage-goal-container h2 {
     text-align: center;
     margin-bottom: 20px;
@@ -45,7 +49,7 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 10px;
     margin-top: 10px;
-    max-height: 300px;
+    /* max-height: 300px; */
     overflow-y: auto;
     padding: 10px;
     border: 1px solid #ddd;

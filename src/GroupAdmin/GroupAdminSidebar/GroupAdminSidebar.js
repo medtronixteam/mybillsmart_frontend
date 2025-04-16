@@ -41,7 +41,7 @@ const GroupAdminSidebar = () => {
       </div>
       <hr className="horizontal dark mt-0" />
       <div
-        className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
+        className="collapse navbar-collapse w-auto h-100 overflow-hidden"
         id="sidenav-collapse-main"
       >
         <ul className="navbar-nav">
@@ -94,7 +94,7 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Add User</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/group_admin/user-list"
@@ -105,7 +105,7 @@ const GroupAdminSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">User List</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -166,7 +166,7 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Manage Goal</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/group_admin/goal-list"
@@ -177,7 +177,7 @@ const GroupAdminSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Goal List</span>
             </NavLink>
-          </li>
+          </li> */}
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
