@@ -143,16 +143,8 @@ const ProviderSidebar = () => {
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
-        <div
-          className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard"
-        >
-          <div
-            className="full-background"
-            style={{
-              backgroundImage: `url(${whiteCurvedImage})`,
-            }}
-          />
+      <div id="google_translate_element">
+        
         </div>
         <Link to="/supervisor/subscription">
           <button className="btn mt-4 w-100" type="button" id="icon-color">

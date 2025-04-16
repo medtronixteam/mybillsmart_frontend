@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import "./ClientContractList.css";
+import "./AdminContractList.css";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-const ClientContractList = () => {
+const AdminContractList = () => {
   const [contracts, setContracts] = useState([]); // Default to an empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,4 +95,4 @@ const ClientContractList = () => {
   );
 };
 
-export default ClientContractList;
+export default AdminContractList;

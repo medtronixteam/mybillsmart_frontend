@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/img/logo2.png";
@@ -18,6 +18,15 @@ import "./Sidebar.css";
 const Sidebar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+    // Ensure the Google Translate script is loaded
+    if (window.google && window.google.translate) {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: 'en', includedLanguages: 'en,es' },
+        'google_translate_element'
+      );
+    }
+  }, []);
   const handleLogout = () => {
     logout();
     localStorage.removeItem("authToken");
@@ -141,24 +150,29 @@ const Sidebar = () => {
               <span className="nav-link-text ms-1">WhatsApp Link</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/agent/goal"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Goal List</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3">
-        <div
-          className="card card-background shadow-none card-background-mask-secondary"
-          id="sidenavCard"
-        >
-          <div
-            className="full-background"
-            style={{
-              backgroundImage: `url(${whiteCurvedImage})`,
-            }}
-          />
-        </div>
+        
+      <div id="google_translate_element">
+        
+      </div>
 
         {/* Subscription Button */}
         <Link to="/agent/subscription">
-          <button className="btn mt-4 w-100" type="button" id="icon-color">
+          <button className="btn mt-3 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>

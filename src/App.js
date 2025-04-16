@@ -15,7 +15,7 @@ import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-
+// import './i18n'; // Add this at the top
 // Layout Components
 import Sidebar from "./components/Sidebar/Sidebar";
 import Navbar from "./components/Navbar/Navbar";
@@ -78,6 +78,9 @@ import PointsUpdate from "./GroupAdmin/PointsUpdate/PointsUpdate";
 import WhatsappIntigation from "./components/Whatsapp/Whatsapp";
 import GroupAdminWhatsapp from "./GroupAdmin/GroupAdminWhatsapp/GroupAdminWhatsapp";
 import ProviderWhatsapp from "./Provider/ProviderWhatsapp/ProviderWhatsapp";
+import AdminContractList from "./GroupAdmin/AdminContractList/AdminContractList";
+import ManageGoal from "./GroupAdmin/ManageGoal/ManageGoal";
+import GoalList from "./GroupAdmin/GoalList/GoalList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -434,7 +437,7 @@ const App = () => {
                           />
                           <Route
                             path="client-contract-list"
-                            element={<ClientContractList />}
+                            element={<AdminContractList />}
                           />
                           <Route
                             path="client-contract-docx"
@@ -451,6 +454,14 @@ const App = () => {
                           <Route
                             path="points-update"
                             element={<PointsUpdate />}
+                          />
+                          <Route
+                            path="manage-goal"
+                            element={<ManageGoal />}
+                          />
+                          <Route
+                            path="goal-list"
+                            element={<GoalList />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

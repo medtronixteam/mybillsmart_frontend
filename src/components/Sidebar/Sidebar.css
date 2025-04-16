@@ -12,6 +12,7 @@
 #icon {
   color: black;
 }
+.goog-te-banner-frame { display: none !important; }
 .active-class {
   background-color: #000000 !important;
   color: white !important;

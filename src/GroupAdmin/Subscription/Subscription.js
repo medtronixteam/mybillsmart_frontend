@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Subscription.css';
 import axios from 'axios';
@@ -7,52 +7,106 @@ import { useAuth } from "../../contexts/AuthContext";
 const Subscription = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+  const [planPrices, setPlanPrices] = useState({});
+  const [apiError, setApiError] = useState(null);
 
-  const plans = [
+  // Static plan data with all details except price
+  const staticPlans = [
     {
-      id: "basic",
-      name: "Basic Plan",
-      price: "9.99",
+      id: "starter",
+      name: "Starter",
       period: "month",
+      description: "For individual agents or small businesses",
       features: [
-        "10 GB Storage",
-        "5 Email Accounts",
-        "24/7 Support",
-        "Basic Dashboard"
+        "1 active agent",
+        "Up to 200 invoices/month",
+        "AI-powered savings analysis",
+        "Automatic generation of personalized offers",
+        "Offer delivery via WhatsApp and email",
+        "Access to the web dashboard",
+        "Email support"
       ],
       featured: false
     },
     {
       id: "pro",
-      name: "Pro Plan",
-      price: "19.99",
+      name: "Pro",
       period: "month",
+      description: "For commercial teams",
       features: [
-        "50 GB Storage",
-        "10 Email Accounts",
-        "Priority Support",
-        "Advanced Dashboard",
-        "API Access"
+        "Up to 5 active agents",
+        "Up to 1,000 invoices/month",
+        "Agreement and provider management",
+        "Automatic commission calculation",
+        "Performance dashboard per agent",
+        "WhatsApp integration via Twilio",
+        "Priority support",
+        "Basic API access"
       ],
       featured: true
     },
     {
       id: "enterprise",
-      name: "Enterprise Plan",
-      price: "49.99",
+      name: "Enterprise",
       period: "month",
+      description: "For large businesses",
       features: [
-        "Unlimited Storage",
-        "Unlimited Accounts",
-        "24/7 VIP Support",
-        "Advanced Analytics",
-        "API Access",
-        "Dedicated Account Manager"
+        "Up to 25 active agents",
+        "Up to 5,000 invoices/month",
+        "Multi-tier team structure (agents and sub-agents)",
+        "Advanced API integration (CRM, ERP, etc.)",
+        "Custom reporting",
+        "Dedicated technical support",
+        "Supervisor dashboard with agreement management",
+        "Scheduling of time-based offers/campaigns"
       ],
       featured: false
     }
   ];
+
+  // Fetch only prices from API
+  useEffect(() => {
+    const fetchPlanPrices = async () => {
+      try {
+        const response = await axios.get(
+          'http://34.142.252.64:8080/api/group/plans',
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (response.data && response.data.status === "success") {
+          const prices = {};
+          response.data.plans.forEach(plan => {
+            prices[plan.name.toLowerCase()] = plan.price;
+          });
+          setPlanPrices(prices);
+        }
+      } catch (error) {
+        console.error('Error fetching plan prices:', error);
+        setApiError('Failed to load current prices. Using default pricing.');
+        // Fallback to default prices
+        setPlanPrices({
+          starter: "99.00",
+          pro: "450.00",
+          enterprise: "1890.00"
+        });
+      }
+    };
+
+    fetchPlanPrices();
+  }, [token]);
+
+  // Combine static plan data with dynamic prices
+  const getPlansWithPrices = () => {
+    return staticPlans.map(plan => ({
+      ...plan,
+      price: planPrices[plan.id] || "N/A"
+    }));
+  };
 
   const handleSubscription = async (selectedPlan) => {
     setLoading(true);
@@ -63,6 +117,7 @@ const Subscription = () => {
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,
+          currency: 'eur'
         },
         {
           headers: {
@@ -78,8 +133,8 @@ const Subscription = () => {
             planDetails: selectedPlan,
             clientSecret: response.data.clientSecret,
             paymentIntentId: response.data.id,
-            amount: amountInCents, // Use the amount you calculated
-            currency: 'usd' // Or get from API if available
+            amount: amountInCents,
+            currency: 'eur'
           }
         });
       }
@@ -91,10 +146,18 @@ const Subscription = () => {
     }
   };
 
+  const plans = getPlansWithPrices();
+
   return (
     <div className="subscription-container">
-      <h2 className="section-title">Choose Your Plan</h2>
+      <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
+      
+      {apiError && (
+        <div className="alert alert-warning">
+          {apiError}
+        </div>
+      )}
       
       <div className="cards-container">
         {plans.map((plan) => (
@@ -105,21 +168,25 @@ const Subscription = () => {
             {plan.featured && <div className="popular-badge">Most Popular</div>}
             <h3 className="plan-name">{plan.name}</h3>
             <div className="price-container">
-              <span className="price">${plan.price}</span>
+              <span className="price">€{plan.price}</span>
               <span className="period">/{plan.period}</span>
             </div>
-            <ul className="features-list">
-              {plan.features.map((feature, i) => (
-                <li key={i} className="feature-item">
-                  <span className="feature-icon">✓</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
+            <p className="plan-description">{plan.description}</p>
+            <div className="features-container">
+              <h4 className="features-title">Includes:</h4>
+              <ul className="features-list">
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="feature-item">
+                    <span className="feature-icon">•</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <button 
               className="subscribe-btn"
               onClick={() => handleSubscription(plan)}
-              disabled={loading}
+              disabled={loading || plan.price === "N/A"}
             >
               {loading ? 'Processing...' : 'Get Started'}
             </button>
