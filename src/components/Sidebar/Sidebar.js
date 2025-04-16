@@ -22,8 +22,8 @@ const Sidebar = () => {
     // Ensure the Google Translate script is loaded
     if (window.google && window.google.translate) {
       new window.google.translate.TranslateElement(
-        { pageLanguage: 'en', includedLanguages: 'en,es' },
-        'google_translate_element'
+        { pageLanguage: "en", includedLanguages: "en,es" },
+        "google_translate_element"
       );
     }
   }, []);
@@ -165,10 +165,7 @@ const Sidebar = () => {
         </ul>
       </div>
       <div className="sidenav-footer mx-3">
-        
-      <div id="google_translate_element">
-        
-      </div>
+        <div id="google_translate_element"></div>
 
         {/* Subscription Button */}
         {/* <Link to="/agent/subscription">
