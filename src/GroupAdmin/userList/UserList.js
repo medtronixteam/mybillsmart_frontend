@@ -24,6 +24,10 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10); // Number of users per page
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -50,6 +54,29 @@ const UserList = () => {
     }
   };
 
+  // Get current users for pagination
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Previous page
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Next page
+  const nextPage = () => {
+    if (currentPage < Math.ceil(users.length / usersPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Rest of your existing functions remain the same...
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(`http://34.142.252.64:8080/api/group/user/detail/${id}`, {
@@ -143,7 +170,7 @@ const UserList = () => {
         address: userDetails.address || "",
         country: userDetails.country || "",
         city: userDetails.city || "",
-        postalCode: userDetails.postal_code || "", // Note: API uses postal_code
+        postalCode: userDetails.postal_code || "",
         role: userDetails.role,
         status: userDetails.status,
       });
@@ -186,42 +213,73 @@ const UserList = () => {
           No users added yet. <Link to="/group_admin/add-user">Add User</Link>
         </p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user, index) => (
-              <tr key={index}>
-                <td>{user.name}</td>
-                <td>{user.role}</td>
-                <td>{getStatusText(user.status)}</td>
-                <td>
-                  <button onClick={() => handleEditClick(index, user)}>
-                    Edit
-                  </button>
-                  {user.status === 1 ? (
-                    <button onClick={() => handleDisableClick(user.id)}>
-                      Disable
-                    </button>
-                  ) : (
-                    <button onClick={() => handleEnableClick(user.id)}>
-                      Enable
-                    </button>
-                  )}
-                  <button onClick={() => handleDeleteClick(user.id)}>
-                    Delete
-                  </button>
-                </td>
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
+            </thead>
+            <tbody>
+              {currentUsers.map((user, index) => (
+                <tr key={index}>
+                  <td>{user.name}</td>
+                  <td>{user.role}</td>
+                  <td>{getStatusText(user.status)}</td>
+                  <td>
+                    <button onClick={() => handleEditClick(index, user)}>
+                      Edit
+                    </button>
+                    {user.status === 1 ? (
+                      <button onClick={() => handleDisableClick(user.id)}>
+                        Disable
+                      </button>
+                    ) : (
+                      <button onClick={() => handleEnableClick(user.id)}>
+                        Enable
+                      </button>
+                    )}
+                    <button onClick={() => handleDeleteClick(user.id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          <div className="pagination">
+            <button 
+              onClick={prevPage} 
+              disabled={currentPage === 1}
+              className="page-button"
+            >
+              Previous
+            </button>
+            
+            {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => paginate(index + 1)}
+                className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
+              >
+                {index + 1}
+              </button>
             ))}
-          </tbody>
-        </table>
+            
+            <button 
+              onClick={nextPage} 
+              disabled={currentPage === Math.ceil(users.length / usersPerPage)}
+              className="page-button"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {isModalOpen && (
