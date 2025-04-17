@@ -99,7 +99,7 @@ const AddUser = ({ onAddUser }) => {
         <h2 className="mb-0">Add User</h2>
         <Link to="/group_admin/user-list">
           <button className=" w-100 fs-6 rounded px-3 py-2 btn bg-white">
-            View User List
+            Users List
           </button>
         </Link>
       </div>

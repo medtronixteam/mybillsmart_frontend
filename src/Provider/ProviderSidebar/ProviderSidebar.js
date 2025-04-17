@@ -65,7 +65,7 @@ const ProviderSidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaBoxes />
               </div>
-              <span className="nav-link-text ms-1">Product List</span>
+              <span className="nav-link-text ms-1">Manage Products</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">
@@ -143,9 +143,7 @@ const ProviderSidebar = () => {
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
-      <div id="google_translate_element">
-        
-        </div>
+        <div id="google_translate_element"></div>
         {/* <Link to="/supervisor/subscription">
           <button className="btn mt-4 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
