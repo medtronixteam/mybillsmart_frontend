@@ -140,6 +140,7 @@ const ManageGoal = () => {
           <input
             type="text"
             id="task_name"
+            placeholder="Enter task name"
             name="task_name"
             value={formData.task_name}
             onChange={handleInputChange}
@@ -181,6 +182,7 @@ const ManageGoal = () => {
             <input
               type="number"
               id="points"
+              placeholder="Enter points"
               name="points"
               value={formData.points}
               onChange={handleInputChange}
