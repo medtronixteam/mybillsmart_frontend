@@ -153,7 +153,7 @@ const ScheduleMessage = () => {
 
         <button
           type="submit"
-          className="bg-white  submit-btn"
+          className="submit-btn schedule-msg-btn rounded-pill w-50 mx-auto"
           disabled={loading}
         >
           {loading ? (

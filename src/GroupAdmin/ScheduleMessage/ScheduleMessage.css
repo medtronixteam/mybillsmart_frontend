@@ -93,7 +93,9 @@
   gap: 0.5rem;
   transition: background-color 0.3s;
 }
-
+.schedule-msg-btn {
+  background-color: #ffffff !important;
+}
 .submit-btn:hover {
   background-color: var(--primary-light);
 }
@@ -161,5 +163,8 @@
   .form-group input,
   .form-group textarea {
     padding: 0.6rem;
+  }
+  .schedule-msg-btn{
+    width: 100% !important;
   }
 }
