@@ -21,13 +21,12 @@ const RefferalLink = () => {
 
     try {
       const response = await fetch(
-        "http://34.142.252.64:8080/api/agent/referral-url", 
+        "https://bill.medtronix.world/api/agent/referral-url",
         {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        
         }
       );
 
@@ -36,7 +35,7 @@ const RefferalLink = () => {
       }
 
       const data = await response.json();
-      setGeneratedLink(data.referral_url); 
+      setGeneratedLink(data.referral_url);
       setIsSubmitted(true);
     } catch (error) {
       console.error("Error:", error);
@@ -48,7 +47,7 @@ const RefferalLink = () => {
 
   const copyToClipboard = () => {
     if (!generatedLink) return;
-    
+
     navigator.clipboard.writeText(generatedLink);
     setCopyStatus("Copied!");
     setTimeout(() => setCopyStatus(""), 2000);
@@ -87,9 +86,7 @@ const RefferalLink = () => {
           <div className="success-content">
             <FaCheckCircle className="success-icon" />
             <h2>Link Generated Successfully!</h2>
-            <p>
-              Your unique referral link is ready to share:
-            </p>
+            <p>Your unique referral link is ready to share:</p>
 
             <div className="generated-link-container">
               <div className="link-box">
@@ -103,7 +100,9 @@ const RefferalLink = () => {
                 </a>
                 <button onClick={copyToClipboard} className="copy-btn">
                   <FaCopy className="copy-icon" />
-                  {copyStatus && <span className="copy-status">{copyStatus}</span>}
+                  {copyStatus && (
+                    <span className="copy-status">{copyStatus}</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -125,4 +124,3 @@ const RefferalLink = () => {
 };
 
 export default RefferalLink;
-

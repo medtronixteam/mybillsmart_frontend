@@ -3,9 +3,9 @@ import { BsCloudUpload } from "react-icons/bs";
 import "./ClientInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "../../contexts/AuthContext"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ClientInvoice = () => {
   const [step, setStep] = useState(1);
@@ -43,13 +43,17 @@ const ClientInvoice = () => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post("http://34.142.252.64:7000/api/file/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://34.142.252.64:7000/api/file/",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (response.data) {
         setResponseData(response.data);
-        setFormData(response.data); 
+        setFormData(response.data);
         setStep(2);
         toast.success("File uploaded successfully!");
       }
@@ -72,19 +76,30 @@ const ClientInvoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Step 1: Call match API
-      const matchResponse = await axios.post("http://34.142.252.64:7000/api/match/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const matchResponse = await axios.post(
+        "http://34.142.252.64:7000/api/match/",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       console.log("Match API Response:", matchResponse.data);
-      setSubmittedData(matchResponse.data); 
+      setSubmittedData(matchResponse.data);
 
       // Step 2: Call invoices API to get invoice_id
-      const invoiceResponse = await axios.post("http://34.142.252.64:8080/api/agent/invoices", formData, {
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      });
+      const invoiceResponse = await axios.post(
+        "https://bill.medtronix.world/api/agent/invoices",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log("Invoice API Response:", invoiceResponse.data);
 
       // Extract invoice_id from the response
@@ -97,7 +112,7 @@ const ClientInvoice = () => {
         invoice_id: invoiceId, // Add invoice_id to each object
       }));
 
-      // const offersResponse = await axios.post("http://34.142.252.64:8080/api/offers", offersData, {
+      // const offersResponse = await axios.post("https://bill.medtronix.world/api/offers", offersData, {
       //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       // });
       // console.log("Offers API Response:", offersResponse.data);
@@ -118,7 +133,12 @@ const ClientInvoice = () => {
 
         return (
           <div key={index} className="form-field">
-            <label>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</label>
+            <label>
+              {key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
+              :
+            </label>
             <input
               type="text"
               name={key}
@@ -148,12 +168,20 @@ const ClientInvoice = () => {
       {step === 1 && (
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
-          <div className="invoice-file-upload-box" onClick={() => document.getElementById("file-input").click()}>
+          <div
+            className="invoice-file-upload-box"
+            onClick={() => document.getElementById("file-input").click()}
+          >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
               <p>{uploading ? "Uploading..." : "Click to Upload"}</p>
             </label>
-            <input type="file" id="file-input" className="invoice-file-input" onChange={handleFileChange} />
+            <input
+              type="file"
+              id="file-input"
+              className="invoice-file-input"
+              onChange={handleFileChange}
+            />
           </div>
         </>
       )}
@@ -171,7 +199,9 @@ const ClientInvoice = () => {
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn">Submit</button>
+              <button type="submit" className="invoice-submit-btn">
+                Submit
+              </button>
             </div>
           </form>
         </div>
@@ -182,12 +212,20 @@ const ClientInvoice = () => {
         <div className="invoice-confirmation-container">
           {submittedData.map((supplier, index) => (
             <div className="invoice-card" key={index}>
-              <h3 className="invoice-confirmation-heading">{supplier["Supplier Name"]}</h3>
+              <h3 className="invoice-confirmation-heading">
+                {supplier["Supplier Name"]}
+              </h3>
               {Object.keys(supplier).map((key, keyIndex) => {
-                if (key !== "Supplier Name") {  
+                if (key !== "Supplier Name") {
                   return (
                     <p key={keyIndex}>
-                      <strong>{key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:</strong> {supplier[key]}
+                      <strong>
+                        {key
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        :
+                      </strong>{" "}
+                      {supplier[key]}
                     </p>
                   );
                 }

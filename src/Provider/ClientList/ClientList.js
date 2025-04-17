@@ -31,13 +31,16 @@ const ClientList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/supervisor/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/supervisor/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const result = await response.json();
-      
+
       if (result.status === "success") {
         setUsers(result.data);
       } else {
@@ -54,7 +57,7 @@ const ClientList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/supervisor/user/${id}`,
+        `https://bill.medtronix.world/api/supervisor/user/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,7 +81,7 @@ const ClientList = () => {
   const handleDisableClick = async (id) => {
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/supervisor/user/disable/${id}`,
+        `https://bill.medtronix.world/api/supervisor/user/disable/${id}`,
         {
           method: "POST",
           headers: {
@@ -102,7 +105,7 @@ const ClientList = () => {
   const handleEnableClick = async (id) => {
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/supervisor/user/enable/${id}`,
+        `https://bill.medtronix.world/api/supervisor/user/enable/${id}`,
         {
           method: "POST",
           headers: {
@@ -125,10 +128,10 @@ const ClientList = () => {
 
   const handleDeleteClick = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
-    
+
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/supervisor/user/delete/${id}`,
+        `https://bill.medtronix.world/api/supervisor/user/delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -177,7 +180,7 @@ const ClientList = () => {
 
     try {
       const response = await fetch(
-        `http://34.142.252.64:8080/api/supervisor/user/edit/${editData.id}`,
+        `https://bill.medtronix.world/api/supervisor/user/edit/${editData.id}`,
         {
           method: "POST",
           headers: {
@@ -198,7 +201,7 @@ const ClientList = () => {
         }
       );
       const result = await response.json();
-      
+
       if (response.ok && result.status === "success") {
         toast.success("User updated successfully!");
         fetchUsers();
@@ -223,11 +226,16 @@ const ClientList = () => {
 
   const getRoleBadgeClass = (role) => {
     switch (role) {
-      case "admin": return "badge-admin";
-      case "supervisor": return "badge-supervisor";
-      case "agent": return "badge-agent";
-      case "client": return "badge-client";
-      default: return "badge-default";
+      case "admin":
+        return "badge-admin";
+      case "supervisor":
+        return "badge-supervisor";
+      case "agent":
+        return "badge-agent";
+      case "client":
+        return "badge-client";
+      default:
+        return "badge-default";
     }
   };
 
@@ -267,38 +275,44 @@ const ClientList = () => {
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>
-                    <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
+                    <span
+                      className={`role-badge ${getRoleBadgeClass(user.role)}`}
+                    >
                       {user.role}
                     </span>
                   </td>
                   <td>
-                    <span className={`status-badge ${user.status === 1 ? 'active' : 'inactive'}`}>
+                    <span
+                      className={`status-badge ${
+                        user.status === 1 ? "active" : "inactive"
+                      }`}
+                    >
                       {getStatusText(user.status)}
                     </span>
                   </td>
                   <td className="actions-cell">
-                    <button 
+                    <button
                       className="edit-btn"
                       onClick={() => handleEditClick(user)}
                     >
                       Edit
                     </button>
                     {user.status === 1 ? (
-                      <button 
+                      <button
                         className="disable-btn"
                         onClick={() => handleDisableClick(user.id)}
                       >
                         Disable
                       </button>
                     ) : (
-                      <button 
+                      <button
                         className="enable-btn"
                         onClick={() => handleEnableClick(user.id)}
                       >
                         Enable
                       </button>
                     )}
-                    <button 
+                    <button
                       className="delete-btn"
                       onClick={() => handleDeleteClick(user.id)}
                     >
@@ -317,7 +331,7 @@ const ClientList = () => {
           <div className="edit-user-modal">
             <div className="modal-header">
               <h2>Edit User</h2>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => setIsModalOpen(false)}
               >
@@ -423,16 +437,13 @@ const ClientList = () => {
               </form>
             </div>
             <div className="modal-footer">
-              <button 
+              <button
                 className="cancel-btn"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
-              <button 
-                className="save-btn"
-                onClick={handleSaveClick}
-              >
+              <button className="save-btn" onClick={handleSaveClick}>
                 Save Changes
               </button>
             </div>

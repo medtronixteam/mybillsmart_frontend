@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './UserPerformance.css';
+import React, { useState, useEffect } from "react";
+import "./UserPerformance.css";
 import { useAuth } from "../../contexts/AuthContext";
 
 const UserPerformance = () => {
@@ -16,16 +16,19 @@ const UserPerformance = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://34.142.252.64:8080/api/group/users/list', {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        "https://bill.medtronix.world/api/group/users/list",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error("Failed to fetch users");
       }
-      
+
       const result = await response.json();
       setUsers(result.data || []);
     } catch (err) {
@@ -38,16 +41,19 @@ const UserPerformance = () => {
   const fetchUserDetails = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://34.142.252.64:8080/api/group/user/detail/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `https://bill.medtronix.world/api/group/user/detail/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to fetch user details');
+        throw new Error("Failed to fetch user details");
       }
-      
+
       const result = await response.json();
       setSelectedUser(result.data.user);
       setCurrentInvoicePage(1);
@@ -69,8 +75,12 @@ const UserPerformance = () => {
     return array.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  const totalInvoicePages = selectedUser ? Math.ceil(selectedUser.invoices.length / itemsPerPage) : 0;
-  const totalContractPages = selectedUser ? Math.ceil(selectedUser.contracts.length / itemsPerPage) : 0;
+  const totalInvoicePages = selectedUser
+    ? Math.ceil(selectedUser.invoices.length / itemsPerPage)
+    : 0;
+  const totalContractPages = selectedUser
+    ? Math.ceil(selectedUser.contracts.length / itemsPerPage)
+    : 0;
 
   if (loading) return <div className="loading-spinner"></div>;
   if (error) return <div className="error-message">Error: {error}</div>;
@@ -85,7 +95,7 @@ const UserPerformance = () => {
           </button>
         )}
       </div>
-      
+
       {selectedUser ? (
         <div className="user-details-container">
           <div className="user-profile-card">
@@ -95,11 +105,15 @@ const UserPerformance = () => {
                 <h3>{selectedUser.name}</h3>
                 <p className="user-role">{selectedUser.role}</p>
               </div>
-              <span className={`status-badge ${selectedUser.status === 1 ? 'active' : 'inactive'}`}>
-                {selectedUser.status === 1 ? 'Active' : 'Inactive'}
+              <span
+                className={`status-badge ${
+                  selectedUser.status === 1 ? "active" : "inactive"
+                }`}
+              >
+                {selectedUser.status === 1 ? "Active" : "Inactive"}
               </span>
             </div>
-            
+
             <div className="profile-details-grid">
               <div className="detail-item">
                 <span className="detail-label">Email:</span>
@@ -107,12 +121,14 @@ const UserPerformance = () => {
               </div>
               <div className="detail-item">
                 <span className="detail-label">Phone:</span>
-                <span className="detail-value">{selectedUser.phone || 'N/A'}</span>
+                <span className="detail-value">
+                  {selectedUser.phone || "N/A"}
+                </span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Last Login:</span>
                 <span className="detail-value">
-                  {selectedUser.last_login_at || 'Never logged in'}
+                  {selectedUser.last_login_at || "Never logged in"}
                 </span>
               </div>
               <div className="detail-item">
@@ -124,7 +140,9 @@ const UserPerformance = () => {
               <div className="detail-item">
                 <span className="detail-label">Location:</span>
                 <span className="detail-value">
-                  {selectedUser.city ? `${selectedUser.city}, ${selectedUser.country}` : 'N/A'}
+                  {selectedUser.city
+                    ? `${selectedUser.city}, ${selectedUser.country}`
+                    : "N/A"}
                 </span>
               </div>
               <div className="detail-item">
@@ -137,14 +155,19 @@ const UserPerformance = () => {
           {/* Invoices Section */}
           <div className="data-section">
             <div className="section-header">
-              <h3>Invoices <span className="count-badge">{selectedUser.invoices.length}</span></h3>
+              <h3>
+                Invoices{" "}
+                <span className="count-badge">
+                  {selectedUser.invoices.length}
+                </span>
+              </h3>
               {selectedUser.invoices.length > 0 && (
                 <div className="pagination-info">
                   Page {currentInvoicePage} of {totalInvoicePages}
                 </div>
               )}
             </div>
-            
+
             {selectedUser.invoices.length > 0 ? (
               <>
                 <div className="responsive-table">
@@ -160,33 +183,45 @@ const UserPerformance = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginate(selectedUser.invoices, currentInvoicePage).map(invoice => (
-                        <tr key={invoice.id}>
-                          <td data-label="ID">{invoice.id}</td>
-                          <td data-label="Type">{invoice.bill_type}</td>
-                          <td data-label="Period">{invoice.billing_period}</td>
-                          <td data-label="Address">{invoice.address}</td>
-                          <td data-label="Total Bill">€{invoice.bill_info?.['total bill'] || 'N/A'}</td>
-                          {/* <td data-label="Details">
+                      {paginate(selectedUser.invoices, currentInvoicePage).map(
+                        (invoice) => (
+                          <tr key={invoice.id}>
+                            <td data-label="ID">{invoice.id}</td>
+                            <td data-label="Type">{invoice.bill_type}</td>
+                            <td data-label="Period">
+                              {invoice.billing_period}
+                            </td>
+                            <td data-label="Address">{invoice.address}</td>
+                            <td data-label="Total Bill">
+                              €{invoice.bill_info?.["total bill"] || "N/A"}
+                            </td>
+                            {/* <td data-label="Details">
                             <button className="action-btn view-btn">
                               <i className="fas fa-eye"></i>
                             </button>
                           </td> */}
-                        </tr>
-                      ))}
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>
                 <div className="pagination-controls">
-                  <button 
-                    onClick={() => setCurrentInvoicePage(p => Math.max(p - 1, 1))}
+                  <button
+                    onClick={() =>
+                      setCurrentInvoicePage((p) => Math.max(p - 1, 1))
+                    }
                     disabled={currentInvoicePage === 1}
                     className="pagination-btn"
                   >
                     <i className="fas fa-chevron-left"></i> Previous
                   </button>
-                  <button 
-                    onClick={() => setCurrentInvoicePage(p => Math.min(p + 1, totalInvoicePages))}
+                  <button
+                    onClick={() =>
+                      setCurrentInvoicePage((p) =>
+                        Math.min(p + 1, totalInvoicePages)
+                      )
+                    }
                     disabled={currentInvoicePage === totalInvoicePages}
                     className="pagination-btn"
                   >
@@ -205,14 +240,19 @@ const UserPerformance = () => {
           {/* Contracts Section */}
           <div className="data-section">
             <div className="section-header">
-              <h3>Contracts <span className="count-badge">{selectedUser.contracts.length}</span></h3>
+              <h3>
+                Contracts{" "}
+                <span className="count-badge">
+                  {selectedUser.contracts.length}
+                </span>
+              </h3>
               {selectedUser.contracts.length > 0 && (
                 <div className="pagination-info">
                   Page {currentContractPage} of {totalContractPages}
                 </div>
               )}
             </div>
-            
+
             {selectedUser.contracts.length > 0 ? (
               <>
                 <div className="responsive-table">
@@ -227,32 +267,51 @@ const UserPerformance = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginate(selectedUser.contracts, currentContractPage).map(contract => (
+                      {paginate(
+                        selectedUser.contracts,
+                        currentContractPage
+                      ).map((contract) => (
                         <tr key={contract.id}>
                           <td data-label="ID">{contract.id}</td>
-                          <td data-label="Type">{contract.contract_type || 'N/A'}</td>
+                          <td data-label="Type">
+                            {contract.contract_type || "N/A"}
+                          </td>
                           <td data-label="Start Date">
-                            {contract.start_date ? new Date(contract.start_date).toLocaleDateString() : 'N/A'}
+                            {contract.start_date
+                              ? new Date(
+                                  contract.start_date
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </td>
                           <td data-label="End Date">
-                            {contract.end_date ? new Date(contract.end_date).toLocaleDateString() : 'N/A'}
+                            {contract.end_date
+                              ? new Date(contract.end_date).toLocaleDateString()
+                              : "N/A"}
                           </td>
-                          <td data-label="Status">{contract.status || 'N/A'}</td>
+                          <td data-label="Status">
+                            {contract.status || "N/A"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
                 <div className="pagination-controls">
-                  <button 
-                    onClick={() => setCurrentContractPage(p => Math.max(p - 1, 1))}
+                  <button
+                    onClick={() =>
+                      setCurrentContractPage((p) => Math.max(p - 1, 1))
+                    }
                     disabled={currentContractPage === 1}
                     className="pagination-btn"
                   >
                     <i className="fas fa-chevron-left"></i> Previous
                   </button>
-                  <button 
-                    onClick={() => setCurrentContractPage(p => Math.min(p + 1, totalContractPages))}
+                  <button
+                    onClick={() =>
+                      setCurrentContractPage((p) =>
+                        Math.min(p + 1, totalContractPages)
+                      )
+                    }
                     disabled={currentContractPage === totalContractPages}
                     className="pagination-btn"
                   >
@@ -284,19 +343,23 @@ const UserPerformance = () => {
               </thead>
               <tbody>
                 {users.length > 0 ? (
-                  users.map(user => (
+                  users.map((user) => (
                     <tr key={user.id}>
                       <td data-label="ID">{user.id}</td>
                       <td data-label="Name">{user.name}</td>
                       <td data-label="Email">{user.email}</td>
                       <td data-label="Role">{user.role}</td>
                       <td data-label="Status">
-                        <span className={`status-badge ${user.status === 1 ? 'active' : 'inactive'}`}>
-                          {user.status === 1 ? 'Active' : 'Inactive'}
+                        <span
+                          className={`status-badge ${
+                            user.status === 1 ? "active" : "inactive"
+                          }`}
+                        >
+                          {user.status === 1 ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td data-label="Actions">
-                        <button 
+                        <button
                           onClick={() => fetchUserDetails(user.id)}
                           className="action-btn view-btn"
                         >

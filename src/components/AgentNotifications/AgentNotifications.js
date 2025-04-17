@@ -12,7 +12,7 @@ const AgentNotifications = () => {
   const { token } = useAuth();
 
   const api = axios.create({
-    baseURL: "http://34.142.252.64:8080",
+    baseURL: "https://bill.medtronix.world",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ const AgentNotifications = () => {
       const response = await api.get(`/api/notification/${id}`);
       setSelectedNotification(response.data);
       setNotificationDetail(true);
-      
+
       await api.put(`/api/notification/read/${id}`);
     } catch (err) {
       setError("Failed to fetch notification details");
@@ -58,7 +58,7 @@ const AgentNotifications = () => {
   return (
     <div className="container mt-4">
       <h2 className="text-center">Notifications</h2>
-      
+
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status">
@@ -69,7 +69,7 @@ const AgentNotifications = () => {
       ) : error ? (
         <div className="alert alert-danger text-center">
           {error}
-          <button 
+          <button
             className="btn btn-sm btn-outline-danger ms-3"
             onClick={fetchNotifications}
           >
@@ -79,7 +79,7 @@ const AgentNotifications = () => {
       ) : notificationDetail ? (
         <div className="card">
           <div className="card-body">
-            <button 
+            <button
               className="btn btn-sm btn-outline-secondary mb-3"
               onClick={() => setNotificationDetail(false)}
             >
@@ -101,8 +101,10 @@ const AgentNotifications = () => {
           <div className="card-body text-center py-5">
             <i className="bi bi-bell-slash fs-1 text-muted mb-3"></i>
             <h5>No notifications yet</h5>
-            <p className="text-muted">You'll see notifications here when they become available</p>
-            <button 
+            <p className="text-muted">
+              You'll see notifications here when they become available
+            </p>
+            <button
               className="btn btn-outline-primary mt-2"
               onClick={fetchNotifications}
             >
@@ -117,14 +119,18 @@ const AgentNotifications = () => {
               {notifications.map((notification) => (
                 <li
                   key={notification.id}
-                  className={`list-group-item ${notification.read ? "" : "unread-notification"}`}
+                  className={`list-group-item ${
+                    notification.read ? "" : "unread-notification"
+                  }`}
                 >
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
-                      <h6 className="mb-1">{notification.title || "Notification"}</h6>
+                      <h6 className="mb-1">
+                        {notification.title || "Notification"}
+                      </h6>
                       <p className="mb-1 text-muted">
-                        {notification.message.length > 50 
-                          ? `${notification.message.substring(0, 50)}...` 
+                        {notification.message.length > 50
+                          ? `${notification.message.substring(0, 50)}...`
                           : notification.message}
                       </p>
                       {notification.timestamp && (

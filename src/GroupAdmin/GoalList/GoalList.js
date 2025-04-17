@@ -19,7 +19,7 @@ const GoalList = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://34.142.252.64:8080/api/group/goals",
+        "https://bill.medtronix.world/api/group/goals",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const GoalList = () => {
     try {
       setLoading(true);
       await axios.delete(
-        `http://34.142.252.64:8080/api/group/goals/${goalId}`,
+        `https://bill.medtronix.world/api/group/goals/${goalId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ const GoalList = () => {
     try {
       setLoading(true);
       await axios.patch(
-        `http://34.142.252.64:8080/api/group/goals/${editingGoal.id}/status`,
+        `https://bill.medtronix.world/api/group/goals/${editingGoal.id}/status`,
         editingGoal,
         {
           headers: {

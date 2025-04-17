@@ -91,7 +91,7 @@ const LinkInvoice = () => {
   const fetchGroupId = async () => {
     try {
       const response = await axios.get(
-        "http://34.142.252.64:8080/api/profile",
+        "https://bill.medtronix.world/api/profile",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ const LinkInvoice = () => {
     setLoadingClients(true);
     try {
       const response = await axios.get(
-        "http://34.142.252.64:8080/api/agent/client/list",
+        "https://bill.medtronix.world/api/agent/client/list",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -235,7 +235,7 @@ const LinkInvoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/group/invoices",
+        "https://bill.medtronix.world/api/group/invoices",
         invoicePayload,
         {
           headers: {
@@ -254,7 +254,7 @@ const LinkInvoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "http://34.142.252.64:8080/api/group/offers",
+        "https://bill.medtronix.world/api/group/offers",
         offersData,
         {
           headers: {
@@ -640,7 +640,7 @@ const LinkInvoice = () => {
     try {
       if (modalType === "email") {
         await axios.post(
-          "http://34.142.252.64:8080/api/agent/send-offers-email",
+          "https://bill.medtronix.world/api/agent/send-offers-email",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -654,7 +654,7 @@ const LinkInvoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "http://34.142.252.64:8080/api/notifications",
+          "https://bill.medtronix.world/api/notifications",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,

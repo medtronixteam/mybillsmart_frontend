@@ -95,7 +95,7 @@ const Invoice = () => {
     setLoadingClients(true);
     try {
       const response = await axios.get(
-        "http://34.142.252.64:8080/api/agent/client/list",
+        "https://bill.medtronix.world/api/agent/client/list",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -218,7 +218,7 @@ const Invoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/invoices",
+        "https://bill.medtronix.world/api/agent/invoices",
         invoiceData,
         {
           headers: {
@@ -238,7 +238,7 @@ const Invoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "http://34.142.252.64:8080/api/agent/offers",
+        "https://bill.medtronix.world/api/agent/offers",
         offersData,
         {
           headers: {
@@ -623,7 +623,7 @@ const Invoice = () => {
     try {
       if (modalType === "email") {
         await axios.post(
-          "http://34.142.252.64:8080/api/agent/send-offers-email",
+          "https://bill.medtronix.world/api/agent/send-offers-email",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -637,7 +637,7 @@ const Invoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "http://34.142.252.64:8080/api/notifications",
+          "https://bill.medtronix.world/api/notifications",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -877,7 +877,9 @@ const Invoice = () => {
               ) : (
                 <>
                   <div className="mb-3">
-                    <label className="form-label text-start d-block pb-1">Select Client:</label>
+                    <label className="form-label text-start d-block pb-1">
+                      Select Client:
+                    </label>
                     <select
                       className="form-select"
                       value={selectedClient}

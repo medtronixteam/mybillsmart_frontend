@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Subscription.css';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Subscription.css";
+import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Subscription = () => {
@@ -25,9 +25,9 @@ const Subscription = () => {
         "Automatic generation of personalized offers",
         "Offer delivery via WhatsApp and email",
         "Access to the web dashboard",
-        "Email support"
+        "Email support",
       ],
-      featured: false
+      featured: false,
     },
     {
       id: "pro",
@@ -42,9 +42,9 @@ const Subscription = () => {
         "Performance dashboard per agent",
         "WhatsApp integration via Twilio",
         "Priority support",
-        "Basic API access"
+        "Basic API access",
       ],
-      featured: true
+      featured: true,
     },
     {
       id: "enterprise",
@@ -59,10 +59,10 @@ const Subscription = () => {
         "Custom reporting",
         "Dedicated technical support",
         "Supervisor dashboard with agreement management",
-        "Scheduling of time-based offers/campaigns"
+        "Scheduling of time-based offers/campaigns",
       ],
-      featured: false
-    }
+      featured: false,
+    },
   ];
 
   // Fetch only prices from API
@@ -70,29 +70,29 @@ const Subscription = () => {
     const fetchPlanPrices = async () => {
       try {
         const response = await axios.get(
-          'http://34.142.252.64:8080/api/group/plans',
+          "https://bill.medtronix.world/api/group/plans",
           {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
-        
+
         if (response.data && response.data.status === "success") {
           const prices = {};
-          response.data.plans.forEach(plan => {
+          response.data.plans.forEach((plan) => {
             prices[plan.name.toLowerCase()] = plan.price;
           });
           setPlanPrices(prices);
         }
       } catch (error) {
-        console.error('Error fetching plan prices:', error);
-        setApiError('Failed to load current prices. Using default pricing.');
+        console.error("Error fetching plan prices:", error);
+        setApiError("Failed to load current prices. Using default pricing.");
         // Fallback to default prices
         setPlanPrices({
           starter: "99.00",
           pro: "450.00",
-          enterprise: "1890.00"
+          enterprise: "1890.00",
         });
       }
     };
@@ -102,9 +102,9 @@ const Subscription = () => {
 
   // Combine static plan data with dynamic prices
   const getPlansWithPrices = () => {
-    return staticPlans.map(plan => ({
+    return staticPlans.map((plan) => ({
       ...plan,
-      price: planPrices[plan.id] || "N/A"
+      price: planPrices[plan.id] || "N/A",
     }));
   };
 
@@ -113,34 +113,34 @@ const Subscription = () => {
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        'http://34.142.252.64:8080/api/create-payment-intent',
+        "https://bill.medtronix.world/api/create-payment-intent",
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,
-          currency: 'eur'
+          currency: "eur",
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
-  
+
       if (response.status === 200) {
-        navigate('/group_admin/checkout', {
+        navigate("/group_admin/checkout", {
           state: {
             planDetails: selectedPlan,
             clientSecret: response.data.clientSecret,
             paymentIntentId: response.data.id,
             amount: amountInCents,
-            currency: 'eur'
-          }
+            currency: "eur",
+          },
         });
       }
     } catch (error) {
-      console.error('Subscription error:', error);
-      alert(error.response?.data?.message || 'Payment processing failed');
+      console.error("Subscription error:", error);
+      alert(error.response?.data?.message || "Payment processing failed");
     } finally {
       setLoading(false);
     }
@@ -152,18 +152,14 @@ const Subscription = () => {
     <div className="subscription-container">
       <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
-      
-      {apiError && (
-        <div className="alert alert-warning">
-          {apiError}
-        </div>
-      )}
-      
+
+      {apiError && <div className="alert alert-warning">{apiError}</div>}
+
       <div className="cards-container">
         {plans.map((plan) => (
-          <div 
-            key={plan.id} 
-            className={`subscription-card ${plan.featured ? 'featured' : ''}`}
+          <div
+            key={plan.id}
+            className={`subscription-card ${plan.featured ? "featured" : ""}`}
           >
             {plan.featured && <div className="popular-badge">Most Popular</div>}
             <h3 className="plan-name">{plan.name}</h3>
@@ -183,12 +179,12 @@ const Subscription = () => {
                 ))}
               </ul>
             </div>
-            <button 
+            <button
               className="subscribe-btn"
               onClick={() => handleSubscription(plan)}
               disabled={loading || plan.price === "N/A"}
             >
-              {loading ? 'Processing...' : 'Get Started'}
+              {loading ? "Processing..." : "Get Started"}
             </button>
           </div>
         ))}

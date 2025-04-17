@@ -59,7 +59,7 @@ const AgentSubscription = () => {
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/create-payment-intent",
+        "https://bill.medtronix.world/api/create-payment-intent",
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,

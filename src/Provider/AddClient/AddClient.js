@@ -50,7 +50,7 @@ const AddClient = ({ onAddUser }) => {
       };
 
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/supervisor/user",
+        "https://bill.medtronix.world/api/supervisor/user",
         apiData,
         {
           headers: {
@@ -156,7 +156,7 @@ const AddClient = ({ onAddUser }) => {
           {/* <option value="supervisor">Supervisor</option> */}
           <option value="client">Clients</option>
         </select>
-        
+
         <button type="submit">Add User</button>
       </form>
     </div>

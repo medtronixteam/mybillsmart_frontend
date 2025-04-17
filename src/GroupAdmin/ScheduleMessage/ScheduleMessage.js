@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import "./ScheduleMessage.css";
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const ScheduleMessage = () => {
   const [formData, setFormData] = useState({
-    phone_number: '',
-    body: '',
-    date_send: '',
-    time_send: ''
+    phone_number: "",
+    body: "",
+    date_send: "",
+    time_send: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,9 +17,9 @@ const ScheduleMessage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -30,33 +31,38 @@ const ScheduleMessage = () => {
 
     try {
       // Format time to include seconds
-      const formattedTime = formData.time_send ? `${formData.time_send}:00` : '';
-      
-      const response = await fetch('http://34.142.252.64:8080/api/auto-messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          to_number: formData.phone_number,
-          message: formData.body,
-          time_send: formattedTime,  // Now includes seconds
-          date_send: formData.date_send
-        })
-      });
+      const formattedTime = formData.time_send
+        ? `${formData.time_send}:00`
+        : "";
+
+      const response = await fetch(
+        "https://bill.medtronix.world/api/auto-messages",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            to_number: formData.phone_number,
+            message: formData.body,
+            time_send: formattedTime, // Now includes seconds
+            date_send: formData.date_send,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to schedule message');
+        throw new Error(errorData.message || "Failed to schedule message");
       }
 
       setSuccess(true);
       setFormData({
-        phone_number: '',
-        body: '',
-        date_send: '',
-        time_send: ''
+        phone_number: "",
+        body: "",
+        date_send: "",
+        time_send: "",
       });
     } catch (err) {
       setError(err.message);
@@ -66,11 +72,19 @@ const ScheduleMessage = () => {
   };
 
   return (
-    <div className="schedule-message-container">
-      <h2 className="page-title">Schedule New Message</h2>
-      
-      <form onSubmit={handleSubmit} className="message-form">
-        <div className="form-group">
+    <div className="schedule-message-container p-lg-5 p-4 mt-5">
+      <div className="d-flex justify-content-between align-items-center px-lg-4 px-3 pb-lg-4 pb-3">
+        <h2 className="page-title mb-0">Schedule New Message</h2>
+        <Link to="/group_admin/message-list">
+          <button className="btn bg-white msg-list-btn">Message List</button>
+        </Link>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="message-form px-lg-4 px-3 pb-lg-4 pb-3"
+      >
+        <div className="form-group mb-2">
           <label htmlFor="phone_number">Phone Number</label>
           <input
             type="tel"
@@ -80,12 +94,15 @@ const ScheduleMessage = () => {
             onChange={handleChange}
             placeholder="Enter recipient's phone number with country code"
             pattern="^\+[1-9]\d{1,14}$"
+            className="form-control"
             required
           />
-          <small className="input-hint">Format: +CountryCodeNumber (e.g., +1234567890)</small>
+          <small className="input-hint text-white">
+            Format: +CountryCodeNumber (e.g., +1234567890)
+          </small>
         </div>
 
-        <div className="form-group">
+        <div className="form-group mb-2">
           <label htmlFor="body">Message Content</label>
           <textarea
             id="body"
@@ -94,12 +111,13 @@ const ScheduleMessage = () => {
             onChange={handleChange}
             placeholder="Type your message here..."
             rows="5"
+            className="form-control"
             required
           />
         </div>
 
-        <div className="datetime-group">
-          <div className="form-group">
+        <div className="datetime-group mb-3">
+          <div className="form-group mb-2">
             <label htmlFor="date_send">Date</label>
             <input
               type="date"
@@ -107,12 +125,13 @@ const ScheduleMessage = () => {
               name="date_send"
               value={formData.date_send}
               onChange={handleChange}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
+              className="form-control"
               required
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group mb-2">
             <label htmlFor="time_send">Time</label>
             <input
               type="time"
@@ -120,6 +139,7 @@ const ScheduleMessage = () => {
               name="time_send"
               value={formData.time_send}
               onChange={handleChange}
+              className="form-control"
               required
             />
             {/* <small className="input-hint">Time will be converted to HH:MM:SS format</small> */}
@@ -127,15 +147,21 @@ const ScheduleMessage = () => {
         </div>
 
         {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">Message scheduled successfully!</div>}
+        {success && (
+          <div className="success-message">Message scheduled successfully!</div>
+        )}
 
-        <button type="submit" className="submit-btn" disabled={loading}>
+        <button
+          type="submit"
+          className="bg-white  submit-btn"
+          disabled={loading}
+        >
           {loading ? (
             <>
               <span className="spinner"></span> Scheduling...
             </>
           ) : (
-            'Schedule Message'
+            "Schedule Message"
           )}
         </button>
       </form>

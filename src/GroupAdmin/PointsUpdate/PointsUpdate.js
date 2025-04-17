@@ -10,12 +10,12 @@ const PointsUpdate = () => {
   const [formData, setFormData] = useState({
     levelOnePoints: "",
     levelTwoPoints: "",
-    levelThreePoints: ""
+    levelThreePoints: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const BASE_URL = "http://34.142.252.64:8080"; 
+  const BASE_URL = "https://bill.medtronix.world";
 
   // Fetch current points on component mount
   useEffect(() => {
@@ -27,24 +27,23 @@ const PointsUpdate = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           }
         );
 
         const pointsData = response.data.data; // Adjust according to your API response structure
-        
+
         setFormData({
           levelOnePoints: pointsData.level_1_points || "",
           levelTwoPoints: pointsData.level_2_points || "",
-          levelThreePoints: pointsData.level_3_points || ""
+          levelThreePoints: pointsData.level_3_points || "",
         });
-        
       } catch (error) {
         console.error("Error fetching points:", error);
         // toast.error(
-        //   error.response?.data?.message || 
-        //   error.message || 
+        //   error.response?.data?.message ||
+        //   error.message ||
         //   "Failed to fetch current points."
         // );
       } finally {
@@ -59,16 +58,20 @@ const PointsUpdate = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.levelOnePoints || !formData.levelTwoPoints || !formData.levelThreePoints) {
+
+    if (
+      !formData.levelOnePoints ||
+      !formData.levelTwoPoints ||
+      !formData.levelThreePoints
+    ) {
       toast.error("Please fill all fields");
       return;
     }
@@ -81,25 +84,25 @@ const PointsUpdate = () => {
         {
           level_1_points: Number(formData.levelOnePoints),
           level_2_points: Number(formData.levelTwoPoints),
-          level_3_points: Number(formData.levelThreePoints)
+          level_3_points: Number(formData.levelThreePoints),
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
+
       toast.success("Points updated successfully!");
       // Optionally fetch the updated points again
       // Or you can keep the current formData since it was successfully updated
     } catch (error) {
       console.error("Error updating points:", error);
       toast.error(
-        error.response?.data?.message || 
-        error.message || 
-        "Failed to update points. Please try again."
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update points. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -141,8 +144,8 @@ const PointsUpdate = () => {
             min="0"
           />
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isLoading || isFetching}
             className={isLoading ? "loading" : ""}
           >

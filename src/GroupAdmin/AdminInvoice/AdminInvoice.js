@@ -33,7 +33,7 @@ const AdminInvoice = () => {
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: ""
+    message: "",
   });
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
@@ -74,26 +74,29 @@ const AdminInvoice = () => {
       setIsDragging(true);
     };
 
-    window.addEventListener('dragenter', handleDragEnter);
-    window.addEventListener('dragleave', handleDragLeave);
-    window.addEventListener('dragover', handleDragOver);
-    window.addEventListener('drop', handleDrop);
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
 
     return () => {
-      window.removeEventListener('dragenter', handleDragEnter);
-      window.removeEventListener('dragleave', handleDragLeave);
-      window.removeEventListener('dragover', handleDragOver);
-      window.removeEventListener('drop', handleDrop);
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
     };
   }, []);
 
   const fetchGroupId = async () => {
     try {
-      const response = await axios.get("http://34.142.252.64:8080/api/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://bill.medtronix.world/api/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data.id;
     } catch (error) {
       console.error("Error fetching group ID:", error);
@@ -105,12 +108,15 @@ const AdminInvoice = () => {
   const fetchClients = async () => {
     setLoadingClients(true);
     try {
-      const response = await axios.get("http://34.142.252.64:8080/api/agent/client/list", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await axios.get(
+        "https://bill.medtronix.world/api/agent/client/list",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -119,9 +125,9 @@ const AdminInvoice = () => {
       } else if (response.data && Array.isArray(response.data.clients)) {
         clientsData = response.data.clients;
       }
-      
+
       setClients(clientsData || []);
-      
+
       if (clientsData.length === 0) {
         toast.info("No clients found");
       }
@@ -134,30 +140,33 @@ const AdminInvoice = () => {
     }
   };
 
-  const handleFiles = useCallback((files) => {
-    const selectedFile = files[0];
-    if (!selectedFile) return;
+  const handleFiles = useCallback(
+    (files) => {
+      const selectedFile = files[0];
+      if (!selectedFile) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Only JPEG, PNG, and PDF files are allowed.");
-      return;
-    }
+      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        return;
+      }
 
-    if (file) {
-      toast.info("A file is already uploaded. Please submit the form.");
-      return;
-    }
+      if (file) {
+        toast.info("A file is already uploaded. Please submit the form.");
+        return;
+      }
 
-    uploadFile(selectedFile);
-  }, [file]);
+      uploadFile(selectedFile);
+    },
+    [file]
+  );
 
   const handleFileChange = (e) => {
     e.stopPropagation();
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const uploadFile = async (selectedFile) => {
@@ -204,10 +213,10 @@ const AdminInvoice = () => {
 
     try {
       const groupId = await fetchGroupId();
-      
+
       const matchData = {
         ...formData,
-        group_id: groupId
+        group_id: groupId,
       };
 
       const matchResponse = await axios.post(
@@ -221,11 +230,11 @@ const AdminInvoice = () => {
 
       const invoicePayload = {
         ...formData,
-        group_id: groupId
+        group_id: groupId,
       };
 
       const invoiceResponse = await axios.post(
-        "http://34.142.252.64:8080/api/group/invoices",
+        "https://bill.medtronix.world/api/group/invoices",
         invoicePayload,
         {
           headers: {
@@ -244,7 +253,7 @@ const AdminInvoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "http://34.142.252.64:8080/api/group/offers",
+        "https://bill.medtronix.world/api/group/offers",
         offersData,
         {
           headers: {
@@ -293,11 +302,20 @@ const AdminInvoice = () => {
 
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
-    
+
     const allKeys = data.reduce((keys, item) => {
-      Object.keys(item).forEach(key => {
-        if (!keys.includes(key) && 
-            !["user_id", "invoice_id", "created_at", "updated_at", "id", "Client_id"].includes(key)) {
+      Object.keys(item).forEach((key) => {
+        if (
+          !keys.includes(key) &&
+          ![
+            "user_id",
+            "invoice_id",
+            "created_at",
+            "updated_at",
+            "id",
+            "Client_id",
+          ].includes(key)
+        ) {
           keys.push(key);
         }
       });
@@ -305,15 +323,24 @@ const AdminInvoice = () => {
     }, []);
 
     const headers = allKeys
-      .map(key => `"${key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase())}"`)
+      .map(
+        (key) =>
+          `"${key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())}"`
+      )
       .join(",");
 
-    const rows = data.map(item => {
-      return allKeys.map(key => {
-        const value = item[key] !== undefined ? item[key] : "";
-        return `"${String(value).replace(/"/g, '""')}"`;
-      }).join(",");
-    }).join("\n");
+    const rows = data
+      .map((item) => {
+        return allKeys
+          .map((key) => {
+            const value = item[key] !== undefined ? item[key] : "";
+            return `"${String(value).replace(/"/g, '""')}"`;
+          })
+          .join(",");
+      })
+      .join("\n");
 
     return `${headers}\n${rows}`;
   };
@@ -331,14 +358,22 @@ const AdminInvoice = () => {
   };
 
   const downloadCSV = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       toast.error("No data available to download");
       return;
     }
 
     try {
       const csvContent = convertToCSV(submittedData);
-      downloadFile(csvContent, `invoice_${invoiceId}_data.csv`, "text/csv;charset=utf-8;");
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.csv`,
+        "text/csv;charset=utf-8;"
+      );
       toast.success("CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
@@ -347,14 +382,22 @@ const AdminInvoice = () => {
   };
 
   const downloadExcel = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       toast.error("No data available to download");
       return;
     }
 
     try {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
-      downloadFile(csvContent, `invoice_${invoiceId}_data.xls`, "application/vnd.ms-excel;charset=utf-8;");
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.xls`,
+        "application/vnd.ms-excel;charset=utf-8;"
+      );
       toast.success("Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
@@ -366,91 +409,111 @@ const AdminInvoice = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-  
+
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-  
+
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-  
+
     pdf.setFontSize(12);
-    
+
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
-        
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-  
+
         Object.keys(supplier).forEach((key) => {
           if (
-            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-            
+
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-  
+
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-  
+
     pdf.save("invoice_details.pdf");
   };
-  
+
   const generatePDFBlob = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-  
+
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-  
+
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-  
+
     pdf.setFontSize(12);
-    
+
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
-        const supplierName = supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`;
-        
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-  
+
         Object.keys(supplier).forEach((key) => {
           if (
-            !["Supplier Name", "supplierName", "user_id", "invoice_id", "created_at", "updated_at"].includes(key) &&
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
             supplier[key] &&
             typeof supplier[key] !== "object"
           ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-            
+
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-  
+
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-  
+
     return pdf.output("blob");
   };
 
@@ -486,7 +549,7 @@ const AdminInvoice = () => {
     const { name, value } = e.target;
     setWhatsappData({
       ...whatsappData,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -496,51 +559,51 @@ const AdminInvoice = () => {
       toast.error("Phone number is required");
       return;
     }
-  
+
     // Validate phone number format (minimum 11 digits)
     const phoneRegex = /^\d{11,}$/;
-    const rawPhone = whatsappData.to.replace(/^\+/, '');
+    const rawPhone = whatsappData.to.replace(/^\+/, "");
     if (!phoneRegex.test(rawPhone)) {
       toast.error("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
-  
+
     try {
       const pdfBlob = generatePDFBlob();
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `invoice_${invoiceId}.pdf`;
-  
+
       // Get email from auth context and replace special characters
-      const sessionEmail = email.replace(/[@.]/g, '_');
-  
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
       });
-  
+
       const payload = {
         chatId: formattedPhone,
-        caption: whatsappData.message || 'Invoice details',
+        caption: whatsappData.message || "Invoice details",
         session: sessionEmail, // Using modified email as session
         file: {
           data: base64data,
           filename: filename,
-          mimeType: 'application/pdf'
-        }
+          mimeType: "application/pdf",
+        },
       };
-  
+
       const response = await axios.post(
-        'http://34.142.252.64:3000/api/sendFile',
+        "http://34.142.252.64:3000/api/sendFile",
         payload,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-  
+
       if (response.status === 201) {
         toast.success("WhatsApp message sent successfully!");
         handleWhatsappModalClose();
@@ -549,10 +612,11 @@ const AdminInvoice = () => {
       }
     } catch (error) {
       console.error("WhatsApp send error:", error);
-      const errorMessage = error.response?.data?.error || 
-                          error.response?.data?.message || 
-                          error.message || 
-                          "Failed to send WhatsApp message";
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send WhatsApp message";
       toast.error(errorMessage);
     }
   };
@@ -571,11 +635,11 @@ const AdminInvoice = () => {
       toast.error("Please select a client!");
       return;
     }
-  
+
     try {
       if (modalType === "email") {
         await axios.post(
-          "http://34.142.252.64:8080/api/agent/send-offers-email",
+          "https://bill.medtronix.world/api/agent/send-offers-email",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -589,7 +653,7 @@ const AdminInvoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "http://34.142.252.64:8080/api/notifications",
+          "https://bill.medtronix.world/api/notifications",
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -597,11 +661,11 @@ const AdminInvoice = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
           }
         );
-        
+
         if (response.data.success) {
           toast.success("Invoice sent to client portal successfully!");
         } else {
@@ -612,7 +676,7 @@ const AdminInvoice = () => {
       console.error("Error sending data", error);
       toast.error("Failed to send. Please try again.");
     }
-  
+
     handleModalClose();
   };
 

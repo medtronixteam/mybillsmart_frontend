@@ -84,6 +84,10 @@ import GoalList from "./GroupAdmin/GoalList/GoalList";
 import UserPerformance from "./GroupAdmin/UserPerformance/UserPerformance";
 import ScheduleMessage from "./GroupAdmin/ScheduleMessage/ScheduleMessage";
 import MessageList from "./GroupAdmin/MessageList/MessageList";
+import AgentMessageList from "./components/MessageList/MessageList";
+import ProviderMessageList from "./Provider/MessageList/MessageList";
+import AdminProducts from "./GroupAdmin/Products/AdminProducts";
+import AdminAddProduct from "./GroupAdmin/AddProduct/AdminAddProduct";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -128,7 +132,7 @@ const PublicInvoiceSubmission = () => {
     const checkLinkValidity = async () => {
       try {
         const response = await axios.get(
-          `http://34.142.252.64:8080/api/verify-url/${id}`
+          `https://bill.medtronix.world/api/verify-url/${id}`
         );
         if (response.data.status === "success") {
           setIsValid(true);
@@ -305,6 +309,10 @@ const App = () => {
                             path="checkout"
                             element={<AgentCheckoutForm />}
                           />
+                          <Route
+                            path="message"
+                            element={<AgentMessageList />}
+                          />
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
@@ -367,6 +375,10 @@ const App = () => {
                             path="checkout"
                             element={<ProviderCheckoutForm />}
                           />
+                          <Route
+                            path="message"
+                            element={<ProviderMessageList />}
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
@@ -398,6 +410,11 @@ const App = () => {
                           <Route
                             path="dashboard"
                             element={<GroupAdminDashboard />}
+                          />
+                          <Route path="products" element={<AdminProducts />} />
+                          <Route
+                            path="add-product"
+                            element={<AdminAddProduct />}
                           />
                           <Route
                             path="profile-edit"
@@ -458,14 +475,8 @@ const App = () => {
                             path="points-update"
                             element={<PointsUpdate />}
                           />
-                          <Route
-                            path="manage-goal"
-                            element={<ManageGoal />}
-                          />
-                          <Route
-                            path="goal-list"
-                            element={<GoalList />}
-                          />
+                          <Route path="manage-goal" element={<ManageGoal />} />
+                          <Route path="goal-list" element={<GoalList />} />
                           <Route
                             path="user-performance"
                             element={<UserPerformance />}

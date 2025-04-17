@@ -54,7 +54,7 @@ const AddClients = () => {
       };
 
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/agent/user", // Changed endpoint
+        "https://bill.medtronix.world/api/agent/user", // Changed endpoint
         apiData,
         {
           headers: {
@@ -142,7 +142,6 @@ const AddClients = () => {
           onChange={handleChange}
           required
         />
-      
       </form>
       <button type="submit" onClick={handleSubmit}>
         Add User

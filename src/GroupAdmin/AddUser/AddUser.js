@@ -56,7 +56,7 @@ const AddUser = ({ onAddUser }) => {
       };
 
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/group/user",
+        "https://bill.medtronix.world/api/group/user",
         apiData,
         {
           headers: {

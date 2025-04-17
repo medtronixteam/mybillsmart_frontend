@@ -8,15 +8,18 @@ const AdminContractList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
- 
+
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch("http://34.142.252.64:8080/api/group/contracts/list", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "https://bill.medtronix.world/api/group/contracts/list",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -53,7 +56,6 @@ const AdminContractList = () => {
         {contracts.length === 0 ? (
           <div className="no-contracts-message">
             <p className="text-center">No contracts list available.</p>
-           
           </div>
         ) : (
           <table className="contract-table">
@@ -76,7 +78,9 @@ const AdminContractList = () => {
                   <td className="contract-table-cell">
                     {contract.contractedRate}
                   </td>
-                  <td className="contract-table-cell">{contract.closureDate}</td>
+                  <td className="contract-table-cell">
+                    {contract.closureDate}
+                  </td>
                   <td className="contract-table-cell">
                     <Link
                       className={`d-block text-center status-button status-${contract.status.toLowerCase()}`}

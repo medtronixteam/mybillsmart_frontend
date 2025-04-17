@@ -1,41 +1,48 @@
-import React, { useState } from 'react';
-import { FaPaperPlane, FaCheckCircle, FaEnvelope, FaCopy } from 'react-icons/fa';
+import React, { useState } from "react";
+import {
+  FaPaperPlane,
+  FaCheckCircle,
+  FaEnvelope,
+  FaCopy,
+} from "react-icons/fa";
 import "./AgentSubmissionLink.css";
 import { useAuth } from "../../contexts/AuthContext";
 
-
 const AgentSubmissionLink = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedLink, setGeneratedLink] = useState('');
+  const [generatedLink, setGeneratedLink] = useState("");
   const [copyStatus, setCopyStatus] = useState();
   const { token } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('http://34.142.252.64:8080/api/generate-url', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email })
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/generate-url",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to generate link');
+        throw new Error("Failed to generate link");
       }
 
       const data = await response.json();
-      setGeneratedLink(data.url); 
+      setGeneratedLink(data.url);
       setIsSubmitted(true);
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to send link. Please try again.');
+      console.error("Error:", error);
+      alert("Failed to send link. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +50,7 @@ const AgentSubmissionLink = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);
-    setCopyStatus('Copied!');
+    setCopyStatus("Copied!");
     setTimeout(() => setCopyStatus(), 2000);
   };
 
@@ -55,7 +62,7 @@ const AgentSubmissionLink = () => {
             <FaEnvelope className="email-icon" />
             <h2>Send Submission Link</h2>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="email-form">
             <div className="form-group">
               <label htmlFor="email">Recipient Email</label>
@@ -68,7 +75,7 @@ const AgentSubmissionLink = () => {
                 required
               />
             </div>
-            
+
             <button type="submit" disabled={isLoading} className="submit-btn">
               {isLoading ? (
                 <span className="spinner"></span>
@@ -86,26 +93,33 @@ const AgentSubmissionLink = () => {
           <div className="success-content">
             <FaCheckCircle className="success-icon" />
             <h2>Link Sent Successfully!</h2>
-            <p>The submission link has been sent to <strong>{email}</strong></p>
-            
+            <p>
+              The submission link has been sent to <strong>{email}</strong>
+            </p>
+
             <div className="generated-link-container">
               {/* <p className="link-label">Generated Link:</p> */}
               <div className="link-box">
-                <a href={generatedLink} target="_blank" rel="noopener noreferrer" className="generated-link">
+                <a
+                  href={generatedLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="generated-link"
+                >
                   {generatedLink}
                 </a>
                 <button onClick={copyToClipboard} className="copy-btn">
-                  <FaCopy className="copy-icon" /> 
+                  <FaCopy className="copy-icon" />
                 </button>
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => {
                 setIsSubmitted(false);
-                setEmail('');
-                setGeneratedLink('');
-              }} 
+                setEmail("");
+                setGeneratedLink("");
+              }}
               className="back-btn mt-3"
             >
               Send Another Link

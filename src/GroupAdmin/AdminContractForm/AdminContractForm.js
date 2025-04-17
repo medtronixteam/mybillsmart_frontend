@@ -41,12 +41,15 @@ const AdminContractForm = () => {
 
     const fetchClients = async () => {
       try {
-        const response = await axios.get("http://34.142.252.64:8080/api/agent/client/list", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://bill.medtronix.world/api/agent/client/list",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (isMounted && response.data && Array.isArray(response.data.data)) {
           setClients(response.data.data);
@@ -112,7 +115,7 @@ const AdminContractForm = () => {
 
     try {
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/agent/contracts",
+        "https://bill.medtronix.world/api/agent/contracts",
         payload,
         {
           headers: {

@@ -63,7 +63,13 @@ const ClientProfileSetting = () => {
   // Handle profile form submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    if (!profileData.name || !profileData.city || !profileData.country || !profileData.address || !profileData.postalCode) {
+    if (
+      !profileData.name ||
+      !profileData.city ||
+      !profileData.country ||
+      !profileData.address ||
+      !profileData.postalCode
+    ) {
       toast.error("Please fill all the fields!");
       return;
     }
@@ -75,20 +81,25 @@ const ClientProfileSetting = () => {
         postal_code: profileData.postalCode,
       };
 
-      const response = await fetch("http://34.142.252.64:8080/api/user/profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(transformedProfileData),
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/user/profile",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(transformedProfileData),
+        }
+      );
 
       const result = await response.json();
       if (response.ok) {
         toast.success("Profile updated successfully!");
       } else {
-        toast.error(`Failed to update profile: ${result.message || "Unknown error"}`);
+        toast.error(
+          `Failed to update profile: ${result.message || "Unknown error"}`
+        );
       }
     } catch (error) {
       toast.error("Failed to update profile. Please try again.");
@@ -112,24 +123,29 @@ const ClientProfileSetting = () => {
 
     setLoadingPassword(true);
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/change-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          current_password: passwordData.current_password,
-          new_password: passwordData.new_password,
-          confirm_password: passwordData.confirm_password,
-        }),
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/change-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            current_password: passwordData.current_password,
+            new_password: passwordData.new_password,
+            confirm_password: passwordData.confirm_password,
+          }),
+        }
+      );
 
       const result = await response.json();
       if (response.ok) {
         toast.success("Password updated successfully!");
       } else {
-        toast.error(`Failed to update password: ${result.message || "Unknown error"}`);
+        toast.error(
+          `Failed to update password: ${result.message || "Unknown error"}`
+        );
       }
     } catch (error) {
       toast.error("Failed to update password. Please try again.");
@@ -140,18 +156,21 @@ const ClientProfileSetting = () => {
 
   // Enable 2FA
   const handleEnable2FA = async () => {
-    setTwoFA(prev => ({ ...prev, loading: true }));
+    setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/auth/enable-2fa", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/auth/enable-2fa",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
-      
+
       if (data.qrCodeUrl || data.qrCode) {
-        setTwoFA(prev => ({
+        setTwoFA((prev) => ({
           ...prev,
           qrCode: data.qrCodeUrl || data.qrCode,
           secret: data.secret,
@@ -160,7 +179,7 @@ const ClientProfileSetting = () => {
       }
     } catch (error) {
       toast.error("Failed to enable 2FA");
-      setTwoFA(prev => ({ ...prev, loading: false }));
+      setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -170,21 +189,24 @@ const ClientProfileSetting = () => {
       toast.error("Please enter the verification code");
       return;
     }
-    
-    setTwoFA(prev => ({ ...prev, loading: true }));
+
+    setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/auth/verify-2fa", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ code: twoFA.code }),
-      });
-      
+      const response = await fetch(
+        "https://bill.medtronix.world/api/auth/verify-2fa",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ code: twoFA.code }),
+        }
+      );
+
       if (response.ok) {
         update2FAStatus(true); // Update context with new 2FA status
-        setTwoFA(prev => ({
+        setTwoFA((prev) => ({
           ...prev,
           code: "",
           loading: false,
@@ -195,24 +217,27 @@ const ClientProfileSetting = () => {
       }
     } catch (error) {
       toast.error("Invalid code. Please try again.");
-      setTwoFA(prev => ({ ...prev, loading: false }));
+      setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
   // Disable 2FA
   const handleDisable2FA = async () => {
-    setTwoFA(prev => ({ ...prev, loading: true }));
+    setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/auth/disable-2fa", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch(
+        "https://bill.medtronix.world/api/auth/disable-2fa",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (response.ok) {
         update2FAStatus(false); // Update context with new 2FA status
-        setTwoFA(prev => ({
+        setTwoFA((prev) => ({
           ...prev,
           qrCode: "",
           secret: "",
@@ -224,7 +249,7 @@ const ClientProfileSetting = () => {
       }
     } catch (error) {
       toast.error("Failed to disable 2FA");
-      setTwoFA(prev => ({ ...prev, loading: false }));
+      setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -245,7 +270,10 @@ const ClientProfileSetting = () => {
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">
-          <form onSubmit={handleProfileSubmit} className="card profile-info-card h-100">
+          <form
+            onSubmit={handleProfileSubmit}
+            className="card profile-info-card h-100"
+          >
             <h3 className="profile-card-heading">Edit Your Profile Info</h3>
             <div className="">
               <label htmlFor="name" className="form-label profile-input-label">
@@ -278,7 +306,10 @@ const ClientProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="country" className="form-label profile-input-label">
+              <label
+                htmlFor="country"
+                className="form-label profile-input-label"
+              >
                 Country
               </label>
               <input
@@ -293,7 +324,10 @@ const ClientProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="address" className="form-label profile-input-label">
+              <label
+                htmlFor="address"
+                className="form-label profile-input-label"
+              >
                 Address
               </label>
               <input
@@ -308,7 +342,10 @@ const ClientProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="postalCode" className="form-label profile-input-label">
+              <label
+                htmlFor="postalCode"
+                className="form-label profile-input-label"
+              >
                 Postal Code
               </label>
               <input
@@ -336,10 +373,16 @@ const ClientProfileSetting = () => {
 
         {/* Password Card */}
         <div className="col-xl-6">
-          <form onSubmit={handlePasswordSubmit} className="card profile-password-card h-100">
+          <form
+            onSubmit={handlePasswordSubmit}
+            className="card profile-password-card h-100"
+          >
             <h3 className="profile-card-heading">Update Your Password</h3>
             <div className="">
-              <label htmlFor="current_password" className="form-label profile-input-label">
+              <label
+                htmlFor="current_password"
+                className="form-label profile-input-label"
+              >
                 Current Password
               </label>
               <input
@@ -354,7 +397,10 @@ const ClientProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="new_password" className="form-label profile-input-label">
+              <label
+                htmlFor="new_password"
+                className="form-label profile-input-label"
+              >
                 New Password
               </label>
               <input
@@ -369,7 +415,10 @@ const ClientProfileSetting = () => {
               />
             </div>
             <div className="">
-              <label htmlFor="confirm_password" className="form-label profile-input-label">
+              <label
+                htmlFor="confirm_password"
+                className="form-label profile-input-label"
+              >
                 Confirm Password
               </label>
               <input
@@ -395,11 +444,13 @@ const ClientProfileSetting = () => {
           </form>
         </div>
 
-        {/* 2FA Card */} 
+        {/* 2FA Card */}
         <div className="col-12 mt-4">
           <div className="card profile-2fa-card">
-            <h3 className="profile-card-heading">Two-Factor Authentication (2FA)</h3>
-            
+            <h3 className="profile-card-heading">
+              Two-Factor Authentication (2FA)
+            </h3>
+
             {is2FAEnabled ? (
               <div className="text-center">
                 <p className="text-success">✓ 2FA is currently enabled</p>
@@ -416,35 +467,43 @@ const ClientProfileSetting = () => {
                 {twoFA.qrCode ? (
                   <>
                     <div className="mb-3">
-                      <p className="text-white">Scan this QR code with your authenticator app:</p>
-                      {twoFA.qrCode.startsWith('data:image') || twoFA.qrCode.startsWith('http') ? (
-                        <img 
-                          src={twoFA.qrCode} 
+                      <p className="text-white">
+                        Scan this QR code with your authenticator app:
+                      </p>
+                      {twoFA.qrCode.startsWith("data:image") ||
+                      twoFA.qrCode.startsWith("http") ? (
+                        <img
+                          src={twoFA.qrCode}
                           alt="2FA QR Code"
-                          style={{ 
-                            maxWidth: "200px", 
+                          style={{
+                            maxWidth: "200px",
                             margin: "0 auto",
                             border: "1px solid #ddd",
                             padding: "10px",
-                            backgroundColor: "white"
+                            backgroundColor: "white",
                           }}
                         />
                       ) : (
-                        <div 
+                        <div
                           dangerouslySetInnerHTML={{ __html: twoFA.qrCode }}
-                          style={{ 
-                            maxWidth: "200px", 
+                          style={{
+                            maxWidth: "200px",
                             margin: "0 auto",
                             border: "1px solid #ddd",
                             padding: "10px",
-                            backgroundColor: "white"
+                            backgroundColor: "white",
                           }}
                         />
                       )}
-                      <p className="mt-2 text-white">Or enter this secret manually: <code>{twoFA.secret}</code></p>
+                      <p className="mt-2 text-white">
+                        Or enter this secret manually:{" "}
+                        <code>{twoFA.secret}</code>
+                      </p>
                     </div>
-                    <div className="mb-3">  
-                      <p className="text-white">Enter the 6-digit code from your authenticator app:</p>
+                    <div className="mb-3">
+                      <p className="text-white">
+                        Enter the 6-digit code from your authenticator app:
+                      </p>
                       <input
                         type="text"
                         name="code"
@@ -464,7 +523,13 @@ const ClientProfileSetting = () => {
                         {twoFA.loading ? "Verifying..." : "Verify & Enable"}
                       </button>
                       <button
-                        onClick={() => setTwoFA(prev => ({ ...prev, qrCode: "", secret: "" }))}
+                        onClick={() =>
+                          setTwoFA((prev) => ({
+                            ...prev,
+                            qrCode: "",
+                            secret: "",
+                          }))
+                        }
                         className="btn btn-secondary"
                       >
                         Cancel
@@ -473,7 +538,9 @@ const ClientProfileSetting = () => {
                   </>
                 ) : (
                   <>
-                    <p className="text-white">Add an extra layer of security to your account</p>
+                    <p className="text-white">
+                      Add an extra layer of security to your account
+                    </p>
                     <button
                       onClick={handleEnable2FA}
                       className="btn btn-primary"
@@ -492,4 +559,4 @@ const ClientProfileSetting = () => {
   );
 };
 
-export default ClientProfileSetting; 
+export default ClientProfileSetting;

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { toast } from 'react-toastify';
-import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-import './CheckoutForm.css';
+import React, { useState } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import "./CheckoutForm.css";
 
 const ProviderCheckoutForm = () => {
   const stripe = useStripe();
@@ -13,13 +13,13 @@ const ProviderCheckoutForm = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const {
-    planDetails,      
+    planDetails,
     clientSecret,
     paymentIntentId,
     amount = planDetails ? parseFloat(planDetails.price) * 100 : 0,
-    currency = 'usd'
+    currency = "usd",
   } = location.state || {};
-  
+
   const displayAmount = (amount / 100).toFixed(2);
   const displayCurrency = currency.toUpperCase();
 
@@ -30,25 +30,28 @@ const ProviderCheckoutForm = () => {
     setIsProcessing(true);
 
     try {
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: localStorage.getItem('userName') || 'Customer',
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: elements.getElement(CardElement),
+            billing_details: {
+              name: localStorage.getItem("userName") || "Customer",
+            },
           },
-        },
-      });
+        }
+      );
 
       if (error) {
         toast.error(`Payment failed: ${error.message}`);
-      } else if (paymentIntent.status === 'succeeded') {
+      } else if (paymentIntent.status === "succeeded") {
         setPaymentSuccess(true);
-        toast.success('Payment succeeded!');
+        toast.success("Payment succeeded!");
         // await savePaymentRecord(paymentIntent, planDetails);
       }
     } catch (err) {
-      console.error('Payment error:', err);
-      toast.error('Payment processing failed');
+      console.error("Payment error:", err);
+      toast.error("Payment processing failed");
     } finally {
       setIsProcessing(false);
     }
@@ -57,7 +60,7 @@ const ProviderCheckoutForm = () => {
   // const savePaymentRecord = async (paymentIntent, plan) => {
   //   try {
   //     await axios.post(
-  //       `http://34.142.252.64:8080/api/save-payment`,
+  //       `https://bill.medtronix.world/api/save-payment`,
   //       {
   //         paymentId: paymentIntent.id,
   //         amount: paymentIntent.amount,
@@ -83,7 +86,7 @@ const ProviderCheckoutForm = () => {
     style: {
       base: {
         color: "#32325d",
-        fontFamily: 'Arial, sans-serif',
+        fontFamily: "Arial, sans-serif",
         fontSmoothing: "antialiased",
         fontSize: "16px",
         "::placeholder": {
@@ -130,7 +133,10 @@ const ProviderCheckoutForm = () => {
         {planDetails && (
           <div className="plan-summary">
             <h4>{planDetails.name}</h4>
-            <p>${displayAmount} {displayCurrency} per {planDetails.period || 'month'}</p>
+            <p>
+              ${displayAmount} {displayCurrency} per{" "}
+              {planDetails.period || "month"}
+            </p>
           </div>
         )}
         <div className="card-element-container">
@@ -141,7 +147,7 @@ const ProviderCheckoutForm = () => {
           disabled={!stripe || isProcessing}
           className="payment-button"
         >
-          {isProcessing ? 'Processing...' : `Pay $${displayAmount}`}
+          {isProcessing ? "Processing..." : `Pay $${displayAmount}`}
         </button>
       </form>
     </div>

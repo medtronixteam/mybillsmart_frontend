@@ -35,11 +35,14 @@ const UserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://34.142.252.64:8080/api/group/users/list", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://bill.medtronix.world/api/group/users/list",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const result = await response.json();
       if (result.status === "success") {
         setUsers(result.data);
@@ -79,11 +82,14 @@ const UserList = () => {
   // Rest of your existing functions remain the same...
   const fetchUserDetails = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/group/user/detail/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://bill.medtronix.world/api/group/user/detail/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const result = await response.json();
       if (result.status === "success") {
         return result.data;
@@ -100,12 +106,15 @@ const UserList = () => {
 
   const handleDisableClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/group/user/disable/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://bill.medtronix.world/api/group/user/disable/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         toast.success("User disabled successfully!");
         fetchUsers();
@@ -120,12 +129,15 @@ const UserList = () => {
 
   const handleEnableClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/group/user/enable/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://bill.medtronix.world/api/group/user/enable/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         toast.success("User enabled successfully!");
         fetchUsers();
@@ -140,12 +152,15 @@ const UserList = () => {
 
   const handleDeleteClick = async (id) => {
     try {
-      const response = await fetch(`http://34.142.252.64:8080/api/group/user/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://bill.medtronix.world/api/group/user/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         toast.success("User deleted successfully!");
         fetchUsers();
@@ -253,26 +268,30 @@ const UserList = () => {
 
           {/* Pagination */}
           <div className="pagination">
-            <button 
-              onClick={prevPage} 
+            <button
+              onClick={prevPage}
               disabled={currentPage === 1}
               className="page-button"
             >
               Previous
             </button>
-            
-            {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => paginate(index + 1)}
-                className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
-              >
-                {index + 1}
-              </button>
-            ))}
-            
-            <button 
-              onClick={nextPage} 
+
+            {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map(
+              (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => paginate(index + 1)}
+                  className={`page-button ${
+                    currentPage === index + 1 ? "active" : ""
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={nextPage}
               disabled={currentPage === Math.ceil(users.length / usersPerPage)}
               className="page-button"
             >

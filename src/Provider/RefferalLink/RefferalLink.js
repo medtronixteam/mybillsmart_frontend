@@ -22,7 +22,7 @@ const RefferalLink = () => {
 
   //     try {
   //       const response = await fetch(
-  //         "http://34.142.252.64:8080/api/generate-url",
+  //         "https://bill.medtronix.world/api/generate-url",
   //         {
   //           method: "POST",
   //           headers: {

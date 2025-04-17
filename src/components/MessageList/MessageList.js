@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 
-const MessageList = () => {
+const AgentMessageList = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -414,4 +414,4 @@ const MessageList = () => {
   );
 };
 
-export default MessageList;
+export default AgentMessageList;

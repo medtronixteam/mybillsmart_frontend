@@ -42,7 +42,7 @@ const ContractForm = () => {
     const fetchClients = async () => {
       try {
         const response = await axios.get(
-          "http://34.142.252.64:8080/api/agent/client/list",
+          "https://bill.medtronix.world/api/agent/client/list",
           {
             headers: {
               "Content-Type": "application/json",
@@ -121,7 +121,7 @@ const ContractForm = () => {
 
     try {
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/agent/contracts",
+        "https://bill.medtronix.world/api/agent/contracts",
         payload,
         {
           headers: {

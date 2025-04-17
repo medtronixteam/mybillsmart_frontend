@@ -28,7 +28,7 @@ const ManageGoal = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://34.142.252.64:8080/api/group/users/list",
+        "https://bill.medtronix.world/api/group/users/list",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ const ManageGoal = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://34.142.252.64:8080/api/group/goals",
+        "https://bill.medtronix.world/api/group/goals",
         formData,
         {
           headers: {
@@ -127,7 +127,9 @@ const ManageGoal = () => {
       <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
         <h2 className="mb-0">Create New Goal</h2>
         <Link to="/group_admin/goal-list">
-          <button className="btn bg-white goal-btn px-3 py-2">View Goal List</button>
+          <button className="btn bg-white goal-btn px-3 py-2">
+            View Goal List
+          </button>
         </Link>
       </div>
 

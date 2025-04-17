@@ -18,18 +18,21 @@ const InvoiceList = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch("http://34.142.252.64:8080/api/group/invoices", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
+        const response = await fetch(
+          "https://bill.medtronix.world/api/group/invoices",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        
+
         if (Array.isArray(data)) {
           setInvoices(data);
         } else if (data && Array.isArray(data.data)) {
@@ -55,21 +58,21 @@ const InvoiceList = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [invoiceResponse, offersResponse] = await Promise.all([
-        fetch(`http://34.142.252.64:8080/api/group/invoices/${id}`, {
+        fetch(`https://bill.medtronix.world/api/group/invoices/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch(`http://34.142.252.64:8080/api/group/invoice/offers`, {
+        fetch(`https://bill.medtronix.world/api/group/invoice/offers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ invoice_id: id })
-        })
+          body: JSON.stringify({ invoice_id: id }),
+        }),
       ]);
 
       if (!invoiceResponse.ok || !offersResponse.ok) {
@@ -80,9 +83,13 @@ const InvoiceList = () => {
       const offersData = await offersResponse.json();
 
       setSelectedInvoice(invoiceData.data || invoiceData);
-      setOffers(Array.isArray(offersData) ? offersData : 
-               Array.isArray(offersData.data) ? offersData.data : 
-               offersData.offers || []);
+      setOffers(
+        Array.isArray(offersData)
+          ? offersData
+          : Array.isArray(offersData.data)
+          ? offersData.data
+          : offersData.offers || []
+      );
       setShowNewTable(true);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -94,9 +101,9 @@ const InvoiceList = () => {
 
   const formatFieldName = (name) => {
     return name
-      .replace(/_/g, ' ')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, l => l.toUpperCase());
+      .replace(/_/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const formatValue = (value) => {
@@ -106,11 +113,11 @@ const InvoiceList = () => {
     return value.toString();
   };
 
-  const flattenObject = (obj, prefix = '') => {
+  const flattenObject = (obj, prefix = "") => {
     return Object.entries(obj).reduce((acc, [key, value]) => {
       const newKey = prefix ? `${prefix}.${key}` : key;
-      
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
+
+      if (value && typeof value === "object" && !Array.isArray(value)) {
         return [...acc, ...flattenObject(value, newKey)];
       } else {
         return [...acc, [newKey, value]];
@@ -131,22 +138,24 @@ const InvoiceList = () => {
     return flattenedInvoice
       .filter(([key]) => {
         // Exclude specific fields and any field ending with 'id'
-        const baseKey = key.split('.')[0];
-        return !excludedFields.includes(baseKey) && 
-               !excludedPattern.test(key); // This will exclude any field ending with 'id'
+        const baseKey = key.split(".")[0];
+        return !excludedFields.includes(baseKey) && !excludedPattern.test(key); // This will exclude any field ending with 'id'
       })
       .filter(([_, value]) => {
         // Filter out empty values
-        return value !== null && 
-               value !== undefined && 
-               value !== "" && 
-               !(Array.isArray(value) && value.length === 0);
+        return (
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0)
+        );
       })
       .map(([key, value]) => {
         // Format the keys for display
-        const displayKey = key.split('.')
-          .map(part => formatFieldName(part))
-          .join(' → ');
+        const displayKey = key
+          .split(".")
+          .map((part) => formatFieldName(part))
+          .join(" → ");
         return [displayKey, value];
       });
   };
@@ -160,7 +169,7 @@ const InvoiceList = () => {
       <div className="invoice-details-container">
         <div className="invoice-details-header">
           <h2>Invoice Details</h2>
-          <button 
+          <button
             className="back-button"
             onClick={() => setShowNewTable(false)}
           >
@@ -182,7 +191,9 @@ const InvoiceList = () => {
 
   const renderOfferCards = () => {
     if (!offers || offers.length === 0) {
-      return <div className="no-offers">No offers available for this invoice</div>;
+      return (
+        <div className="no-offers">No offers available for this invoice</div>
+      );
     }
 
     return (
@@ -194,26 +205,32 @@ const InvoiceList = () => {
               <div className="offer-card-header">
                 <h3>Offer #{index + 1}</h3>
               </div>
-              
+
               <div className="offer-card-body">
                 <div className="offer-field">
                   <span className="offer-label">Provider:</span>
-                  <span className="offer-value">{offer.provider_name || "N/A"}</span>
+                  <span className="offer-value">
+                    {offer.provider_name || "N/A"}
+                  </span>
                 </div>
-                
+
                 <div className="offer-field">
                   <span className="offer-label">Product:</span>
-                  <span className="offer-value">{offer.product_name || "N/A"}</span>
+                  <span className="offer-value">
+                    {offer.product_name || "N/A"}
+                  </span>
                 </div>
-                
+
                 <div className="offer-field">
                   <span className="offer-label">Savings:</span>
                   <span className="offer-value">{offer.saving || "0"}%</span>
                 </div>
-                
+
                 <div className="offer-field">
                   <span className="offer-label">Commission:</span>
-                  <span className="offer-value">{offer.sales_commission || "0"}%</span>
+                  <span className="offer-value">
+                    {offer.sales_commission || "0"}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -245,7 +262,7 @@ const InvoiceList = () => {
   return (
     <div className="invoice-list-container">
       <h1 className="invoice-list-title">Invoice List</h1>
-      
+
       {showNewTable ? (
         <>
           {renderInvoiceDetails()}
@@ -269,9 +286,13 @@ const InvoiceList = () => {
                   currentInvoices.map((invoice) => (
                     <tr key={invoice.id}>
                       <td className="invoice-table-cell">{invoice.id}</td>
-                      <td className="invoice-table-cell">{invoice.bill_type}</td>
+                      <td className="invoice-table-cell">
+                        {invoice.bill_type}
+                      </td>
                       <td className="invoice-table-cell">{invoice.address}</td>
-                      <td className="invoice-table-cell">{invoice.billing_period}</td>
+                      <td className="invoice-table-cell">
+                        {invoice.billing_period}
+                      </td>
                       <td className="invoice-table-cell">
                         <button
                           className="view-invoice-btn py-1 px-2"
@@ -302,11 +323,11 @@ const InvoiceList = () => {
               >
                 Previous
               </button>
-              
+
               <span className="page-info">
                 Page {currentPage} of {totalPages}
               </span>
-              
+
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
