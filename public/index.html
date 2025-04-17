@@ -2,72 +2,93 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="76x76"
-      href="../assets/img/apple-icon.png"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
     <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
     <title>MyBillSmart</title>
-    <!--     Fonts and icons     -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
-      rel="stylesheet"
-    />
+    <!-- Fonts and icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
     <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script
-      src="https://kit.fontawesome.com/42d5adcbca.js"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- CSS Files -->
-    <link
-      id="pagestyle"
-      href="../assets/css/soft-ui-dashboard.css?v=1.0.3"
-      rel="stylesheet"
-    />
+    <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+    
+    <!-- Add this style to ensure the translate element is visible -->
+    
   </head>
+  <style>
+      #google_translate_element {
+        display: block !important;
+        position: fixed;
+        bottom: 30px;
+        right: 20px;
+        z-index: 9999;
+      }
+      .goog-te-banner-frame {
+        display: none !important; 
+      }
+      .goog-te-gadget {
+        color: transparent !important;
+      }
+      .goog-te-gadget .goog-te-combo {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        background: white;
+      }
+    </style>
   <body>
+    <div id="google_translate_element"></div>
+    
     <div id="root"></div>
     
-    <!-- Google Translate Script (MUST be early) -->
+    <!-- Load Google Translate Script -->
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script>
       function googleTranslateElementInit() {
-        console.log("Google Translate loaded!"); // Check if this logs
+        console.log("Google Translate initialized");
         new google.translate.TranslateElement(
-          { pageLanguage: 'en', includedLanguages: 'en,es' },
+          { 
+            pageLanguage: 'en', 
+            includedLanguages: 'en,es',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          },
           'google_translate_element'
         );
+        
+        // Additional check to see if element was created
+        setTimeout(() => {
+          if (!document.querySelector('.goog-te-combo')) {
+            console.error("Google Translate element failed to create");
+          }
+        }, 1000);
       }
+      
+      // Alternative initialization if DOM isn't ready
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof google !== 'undefined' && google.translate) {
+          googleTranslateElementInit();
+        }
+      });
     </script>
-  
-  
-  
+
+    <!-- Your other scripts -->
     <script src="./assets/js/core/popper.min.js"></script>
     <script src="./assets/js/core/bootstrap.min.js"></script>
     <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="./assets/js/plugins/smooth-scrollbar.min.js"></script>
     <script src="./assets/js/plugins/chartjs.min.js"></script>
-
     <script>
       var win = navigator.platform.indexOf("Win") > -1;
       if (win && document.querySelector("#sidenav-scrollbar")) {
-        var options = {
-          damping: "0.5",
-        };
+        var options = { damping: "0.5" };
         Scrollbar.init(document.querySelector("#sidenav-scrollbar"), options);
       }
     </script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- 
-    <script src="./assets/js/soft-ui-dashboard.min.js"></script> -->
   </body>
 </html>

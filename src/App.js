@@ -81,6 +81,9 @@ import ProviderWhatsapp from "./Provider/ProviderWhatsapp/ProviderWhatsapp";
 import AdminContractList from "./GroupAdmin/AdminContractList/AdminContractList";
 import ManageGoal from "./GroupAdmin/ManageGoal/ManageGoal";
 import GoalList from "./GroupAdmin/GoalList/GoalList";
+import UserPerformance from "./GroupAdmin/UserPerformance/UserPerformance";
+import ScheduleMessage from "./GroupAdmin/ScheduleMessage/ScheduleMessage";
+import MessageList from "./GroupAdmin/MessageList/MessageList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -462,6 +465,18 @@ const App = () => {
                           <Route
                             path="goal-list"
                             element={<GoalList />}
+                          />
+                          <Route
+                            path="user-performance"
+                            element={<UserPerformance />}
+                          />
+                          <Route
+                            path="schedule-message"
+                            element={<ScheduleMessage />}
+                          />
+                          <Route
+                            path="message-list"
+                            element={<MessageList />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

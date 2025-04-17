@@ -94,18 +94,7 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Manage User</span>
             </NavLink>
           </li>
-          {/* <li className="nav-item">
-            <NavLink
-              className="nav-link"
-              to="/group_admin/user-list"
-              activeClassName="active-class"
-            >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaUsers />
-              </div>
-              <span className="nav-link-text ms-1">User List</span>
-            </NavLink>
-          </li> */}
+          
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -166,18 +155,42 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Manage Goal</span>
             </NavLink>
           </li>
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/group_admin/goal-list"
+              to="/group_admin/user-performance"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Goal List</span>
+              <span className="nav-link-text ms-1">User Performance</span>
             </NavLink>
-          </li> */}
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/schedule-message"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Schedule Message</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/group_admin/message-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Message List</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
