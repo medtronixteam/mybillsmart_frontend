@@ -15,6 +15,7 @@ import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import config from "../../config";
 
 const AdminInvoice = () => {
   const [step, setStep] = useState(1);
@@ -89,14 +90,11 @@ const AdminInvoice = () => {
 
   const fetchGroupId = async () => {
     try {
-      const response = await axios.get(
-        "https://bill.medtronix.world/api/profile",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${config.BASE_URL}/api/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data.id;
     } catch (error) {
       console.error("Error fetching group ID:", error);
@@ -109,7 +107,7 @@ const AdminInvoice = () => {
     setLoadingClients(true);
     try {
       const response = await axios.get(
-        "https://bill.medtronix.world/api/agent/client/list",
+        `${config.BASE_URL}/api/agent/client/list`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -234,7 +232,7 @@ const AdminInvoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        "https://bill.medtronix.world/api/group/invoices",
+        `${config.BASE_URL}/api/group/invoices`,
         invoicePayload,
         {
           headers: {
@@ -253,7 +251,7 @@ const AdminInvoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "https://bill.medtronix.world/api/group/offers",
+        `${config.BASE_URL}/api/group/offers`,
         offersData,
         {
           headers: {
@@ -639,7 +637,7 @@ const AdminInvoice = () => {
     try {
       if (modalType === "email") {
         await axios.post(
-          "https://bill.medtronix.world/api/agent/send-offers-email",
+          `${config.BASE_URL}/api/agent/send-offers-email`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -653,7 +651,7 @@ const AdminInvoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "https://bill.medtronix.world/api/notifications",
+          `${config.BASE_URL}/api/notifications`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,

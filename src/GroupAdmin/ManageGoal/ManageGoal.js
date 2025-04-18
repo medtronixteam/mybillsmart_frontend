@@ -3,6 +3,7 @@ import axios from "axios";
 import "./ManageGoal.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
+import config from "../../config";
 
 const ManageGoal = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ const ManageGoal = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://bill.medtronix.world/api/group/users/list",
+        `${config.BASE_URL}/api/group/users/list`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,7 +96,7 @@ const ManageGoal = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://bill.medtronix.world/api/group/goals",
+        `${config.BASE_URL}/api/group/goals`,
         formData,
         {
           headers: {

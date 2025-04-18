@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ProviderSubscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const ProviderSubscription = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const ProviderSubscription = () => {
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,

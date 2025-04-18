@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import "./ClientList.css";
+import config from "../../config";
 
 const ClientList = () => {
   const [users, setUsers] = useState([]);
@@ -31,14 +32,11 @@ const ClientList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/supervisor/user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/supervisor/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const result = await response.json();
 
       if (result.status === "success") {
@@ -57,7 +55,7 @@ const ClientList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/supervisor/user/${id}`,
+        `${config.BASE_URL}/api/supervisor/user/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,7 +79,7 @@ const ClientList = () => {
   const handleDisableClick = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/supervisor/user/disable/${id}`,
+        `${config.BASE_URL}/api/supervisor/user/disable/${id}`,
         {
           method: "POST",
           headers: {
@@ -105,7 +103,7 @@ const ClientList = () => {
   const handleEnableClick = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/supervisor/user/enable/${id}`,
+        `${config.BASE_URL}/api/supervisor/user/enable/${id}`,
         {
           method: "POST",
           headers: {
@@ -131,7 +129,7 @@ const ClientList = () => {
 
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/supervisor/user/delete/${id}`,
+        `${config.BASE_URL}/api/supervisor/user/delete/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -180,7 +178,7 @@ const ClientList = () => {
 
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/supervisor/user/edit/${editData.id}`,
+        `${config.BASE_URL}/api/supervisor/user/edit/${editData.id}`,
         {
           method: "POST",
           headers: {

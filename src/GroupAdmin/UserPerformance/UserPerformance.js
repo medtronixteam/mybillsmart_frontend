@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./UserPerformance.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const UserPerformance = () => {
   const [users, setUsers] = useState([]);
@@ -16,14 +17,11 @@ const UserPerformance = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://bill.medtronix.world/api/group/users/list",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/group/users/list`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -42,7 +40,7 @@ const UserPerformance = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://bill.medtronix.world/api/group/user/detail/${id}`,
+        `${config.BASE_URL}/api/group/user/detail/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

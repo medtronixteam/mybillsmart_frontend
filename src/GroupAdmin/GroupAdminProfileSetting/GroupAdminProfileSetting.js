@@ -3,6 +3,7 @@ import "./GroupAdminProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import config from "../../config";
 
 const GroupAdminProfileSetting = () => {
   // State for profile data
@@ -81,17 +82,14 @@ const GroupAdminProfileSetting = () => {
         postal_code: profileData.postalCode,
       };
 
-      const response = await fetch(
-        "https://bill.medtronix.world/api/user/profile",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(transformedProfileData),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/user/profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(transformedProfileData),
+      });
 
       const result = await response.json();
       if (response.ok) {
@@ -123,21 +121,18 @@ const GroupAdminProfileSetting = () => {
 
     setLoadingPassword(true);
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/change-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            current_password: passwordData.current_password,
-            new_password: passwordData.new_password,
-            confirm_password: passwordData.confirm_password,
-          }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: passwordData.current_password,
+          new_password: passwordData.new_password,
+          confirm_password: passwordData.confirm_password,
+        }),
+      });
 
       const result = await response.json();
       if (response.ok) {
@@ -158,15 +153,12 @@ const GroupAdminProfileSetting = () => {
   const handleEnable2FA = async () => {
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/auth/enable-2fa",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/auth/enable-2fa`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
 
       if (data.qrCodeUrl || data.qrCode) {
@@ -192,17 +184,14 @@ const GroupAdminProfileSetting = () => {
 
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/auth/verify-2fa",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ code: twoFA.code }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/auth/verify-2fa`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code: twoFA.code }),
+      });
 
       if (response.ok) {
         update2FAStatus(true); // Update context with new 2FA status
@@ -225,15 +214,12 @@ const GroupAdminProfileSetting = () => {
   const handleDisable2FA = async () => {
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/auth/disable-2fa",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/auth/disable-2fa`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.ok) {
         update2FAStatus(false); // Update context with new 2FA status

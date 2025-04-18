@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./ScheduleMessage.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
+import config from "../../config";
 
 const ScheduleMessage = () => {
   const [formData, setFormData] = useState({
@@ -35,22 +36,19 @@ const ScheduleMessage = () => {
         ? `${formData.time_send}:00`
         : "";
 
-      const response = await fetch(
-        "https://bill.medtronix.world/api/auto-messages",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            to_number: formData.phone_number,
-            message: formData.body,
-            time_send: formattedTime, // Now includes seconds
-            date_send: formData.date_send,
-          }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/auto-messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          to_number: formData.phone_number,
+          message: formData.body,
+          time_send: formattedTime, // Now includes seconds
+          date_send: formData.date_send,
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

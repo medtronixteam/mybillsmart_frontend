@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import "./ContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const ContractForm = () => {
   const location = useLocation();
@@ -42,7 +43,7 @@ const ContractForm = () => {
     const fetchClients = async () => {
       try {
         const response = await axios.get(
-          "https://bill.medtronix.world/api/agent/client/list",
+          `${config.BASE_URL}/api/agent/client/list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -121,7 +122,7 @@ const ContractForm = () => {
 
     try {
       const response = await axios.post(
-        "https://bill.medtronix.world/api/agent/contracts",
+        `${config.BASE_URL}/api/agent/contracts`,
         payload,
         {
           headers: {

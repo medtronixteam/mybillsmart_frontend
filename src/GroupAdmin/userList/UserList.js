@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
-
+import config from "../../config";
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
@@ -35,14 +35,11 @@ const UserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/group/users/list",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/group/users/list`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const result = await response.json();
       if (result.status === "success") {
         setUsers(result.data);
@@ -83,7 +80,7 @@ const UserList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/group/user/detail/${id}`,
+        `${config.BASE_URL}/api/group/user/detail/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -107,7 +104,7 @@ const UserList = () => {
   const handleDisableClick = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/group/user/disable/${id}`,
+        `${config.BASE_URL}/api/group/user/disable/${id}`,
         {
           method: "POST",
           headers: {
@@ -130,7 +127,7 @@ const UserList = () => {
   const handleEnableClick = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/group/user/enable/${id}`,
+        `${config.BASE_URL}/api/group/user/enable/${id}`,
         {
           method: "POST",
           headers: {
@@ -153,7 +150,7 @@ const UserList = () => {
   const handleDeleteClick = async (id) => {
     try {
       const response = await fetch(
-        `https://bill.medtronix.world/api/group/user/delete/${id}`,
+        `${config.BASE_URL}/api/group/user/delete/${id}`,
         {
           method: "DELETE",
           headers: {

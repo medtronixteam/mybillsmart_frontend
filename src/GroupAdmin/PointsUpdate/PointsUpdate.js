@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./PointsUpdate.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const PointsUpdate = () => {
   const { user, token } = useAuth();
@@ -15,7 +16,7 @@ const PointsUpdate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const BASE_URL = "https://bill.medtronix.world";
+  const BASE_URL = `${config.BASE_URL}`;
 
   // Fetch current points on component mount
   useEffect(() => {

@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import "./RefferalLink.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const RefferalLink = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -21,7 +22,7 @@ const RefferalLink = () => {
 
     try {
       const response = await fetch(
-        "https://bill.medtronix.world/api/agent/referral-url",
+        `${config.BASE_URL}/api/agent/referral-url`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -69,7 +70,7 @@ const RefferalLink = () => {
           <button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="submit-btn"
+            className="submit-btn text-white"
           >
             {isLoading ? (
               <span className="spinner"></span>

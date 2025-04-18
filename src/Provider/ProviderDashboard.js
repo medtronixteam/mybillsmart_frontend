@@ -7,6 +7,7 @@ import {
   FaCoins,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import config from "../config";
 
 const ProviderDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -19,7 +20,7 @@ const ProviderDashboard = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://bill.medtronix.world/api/supervisor/dashboard/stats",
+          `${config.BASE_URL}/api/supervisor/dashboard/stats`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

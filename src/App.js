@@ -134,7 +134,7 @@ const PublicInvoiceSubmission = () => {
     const checkLinkValidity = async () => {
       try {
         const response = await axios.get(
-          `https://bill.medtronix.world/api/verify-url/${id}`
+          `${config.BASE_URL}/api/verify-url/${id}`
         );
         if (response.data.status === "success") {
           setIsValid(true);
@@ -315,10 +315,7 @@ const App = () => {
                             path="message"
                             element={<AgentMessageList />}
                           />
-                          <Route
-                            path="goal"
-                            element={<AgentGoalList />}
-                          />
+                          <Route path="goal" element={<AgentGoalList />} />
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
@@ -385,10 +382,7 @@ const App = () => {
                             path="message"
                             element={<ProviderMessageList />}
                           />
-                           <Route
-                            path="goal"
-                            element={<ProviderGoalList />}
-                          />
+                          <Route path="goal" element={<ProviderGoalList />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

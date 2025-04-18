@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./AdminContractList.css";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const AdminContractList = () => {
   const [contracts, setContracts] = useState([]); // Default to an empty array
@@ -13,7 +14,7 @@ const AdminContractList = () => {
     const fetchContracts = async () => {
       try {
         const response = await fetch(
-          "https://bill.medtronix.world/api/group/contracts/list",
+          `${config.BASE_URL}/api/group/contracts/list`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

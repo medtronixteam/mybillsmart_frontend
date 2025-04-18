@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const AddClient = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -50,7 +51,7 @@ const AddClient = ({ onAddUser }) => {
       };
 
       const response = await axios.post(
-        "https://bill.medtronix.world/api/supervisor/user",
+        `${config.BASE_URL}/api/supervisor/user`,
         apiData,
         {
           headers: {

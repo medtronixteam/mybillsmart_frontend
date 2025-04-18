@@ -60,7 +60,7 @@ const CheckoutForm = () => {
   // const savePaymentRecord = async (paymentIntent, plan) => {
   //   try {
   //     await axios.post(
-  //       `https://bill.medtronix.world/api/save-payment`,
+  //       `${config.BASE_URL}/api/save-payment`,
   //       {
   //         paymentId: paymentIntent.id,
   //         amount: paymentIntent.amount,

@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import config from "../../config";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1);
@@ -21,7 +22,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await axios.post(
-        "https://bill.medtronix.world/api/forgot-password",
+        `${config.BASE_URL}/api/forgot-password`,
         { email },
         {
           headers: {
@@ -51,7 +52,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await axios.post(
-        "https://bill.medtronix.world/api/verify-otp",
+        `${config.BASE_URL}/api/verify-otp`,
         { email, otp },
         {
           headers: {
@@ -77,7 +78,7 @@ const ForgotPassword = () => {
   const handleResendOtp = async () => {
     try {
       const response = await axios.post(
-        "https://bill.medtronix.world/api/resend-otp",
+        `${config.BASE_URL}/api/resend-otp`,
         { email },
         {
           headers: {
@@ -111,7 +112,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await axios.post(
-        "https://bill.medtronix.world/api/reset-password",
+        `${config.BASE_URL}/api/reset-password`,
         { email, otp, password }, // Changed from newPassword to password
         {
           headers: {

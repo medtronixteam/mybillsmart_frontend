@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Notifications.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const Notifications = () => {
   const [notificationDetail, setNotificationDetail] = useState(false);
@@ -12,7 +13,7 @@ const Notifications = () => {
   const { token } = useAuth();
 
   const api = axios.create({
-    baseURL: "https://bill.medtronix.world",
+    baseURL: `${config.BASE_URL}`,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

@@ -39,7 +39,7 @@ const ProviderSidebar = () => {
       </div>
       <hr className="horizontal dark mt-0" />
       <div
-        className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
+        className="collapse navbar-collapse w-auto overflow-hidden h-100"
         id="sidenav-collapse-main"
       >
         <ul className="navbar-nav">

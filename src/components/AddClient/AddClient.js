@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const AddClients = () => {
   const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ const AddClients = () => {
       };
 
       const response = await axios.post(
-        "https://bill.medtronix.world/api/agent/user", // Changed endpoint
+        `${config.BASE_URL}/api/agent/user`, // Changed endpoint
         apiData,
         {
           headers: {

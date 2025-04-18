@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -69,14 +70,11 @@ const Subscription = () => {
   useEffect(() => {
     const fetchPlanPrices = async () => {
       try {
-        const response = await axios.get(
-          "https://bill.medtronix.world/api/group/plans",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${config.BASE_URL}/api/group/plans`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.data && response.data.status === "success") {
           const prices = {};
@@ -113,7 +111,7 @@ const Subscription = () => {
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,

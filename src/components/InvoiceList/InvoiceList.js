@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
@@ -18,14 +19,11 @@ const InvoiceList = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(
-          "https://bill.medtronix.world/api/agent/invoices",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${config.BASE_URL}/api/agent/invoices`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,12 +58,12 @@ const InvoiceList = () => {
       setError(null);
 
       const [invoiceResponse, offersResponse] = await Promise.all([
-        fetch(`https://bill.medtronix.world/api/agent/invoices/${id}`, {
+        fetch(`${config.BASE_URL}/api/agent/invoices/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch(`https://bill.medtronix.world/api/agent/invoice/offers`, {
+        fetch(`${config.BASE_URL}/api/agent/invoice/offers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

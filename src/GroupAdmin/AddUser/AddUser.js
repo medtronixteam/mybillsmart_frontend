@@ -5,6 +5,7 @@ import "./AddUser.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
+import config from "../../config";
 
 const AddUser = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const AddUser = ({ onAddUser }) => {
       };
 
       const response = await axios.post(
-        "https://bill.medtronix.world/api/group/user",
+        `${config.BASE_URL}/api/group/user`,
         apiData,
         {
           headers: {

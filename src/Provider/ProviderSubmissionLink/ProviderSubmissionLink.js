@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import "./ProviderSubmissionLink.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const ProviderSubmissionLink = () => {
   const [email, setEmail] = useState("");
@@ -21,17 +22,14 @@ const ProviderSubmissionLink = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://bill.medtronix.world/api/generate-url",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to generate link");
@@ -76,7 +74,7 @@ const ProviderSubmissionLink = () => {
               />
             </div>
 
-            <button type="submit" disabled={isLoading} className="submit-btn">
+            <button type="submit" disabled={isLoading} className="submit-btn text-white">
               {isLoading ? (
                 <span className="spinner"></span>
               ) : (

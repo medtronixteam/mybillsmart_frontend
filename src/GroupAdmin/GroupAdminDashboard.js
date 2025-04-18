@@ -7,6 +7,7 @@ import {
   FaCoins,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
+import config from "../config";
 
 const GroupAdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -18,7 +19,7 @@ const GroupAdminDashboard = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://bill.medtronix.world/api/group/dashboard/stats",
+          `${config.BASE_URL}/api/group/dashboard/stats`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

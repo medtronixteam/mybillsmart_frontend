@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const ProviderMessageList = () => {
   const [messages, setMessages] = useState([]);
@@ -25,7 +26,7 @@ const ProviderMessageList = () => {
       setLoading(true);
       setError(null);
       const response = await fetch(
-        `https://bill.medtronix.world/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
+        `${config.BASE_URL}/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -54,7 +55,7 @@ const ProviderMessageList = () => {
       setLoading(true);
       setError(null);
       const response = await fetch(
-        `https://bill.medtronix.world/api/auto-messages/${id}`,
+        `${config.BASE_URL}/api/auto-messages/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -115,7 +116,7 @@ const ProviderMessageList = () => {
       const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
 
       const response = await fetch(
-        `https://bill.medtronix.world/api/auto-messages/${id}`,
+        `${config.BASE_URL}/api/auto-messages/${id}`,
         {
           method: "PUT",
           headers: {
@@ -151,7 +152,7 @@ const ProviderMessageList = () => {
       setError(null);
 
       const response = await fetch(
-        `https://bill.medtronix.world/api/auto-messages/${id}`,
+        `${config.BASE_URL}/api/auto-messages/${id}`,
         {
           method: "DELETE",
           headers: {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
+import config from "../../config";
 
 const GoalList = () => {
   const [goals, setGoals] = useState([]);
@@ -18,14 +19,11 @@ const GoalList = () => {
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "https://bill.medtronix.world/api/group/goals",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${config.BASE_URL}/api/group/goals`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setGoals(response.data.data);
       setLoading(false);
     } catch (err) {
@@ -45,14 +43,11 @@ const GoalList = () => {
 
     try {
       setLoading(true);
-      await axios.delete(
-        `https://bill.medtronix.world/api/group/goals/${goalId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(`${config.BASE_URL}/api/group/goals/${goalId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setSuccess("Goal deleted successfully!");
       fetchGoals();
     } catch (err) {
@@ -76,7 +71,7 @@ const GoalList = () => {
     try {
       setLoading(true);
       await axios.patch(
-        `https://bill.medtronix.world/api/group/goals/${editingGoal.id}/status`,
+        `${config.BASE_URL}/api/group/goals/${editingGoal.id}/status`,
         editingGoal,
         {
           headers: {

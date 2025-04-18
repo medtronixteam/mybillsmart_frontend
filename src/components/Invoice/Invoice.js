@@ -15,6 +15,7 @@ import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import config from "../../config";
 
 const Invoice = () => {
   const [step, setStep] = useState(1);
@@ -95,7 +96,7 @@ const Invoice = () => {
     setLoadingClients(true);
     try {
       const response = await axios.get(
-        "https://bill.medtronix.world/api/agent/client/list",
+        `${config.BASE_URL}/api/agent/client/list`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -218,7 +219,7 @@ const Invoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        "https://bill.medtronix.world/api/agent/invoices",
+        `${config.BASE_URL}/api/agent/invoices`,
         invoiceData,
         {
           headers: {
@@ -238,7 +239,7 @@ const Invoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        "https://bill.medtronix.world/api/agent/offers",
+        `${config.BASE_URL}/api/agent/offers`,
         offersData,
         {
           headers: {
@@ -623,7 +624,7 @@ const Invoice = () => {
     try {
       if (modalType === "email") {
         await axios.post(
-          "https://bill.medtronix.world/api/agent/send-offers-email",
+          `${config.BASE_URL}/api/agent/send-offers-email`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -637,7 +638,7 @@ const Invoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          "https://bill.medtronix.world/api/notifications",
+          `${config.BASE_URL}/api/notifications`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
