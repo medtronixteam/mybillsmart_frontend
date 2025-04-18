@@ -1,14 +1,21 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
-import config from "../../config";
 
 const Subscription = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { token, planName } = useAuth();
+  const [loading, setLoading] = useState({
+    starter: false,
+    pro: false,
+    enterprise: false,
+    growth: false,
+    scale: false,
+    max: false
+  });
   const [planPrices, setPlanPrices] = useState({});
   const [apiError, setApiError] = useState(null);
 
@@ -66,15 +73,42 @@ const Subscription = () => {
     },
   ];
 
+  const expansionPacks = [
+    {
+      id: "growth",
+      name: "Growth Pack",
+      extraAgents: "+5 agents",
+      monthlyPrice: "420",
+      pricePerAgent: "84",
+    },
+    {
+      id: "scale",
+      name: "Scale Pack",
+      extraAgents: "+10 agents",
+      monthlyPrice: "790",
+      pricePerAgent: "79",
+    },
+    {
+      id: "max",
+      name: "Max Pack",
+      extraAgents: "+25 agents",
+      monthlyPrice: "1700",
+      pricePerAgent: "68",
+    },
+  ];
+
   // Fetch only prices from API
   useEffect(() => {
     const fetchPlanPrices = async () => {
       try {
-        const response = await axios.get(`${config.BASE_URL}/api/group/plans`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://bill.medtronix.world/api/group/plans",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.data && response.data.status === "success") {
           const prices = {};
@@ -103,15 +137,16 @@ const Subscription = () => {
     return staticPlans.map((plan) => ({
       ...plan,
       price: planPrices[plan.id] || "N/A",
+      isCurrent: planName && planName.toLowerCase() === plan.id,
     }));
   };
 
   const handleSubscription = async (selectedPlan) => {
-    setLoading(true);
+    setLoading(prev => ({ ...prev, [selectedPlan.id]: true }));
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        `${config.BASE_URL}/api/create-payment-intent`,
+        "https://bill.medtronix.world/api/create-payment-intent",
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,
@@ -140,7 +175,47 @@ const Subscription = () => {
       console.error("Subscription error:", error);
       alert(error.response?.data?.message || "Payment processing failed");
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, [selectedPlan.id]: false }));
+    }
+  };
+
+  const handleExpansionPack = async (pack) => {
+    setLoading(prev => ({ ...prev, [pack.id]: true }));
+    try {
+      const amountInCents = parseFloat(pack.monthlyPrice) * 100;
+      const response = await axios.post(
+        "https://bill.medtronix.world/api/create-payment-intent",
+        {
+          plan_id: pack.id,
+          amount: amountInCents,
+          currency: "eur",
+          is_expansion: true
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        navigate("/group_admin/checkout", {
+          state: {
+            planDetails: pack,
+            clientSecret: response.data.clientSecret,
+            paymentIntentId: response.data.id,
+            amount: amountInCents,
+            currency: "eur",
+            isExpansion: true
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Expansion pack error:", error);
+      alert(error.response?.data?.message || "Payment processing failed");
+    } finally {
+      setLoading(prev => ({ ...prev, [pack.id]: false }));
     }
   };
 
@@ -157,9 +232,12 @@ const Subscription = () => {
         {plans.map((plan) => (
           <div
             key={plan.id}
-            className={`subscription-card ${plan.featured ? "featured" : ""}`}
+            className={`subscription-card ${plan.featured ? "featured" : ""} ${
+              plan.isCurrent ? "current-plan" : ""
+            }`}
           >
             {plan.featured && <div className="popular-badge">Most Popular</div>}
+            {plan.isCurrent && <div className="current-badge">Your Plan</div>}
             <h3 className="plan-name">{plan.name}</h3>
             <div className="price-container">
               <span className="price">€{plan.price}</span>
@@ -178,15 +256,59 @@ const Subscription = () => {
               </ul>
             </div>
             <button
-              className="subscribe-btn"
+              className={`subscribe-btn ${
+                plan.isCurrent ? "current-btn" : ""
+              }`}
               onClick={() => handleSubscription(plan)}
-              disabled={loading || plan.price === "N/A"}
+              disabled={loading[plan.id] || plan.price === "N/A" || plan.isCurrent}
             >
-              {loading ? "Processing..." : "Get Started"}
+              {loading[plan.id] ? "Processing..." : plan.isCurrent ? "Current Plan" : "Get Started"}
             </button>
           </div>
         ))}
       </div>
+
+      {planName && (
+        <div className="expansion-section">
+          <h2 className="section-title">Agent Expansion Packs</h2>
+          <p className="section-subtitle">
+            Add more agents without changing your current subscription plan.
+          </p>
+
+          <div className="expansion-table-container">
+            <table className="expansion-table">
+              <thead>
+                <tr>
+                  <th>Pack Name</th>
+                  <th>Extra Agents</th>
+                  <th>Monthly Price</th>
+                  <th>Price per Agent</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expansionPacks.map((pack) => (
+                  <tr key={pack.id}>
+                    <td>{pack.name}</td>
+                    <td>{pack.extraAgents}</td>
+                    <td>€{pack.monthlyPrice}</td>
+                    <td>€{pack.pricePerAgent}</td>
+                    <td>
+                      <button
+                        className="subscribe-btn"
+                        onClick={() => handleExpansionPack(pack)}
+                        disabled={loading[pack.id]}
+                      >
+                        {loading[pack.id] ? "Processing..." : "Add Pack"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

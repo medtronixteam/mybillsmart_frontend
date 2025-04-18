@@ -8,7 +8,6 @@ const GroupAdminWhatsapp = () => {
   const auth = useAuth();
   const email = auth.email || "";
 
-  // Constants
   const API_BASE_URL = "http://34.142.252.64:3000";
   const DEFAULT_SESSION_NAME = email
     ? email
@@ -17,7 +16,6 @@ const GroupAdminWhatsapp = () => {
         .substring(0, 32)
     : "default";
 
-  // State
   const [step, setStep] = useState(1); // 1: Initial, 2: Create Session, 3: QR Code, 4: Connected, 5: Stopped
   const [qrCode, setQrCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
