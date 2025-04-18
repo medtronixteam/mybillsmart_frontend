@@ -137,7 +137,10 @@ const Login = () => {
       user.group_id,
       user.name,
       user.email,
-      !!user.google2fa_secret
+      !!user.google2fa_secret,
+      user.subscription_id,
+      user.growth_subscription_id,
+      user.plan_name
     );
     
     setSuccess("Login successful! Redirecting...");

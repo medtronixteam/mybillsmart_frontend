@@ -11,11 +11,25 @@ export const AuthProvider = ({ children }) => {
     name: null,
     email: null,
     is2FAEnabled: false,
+    subscriptionId: null,
+    growthSubscriptionId: null,
+    planName: null,
     isAuthenticated: false
   });
   const [initialized, setInitialized] = useState(false);
 
-  const login = (newToken, newRole, newUserId, newGroupId, name, email, is2FAEnabled = false) => {
+  const login = (
+    newToken, 
+    newRole, 
+    newUserId, 
+    newGroupId, 
+    name, 
+    email, 
+    is2FAEnabled = false,
+    subscriptionId = null,
+    growthSubscriptionId = null,
+    planName = null
+  ) => {
     const userData = {
       token: newToken,
       role: newRole,
@@ -24,6 +38,9 @@ export const AuthProvider = ({ children }) => {
       name,
       email,
       is2FAEnabled,
+      subscriptionId,
+      growthSubscriptionId,
+      planName,
       isAuthenticated: true
     };
 
@@ -34,6 +51,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("name", name);
     localStorage.setItem("email", email);
     localStorage.setItem("is2FAEnabled", is2FAEnabled.toString());
+    localStorage.setItem("subscriptionId", subscriptionId || '');
+    localStorage.setItem("growthSubscriptionId", growthSubscriptionId || '');
+    localStorage.setItem("planName", planName || '');
     
     setAuthState(userData);
   };
@@ -46,6 +66,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("is2FAEnabled", status.toString());
   };
 
+  const updateSubscription = (subscriptionData) => {
+    setAuthState(prev => ({
+      ...prev,
+      ...subscriptionData
+    }));
+    
+    if (subscriptionData.subscriptionId !== undefined) {
+      localStorage.setItem("subscriptionId", subscriptionData.subscriptionId || '');
+    }
+    if (subscriptionData.growthSubscriptionId !== undefined) {
+      localStorage.setItem("growthSubscriptionId", subscriptionData.growthSubscriptionId || '');
+    }
+    if (subscriptionData.planName !== undefined) {
+      localStorage.setItem("planName", subscriptionData.planName || '');
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("role");
@@ -54,6 +91,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("name");
     localStorage.removeItem("email");
     localStorage.removeItem("is2FAEnabled");
+    localStorage.removeItem("subscriptionId");
+    localStorage.removeItem("growthSubscriptionId");
+    localStorage.removeItem("planName");
     
     setAuthState({
       token: null,
@@ -63,6 +103,9 @@ export const AuthProvider = ({ children }) => {
       name: null,
       email: null,
       is2FAEnabled: false,
+      subscriptionId: null,
+      growthSubscriptionId: null,
+      planName: null,
       isAuthenticated: false
     });
   };
@@ -75,6 +118,9 @@ export const AuthProvider = ({ children }) => {
     const storedName = localStorage.getItem("name");
     const storedEmail = localStorage.getItem("email");
     const stored2FAStatus = localStorage.getItem("is2FAEnabled") === 'true';
+    const storedSubscriptionId = localStorage.getItem("subscriptionId");
+    const storedGrowthSubscriptionId = localStorage.getItem("growthSubscriptionId");
+    const storedPlanName = localStorage.getItem("planName");
     
     if (storedToken && storedRole && storedUserId) {
       setAuthState({
@@ -85,6 +131,9 @@ export const AuthProvider = ({ children }) => {
         name: storedName,
         email: storedEmail,
         is2FAEnabled: stored2FAStatus,
+        subscriptionId: storedSubscriptionId || null,
+        growthSubscriptionId: storedGrowthSubscriptionId || null,
+        planName: storedPlanName || null,
         isAuthenticated: true
       });
     }
@@ -98,6 +147,7 @@ export const AuthProvider = ({ children }) => {
       login, 
       logout,
       update2FAStatus,
+      updateSubscription,
       initialized 
     }}>
       {children}
