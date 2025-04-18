@@ -128,18 +128,18 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Message List</span>
             </NavLink>
           </li>
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/supervisor/whatsapp"
+              to="/supervisor/goal"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">WhatsApp Link</span>
+              <span className="nav-link-text ms-1">Goal List</span>
             </NavLink>
-          </li> */}
+          </li>
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

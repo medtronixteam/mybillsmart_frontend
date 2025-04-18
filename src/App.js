@@ -88,6 +88,8 @@ import AgentMessageList from "./components/MessageList/MessageList";
 import ProviderMessageList from "./Provider/MessageList/MessageList";
 import AdminProducts from "./GroupAdmin/Products/AdminProducts";
 import AdminAddProduct from "./GroupAdmin/AddProduct/AdminAddProduct";
+import AgentGoalList from "./components/GoalList/GoalList";
+import ProviderGoalList from "./Provider/GoalList/GoalList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -313,6 +315,10 @@ const App = () => {
                             path="message"
                             element={<AgentMessageList />}
                           />
+                          <Route
+                            path="goal"
+                            element={<AgentGoalList />}
+                          />
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
@@ -378,6 +384,10 @@ const App = () => {
                           <Route
                             path="message"
                             element={<ProviderMessageList />}
+                          />
+                           <Route
+                            path="goal"
+                            element={<ProviderGoalList />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

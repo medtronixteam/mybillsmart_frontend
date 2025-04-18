@@ -49,6 +49,31 @@ const MessageList = () => {
     }
   };
 
+  const formatDateTime = (timeString) => {
+    if (!timeString) return "N/A";
+    
+    try {
+      // If it's already a full ISO string
+      if (timeString.includes('T')) {
+        return new Date(timeString).toLocaleString();
+      }
+      
+      // If it's just time (HH:MM:SS)
+      if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
+        const today = new Date();
+        const [hours, minutes, seconds] = timeString.split(':');
+        today.setHours(hours, minutes, seconds);
+        return today.toLocaleTimeString();
+      }
+      
+      // Fallback to original string if format is unknown
+      return timeString;
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return timeString;
+    }
+  };
+
   const fetchMessageDetails = async (id) => {
     try {
       setLoading(true);
@@ -76,21 +101,34 @@ const MessageList = () => {
       if (messageData) {
         setSelectedMessage(messageData);
 
-        // Handle invalid/missing time_send
+        // Handle time_send - it might be just time (HH:MM:SS) or full datetime
         let datetime;
-        try {
-          datetime = messageData.time_send
-            ? new Date(messageData.time_send)
-            : new Date();
-          if (isNaN(datetime.getTime())) {
-            datetime = new Date(); // Fallback to current date if invalid
+        let date = '';
+        let time = '';
+        
+        if (messageData.time_send) {
+          // If it's just time (HH:MM:SS)
+          if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
+            const today = new Date();
+            const [hours, minutes] = messageData.time_send.split(':');
+            today.setHours(hours, minutes);
+            date = today.toISOString().split('T')[0];
+            time = `${hours}:${minutes}`;
+          } 
+          // If it's a full datetime string
+          else if (!isNaN(new Date(messageData.time_send).getTime())) {
+            datetime = new Date(messageData.time_send);
+            date = datetime.toISOString().split('T')[0];
+            time = datetime.toTimeString().substring(0, 5);
           }
-        } catch (e) {
-          datetime = new Date(); // Fallback to current date if error
         }
 
-        const date = datetime.toISOString().split("T")[0];
-        const time = datetime.toTimeString().substring(0, 5);
+        // Fallback to current date/time if not set
+        if (!date || !time) {
+          datetime = new Date();
+          date = datetime.toISOString().split('T')[0];
+          time = datetime.toTimeString().substring(0, 5);
+        }
 
         setEditForm({
           to_number: messageData.to_number || "",
@@ -112,6 +150,7 @@ const MessageList = () => {
       setLoading(true);
       setError(null);
 
+      // Combine date and time
       const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
 
       const response = await fetch(
@@ -301,9 +340,7 @@ const MessageList = () => {
               <div className="detail-row">
                 <span className="detail-label">Scheduled Time:</span>
                 <span className="detail-value">
-                  {selectedMessage.time_send
-                    ? new Date(selectedMessage.time_send).toLocaleString()
-                    : "N/A"}
+                  {formatDateTime(selectedMessage.time_send)}
                 </span>
               </div>
               <div className="detail-row">
@@ -355,9 +392,7 @@ const MessageList = () => {
                           : "N/A"}
                       </td>
                       <td>
-                        {message.time_send
-                          ? new Date(message.time_send).toLocaleString()
-                          : "N/A"}
+                        {formatDateTime(message.time_send)}
                       </td>
                       <td>
                         <span
