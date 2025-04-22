@@ -653,7 +653,7 @@ const AdminInvoice = () => {
         const response = await axios.post(
           `${config.BASE_URL}/api/notifications`,
           {
-            client_id: selectedClient,
+            user_id: selectedClient,
             invoice_id: invoiceId,
           },
           {
