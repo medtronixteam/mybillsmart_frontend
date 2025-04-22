@@ -159,13 +159,15 @@ const GroupAdminProfileSetting = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.ok) {
-        toast.success("OTP sent to your email. Please check and enter the code.");
-        setTwoFA((prev) => ({ 
-          ...prev, 
+        toast.success(
+          "OTP sent to your email. Please check and enter the code."
+        );
+        setTwoFA((prev) => ({
+          ...prev,
           loading: false,
-          showOTPInput: true
+          showOTPInput: true,
         }));
       } else {
         throw new Error("Failed to send OTP");
@@ -270,7 +272,7 @@ const GroupAdminProfileSetting = () => {
         <div className="col-xl-6">
           <form
             onSubmit={handleProfileSubmit}
-            className="card profile-info-card h-100"
+            className=" profile-info-card h-100 p-5 bg-transparent"
           >
             <h3 className="profile-card-heading">Edit Your Profile Info</h3>
             <div className="">
@@ -373,7 +375,7 @@ const GroupAdminProfileSetting = () => {
         <div className="col-xl-6">
           <form
             onSubmit={handlePasswordSubmit}
-            className="card profile-password-card h-100"
+            className=" profile-password-card h-100 p-5 bg-transparent"
           >
             <h3 className="profile-card-heading">Update Your Password</h3>
             <div className="">
@@ -454,7 +456,8 @@ const GroupAdminProfileSetting = () => {
                 {twoFA.showConfirmation ? (
                   <div className="confirmation-dialog">
                     <p className="text-white">
-                      Are you sure you want to disable 2FA? This will reduce your account security.
+                      Are you sure you want to disable 2FA? This will reduce
+                      your account security.
                     </p>
                     <div className="d-flex justify-content-center gap-2 mt-3">
                       <button
@@ -513,11 +516,13 @@ const GroupAdminProfileSetting = () => {
                         {twoFA.loading ? "Verifying..." : "Verify & Enable"}
                       </button>
                       <button
-                        onClick={() => setTwoFA((prev) => ({ 
-                          ...prev, 
-                          code: "",
-                          showOTPInput: false 
-                        }))}
+                        onClick={() =>
+                          setTwoFA((prev) => ({
+                            ...prev,
+                            code: "",
+                            showOTPInput: false,
+                          }))
+                        }
                         className="btn btn-secondary"
                       >
                         Cancel

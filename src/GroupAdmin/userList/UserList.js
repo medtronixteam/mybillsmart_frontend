@@ -5,8 +5,10 @@ import "react-toastify/dist/ReactToastify.css";
 import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsVertical } from "react-icons/hi";
 
 const UserList = () => {
+  const [show, setShow] = useState(false);
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
@@ -41,6 +43,9 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
+  const toggleDropdown = () => {
+    setShow(!show);
+  };
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -88,7 +93,10 @@ const UserList = () => {
   // Session history pagination
   const indexOfLastSession = currentSessionPage * sessionsPerPage;
   const indexOfFirstSession = indexOfLastSession - sessionsPerPage;
-  const currentSessions = sessionHistory.slice(indexOfFirstSession, indexOfLastSession);
+  const currentSessions = sessionHistory.slice(
+    indexOfFirstSession,
+    indexOfLastSession
+  );
 
   const paginateSessions = (pageNumber) => setCurrentSessionPage(pageNumber);
 
@@ -99,7 +107,9 @@ const UserList = () => {
   };
 
   const nextSessionPage = () => {
-    if (currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)) {
+    if (
+      currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)
+    ) {
       setCurrentSessionPage(currentSessionPage + 1);
     }
   };
@@ -139,8 +149,8 @@ const UserList = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            user_id: userId
-          })
+            user_id: userId,
+          }),
         }
       );
       const result = await response.json();
@@ -324,13 +334,19 @@ const UserList = () => {
     <div className="user-list-container">
       {showSessionHistory ? (
         <div className="session-history-container">
-          <button onClick={handleBackFromSessionHistory} className="back-button">
+          <button
+            onClick={handleBackFromSessionHistory}
+            className="back-button"
+          >
             Back to User List
           </button>
-          
+
           {selectedSession ? (
             <div className="session-details-card">
-              <button onClick={handleBackFromSessionDetails} className="back-button">
+              <button
+                onClick={handleBackFromSessionDetails}
+                className="back-button"
+              >
                 Back to Session History
               </button>
               <h2>Session Details</h2>
@@ -377,7 +393,6 @@ const UserList = () => {
                   <table className="session-history-table">
                     <thead>
                       <tr>
-                        
                         <th>Logged In At</th>
                         <th>IP Address</th>
                         <th>Device</th>
@@ -389,14 +404,13 @@ const UserList = () => {
                     <tbody>
                       {currentSessions.map((session, index) => (
                         <tr key={index}>
-                         
-                          <td>{session.logged_in_at || 'N/A'}</td>
-                          <td>{session.ip_address || 'N/A'}</td>
-                          <td>{session.device || 'N/A'}</td>
-                          <td>{session.platform || 'N/A'}</td>
-                          <td>{session.browser || 'N/A'}</td>
+                          <td>{session.logged_in_at || "N/A"}</td>
+                          <td>{session.ip_address || "N/A"}</td>
+                          <td>{session.device || "N/A"}</td>
+                          <td>{session.platform || "N/A"}</td>
+                          <td>{session.browser || "N/A"}</td>
                           <td>
-                            <button 
+                            <button
                               onClick={() => handleViewSessionDetails(session)}
                               className="view-details-btn"
                             >
@@ -418,23 +432,28 @@ const UserList = () => {
                       Previous
                     </button>
 
-                    {Array.from({ length: Math.ceil(sessionHistory.length / sessionsPerPage) }).map(
-                      (_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => paginateSessions(index + 1)}
-                          className={`page-button ${
-                            currentSessionPage === index + 1 ? "active" : ""
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      )
-                    )}
+                    {Array.from({
+                      length: Math.ceil(
+                        sessionHistory.length / sessionsPerPage
+                      ),
+                    }).map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => paginateSessions(index + 1)}
+                        className={`page-button ${
+                          currentSessionPage === index + 1 ? "active" : ""
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
 
                     <button
                       onClick={nextSessionPage}
-                      disabled={currentSessionPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
+                      disabled={
+                        currentSessionPage ===
+                        Math.ceil(sessionHistory.length / sessionsPerPage)
+                      }
                       className="page-button"
                     >
                       Next
@@ -452,7 +471,8 @@ const UserList = () => {
             <p>Loading users...</p>
           ) : users.length === 0 ? (
             <p>
-              No users added yet. <Link to="/group_admin/add-user">Add User</Link>
+              No users added yet.{" "}
+              <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
             <>
@@ -474,39 +494,81 @@ const UserList = () => {
                       <td>{user.role}</td>
                       <td>{getStatusText(user.status)}</td>
                       <td className="actions-cell">
-                        <button 
+                        <HiDotsVertical
+                          size={30}
+                          onClick={toggleDropdown}
+                          className="cursor-pointer"
+                        />
+                        {show && (
+                          <div className="dropdown-menu show shadow bg-white mt-4">
+                            <a
+                              className="dropdown-item cursor-pointer text-decoration-none"
+                              onClick={() => handleEditClick(index, user)}
+                            >
+                              Edit
+                            </a>
+                            <a
+                              className="dropdown-item cursor-pointer text-decoration-none"
+                              onClick={() => fetchSessionHistory(user.id)}
+                            >
+                              Session History
+                            </a>
+                            {user.status === 1 ? (
+                              <a
+                                onClick={() => handleDisableClick(user.id)}
+                                className="dropdown-item cursor-pointer text-decoration-none"
+                              >
+                                Disable
+                              </a>
+                            ) : (
+                              <a
+                                onClick={() => handleEnableClick(user.id)}
+                                className="dropdown-item cursor-pointer text-decoration-none"
+                              >
+                                Enable
+                              </a>
+                            )}
+                            <a
+                              className="dropdown-item cursor-pointer text-decoration-none"
+                              onClick={() => handleDeleteClick(user.id)}
+                            >
+                              Delete
+                            </a>
+                          </div>
+                        )}
+                        {/* <button
                           onClick={() => handleEditClick(index, user)}
                           className="edit-btn"
                         >
                           Edit
-                        </button>
-                        <button 
+                        </button> */}
+                        {/* <button
                           onClick={() => fetchSessionHistory(user.id)}
                           className="session-history-btn"
                         >
                           Session History
-                        </button>
-                        {user.status === 1 ? (
-                          <button 
+                        </button> */}
+                        {/* {user.status === 1 ? (
+                          <button
                             onClick={() => handleDisableClick(user.id)}
                             className="disable-btn"
                           >
                             Disable
                           </button>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => handleEnableClick(user.id)}
                             className="enable-btn"
                           >
                             Enable
                           </button>
-                        )}
-                        <button 
+                        )} */}
+                        {/* <button
                           onClick={() => handleDeleteClick(user.id)}
                           className="delete-btn"
                         >
                           Delete
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -523,23 +585,25 @@ const UserList = () => {
                   Previous
                 </button>
 
-                {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map(
-                  (_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => paginate(index + 1)}
-                      className={`page-button ${
-                        currentPage === index + 1 ? "active" : ""
-                      }`}
-                    >
-                      {index + 1}
-                    </button>
-                  )
-                )}
+                {Array.from({
+                  length: Math.ceil(users.length / usersPerPage),
+                }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => paginate(index + 1)}
+                    className={`page-button ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
 
                 <button
                   onClick={nextPage}
-                  disabled={currentPage === Math.ceil(users.length / usersPerPage)}
+                  disabled={
+                    currentPage === Math.ceil(users.length / usersPerPage)
+                  }
                   className="page-button"
                 >
                   Next
@@ -558,7 +622,7 @@ const UserList = () => {
                     <input
                       type="text"
                       name="name"
-                      value={editData.name || ''}
+                      value={editData.name || ""}
                       onChange={handleEditChange}
                     />
                   </div>
@@ -567,7 +631,7 @@ const UserList = () => {
                     <input
                       type="email"
                       name="email"
-                      value={editData.email || ''}
+                      value={editData.email || ""}
                       onChange={handleEditChange}
                     />
                   </div>
@@ -576,17 +640,17 @@ const UserList = () => {
                     <input
                       type="text"
                       name="phone"
-                      value={editData.phone || ''}
+                      value={editData.phone || ""}
                       onChange={handleEditChange}
                     />
                   </div>
-               
+
                   <div className="form-group">
                     <label>Country</label>
                     <input
                       type="text"
                       name="country"
-                      value={editData.country || ''}
+                      value={editData.country || ""}
                       onChange={handleEditChange}
                     />
                   </div>
@@ -595,7 +659,7 @@ const UserList = () => {
                     <input
                       type="text"
                       name="city"
-                      value={editData.city || ''}
+                      value={editData.city || ""}
                       onChange={handleEditChange}
                     />
                   </div>
@@ -604,7 +668,7 @@ const UserList = () => {
                     <input
                       type="text"
                       name="postalCode"
-                      value={editData.postalCode || ''}
+                      value={editData.postalCode || ""}
                       onChange={handleEditChange}
                     />
                   </div>
@@ -612,7 +676,7 @@ const UserList = () => {
                     <label>Role</label>
                     <select
                       name="role"
-                      value={editData.role || 'client'}
+                      value={editData.role || "client"}
                       onChange={handleEditChange}
                     >
                       <option value="client">Client</option>
@@ -633,10 +697,18 @@ const UserList = () => {
                     </select>
                   </div>
                   <div className="modal-actions">
-                    <button type="button" onClick={handleSaveClick} className="save-btn">
+                    <button
+                      type="button"
+                      onClick={handleSaveClick}
+                      className="save-btn"
+                    >
                       Save
                     </button>
-                    <button type="button" onClick={() => setIsModalOpen(false)} className="cancel-btn">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="cancel-btn"
+                    >
                       Cancel
                     </button>
                   </div>

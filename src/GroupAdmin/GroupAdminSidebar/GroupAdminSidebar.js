@@ -109,7 +109,7 @@ const GroupAdminSidebar = () => {
             </NavLink>
           </li>
 
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/group_admin/client-contract-list"
@@ -120,7 +120,7 @@ const GroupAdminSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Contract List</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"

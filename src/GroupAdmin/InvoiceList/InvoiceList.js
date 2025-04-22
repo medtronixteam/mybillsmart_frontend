@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { Link } from "react-router-dom";
 
 const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
@@ -259,7 +260,16 @@ const InvoiceList = () => {
 
   return (
     <div className="invoice-list-container">
-      <h1 className="invoice-list-title">Invoice List</h1>
+      <div className="d-flex justify-content-between align-items-center">
+        <h1 className="invoice-list-title">Invoice List</h1>
+        <Link
+          to="/group_admin/client-contract-list"
+          type="button"
+          className="btn btn-primary"
+        >
+          View Contract List
+        </Link>
+      </div>
 
       {showNewTable ? (
         <>
