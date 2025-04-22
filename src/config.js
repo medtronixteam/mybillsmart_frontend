@@ -1,5 +1,5 @@
 const config = {
-  BASE_URL: "https://bill.medtronix.world",
+  BASE_URL: "https://bill.ai3dscanning.com",
   STRIPE: {
     PUBLIC_KEY:
       "pk_test_51RAB3uGaDJwWRZbpFN6NpJYoexwreKhRLfKmcqQyqfL9I26FtUvADcpLXtBWNSfTmOJzCcGZcIVFrwDE4Pk77HFD00WSOZOnyx",

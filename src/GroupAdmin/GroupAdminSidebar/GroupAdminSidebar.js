@@ -93,7 +93,7 @@ const GroupAdminSidebar = () => {
                 <FaFileUpload />{" "}
                 {/* Changed to upload icon for invoice submission */}
               </div>
-              <span className="nav-link-text ms-1">Admin Products</span>
+              <span className="nav-link-text ms-1">Manage Products</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -193,7 +193,7 @@ const GroupAdminSidebar = () => {
               <span className="nav-link-text ms-1">Schedule Message</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/group_admin/session-history"
@@ -204,7 +204,7 @@ const GroupAdminSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Login History</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"
