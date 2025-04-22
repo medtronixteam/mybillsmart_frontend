@@ -4,6 +4,8 @@ import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
+import config from "../../config";
+
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -101,7 +103,7 @@ const Subscription = () => {
     const fetchPlanPrices = async () => {
       try {
         const response = await axios.get(
-          "https://bill.medtronix.world/api/group/plans",
+          `${config.BASE_URL}/api/group/plans`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -149,7 +151,7 @@ const Subscription = () => {
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,
@@ -191,7 +193,7 @@ const Subscription = () => {
     try {
       const amountInCents = parseFloat(pack.monthlyPrice) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: pack.id,
           amount: amountInCents,
