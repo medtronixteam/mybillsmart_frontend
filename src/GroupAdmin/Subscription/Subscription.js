@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
-
+import config from "../../config";
 const Subscription = () => {
   const navigate = useNavigate();
   const { token, planName } = useAuth();
@@ -13,7 +13,7 @@ const Subscription = () => {
     enterprise: false,
     growth: false,
     scale: false,
-    max: false
+    max: false,
   });
   const [planPrices, setPlanPrices] = useState({});
   const [apiError, setApiError] = useState(null);
@@ -100,14 +100,11 @@ const Subscription = () => {
   useEffect(() => {
     const fetchPlanPrices = async () => {
       try {
-        const response = await axios.get(
-          "https://bill.medtronix.world/api/group/plans",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${config.BASE_URL}/api/group/plans`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.data && response.data.status === "success") {
           const prices = {};
@@ -141,11 +138,11 @@ const Subscription = () => {
   };
 
   const handleSubscription = async (selectedPlan) => {
-    setLoading(prev => ({ ...prev, [selectedPlan.id]: true }));
+    setLoading((prev) => ({ ...prev, [selectedPlan.id]: true }));
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: selectedPlan.id,
           amount: amountInCents,
@@ -174,21 +171,21 @@ const Subscription = () => {
       console.error("Subscription error:", error);
       alert(error.response?.data?.message || "Payment processing failed");
     } finally {
-      setLoading(prev => ({ ...prev, [selectedPlan.id]: false }));
+      setLoading((prev) => ({ ...prev, [selectedPlan.id]: false }));
     }
   };
 
   const handleExpansionPack = async (pack) => {
-    setLoading(prev => ({ ...prev, [pack.id]: true }));
+    setLoading((prev) => ({ ...prev, [pack.id]: true }));
     try {
       const amountInCents = parseFloat(pack.monthlyPrice) * 100;
       const response = await axios.post(
-        "https://bill.medtronix.world/api/create-payment-intent",
+        `${config.BASE_URL}/api/create-payment-intent`,
         {
           plan_id: pack.id,
           amount: amountInCents,
           currency: "eur",
-          is_expansion: true
+          is_expansion: true,
         },
         {
           headers: {
@@ -206,7 +203,7 @@ const Subscription = () => {
             paymentIntentId: response.data.id,
             amount: amountInCents,
             currency: "eur",
-            isExpansion: true
+            isExpansion: true,
           },
         });
       }
@@ -214,7 +211,7 @@ const Subscription = () => {
       console.error("Expansion pack error:", error);
       alert(error.response?.data?.message || "Payment processing failed");
     } finally {
-      setLoading(prev => ({ ...prev, [pack.id]: false }));
+      setLoading((prev) => ({ ...prev, [pack.id]: false }));
     }
   };
 
@@ -255,13 +252,17 @@ const Subscription = () => {
               </ul>
             </div>
             <button
-              className={`subscribe-btn ${
-                plan.isCurrent ? "current-btn" : ""
-              }`}
+              className={`subscribe-btn ${plan.isCurrent ? "current-btn" : ""}`}
               onClick={() => handleSubscription(plan)}
-              disabled={loading[plan.id] || plan.price === "N/A" || plan.isCurrent}
+              disabled={
+                loading[plan.id] || plan.price === "N/A" || plan.isCurrent
+              }
             >
-              {loading[plan.id] ? "Processing..." : plan.isCurrent ? "Current Plan" : "Get Started"}
+              {loading[plan.id]
+                ? "Processing..."
+                : plan.isCurrent
+                ? "Current Plan"
+                : "Get Started"}
             </button>
           </div>
         ))}
@@ -274,8 +275,8 @@ const Subscription = () => {
             Add more agents without changing your current subscription plan.
           </p>
 
-          <div className="expansion-table-container">
-            <table className="expansion-table">
+          <div className="expansion-table-container table-responsive">
+            <table className="expansion-table table table-bordered border">
               <thead>
                 <tr>
                   <th>Pack Name</th>
@@ -288,13 +289,13 @@ const Subscription = () => {
               <tbody>
                 {expansionPacks.map((pack) => (
                   <tr key={pack.id}>
-                    <td>{pack.name}</td>
-                    <td>{pack.extraAgents}</td>
-                    <td>€{pack.monthlyPrice}</td>
-                    <td>€{pack.pricePerAgent}</td>
+                    <td className="border">{pack.name}</td>
+                    <td className="border">{pack.extraAgents}</td>
+                    <td className="border">€{pack.monthlyPrice}</td>
+                    <td className="border">€{pack.pricePerAgent}</td>
                     <td>
                       <button
-                        className="subscribe-btn"
+                        className="subscribe-btn p-1"
                         onClick={() => handleExpansionPack(pack)}
                         disabled={loading[pack.id]}
                       >
