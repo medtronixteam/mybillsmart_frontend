@@ -4,6 +4,7 @@ import "./ManageGoal.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import config from "../../config";
+import Swal from "sweetalert2";
 
 const ManageGoal = () => {
   const [formData, setFormData] = useState({
@@ -17,8 +18,6 @@ const ManageGoal = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const { token } = useAuth();
 
   useEffect(() => {
@@ -44,7 +43,11 @@ const ManageGoal = () => {
       setUsers(filteredUsers);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch users. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch users. Please try again.',
+      });
       setLoading(false);
       console.error("Error fetching users:", err);
     }
@@ -73,8 +76,6 @@ const ManageGoal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     // Validation
     if (
@@ -84,12 +85,20 @@ const ManageGoal = () => {
       !formData.points ||
       formData.user_ids.length === 0
     ) {
-      setError("Please fill in all fields");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please fill in all fields',
+      });
       return;
     }
 
     if (new Date(formData.end_date) < new Date(formData.start_date)) {
-      setError("End date must be after start date");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'End date must be after start date',
+      });
       return;
     }
 
@@ -106,7 +115,12 @@ const ManageGoal = () => {
         }
       );
 
-      setSuccess("Goal created successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Goal created successfully!',
+      });
+      
       setFormData({
         task_name: "",
         start_date: "",
@@ -116,7 +130,11 @@ const ManageGoal = () => {
         status: "pending",
       });
     } catch (err) {
-      setError("Failed to create goal. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to create goal. Please try again.',
+      });
       console.error("Error creating goal:", err);
     } finally {
       setLoading(false);
@@ -133,9 +151,6 @@ const ManageGoal = () => {
           </button>
         </Link>
       </div>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">

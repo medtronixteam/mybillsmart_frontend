@@ -3,6 +3,7 @@ import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
+import config from "../../config";
 
 const AgentGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -19,11 +20,11 @@ const AgentGoalList = () => {
     fetchGoals();
   }, []);
 
-  const fetchGoals = async () => {
+  const fetchGoals = async () => {   
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://bill.medtronix.world/api/goals",
+        `${config.BASE_URL}/api/goals`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

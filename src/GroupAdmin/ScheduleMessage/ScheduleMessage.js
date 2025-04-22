@@ -3,6 +3,7 @@ import "./ScheduleMessage.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import config from "../../config";
+import Swal from "sweetalert2";
 
 const ScheduleMessage = () => {
   const [formData, setFormData] = useState({
@@ -12,8 +13,6 @@ const ScheduleMessage = () => {
     time_send: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
   const { token } = useAuth();
 
   const handleChange = (e) => {
@@ -27,8 +26,6 @@ const ScheduleMessage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       // Format time to include seconds
@@ -45,7 +42,7 @@ const ScheduleMessage = () => {
         body: JSON.stringify({
           to_number: formData.phone_number,
           message: formData.body,
-          time_send: formattedTime, // Now includes seconds
+          time_send: formattedTime,
           date_send: formData.date_send,
         }),
       });
@@ -55,7 +52,15 @@ const ScheduleMessage = () => {
         throw new Error(errorData.message || "Failed to schedule message");
       }
 
-      setSuccess(true);
+      // Show success alert
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Message scheduled successfully!',
+        confirmButtonColor: '#3085d6',
+      });
+
+      // Reset form
       setFormData({
         phone_number: "",
         body: "",
@@ -63,7 +68,13 @@ const ScheduleMessage = () => {
         time_send: "",
       });
     } catch (err) {
-      setError(err.message);
+      // Show error alert
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+        confirmButtonColor: '#3085d6',
+      });
     } finally {
       setLoading(false);
     }
@@ -129,7 +140,7 @@ const ScheduleMessage = () => {
             />
           </div>
 
-          <div className="form-group mb-2">
+          <div className="form-group mb-2"> 
             <label htmlFor="time_send">Time</label>
             <input
               type="time"
@@ -140,14 +151,8 @@ const ScheduleMessage = () => {
               className="form-control"
               required
             />
-            {/* <small className="input-hint">Time will be converted to HH:MM:SS format</small> */}
           </div>
         </div>
-
-        {error && <div className="error-message">{error}</div>}
-        {success && (
-          <div className="success-message">Message scheduled successfully!</div>
-        )}
 
         <button
           type="submit"

@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from "sweetalert2";
 
 const InvoiceList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -14,8 +15,8 @@ const InvoiceList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { token } = useAuth();
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -24,7 +25,6 @@ const InvoiceList = () => {
     const fetchInvoices = async () => {
       try {
         setLoading(true);
-        setError(null);
         const response = await fetch(`${config.BASE_URL}/api/group/invoices`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +48,11 @@ const InvoiceList = () => {
         }
       } catch (error) {
         console.error("Error fetching invoices:", error);
-        setError(error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to fetch invoices. Please try again.',
+        });
         setInvoices([]);
       } finally {
         setLoading(false);
@@ -61,8 +65,6 @@ const InvoiceList = () => {
   const fetchInvoiceDetails = async (id) => {
     try {
       setLoading(true);
-      setError(null);
-
       const [invoiceResponse, offersResponse] = await Promise.all([
         fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
           headers: {
@@ -97,7 +99,11 @@ const InvoiceList = () => {
       setShowNewTable(true);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setError(error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch invoice details. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -132,21 +138,17 @@ const InvoiceList = () => {
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
 
-    // Exclude all fields containing 'id' (case insensitive)
     const excludedFields = ["created_at", "updated_at"];
-    const excludedPattern = /id$/i; // Regex to match any field ending with 'id'
+    const excludedPattern = /id$/i;
 
-    // Flatten the entire invoice object first
     const flattenedInvoice = flattenObject(invoice);
 
     return flattenedInvoice
       .filter(([key]) => {
-        // Exclude specific fields and any field ending with 'id'
         const baseKey = key.split(".")[0];
-        return !excludedFields.includes(baseKey) && !excludedPattern.test(key); // This will exclude any field ending with 'id'
+        return !excludedFields.includes(baseKey) && !excludedPattern.test(key);
       })
       .filter(([_, value]) => {
-        // Filter out empty values
         return (
           value !== null &&
           value !== undefined &&
@@ -155,7 +157,6 @@ const InvoiceList = () => {
         );
       })
       .map(([key, value]) => {
-        // Format the keys for display
         const displayKey = key
           .split(".")
           .map((part) => formatFieldName(part))
@@ -256,11 +257,12 @@ const InvoiceList = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Error: {error}</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+    
+      </div>
+    );
   }
 
   return (
@@ -325,12 +327,6 @@ const InvoiceList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-invoice-btn btn btn-primary  p-2"
-                          onClick={() => fetchInvoiceDetails(invoice.id)}
-                        >
-                          View Details
-                        </button> */}
                       </td>
                     </tr>
                   ))

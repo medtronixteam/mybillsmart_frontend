@@ -3,12 +3,12 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from "sweetalert2";
 
 const MessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,7 +30,6 @@ const MessageList = () => {
   const fetchMessages = async (page = 1) => {
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
         {
@@ -50,7 +49,11 @@ const MessageList = () => {
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -60,12 +63,10 @@ const MessageList = () => {
     if (!timeString) return "N/A";
 
     try {
-      // If it's already a full ISO string
       if (timeString.includes("T")) {
         return new Date(timeString).toLocaleString();
       }
 
-      // If it's just time (HH:MM:SS)
       if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
         const today = new Date();
         const [hours, minutes, seconds] = timeString.split(":");
@@ -73,7 +74,6 @@ const MessageList = () => {
         return today.toLocaleTimeString();
       }
 
-      // Fallback to original string if format is unknown
       return timeString;
     } catch (e) {
       console.error("Error formatting date:", e);
@@ -84,7 +84,6 @@ const MessageList = () => {
   const fetchMessageDetails = async (id) => {
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -108,13 +107,11 @@ const MessageList = () => {
       if (messageData) {
         setSelectedMessage(messageData);
 
-        // Handle time_send - it might be just time (HH:MM:SS) or full datetime
         let datetime;
         let date = "";
         let time = "";
 
         if (messageData.time_send) {
-          // If it's just time (HH:MM:SS)
           if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
             const today = new Date();
             const [hours, minutes] = messageData.time_send.split(":");
@@ -122,7 +119,6 @@ const MessageList = () => {
             date = today.toISOString().split("T")[0];
             time = `${hours}:${minutes}`;
           }
-          // If it's a full datetime string
           else if (!isNaN(new Date(messageData.time_send).getTime())) {
             datetime = new Date(messageData.time_send);
             date = datetime.toISOString().split("T")[0];
@@ -130,7 +126,6 @@ const MessageList = () => {
           }
         }
 
-        // Fallback to current date/time if not set
         if (!date || !time) {
           datetime = new Date();
           date = datetime.toISOString().split("T")[0];
@@ -145,7 +140,11 @@ const MessageList = () => {
         });
       }
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+      });
       console.error("Error fetching message details:", err);
     } finally {
       setLoading(false);
@@ -155,9 +154,7 @@ const MessageList = () => {
   const updateMessage = async (id) => {
     try {
       setLoading(true);
-      setError(null);
 
-      // Combine date and time
       const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
 
       const response = await fetch(
@@ -181,11 +178,21 @@ const MessageList = () => {
         throw new Error(errorData.message || "Failed to update message");
       }
 
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Message updated successfully!',
+      });
+
       fetchMessages(currentPage);
       setEditMode(false);
       setSelectedMessage(null);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -193,9 +200,19 @@ const MessageList = () => {
 
   const deleteMessage = async (id) => {
     try {
-      setLoading(true);
-      setError(null);
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      });
 
+      if (!result.isConfirmed) return;
+
+      setLoading(true);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -210,10 +227,20 @@ const MessageList = () => {
         throw new Error("Failed to delete message");
       }
 
+      await Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Your message has been deleted.',
+      });
+
       fetchMessages(currentPage);
       setSelectedMessage(null);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -238,9 +265,9 @@ const MessageList = () => {
     fetchMessages();
   }, []);
 
-  if (loading && messages.length === 0)
+  if (loading && messages.length === 0) {
     return <div className="loading-spinner"></div>;
-  if (error) return <div className="error-message">Error: {error}</div>;
+  }
 
   return (
     <div className="message-list-container">
@@ -297,8 +324,6 @@ const MessageList = () => {
                 />
               </div>
             </div>
-
-            {error && <div className="error-message">{error}</div>}
 
             <div className="form-actions">
               <button className="cancel-btn" onClick={() => setEditMode(false)}>
@@ -427,12 +452,6 @@ const MessageList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-btn"
-                          onClick={() => fetchMessageDetails(message.id)}
-                        >
-                          View
-                        </button> */}
                       </td>
                     </tr>
                   ))

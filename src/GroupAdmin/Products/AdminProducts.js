@@ -3,14 +3,13 @@ import axios from "axios";
 import "./AdminProducts.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
+
 const AdminProducts = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
-
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
@@ -19,8 +18,6 @@ const AdminProducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editProductData, setEditProductData] = useState({});
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
   const { token } = useAuth();
 
   const toggleDropdown = (index) => {
@@ -78,40 +75,45 @@ const AdminProducts = () => {
     setIsModalOpen(false);
   };
 
-  // Delete confirmation dialog
+  // Delete confirmation using SweetAlert
   const confirmDelete = (product) => {
-    setProductToDelete(product);
-    setShowDeleteConfirm(true);
+    Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to delete "${product.product_name}"`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        executeDelete(product);
+      }
+    });
   };
 
-  const cancelDelete = () => {
-    setProductToDelete(null);
-    setShowDeleteConfirm(false);
-  };
-
-  const executeDelete = () => {
-    if (!productToDelete) return;
-
+  const executeDelete = (product) => {
     axios
-      .delete(
-        `${config.BASE_URL}/api/supervisor/products/${productToDelete.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .delete(`${config.BASE_URL}/api/supervisor/products/${product.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then(() => {
         fetchProducts();
-        toast.success("Product deleted successfully!");
+        Swal.fire({
+          title: "Deleted!",
+          text: "Product has been deleted.",
+          icon: "success",
+        });
       })
       .catch((error) => {
         console.error("Error deleting product:", error);
-        toast.error("Failed to delete product.");
-      })
-      .finally(() => {
-        setShowDeleteConfirm(false);
-        setProductToDelete(null);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to delete product.",
+          icon: "error",
+        });
       });
   };
 
@@ -124,7 +126,11 @@ const AdminProducts = () => {
     const { name, value } = e.target;
 
     if (name === "fixed_rate" && isNaN(value)) {
-      toast.error("Fixed rate must be a valid number.");
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Input",
+        text: "Fixed rate must be a valid number.",
+      });
       return;
     }
 
@@ -135,13 +141,21 @@ const AdminProducts = () => {
     const id = editProductData.id;
 
     if (!id || isNaN(id)) {
-      toast.error("Invalid Product ID.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Invalid Product ID.",
+      });
       return;
     }
 
     const fixedRate = parseFloat(editProductData.fixed_rate);
     if (isNaN(fixedRate)) {
-      toast.error("Fixed rate must be a valid number.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Fixed rate must be a valid number.",
+      });
       return;
     }
 
@@ -158,11 +172,19 @@ const AdminProducts = () => {
       .then(() => {
         fetchProducts();
         setIsEditMode(false);
-        toast.success("Product updated successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Product updated successfully!",
+        });
       })
       .catch((error) => {
         console.error("Error updating product:", error);
-        toast.error("Failed to update product.");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to update product.",
+        });
       });
   };
 
@@ -264,24 +286,6 @@ const AdminProducts = () => {
                           </a>
                         </div>
                       )}
-                      {/* <button
-                        className="btn"
-                        onClick={() => openModal(product)}
-                      >
-                        View Details
-                      </button> */}
-                      {/* <button
-                        className="btn btn-edit"
-                        onClick={() => enterEditMode(product)}
-                      >
-                        Edit
-                      </button> */}
-                      {/* <button
-                        className="btn btn-danger"
-                        onClick={() => confirmDelete(product)}
-                      >
-                        Delete
-                      </button> */}
                     </td>
                   </tr>
                 ))
@@ -327,26 +331,6 @@ const AdminProducts = () => {
                     <strong>{key.replace(/_/g, " ")}:</strong> {value}
                   </p>
                 ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="confirmation-modal-overlay">
-          <div className="confirmation-modal-content">
-            <h3>Confirm Delete</h3>
-            <p>
-              Are you sure you want to delete "{productToDelete.product_name}"?
-            </p>
-            <div className="confirmation-buttons">
-              <button className="btn btn-danger" onClick={executeDelete}>
-                Yes, Delete
-              </button>
-              <button className="btn btn-secondary" onClick={cancelDelete}>
-                Cancel
-              </button>
             </div>
           </div>
         </div>
