@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import "./CheckoutForm.css";
@@ -43,15 +43,30 @@ const CheckoutForm = () => {
       );
 
       if (error) {
-        toast.error(`Payment failed: ${error.message}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Payment Failed',
+          text: error.message,
+          confirmButtonColor: '#3085d6',
+        });
       } else if (paymentIntent.status === "succeeded") {
         setPaymentSuccess(true);
-        toast.success("Payment succeeded!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Payment Successful!',
+          text: 'Your payment has been processed successfully.',
+          confirmButtonColor: '#3085d6',
+        });
         // await savePaymentRecord(paymentIntent, planDetails);
       }
     } catch (err) {
       console.error("Payment error:", err);
-      toast.error("Payment processing failed");
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Processing Failed',
+        text: 'An error occurred while processing your payment.',
+        confirmButtonColor: '#3085d6',
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -78,7 +93,12 @@ const CheckoutForm = () => {
   //     );
   //   } catch (err) {
   //     console.error('Failed to save payment record:', err);
-  //     toast.error('Failed to save payment details');
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Failed to Save Payment',
+  //       text: 'Failed to save payment details to our records.',
+  //       confirmButtonColor: '#3085d6',
+  //     });
   //   }
   // };
 

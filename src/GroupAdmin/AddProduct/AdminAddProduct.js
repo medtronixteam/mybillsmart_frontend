@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import "./AdminAddProduct.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
@@ -38,7 +37,12 @@ const AdminAddProduct = () => {
     e.preventDefault();
 
     if (Object.values(formData).some((value) => !value)) {
-      toast.error("All fields are required!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'All fields are required!',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
@@ -60,7 +64,15 @@ const AdminAddProduct = () => {
       }
 
       await response.json();
-      toast.success("Product added successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Product added successfully!',
+        confirmButtonText: 'OK',
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      
       setFormData({
         provider_name: "",
         product_name: "",
@@ -81,7 +93,12 @@ const AdminAddProduct = () => {
         sales_commission: "",
       });
     } catch (error) {
-      toast.error(error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.message,
+        confirmButtonText: 'OK'
+      });
     }
   };
 
@@ -227,10 +244,10 @@ const AdminAddProduct = () => {
           value={formData.sales_commission}
           onChange={handleChange}
         />
+        <button type="submit" className="submit-btn">
+          Add Product
+        </button>
       </form>
-      <button type="submit" onClick={handleSubmit}>
-        Add Product
-      </button>
     </div>
   );
 };

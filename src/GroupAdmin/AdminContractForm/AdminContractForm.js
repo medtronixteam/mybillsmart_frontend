@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import "./AdminContractForm.css";
@@ -58,7 +57,13 @@ const AdminContractForm = () => {
       } catch (error) {
         if (isMounted) {
           console.error("Error fetching clients:", error);
-          toast.error("Failed to fetch clients.");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch clients.',
+            timer: 3000,
+            showConfirmButton: false
+          });
         }
       }
     };
@@ -89,7 +94,13 @@ const AdminContractForm = () => {
     console.log("Form submitted");
 
     if (!offerData) {
-      toast.error("Offer data is missing!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Offer data is missing!',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -100,7 +111,13 @@ const AdminContractForm = () => {
       !formData.contracted_rate ||
       !formData.closure_date
     ) {
-      toast.error("All fields are required!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'All fields are required!',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -125,8 +142,16 @@ const AdminContractForm = () => {
           },
         }
       );
-      setModalMessage("Contract added successfully!");
-      setIsModalOpen(true);
+      
+      // Success modal replaced with SweetAlert
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Contract added successfully!',
+        timer: 3000,
+        showConfirmButton: false
+      });
+
       setFormData({
         name: "",
         selectedClient: "",
@@ -138,91 +163,78 @@ const AdminContractForm = () => {
       });
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
-      toast.error("Failed to submit contract.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to submit contract.',
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  // You can remove the modal-related code since we're using SweetAlert now
+  // const handleModalClose = () => {
+  //   setIsModalOpen(false);
+  // };
 
   return (
-    <>
-      <div className="add-Contract-container">
-        <h2 className="add-Contract-heading">Add Contracts Data</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Please Enter Contract Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+    <div className="add-Contract-container">
+      <h2 className="add-Contract-heading">Add Contracts Data</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Please Enter Contract Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
 
-          <select
-            name="selectedClient"
-            value={formData.selectedClient}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select a Client</option>
-            {clients.map((client) => (
-              <option key={client.id} value={client.name}>
-                {client.name}
-              </option>
-            ))}
-          </select>
+        <select
+          name="selectedClient"
+          value={formData.selectedClient}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select a Client</option>
+          {clients.map((client) => (
+            <option key={client.id} value={client.name}>
+              {client.name}
+            </option>
+          ))}
+        </select>
 
-          <input
-            type="text"
-            name="contracted_provider"
-            placeholder="Please Enter Contracted Provider"
-            value={formData.contracted_provider}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="text"
+          name="contracted_provider"
+          placeholder="Please Enter Contracted Provider"
+          value={formData.contracted_provider}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            type="number"
-            name="contracted_rate"
-            placeholder="Please Enter Contracted Rate"
-            value={formData.contracted_rate}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="number"
+          name="contracted_rate"
+          placeholder="Please Enter Contracted Rate"
+          value={formData.contracted_rate}
+          onChange={handleChange}
+          required
+        />
 
-          {/* Display Pending status as small text instead of dropdown */}
-          {/* <div className="status-display">
-            <small>Status: Pending</small>
-            <input type="hidden" name="status" value="Pending" />
-          </div> */}
+        <input
+          type="date"
+          name="closure_date"
+          placeholder="Please Enter Closure Date"
+          value={formData.closure_date}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            type="date"
-            name="closure_date"
-            placeholder="Please Enter Closure Date"
-            value={formData.closure_date}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit">Add Contract</button>
-        </form>
-      </div>
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-icon">✔️</div>
-            <p className="modal-message">{modalMessage}</p>
-            <button className="modal-ok-button" onClick={handleModalClose}>
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+        <button type="submit">Add Contract</button>
+      </form>
+    </div>
   );
 };
 
