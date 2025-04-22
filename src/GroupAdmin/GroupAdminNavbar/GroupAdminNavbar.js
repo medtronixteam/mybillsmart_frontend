@@ -59,8 +59,8 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
           {/* </Link> */}
           {show && (
             <div
-              className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-              style={{ marginTop: "150px" }}
+              className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+              style={{ marginTop: "150px", marginLeft:"-40px" }}
             >
               <Link
                 to="/group_admin/profile-edit"

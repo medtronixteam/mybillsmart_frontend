@@ -1,4 +1,8 @@
 /* Main Product Container */
+
+.custom-form-fields-gap {
+  gap: 0px 15px !important;
+}
 .products-container {
   padding: 20px;
 }
@@ -60,8 +64,9 @@
 
 /* Edit Card Styles */
 .edit-product-card {
-  background: white;
-  padding: 20px;
+  background-image: url("../../assets/img/Formback.png") !important;
+  background-size: 100% 100% !important;
+  padding: 60px 60px 100px !important;
   border-radius: 8px;
   max-width: 500px;
   width: 90%;
@@ -234,14 +239,14 @@
     font-size: 15px;
   }
 }
-select{
+select {
   width: 100%;
   padding: 8px;
   margin: 8px 0;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-#btn-danger{
+#btn-danger {
   background-color: rgb(234, 72, 72);
 }
 /* Styling for the edit product card container */
@@ -252,7 +257,7 @@ select{
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 20px auto;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .edit-product-card h3 {
@@ -348,7 +353,7 @@ select{
 
 @media screen and (max-width: 768px) {
   .edit-form-grid {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
     gap: 0px;
   }
 }

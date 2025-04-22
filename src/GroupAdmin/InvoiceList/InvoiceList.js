@@ -303,7 +303,7 @@ const InvoiceList = () => {
                       </td>
                       <td className="invoice-table-cell">
                         <button
-                          className="view-invoice-btn py-1 px-2"
+                          className="view-invoice-btn btn btn-primary  p-2"
                           onClick={() => fetchInvoiceDetails(invoice.id)}
                         >
                           View Details

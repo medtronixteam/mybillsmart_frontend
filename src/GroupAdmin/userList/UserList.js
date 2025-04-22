@@ -8,7 +8,13 @@ import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 
 const UserList = () => {
-  const [show, setShow] = useState(false);
+  // const [show, setShow] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
+
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
@@ -43,9 +49,9 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
-  const toggleDropdown = () => {
-    setShow(!show);
-  };
+  // const toggleDropdown = () => {
+  //   setShow(!show);
+  // };
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -496,12 +502,14 @@ const UserList = () => {
                       <td className="actions-cell">
                         <HiDotsHorizontal
                           size={30}
-                          onClick={toggleDropdown}
+                          onClick={() => toggleDropdown(index)}
                           className="cursor-pointer"
                         />
-                    
-                        {show && (
-                          <div className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0">
+                        {activeDropdown === index && (
+                          <div
+                            className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0"
+                            style={{ marginLeft: "-140px" }}
+                          >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               onClick={() => handleEditClick(index, user)}

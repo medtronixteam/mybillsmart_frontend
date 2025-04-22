@@ -6,7 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "react-toastify"; // For toast messages
 import "react-toastify/dist/ReactToastify.css"; // Toast CSS
 import { IoClose } from "react-icons/io5";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Products = () => {
   const [products, setProducts] = useState([]); // State to store products
@@ -164,16 +164,16 @@ const Products = () => {
         <p>Loading products...</p>
       ) : isEditMode ? (
         // Edit Mode Card
-        <div className="edit-product-card">
+        <div className="edit-product-card shadow-none">
           <h3>Edit Product</h3>
           <form>
-            <div className="edit-form-grid">
+            <div className="edit-form-grid custom-form-fields-gap">
               {Object.entries(editProductData).map(
                 ([key, value]) =>
                   // Skip 'id' and 'created_at' fields
                   key !== "id" &&
                   key !== "created_at" && (
-                    <div className="form-group" key={key}>
+                    <div className="form-group mb-0" key={key}>
                       <label>
                         {key.replace(/_/g, " ")}:{" "}
                         {/* Replace underscores with spaces */}
@@ -182,6 +182,7 @@ const Products = () => {
                           name={key}
                           value={value || ""}
                           onChange={handleEditChange}
+                          className="form-control"
                         />
                       </label>
                     </div>
