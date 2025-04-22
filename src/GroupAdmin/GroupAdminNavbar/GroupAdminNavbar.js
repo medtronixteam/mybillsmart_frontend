@@ -74,6 +74,12 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
               >
                 Order History
               </Link>
+              <Link
+                to="/group_admin/company-details"
+                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+              >
+                Company Details
+              </Link>
             </div>
           )}
         </div>

@@ -3,23 +3,27 @@ import axios from "axios";
 import "./AdminProducts.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
-import { toast } from "react-toastify"; // For toast messages
-import "react-toastify/dist/ReactToastify.css"; // Toast CSS
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState([]); // State to store products
-  const [currentPage, setCurrentPage] = useState(1); // Pagination state
-  const [productsPerPage] = useState(10); // Products per page
-  const [loading, setLoading] = useState(true); // Loading state
-  const [selectedProduct, setSelectedProduct] = useState(null); // Selected product for modal
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [isEditMode, setIsEditMode] = useState(false); // Edit mode state
-  const [editProductData, setEditProductData] = useState({}); // Product data for editing
-  const { token } = useAuth(); // Get token from AuthContext
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editProductData, setEditProductData] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const { token } = useAuth();
 
-  // Fetch products from the API
+  // Fields to exclude from modal display
+  const excludedFields = ['group_id', 'addedby_id', 'updated_at', 'created_at', 'id'];
+
   const fetchProducts = () => {
     setLoading(true);
     axios
@@ -29,8 +33,7 @@ const AdminProducts = () => {
         },
       })
       .then((response) => {
-        console.log("API Response:", response.data); // Log the actual API response
-        setProducts(response.data || []); // Use response.data directly
+        setProducts(response.data || []);
         setLoading(false);
       })
       .catch((error) => {
@@ -46,46 +49,55 @@ const AdminProducts = () => {
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Open modal with product details
   const openModal = (product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const closeModal = () => {
     setSelectedProduct(null);
     setIsModalOpen(false);
   };
 
-  // Delete a product
-  const deleteProduct = (id) => {
+  // Delete confirmation dialog
+  const confirmDelete = (product) => {
+    setProductToDelete(product);
+    setShowDeleteConfirm(true);
+  };
+
+  const cancelDelete = () => {
+    setProductToDelete(null);
+    setShowDeleteConfirm(false);
+  };
+
+  const executeDelete = () => {
+    if (!productToDelete) return;
+    
     axios
-      .delete(`${config.BASE_URL}/api/supervisor/products/${id}`, {
+      .delete(`${config.BASE_URL}/api/supervisor/products/${productToDelete.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
-        fetchProducts(); // Refresh the product list
+        fetchProducts();
         toast.success("Product deleted successfully!");
       })
       .catch((error) => {
         console.error("Error deleting product:", error);
         toast.error("Failed to delete product.");
+      })
+      .finally(() => {
+        setShowDeleteConfirm(false);
+        setProductToDelete(null);
       });
   };
 
   const enterEditMode = (product) => {
-    console.log("Product Data:", product);
     setEditProductData(product);
     setIsEditMode(true);
   };
@@ -93,7 +105,6 @@ const AdminProducts = () => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    // Ensure fixed_rate is a number
     if (name === "fixed_rate" && isNaN(value)) {
       toast.error("Fixed rate must be a valid number.");
       return;
@@ -103,49 +114,39 @@ const AdminProducts = () => {
   };
 
   const saveEditedProduct = () => {
-    const id = editProductData.id; // Get the product ID from the state
-    console.log("Product ID:", id); // Debug: Check if the ID is correct
+    const id = editProductData.id;
 
     if (!id || isNaN(id)) {
       toast.error("Invalid Product ID.");
       return;
     }
 
-    // Ensure the fixed_rate is a number before making the API call
     const fixedRate = parseFloat(editProductData.fixed_rate);
     if (isNaN(fixedRate)) {
       toast.error("Fixed rate must be a valid number.");
       return;
     }
 
-    const apiUrl = `${config.BASE_URL}/api/supervisor/products/${id}`;
-    console.log("API URL:", apiUrl);
-
-    const requestBody = { ...editProductData, fixed_rate: fixedRate };
-    // console.log("Request Body:", requestBody);
-
     axios
-      .put(apiUrl, requestBody, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        console.log("API Response:", response.data); // Debug: Check the response
-        fetchProducts(); // Refresh the product list
-        setIsEditMode(false); // Exit edit mode
+      .put(`${config.BASE_URL}/api/supervisor/products/${id}`, 
+        { ...editProductData, fixed_rate: fixedRate },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
+        fetchProducts();
+        setIsEditMode(false);
         toast.success("Product updated successfully!");
       })
       .catch((error) => {
         console.error("Error updating product:", error);
-        if (error.response) {
-          console.error("API Error Response:", error.response.data); // Debug: Check error response
-        }
         toast.error("Failed to update product.");
       });
   };
 
-  // Exit edit mode
   const exitEditMode = () => {
     setIsEditMode(false);
     setEditProductData({});
@@ -163,22 +164,19 @@ const AdminProducts = () => {
       {loading ? (
         <p>Loading products...</p>
       ) : isEditMode ? (
-        // Edit Mode Card
         <div className="edit-product-card">
           <h3>Edit Product</h3>
           <form>
             <div className="edit-form-grid">
               {Object.entries(editProductData).map(
                 ([key, value]) =>
-                  // Skip 'id' and 'created_at' fields
                   key !== "id" &&
                   key !== "created_at" && (
                     <div className="form-group" key={key}>
                       <label>
-                        {key.replace(/_/g, " ")}:{" "}
-                        {/* Replace underscores with spaces */}
+                        {key.replace(/_/g, " ")}:
                         <input
-                          type={key.includes("date") ? "date" : "text"} // Use "date" type for date fields
+                          type={key.includes("date") ? "date" : "text"}
                           name={key}
                           value={value || ""}
                           onChange={handleEditChange}
@@ -199,7 +197,6 @@ const AdminProducts = () => {
           </form>
         </div>
       ) : (
-        // Table View
         <>
           <table className="products-table">
             <thead>
@@ -232,7 +229,7 @@ const AdminProducts = () => {
                       </button>{" "}
                       <button
                         className="btn btn-danger"
-                        onClick={() => deleteProduct(product.id)}
+                        onClick={() => confirmDelete(product)}
                       >
                         Delete
                       </button>
@@ -247,7 +244,6 @@ const AdminProducts = () => {
             </tbody>
           </table>
 
-          {/* Pagination */}
           <div className="pagination">
             <button
               onClick={() => paginate(currentPage - 1)}
@@ -266,7 +262,7 @@ const AdminProducts = () => {
         </>
       )}
 
-      {/* Modal for displaying additional product details */}
+      {/* Product Details Modal */}
       {isModalOpen && selectedProduct && (
         <div className="product-modal-overlay">
           <div className="product-modal-content">
@@ -275,11 +271,31 @@ const AdminProducts = () => {
             </button>
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
-              {Object.entries(selectedProduct).map(([key, value]) => (
-                <p key={key}>
-                  <strong>{key.replace(/_/g, " ")}:</strong> {value}
-                </p>
-              ))}
+              {Object.entries(selectedProduct)
+                .filter(([key]) => !excludedFields.includes(key))
+                .map(([key, value]) => (
+                  <p key={key}>
+                    <strong>{key.replace(/_/g, " ")}:</strong> {value}
+                  </p>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="confirmation-modal-overlay">
+          <div className="confirmation-modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete "{productToDelete.product_name}"?</p>
+            <div className="confirmation-buttons">
+              <button className="btn btn-danger" onClick={executeDelete}>
+                Yes, Delete
+              </button>
+              <button className="btn btn-secondary" onClick={cancelDelete}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>

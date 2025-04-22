@@ -19,7 +19,7 @@ const UserList = () => {
   const [editData, setEditData] = useState({
     id: "",
     name: "",
-    email: "",
+    // email: "",
     password: "",
     phone: "",
     address: "",
@@ -249,7 +249,7 @@ const UserList = () => {
       setEditData({
         id: userDetails.id,
         name: userDetails.name,
-        email: userDetails.email,
+        // email: userDetails.email,
         password: "",
         phone: userDetails.phone || "",
         address: userDetails.address || "",
@@ -266,7 +266,7 @@ const UserList = () => {
   const handleSaveClick = async () => {
     if (
       !editData.name ||
-      !editData.email ||
+      // !editData.email ||
       !editData.phone ||
       !editData.country ||
       !editData.city ||
@@ -278,16 +278,16 @@ const UserList = () => {
 
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/group/user/update/${editData.id}`,
+        `${config.BASE_URL}/api/group/user/edit/${editData.id}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             name: editData.name,
-            email: editData.email,
+            // email: editData.email,
             phone: editData.phone,
             address: editData.address,
             country: editData.country,
@@ -635,7 +635,7 @@ const UserList = () => {
                       onChange={handleEditChange}
                     />
                   </div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label>Email</label>
                     <input
                       type="email"
@@ -643,7 +643,7 @@ const UserList = () => {
                       value={editData.email || ""}
                       onChange={handleEditChange}
                     />
-                  </div>
+                  </div> */}
                   <div className="form-group">
                     <label>Phone</label>
                     <input
