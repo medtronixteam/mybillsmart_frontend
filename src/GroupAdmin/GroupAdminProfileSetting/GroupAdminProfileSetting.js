@@ -446,7 +446,7 @@ const GroupAdminProfileSetting = () => {
 
         {/* 2FA Card */}
         <div className="col-12 mt-4">
-          <div className="card profile-2fa-card">
+          <div className=" profile-2fa-card bg-transparent shadow-none py-5">
             <h3 className="profile-card-heading">
               Two-Factor Authentication (2FA)
             </h3>

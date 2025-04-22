@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./UserPerformance.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const UserPerformance = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,6 +14,10 @@ const UserPerformance = () => {
   const [currentContractPage, setCurrentContractPage] = useState(1);
   const itemsPerPage = 5;
   const { token } = useAuth();
+
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
 
   // Fetch all users
   const fetchUsers = async () => {
@@ -341,7 +347,7 @@ const UserPerformance = () => {
               </thead>
               <tbody>
                 {users.length > 0 ? (
-                  users.map((user) => (
+                  users.map((user,index) => (
                     <tr key={user.id}>
                       <td data-label="ID">{user.id}</td>
                       <td data-label="Name">{user.name}</td>
@@ -357,12 +363,30 @@ const UserPerformance = () => {
                         </span>
                       </td>
                       <td data-label="Actions">
-                        <button
+                        <HiDotsHorizontal
+                          size={30}
+                          onClick={() => toggleDropdown(index)}
+                          className="cursor-pointer"
+                        />
+                        {activeDropdown === index && (
+                          <div
+                            className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                            style={{ marginLeft: "-140px" }}
+                          >
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => fetchUserDetails(user.id)}
+                            >
+                              View
+                            </a>
+                          </div>
+                        )}
+                        {/* <button
                           onClick={() => fetchUserDetails(user.id)}
                           className="action-btn view-btn"
                         >
                           <i className="fas fa-eye"></i> View
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))

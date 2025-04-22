@@ -90,7 +90,7 @@ const AdminAddProduct = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="mb-0">Add Products</h1>
         <Link to="/group_admin/products">
-          <button className="btn bg-white w-100 fs-6">View Products</button>
+          <button className="btn bg-white w-100 fs-6">Products</button>
         </Link>
       </div>
       <form onSubmit={handleSubmit}>

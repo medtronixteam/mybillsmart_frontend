@@ -5,8 +5,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import "./ClientList.css";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const ClientList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
@@ -24,7 +26,9 @@ const ClientList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
-
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -268,7 +272,7 @@ const ClientList = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {users.map((user, index) => (
                 <tr key={user.id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
@@ -289,13 +293,52 @@ const ClientList = () => {
                     </span>
                   </td>
                   <td className="actions-cell">
-                    <button
+                    <HiDotsHorizontal
+                      size={30}
+                      onClick={() => toggleDropdown(index)}
+                      className="cursor-pointer"
+                    />
+                    {activeDropdown === index && (
+                      <div
+                        className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                        style={{ marginLeft: "-140px" }}
+                      >
+                        <a
+                          className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                          onClick={() => handleEditClick(user)}
+                        >
+                          Edit
+                        </a>
+                        {user.status === 1 ? (
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => handleDisableClick(user.id)}
+                          >
+                            Disable
+                          </a>
+                        ) : (
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => handleEnableClick(user.id)}
+                          >
+                            Enable
+                          </a>
+                        )}
+                        <a
+                          className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                          onClick={() => handleDeleteClick(user.id)}
+                        >
+                          Delete
+                        </a>
+                      </div>
+                    )}
+                    {/* <button
                       className="edit-btn"
                       onClick={() => handleEditClick(user)}
                     >
                       Edit
-                    </button>
-                    {user.status === 1 ? (
+                    </button> */}
+                    {/* {user.status === 1 ? (
                       <button
                         className="disable-btn"
                         onClick={() => handleDisableClick(user.id)}
@@ -309,13 +352,13 @@ const ClientList = () => {
                       >
                         Enable
                       </button>
-                    )}
-                    <button
+                    )} */}
+                    {/* <button
                       className="delete-btn"
                       onClick={() => handleDeleteClick(user.id)}
                     >
                       Delete
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))}
