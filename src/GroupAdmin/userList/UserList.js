@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-import { HiDotsVertical } from "react-icons/hi";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const UserList = () => {
   const [show, setShow] = useState(false);
@@ -494,21 +494,22 @@ const UserList = () => {
                       <td>{user.role}</td>
                       <td>{getStatusText(user.status)}</td>
                       <td className="actions-cell">
-                        <HiDotsVertical
+                        <HiDotsHorizontal
                           size={30}
                           onClick={toggleDropdown}
                           className="cursor-pointer"
                         />
+                    
                         {show && (
-                          <div className="dropdown-menu show shadow bg-white mt-4">
+                          <div className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0">
                             <a
-                              className="dropdown-item cursor-pointer text-decoration-none"
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               onClick={() => handleEditClick(index, user)}
                             >
                               Edit
                             </a>
                             <a
-                              className="dropdown-item cursor-pointer text-decoration-none"
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               onClick={() => fetchSessionHistory(user.id)}
                             >
                               Session History
@@ -516,20 +517,20 @@ const UserList = () => {
                             {user.status === 1 ? (
                               <a
                                 onClick={() => handleDisableClick(user.id)}
-                                className="dropdown-item cursor-pointer text-decoration-none"
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               >
                                 Disable
                               </a>
                             ) : (
                               <a
                                 onClick={() => handleEnableClick(user.id)}
-                                className="dropdown-item cursor-pointer text-decoration-none"
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               >
                                 Enable
                               </a>
                             )}
                             <a
-                              className="dropdown-item cursor-pointer text-decoration-none"
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               onClick={() => handleDeleteClick(user.id)}
                             >
                               Delete
