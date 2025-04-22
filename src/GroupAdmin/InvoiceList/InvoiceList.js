@@ -12,6 +12,7 @@ const InvoiceList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
+  
   const [error, setError] = useState(null);
   const { token } = useAuth();
 
