@@ -1,0 +1,113 @@
+.session-history-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .users-section, .sessions-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .custom-table th {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .custom-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .custom-table tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .view-sessions-btn {
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+  
+  .view-sessions-btn:hover {
+    background-color: #2e59d9;
+  }
+  
+  .back-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background-color 0.3s;
+  }
+  
+  .back-button:hover {
+    background-color: #5a6268;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  .pagination button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  
+  .pagination button:hover:not(:disabled) {
+    background-color: #e9ecef;
+  }
+  
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .loading, .no-sessions {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  .session-count {
+    text-align: center;
+    margin-top: 10px;
+    color: #6c757d;
+    font-size: 14px;
+  }
+  
+  .sessions-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }

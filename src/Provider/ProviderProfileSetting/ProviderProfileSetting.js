@@ -6,7 +6,6 @@ import "react-toastify/dist/ReactToastify.css";
 import config from "../../config";
 
 const ProviderProfileSetting = () => {
-  // State for profile data
   const [profileData, setProfileData] = useState({
     name: "",
     phone: "",
@@ -16,52 +15,42 @@ const ProviderProfileSetting = () => {
     postalCode: "",
   });
 
-  // State for password data
   const [passwordData, setPasswordData] = useState({
     current_password: "",
     new_password: "",
     confirm_password: "",
   });
 
-  // State for 2FA
   const [twoFA, setTwoFA] = useState({
-    qrCode: "",
-    secret: "",
     code: "",
     loading: false,
+    showConfirmation: false,
+    showOTPInput: false,
   });
 
-  // Loading states
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
 
-  // Get auth context
   const { token, is2FAEnabled, update2FAStatus } = useAuth();
 
-  // Initialize 2FA status from auth context
   useEffect(() => {
-    // You can fetch initial profile data here if needed
   }, []);
 
-  // Handle profile input change
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData({ ...profileData, [name]: value });
   };
 
-  // Handle password input change
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
   };
 
-  // Handle 2FA input change
   const handle2FAChange = (e) => {
     const { name, value } = e.target;
     setTwoFA({ ...twoFA, [name]: value });
   };
 
-  // Handle profile form submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -106,7 +95,6 @@ const ProviderProfileSetting = () => {
     }
   };
 
-  // Handle password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
@@ -149,33 +137,32 @@ const ProviderProfileSetting = () => {
     }
   };
 
-  // Enable 2FA
   const handleEnable2FA = async () => {
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(`${config.BASE_URL}/api/auth/enable-2fa`, {
+      const response = await fetch(`${config.BASE_URL}/api/2fa/enable`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const data = await response.json();
-
-      if (data.qrCodeUrl || data.qrCode) {
-        setTwoFA((prev) => ({
-          ...prev,
-          qrCode: data.qrCodeUrl || data.qrCode,
-          secret: data.secret,
+      
+      if (response.ok) {
+        toast.success("OTP sent to your email. Please check and enter the code.");
+        setTwoFA((prev) => ({ 
+          ...prev, 
           loading: false,
+          showOTPInput: true
         }));
+      } else {
+        throw new Error("Failed to send OTP");
       }
     } catch (error) {
-      toast.error("Failed to enable 2FA");
+      toast.error(error.message || "Failed to enable 2FA");
       setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
-  // Verify 2FA
   const handleVerify2FA = async () => {
     if (!twoFA.code) {
       toast.error("Please enter the verification code");
@@ -184,21 +171,22 @@ const ProviderProfileSetting = () => {
 
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(`${config.BASE_URL}/api/auth/verify-2fa`, {
+      const response = await fetch(`${config.BASE_URL}/api/2fa/verify/code`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ code: twoFA.code }),
+        body: JSON.stringify({ two_factor_code: twoFA.code }),
       });
 
       if (response.ok) {
-        update2FAStatus(true); // Update context with new 2FA status
+        update2FAStatus(true);
         setTwoFA((prev) => ({
           ...prev,
           code: "",
           loading: false,
+          showOTPInput: false,
         }));
         toast.success("2FA enabled successfully!");
       } else {
@@ -210,11 +198,21 @@ const ProviderProfileSetting = () => {
     }
   };
 
-  // Disable 2FA
+  // Show disable confirmation dialog
+  const showDisableConfirmation = () => {
+    setTwoFA((prev) => ({ ...prev, showConfirmation: true }));
+  };
+
+  // Cancel disable confirmation
+  const cancelDisableConfirmation = () => {
+    setTwoFA((prev) => ({ ...prev, showConfirmation: false }));
+  };
+
+  // Disable 2FA after confirmation
   const handleDisable2FA = async () => {
     setTwoFA((prev) => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(`${config.BASE_URL}/api/auth/disable-2fa`, {
+      const response = await fetch(`${config.BASE_URL}/api/2fa/disable`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -222,12 +220,12 @@ const ProviderProfileSetting = () => {
       });
 
       if (response.ok) {
-        update2FAStatus(false); // Update context with new 2FA status
+        update2FAStatus(false);
         setTwoFA((prev) => ({
           ...prev,
-          qrCode: "",
-          secret: "",
+          code: "",
           loading: false,
+          showConfirmation: false,
         }));
         toast.success("2FA disabled successfully!");
       } else {
@@ -439,56 +437,47 @@ const ProviderProfileSetting = () => {
 
             {is2FAEnabled ? (
               <div className="text-center">
-                <p className="text-white">✓ 2FA is currently enabled</p>
-                <button
-                  onClick={handleDisable2FA}
-                  className="btn btn-danger"
-                  disabled={twoFA.loading}
-                >
-                  {twoFA.loading ? "Processing..." : "Disable 2FA"}
-                </button>
+                {twoFA.showConfirmation ? (
+                  <div className="confirmation-dialog">
+                    <p className="text-white">
+                      Are you sure you want to disable 2FA? This will reduce your account security.
+                    </p>
+                    <div className="d-flex justify-content-center gap-2 mt-3">
+                      <button
+                        onClick={handleDisable2FA}
+                        className="btn btn-danger"
+                        disabled={twoFA.loading}
+                      >
+                        {twoFA.loading ? "Processing..." : "Yes, Disable"}
+                      </button>
+                      <button
+                        onClick={cancelDisableConfirmation}
+                        className="btn btn-secondary"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-white">✓ 2FA is currently enabled</p>
+                    <button
+                      onClick={showDisableConfirmation}
+                      className="btn btn-danger"
+                      disabled={twoFA.loading}
+                    >
+                      Disable 2FA
+                    </button>
+                  </>
+                )}
               </div>
             ) : (
               <div className="text-center">
-                {twoFA.qrCode ? (
+                {twoFA.showOTPInput ? (
                   <>
                     <div className="mb-3">
                       <p className="text-white">
-                        Scan this QR code with your authenticator app:
-                      </p>
-                      {twoFA.qrCode.startsWith("data:image") ||
-                      twoFA.qrCode.startsWith("http") ? (
-                        <img
-                          src={twoFA.qrCode}
-                          alt="2FA QR Code"
-                          style={{
-                            maxWidth: "200px",
-                            margin: "0 auto",
-                            border: "1px solid #ddd",
-                            padding: "10px",
-                            backgroundColor: "white",
-                          }}
-                        />
-                      ) : (
-                        <div
-                          dangerouslySetInnerHTML={{ __html: twoFA.qrCode }}
-                          style={{
-                            maxWidth: "200px",
-                            margin: "0 auto",
-                            border: "1px solid #ddd",
-                            padding: "10px",
-                            backgroundColor: "white",
-                          }}
-                        />
-                      )}
-                      <p className="mt-2 text-white">
-                        Or enter this secret manually:{" "}
-                        <code>{twoFA.secret}</code>
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <p className="text-white">
-                        Enter the 6-digit code from your authenticator app:
+                        Enter the 6-digit code sent to your email:
                       </p>
                       <input
                         type="text"
@@ -498,6 +487,7 @@ const ProviderProfileSetting = () => {
                         placeholder="123456"
                         className="form-control text-center"
                         style={{ maxWidth: "200px", margin: "0 auto" }}
+                        autoFocus
                       />
                     </div>
                     <div className="d-flex justify-content-center gap-2">
@@ -509,13 +499,11 @@ const ProviderProfileSetting = () => {
                         {twoFA.loading ? "Verifying..." : "Verify & Enable"}
                       </button>
                       <button
-                        onClick={() =>
-                          setTwoFA((prev) => ({
-                            ...prev,
-                            qrCode: "",
-                            secret: "",
-                          }))
-                        }
+                        onClick={() => setTwoFA((prev) => ({ 
+                          ...prev, 
+                          code: "",
+                          showOTPInput: false 
+                        }))}
                         className="btn btn-secondary"
                       >
                         Cancel
@@ -532,7 +520,7 @@ const ProviderProfileSetting = () => {
                       className="btn btn-primary"
                       disabled={twoFA.loading}
                     >
-                      {twoFA.loading ? "Loading..." : "Enable 2FA"}
+                      {twoFA.loading ? "Sending OTP..." : "Enable 2FA"}
                     </button>
                   </>
                 )}

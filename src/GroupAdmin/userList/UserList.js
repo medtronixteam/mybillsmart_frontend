@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
@@ -24,9 +25,17 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  // Pagination state
+  // Pagination states for user list
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(10); // Number of users per page
+  const [usersPerPage] = useState(10);
+
+  // Session history states
+  const [sessionHistory, setSessionHistory] = useState([]);
+  const [showSessionHistory, setShowSessionHistory] = useState(false);
+  const [selectedUserForSessions, setSelectedUserForSessions] = useState(null);
+  const [currentSessionPage, setCurrentSessionPage] = useState(1);
+  const [sessionsPerPage] = useState(5);
+  const [selectedSession, setSelectedSession] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -59,24 +68,42 @@ const UserList = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Change page
+  // Change page for user list
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Previous page
+  // Previous page for user list
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // Next page
+  // Next page for user list
   const nextPage = () => {
     if (currentPage < Math.ceil(users.length / usersPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // Rest of your existing functions remain the same...
+  // Session history pagination
+  const indexOfLastSession = currentSessionPage * sessionsPerPage;
+  const indexOfFirstSession = indexOfLastSession - sessionsPerPage;
+  const currentSessions = sessionHistory.slice(indexOfFirstSession, indexOfLastSession);
+
+  const paginateSessions = (pageNumber) => setCurrentSessionPage(pageNumber);
+
+  const prevSessionPage = () => {
+    if (currentSessionPage > 1) {
+      setCurrentSessionPage(currentSessionPage - 1);
+    }
+  };
+
+  const nextSessionPage = () => {
+    if (currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)) {
+      setCurrentSessionPage(currentSessionPage + 1);
+    }
+  };
+
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
@@ -89,7 +116,7 @@ const UserList = () => {
       );
       const result = await response.json();
       if (result.status === "success") {
-        return result.data;
+        return result.data.user;
       } else {
         toast.error("Failed to fetch user details!");
         return null;
@@ -98,6 +125,36 @@ const UserList = () => {
       console.error("Error fetching user details:", error);
       toast.error("Failed to fetch user details!");
       return null;
+    }
+  };
+
+  const fetchSessionHistory = async (userId) => {
+    try {
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/session/history`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            user_id: userId
+          })
+        }
+      );
+      const result = await response.json();
+      if (result.status === "success") {
+        setSessionHistory(result.message || []);
+        setSelectedUserForSessions(userId);
+        setShowSessionHistory(true);
+        setCurrentSessionPage(1);
+      } else {
+        toast.error(result.message || "Failed to fetch session history!");
+      }
+    } catch (error) {
+      console.error("Error fetching session history:", error);
+      toast.error("Failed to fetch session history!");
     }
   };
 
@@ -190,7 +247,7 @@ const UserList = () => {
     }
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     if (
       !editData.name ||
       !editData.email ||
@@ -202,8 +259,42 @@ const UserList = () => {
       toast.error("All fields are required!");
       return;
     }
-    setIsModalOpen(false);
-    toast.success("User updated successfully!");
+
+    try {
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/user/update/${editData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: editData.name,
+            email: editData.email,
+            phone: editData.phone,
+            address: editData.address,
+            country: editData.country,
+            city: editData.city,
+            postal_code: editData.postalCode,
+            role: editData.role,
+            status: editData.status,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (result.status === "success") {
+        toast.success("User updated successfully!");
+        fetchUsers();
+        setIsModalOpen(false);
+      } else {
+        toast.error(result.message || "Failed to update user!");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user!");
+    }
   };
 
   const handleEditChange = (e) => {
@@ -215,192 +306,345 @@ const UserList = () => {
     return status === 1 ? "Active" : "Inactive";
   };
 
+  const handleViewSessionDetails = (session) => {
+    setSelectedSession(session);
+  };
+
+  const handleBackFromSessionDetails = () => {
+    setSelectedSession(null);
+  };
+
+  const handleBackFromSessionHistory = () => {
+    setShowSessionHistory(false);
+    setSelectedUserForSessions(null);
+    setSessionHistory([]);
+  };
+
   return (
     <div className="user-list-container">
-      <h1>User List</h1>
-      {loading ? (
-        <p>Loading users...</p>
-      ) : users.length === 0 ? (
-        <p>
-          No users added yet. <Link to="/group_admin/add-user">Add User</Link>
-        </p>
+      {showSessionHistory ? (
+        <div className="session-history-container">
+          <button onClick={handleBackFromSessionHistory} className="back-button">
+            Back to User List
+          </button>
+          
+          {selectedSession ? (
+            <div className="session-details-card">
+              <button onClick={handleBackFromSessionDetails} className="back-button">
+                Back to Session History
+              </button>
+              <h2>Session Details</h2>
+              <div className="session-details">
+                <div className="session-detail-item">
+                  <strong>ID:</strong> {selectedSession.id}
+                </div>
+                <div className="session-detail-item">
+                  <strong>User ID:</strong> {selectedSession.user_id}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Session ID:</strong> {selectedSession.session_id}
+                </div>
+                <div className="session-detail-item">
+                  <strong>IP Address:</strong> {selectedSession.ip_address}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Device:</strong> {selectedSession.device}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Platform:</strong> {selectedSession.platform}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Browser:</strong> {selectedSession.browser}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Logged In At:</strong> {selectedSession.logged_in_at}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Created At:</strong> {selectedSession.created_at}
+                </div>
+                <div className="session-detail-item">
+                  <strong>Updated At:</strong> {selectedSession.updated_at}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-center">Session History</h2>
+              {sessionHistory.length === 0 ? (
+                <p>No session history available for this user.</p>
+              ) : (
+                <>
+                  <table className="session-history-table">
+                    <thead>
+                      <tr>
+                        
+                        <th>Logged In At</th>
+                        <th>IP Address</th>
+                        <th>Device</th>
+                        <th>Platform</th>
+                        <th>Browser</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentSessions.map((session, index) => (
+                        <tr key={index}>
+                         
+                          <td>{session.logged_in_at || 'N/A'}</td>
+                          <td>{session.ip_address || 'N/A'}</td>
+                          <td>{session.device || 'N/A'}</td>
+                          <td>{session.platform || 'N/A'}</td>
+                          <td>{session.browser || 'N/A'}</td>
+                          <td>
+                            <button 
+                              onClick={() => handleViewSessionDetails(session)}
+                              className="view-details-btn"
+                            >
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Session History Pagination */}
+                  <div className="pagination">
+                    <button
+                      onClick={prevSessionPage}
+                      disabled={currentSessionPage === 1}
+                      className="page-button"
+                    >
+                      Previous
+                    </button>
+
+                    {Array.from({ length: Math.ceil(sessionHistory.length / sessionsPerPage) }).map(
+                      (_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => paginateSessions(index + 1)}
+                          className={`page-button ${
+                            currentSessionPage === index + 1 ? "active" : ""
+                          }`}
+                        >
+                          {index + 1}
+                        </button>
+                      )
+                    )}
+
+                    <button
+                      onClick={nextSessionPage}
+                      disabled={currentSessionPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
+                      className="page-button"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
       ) : (
         <>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentUsers.map((user, index) => (
-                <tr key={index}>
-                  <td>{user.name}</td>
-                  <td>{user.role}</td>
-                  <td>{getStatusText(user.status)}</td>
-                  <td>
-                    <button onClick={() => handleEditClick(index, user)}>
-                      Edit
-                    </button>
-                    {user.status === 1 ? (
-                      <button onClick={() => handleDisableClick(user.id)}>
-                        Disable
-                      </button>
-                    ) : (
-                      <button onClick={() => handleEnableClick(user.id)}>
-                        Enable
-                      </button>
-                    )}
-                    <button onClick={() => handleDeleteClick(user.id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h1>User List</h1>
+          {loading ? (
+            <p>Loading users...</p>
+          ) : users.length === 0 ? (
+            <p>
+              No users added yet. <Link to="/group_admin/add-user">Add User</Link>
+            </p>
+          ) : (
+            <>
+              <table className="user-list-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentUsers.map((user, index) => (
+                    <tr key={index}>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>{user.role}</td>
+                      <td>{getStatusText(user.status)}</td>
+                      <td className="actions-cell">
+                        <button 
+                          onClick={() => handleEditClick(index, user)}
+                          className="edit-btn"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => fetchSessionHistory(user.id)}
+                          className="session-history-btn"
+                        >
+                          Session History
+                        </button>
+                        {user.status === 1 ? (
+                          <button 
+                            onClick={() => handleDisableClick(user.id)}
+                            className="disable-btn"
+                          >
+                            Disable
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleEnableClick(user.id)}
+                            className="enable-btn"
+                          >
+                            Enable
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => handleDeleteClick(user.id)}
+                          className="delete-btn"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          {/* Pagination */}
-          <div className="pagination">
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className="page-button"
-            >
-              Previous
-            </button>
-
-            {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map(
-              (_, index) => (
+              {/* Pagination */}
+              <div className="pagination">
                 <button
-                  key={index}
-                  onClick={() => paginate(index + 1)}
-                  className={`page-button ${
-                    currentPage === index + 1 ? "active" : ""
-                  }`}
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className="page-button"
                 >
-                  {index + 1}
+                  Previous
                 </button>
-              )
-            )}
 
-            <button
-              onClick={nextPage}
-              disabled={currentPage === Math.ceil(users.length / usersPerPage)}
-              className="page-button"
-            >
-              Next
-            </button>
-          </div>
+                {Array.from({ length: Math.ceil(users.length / usersPerPage) }).map(
+                  (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => paginate(index + 1)}
+                      className={`page-button ${
+                        currentPage === index + 1 ? "active" : ""
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={nextPage}
+                  disabled={currentPage === Math.ceil(users.length / usersPerPage)}
+                  className="page-button"
+                >
+                  Next
+                </button>
+              </div>
+            </>
+          )}
+
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="edit-user-modal">
+                <h2>Edit User</h2>
+                <form>
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={editData.name || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={editData.email || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone</label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={editData.phone || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+               
+                  <div className="form-group">
+                    <label>Country</label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={editData.country || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={editData.city || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Postal Code</label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={editData.postalCode || ''}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Role</label>
+                    <select
+                      name="role"
+                      value={editData.role || 'client'}
+                      onChange={handleEditChange}
+                    >
+                      <option value="client">Client</option>
+                      <option value="supervisor">Supervisor</option>
+                      <option value="provider">Provider</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select
+                      name="status"
+                      value={editData.status || 1}
+                      onChange={handleEditChange}
+                    >
+                      <option value={1}>Active</option>
+                      <option value={0}>Inactive</option>
+                    </select>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" onClick={handleSaveClick} className="save-btn">
+                      Save
+                    </button>
+                    <button type="button" onClick={() => setIsModalOpen(false)} className="cancel-btn">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </>
-      )}
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="edit-user-modal">
-            <h2>Edit User</h2>
-            <form>
-              <div className="form-group">
-                <label>Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editData.name}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={editData.email}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Phone</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={editData.phone}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={editData.address}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Country</label>
-                <input
-                  type="text"
-                  name="country"
-                  value={editData.country}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={editData.city}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Postal Code</label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  value={editData.postalCode}
-                  onChange={handleEditChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Role</label>
-                <select
-                  name="role"
-                  value={editData.role}
-                  onChange={handleEditChange}
-                >
-                  <option value="client">Client</option>
-                  <option value="supervisor">Supervisor</option>
-                  <option value="provider">Provider</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  name="status"
-                  value={editData.status}
-                  onChange={handleEditChange}
-                >
-                  <option value={1}>Active</option>
-                  <option value={0}>Inactive</option>
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button type="button" onClick={handleSaveClick}>
-                  Save
-                </button>
-                <button type="button" onClick={() => setIsModalOpen(false)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </div>
   );
