@@ -289,7 +289,7 @@ const Login = () => {
           </p>
         )}
       </div>
-      <div className="text-container">
+      <div className="text-container"> 
         <h1>Glad to see you!</h1>
         <p>Welcome, please enter your details to log in</p>
       </div>
