@@ -299,7 +299,7 @@ const GroupAdminDashboard = () => {
                 <table className="table table-hover">
                   <thead className="thead-light">
                     <tr>
-                      <th>ID</th>
+                      {/* <th>ID</th> */}
                       <th>Bill Type</th>
                       <th>Address</th>
                       <th>CUPS</th>
@@ -311,7 +311,7 @@ const GroupAdminDashboard = () => {
                     {currentInvoices.length > 0 ? (
                       currentInvoices.map((invoice) => (
                         <tr key={invoice.id}>
-                          <td>{invoice.id}</td>
+                          {/* <td>{invoice.id}</td> */}
                           <td>{invoice.bill_type}</td>
                           <td>{invoice.address}</td>
                           <td>{invoice.CUPS}</td>

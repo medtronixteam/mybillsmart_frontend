@@ -8,13 +8,12 @@ import {
 import "./AdminInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import Swal from "sweetalert2";
 import config from "../../config";
 
 const AdminInvoice = () => {
@@ -98,7 +97,13 @@ const AdminInvoice = () => {
       return response.data.id;
     } catch (error) {
       console.error("Error fetching group ID:", error);
-      toast.error("Failed to fetch group information");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch group information',
+        timer: 3000,
+        showConfirmButton: false
+      });
       throw error;
     }
   };
@@ -127,11 +132,23 @@ const AdminInvoice = () => {
       setClients(clientsData || []);
 
       if (clientsData.length === 0) {
-        toast.info("No clients found");
+        Swal.fire({
+          icon: 'info',
+          title: 'Info',
+          text: 'No clients found',
+          timer: 3000,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
       console.error("Error fetching clients", error);
-      toast.error("Failed to fetch clients. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch clients. Please try again.',
+        timer: 3000,
+        showConfirmButton: false
+      });
       setClients([]);
     } finally {
       setLoadingClients(false);
@@ -145,12 +162,24 @@ const AdminInvoice = () => {
 
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Only JPEG, PNG, and PDF files are allowed.',
+          timer: 3000,
+          showConfirmButton: false
+        });
         return;
       }
 
       if (file) {
-        toast.info("A file is already uploaded. Please submit the form.");
+        Swal.fire({
+          icon: 'info',
+          title: 'Info',
+          text: 'A file is already uploaded. Please submit the form.',
+          timer: 3000,
+          showConfirmButton: false
+        });
         return;
       }
 
@@ -187,11 +216,23 @@ const AdminInvoice = () => {
         setResponseData(response.data);
         setFormData(response.data);
         setStep(2);
-        toast.success("File uploaded successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'File uploaded successfully!',
+          timer: 3000,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
       console.error("Error uploading file", error);
-      toast.error("Error uploading file. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error uploading file. Please try again.',
+        timer: 3000,
+        showConfirmButton: false
+      });
       setFile(null);
     } finally {
       setUploading(false);
@@ -266,10 +307,22 @@ const AdminInvoice = () => {
       }
 
       setStep(3);
-      toast.success("Form submitted successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Form submitted successfully!',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error("Error submitting data", error);
-      toast.error("Error submitting form. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error submitting form. Please try again.',
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
   };
 
@@ -361,7 +414,13 @@ const AdminInvoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      toast.error("No data available to download");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No data available to download',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -372,10 +431,22 @@ const AdminInvoice = () => {
         `invoice_${invoiceId}_data.csv`,
         "text/csv;charset=utf-8;"
       );
-      toast.success("CSV downloaded successfully");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'CSV downloaded successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error("Error generating CSV:", error);
-      toast.error("Failed to generate CSV file");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to generate CSV file',
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
   };
 
@@ -385,7 +456,13 @@ const AdminInvoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      toast.error("No data available to download");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No data available to download',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -396,10 +473,22 @@ const AdminInvoice = () => {
         `invoice_${invoiceId}_data.xls`,
         "application/vnd.ms-excel;charset=utf-8;"
       );
-      toast.success("Excel file downloaded successfully");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Excel file downloaded successfully',
+        timer: 3000,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error("Error generating Excel:", error);
-      toast.error("Failed to generate Excel file");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to generate Excel file',
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
   };
 
@@ -552,17 +641,27 @@ const AdminInvoice = () => {
   };
 
   const handleWhatsappSubmit = async () => {
-    // Validate phone number
     if (!whatsappData.to.trim()) {
-      toast.error("Phone number is required");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Phone number is required',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
-    // Validate phone number format (minimum 11 digits)
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "");
     if (!phoneRegex.test(rawPhone)) {
-      toast.error("Please enter a valid phone number (e.g., 923001234567)");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please enter a valid phone number (e.g., 923001234567)',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -570,8 +669,6 @@ const AdminInvoice = () => {
       const pdfBlob = generatePDFBlob();
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `invoice_${invoiceId}.pdf`;
-
-      // Get email from auth context and replace special characters
       const sessionEmail = email.replace(/[@.]/g, "_");
 
       const base64data = await new Promise((resolve, reject) => {
@@ -584,7 +681,7 @@ const AdminInvoice = () => {
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message || "Invoice details",
-        session: sessionEmail, // Using modified email as session
+        session: sessionEmail,
         file: {
           data: base64data,
           filename: filename,
@@ -603,10 +700,22 @@ const AdminInvoice = () => {
       );
 
       if (response.status === 201) {
-        toast.success("WhatsApp message sent successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'WhatsApp message sent successfully!',
+          timer: 3000,
+          showConfirmButton: false
+        });
         handleWhatsappModalClose();
       } else {
-        toast.success("WhatsApp message sent successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'WhatsApp message sent successfully!',
+          timer: 3000,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
       console.error("WhatsApp send error:", error);
@@ -615,7 +724,13 @@ const AdminInvoice = () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to send WhatsApp message";
-      toast.error(errorMessage);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
   };
 
@@ -630,7 +745,13 @@ const AdminInvoice = () => {
 
   const handleModalSubmit = async () => {
     if (!selectedClient) {
-      toast.error("Please select a client!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please select a client!',
+        timer: 3000,
+        showConfirmButton: false
+      });
       return;
     }
 
@@ -648,7 +769,13 @@ const AdminInvoice = () => {
             },
           }
         );
-        toast.success("Email sent successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Email sent successfully!',
+          timer: 3000,
+          showConfirmButton: false
+        });
       } else if (modalType === "portal") {
         const response = await axios.post(
           `${config.BASE_URL}/api/notifications`,
@@ -665,14 +792,32 @@ const AdminInvoice = () => {
         );
 
         if (response.data.success) {
-          toast.success("Invoice sent to client portal successfully!");
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Invoice sent to client portal successfully!',
+            timer: 3000,
+            showConfirmButton: false
+          });
         } else {
-          toast.error("Failed to send to client portal");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to send to client portal',
+            timer: 3000,
+            showConfirmButton: false
+          });
         }
       }
     } catch (error) {
       console.error("Error sending data", error);
-      toast.error("Failed to send. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to send. Please try again.',
+        timer: 3000,
+        showConfirmButton: false
+      });
     }
 
     handleModalClose();
@@ -680,8 +825,6 @@ const AdminInvoice = () => {
 
   return (
     <div className="invoice-container">
-      <ToastContainer />
-
       {isDragging && (
         <div className="drag-drop-overlay">
           <div className="drag-drop-content">
@@ -964,17 +1107,6 @@ const AdminInvoice = () => {
                   923001234567 for Pakistan)
                 </small>
               </div>
-              {/* <div className="whatsapp-input-group">
-                <label htmlFor="whatsapp-message">Message (optional):</label>
-                <textarea
-                  id="whatsapp-message"
-                  name="message"
-                  value={whatsappData.message}
-                  onChange={handleWhatsappChange}
-                  placeholder="Type your message here..."
-                  rows={5}
-                />
-              </div> */}
               <div className="whatsapp-pdf-preview">
                 <p className="whatsapp-pdf-label">PDF Attachment:</p>
                 <div className="whatsapp-pdf-placeholder">

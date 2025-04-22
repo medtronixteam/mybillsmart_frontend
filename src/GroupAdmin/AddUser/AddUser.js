@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import "./AddUser.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
@@ -38,7 +37,12 @@ const AddUser = ({ onAddUser }) => {
       !formData.city ||
       !formData.postalCode
     ) {
-      toast.error("All fields are required!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'All fields are required!',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
@@ -68,7 +72,14 @@ const AddUser = ({ onAddUser }) => {
       );
 
       // If the API call is successful, show success message
-      toast.success("User added successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'User added successfully!',
+        confirmButtonText: 'OK',
+        timer: 3000,
+        timerProgressBar: true,
+      });
 
       // Reset the form
       setFormData({
@@ -90,7 +101,12 @@ const AddUser = ({ onAddUser }) => {
     } catch (error) {
       // Handle API errors
       console.error("Error adding user:", error);
-      toast.error("Failed to add user. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to add user. Please try again.',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
@@ -172,17 +188,7 @@ const AddUser = ({ onAddUser }) => {
           <option value="supervisor">Supervisor</option>
           <option value="client">Clients</option>
         </select>
-        {/* <textarea
-          name="address"
-          placeholder="Please enter address"
-          value={formData.address}
-          onChange={handleChange}
-          required
-        /> */}
-        <button
-          type="submit"
-          // className="btn bg-white p-3 w-50 mx-auto rounded-pill d-block"
-        >
+        <button type="submit">
           Add User
         </button>
       </form>

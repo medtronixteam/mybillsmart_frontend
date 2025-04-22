@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./GroupAdminProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import config from "../../config";
 
 const GroupAdminProfileSetting = () => {
@@ -61,6 +60,16 @@ const GroupAdminProfileSetting = () => {
     setTwoFA({ ...twoFA, [name]: value });
   };
 
+  // Show SweetAlert notification
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon,
+      title,
+      text,
+      confirmButtonColor: "#3085d6",
+    });
+  };
+
   // Handle profile form submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -71,7 +80,7 @@ const GroupAdminProfileSetting = () => {
       !profileData.address ||
       !profileData.postalCode
     ) {
-      toast.error("Please fill all the fields!");
+      showAlert("error", "Error", "Please fill all the fields!");
       return;
     }
 
@@ -93,14 +102,16 @@ const GroupAdminProfileSetting = () => {
 
       const result = await response.json();
       if (response.ok) {
-        toast.success("Profile updated successfully!");
+        showAlert("success", "Success!", "Profile updated successfully!");
       } else {
-        toast.error(
+        showAlert(
+          "error",
+          "Error",
           `Failed to update profile: ${result.message || "Unknown error"}`
         );
       }
     } catch (error) {
-      toast.error("Failed to update profile. Please try again.");
+      showAlert("error", "Error", "Failed to update profile. Please try again.");
     } finally {
       setLoadingProfile(false);
     }
@@ -110,12 +121,12 @@ const GroupAdminProfileSetting = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error("New password and confirm password do not match!");
+      showAlert("error", "Error", "New password and confirm password do not match!");
       return;
     }
 
     if (!passwordData.current_password) {
-      toast.error("Please enter your current password!");
+      showAlert("error", "Error", "Please enter your current password!");
       return;
     }
 
@@ -136,14 +147,16 @@ const GroupAdminProfileSetting = () => {
 
       const result = await response.json();
       if (response.ok) {
-        toast.success("Password updated successfully!");
+        showAlert("success", "Success!", "Password updated successfully!");
       } else {
-        toast.error(
+        showAlert(
+          "error",
+          "Error",
           `Failed to update password: ${result.message || "Unknown error"}`
         );
       }
     } catch (error) {
-      toast.error("Failed to update password. Please try again.");
+      showAlert("error", "Error", "Failed to update password. Please try again.");
     } finally {
       setLoadingPassword(false);
     }
@@ -161,9 +174,7 @@ const GroupAdminProfileSetting = () => {
       });
 
       if (response.ok) {
-        toast.success(
-          "OTP sent to your email. Please check and enter the code."
-        );
+        showAlert("success", "OTP Sent", "OTP sent to your email. Please check and enter the code.");
         setTwoFA((prev) => ({
           ...prev,
           loading: false,
@@ -173,7 +184,7 @@ const GroupAdminProfileSetting = () => {
         throw new Error("Failed to send OTP");
       }
     } catch (error) {
-      toast.error(error.message || "Failed to enable 2FA");
+      showAlert("error", "Error", error.message || "Failed to enable 2FA");
       setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
@@ -181,7 +192,7 @@ const GroupAdminProfileSetting = () => {
   // Verify 2FA OTP
   const handleVerify2FA = async () => {
     if (!twoFA.code) {
-      toast.error("Please enter the verification code");
+      showAlert("error", "Error", "Please enter the verification code");
       return;
     }
 
@@ -204,24 +215,32 @@ const GroupAdminProfileSetting = () => {
           loading: false,
           showOTPInput: false,
         }));
-        toast.success("2FA enabled successfully!");
+        showAlert("success", "Success!", "2FA enabled successfully!");
       } else {
         throw new Error("Verification failed");
       }
     } catch (error) {
-      toast.error("Invalid code. Please try again.");
+      showAlert("error", "Error", "Invalid code. Please try again.");
       setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
-  // Show disable confirmation dialog
-  const showDisableConfirmation = () => {
-    setTwoFA((prev) => ({ ...prev, showConfirmation: true }));
-  };
+  // Show disable confirmation dialog using SweetAlert
+  const showDisableConfirmation = async () => {
+    const result = await Swal.fire({
+      title: "Disable 2FA?",
+      text: "Are you sure you want to disable 2FA? This will reduce your account security.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, disable it!",
+      cancelButtonText: "Cancel",
+    });
 
-  // Cancel disable confirmation
-  const cancelDisableConfirmation = () => {
-    setTwoFA((prev) => ({ ...prev, showConfirmation: false }));
+    if (result.isConfirmed) {
+      handleDisable2FA();
+    }
   };
 
   // Disable 2FA after confirmation
@@ -243,30 +262,18 @@ const GroupAdminProfileSetting = () => {
           loading: false,
           showConfirmation: false,
         }));
-        toast.success("2FA disabled successfully!");
+        showAlert("success", "Success!", "2FA disabled successfully!");
       } else {
         throw new Error("Failed to disable");
       }
     } catch (error) {
-      toast.error("Failed to disable 2FA");
+      showAlert("error", "Error", "Failed to disable 2FA");
       setTwoFA((prev) => ({ ...prev, loading: false }));
     }
   };
 
   return (
     <div className="profile-edit-container container mt-3">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">
@@ -453,40 +460,14 @@ const GroupAdminProfileSetting = () => {
 
             {is2FAEnabled ? (
               <div className="text-center">
-                {twoFA.showConfirmation ? (
-                  <div className="confirmation-dialog">
-                    <p className="text-white">
-                      Are you sure you want to disable 2FA? This will reduce
-                      your account security.
-                    </p>
-                    <div className="d-flex justify-content-center gap-2 mt-3">
-                      <button
-                        onClick={handleDisable2FA}
-                        className="btn btn-danger"
-                        disabled={twoFA.loading}
-                      >
-                        {twoFA.loading ? "Processing..." : "Yes, Disable"}
-                      </button>
-                      <button
-                        onClick={cancelDisableConfirmation}
-                        className="btn btn-secondary"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-white">✓ 2FA is currently enabled</p>
-                    <button
-                      onClick={showDisableConfirmation}
-                      className="btn btn-danger"
-                      disabled={twoFA.loading}
-                    >
-                      Disable 2FA
-                    </button>
-                  </>
-                )}
+                <p className="text-white">✓ 2FA is currently enabled</p>
+                <button
+                  onClick={showDisableConfirmation}
+                  className="btn btn-danger"
+                  disabled={twoFA.loading}
+                >
+                  {twoFA.loading ? "Processing..." : "Disable 2FA"}
+                </button>
               </div>
             ) : (
               <div className="text-center">
