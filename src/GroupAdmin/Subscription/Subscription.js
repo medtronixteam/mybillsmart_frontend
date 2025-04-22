@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import Swal from "sweetalert2";
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ const Subscription = () => {
     max: false
   });
   const [planPrices, setPlanPrices] = useState({});
-  const [apiError, setApiError] = useState(null);
 
   // Static plan data with all details except price
   const staticPlans = [
@@ -119,7 +118,11 @@ const Subscription = () => {
         }
       } catch (error) {
         console.error("Error fetching plan prices:", error);
-        setApiError("Failed to load current prices. Using default pricing.");
+        Swal.fire({
+          icon: 'warning',
+          title: 'Warning',
+          text: 'Failed to load current prices. Using default pricing.',
+        });
         // Fallback to default prices
         setPlanPrices({
           starter: "99.00",
@@ -173,7 +176,11 @@ const Subscription = () => {
       }
     } catch (error) {
       console.error("Subscription error:", error);
-      alert(error.response?.data?.message || "Payment processing failed");
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Error',
+        text: error.response?.data?.message || "Payment processing failed",
+      });
     } finally {
       setLoading(prev => ({ ...prev, [selectedPlan.id]: false }));
     }
@@ -213,7 +220,11 @@ const Subscription = () => {
       }
     } catch (error) {
       console.error("Expansion pack error:", error);
-      alert(error.response?.data?.message || "Payment processing failed");
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Error',
+        text: error.response?.data?.message || "Payment processing failed",
+      });
     } finally {
       setLoading(prev => ({ ...prev, [pack.id]: false }));
     }
@@ -225,8 +236,6 @@ const Subscription = () => {
     <div className="subscription-container">
       <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
-
-      {apiError && <div className="alert alert-warning">{apiError}</div>}
 
       <div className="cards-container">
         {plans.map((plan) => (

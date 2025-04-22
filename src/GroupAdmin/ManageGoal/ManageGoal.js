@@ -139,7 +139,7 @@ const ManageGoal = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };    
 
   return (
     <div className="manage-goal-container p-md-5 p-4 mt-5">
@@ -147,7 +147,7 @@ const ManageGoal = () => {
         <h2 className="mb-0">Create New Goal</h2>
         <Link to="/group_admin/goal-list">
           <button className="btn bg-white goal-btn px-3 py-2">
-            View Goal List
+          Goal List
           </button>
         </Link>
       </div>
