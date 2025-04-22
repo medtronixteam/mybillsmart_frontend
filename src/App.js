@@ -93,6 +93,8 @@ import ProviderGoalList from "./Provider/GoalList/GoalList";
 import SessionHistory from "./GroupAdmin/SessionHistory/SessionHistory";
 import SubscriptionOrder from "./GroupAdmin/SubscriptionOrder/SubscriptionOrder";
 import CompanyDetails from "./GroupAdmin/CompanyDetails/CompanyDetails";
+import ComapnyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
+import CompanyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -507,6 +509,10 @@ const App = () => {
                           <Route
                             path="company-details"
                             element={<CompanyDetails />}
+                          />
+                          <Route
+                            path="company-details-list"
+                            element={<CompanyDetailsList />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
