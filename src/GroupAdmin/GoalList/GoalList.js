@@ -3,7 +3,6 @@ import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-import Swal from "sweetalert2";
 
 const GoalList = () => {
   const [goals, setGoals] = useState([]);
@@ -11,8 +10,11 @@ const GoalList = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [editingGoal, setEditingGoal] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const { token } = useAuth();
-
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -241,7 +243,7 @@ const GoalList = () => {
                       </td>
                     </tr>
                   ) : (
-                    goals.map((goal) => (
+                    goals.map((goal, index) => (
                       <tr key={goal.id}>
                         <td>{goal.task_name}</td>
                         <td>{formatDate(goal.start_date)}</td>
@@ -252,20 +254,47 @@ const GoalList = () => {
                             goal.status.slice(1).replace("_", " ")}
                         </td>
                         <td className="actions">
-                          <button
+                          <HiDotsHorizontal
+                            size={30}
+                            onClick={() => toggleDropdown(index)}
+                            className="cursor-pointer"
+                          />
+
+                          {activeDropdown === index && (
+                            <div
+                              className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0"
+                              style={{ marginLeft: "-140px" }}
+                            >
+                              <a
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                onClick={() => handleEdit(goal)}
+                                disabled={loading}
+                              >
+                                Edit
+                              </a>
+                              <a
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                onClick={() => handleDelete(goal.id)}
+                                disabled={loading}
+                              >
+                                Delete
+                              </a>
+                            </div>
+                          )}
+                          {/* <button
                             onClick={() => handleEdit(goal)}
                             className="btn btn-edit"
                             disabled={loading}
                           >
                             Edit
-                          </button>
-                          <button
+                          </button> */}
+                          {/* <button
                             onClick={() => handleDelete(goal.id)}
                             className="btn btn-delete"
                             disabled={loading}
                           >
                             Delete
-                          </button>
+                          </button> */}
                         </td>
                       </tr>
                     ))

@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const ProviderMessageList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,6 +23,9 @@ const ProviderMessageList = () => {
     time_send: "",
     date_send: "",
   });
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
 
   const fetchMessages = async (page = 1) => {
     try {
@@ -344,7 +350,7 @@ const ProviderMessageList = () => {
               </thead>
               <tbody>
                 {messages.length > 0 ? (
-                  messages.map((message) => (
+                  messages.map((message, index) => (
                     <tr key={message.id}>
                       <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
@@ -370,12 +376,30 @@ const ProviderMessageList = () => {
                         </span>
                       </td>
                       <td>
-                        <button
+                        <HiDotsHorizontal
+                          size={30}
+                          onClick={() => toggleDropdown(index)}
+                          className="cursor-pointer"
+                        />
+                        {activeDropdown === index && (
+                          <div
+                            className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                            style={{ marginLeft: "-140px" }}
+                          >
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => fetchMessageDetails(message.id)}
+                            >
+                              View
+                            </a>
+                          </div>
+                        )}
+                        {/* <button
                           className="view-btn"
                           onClick={() => fetchMessageDetails(message.id)}
                         >
                           View
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))

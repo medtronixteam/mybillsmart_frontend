@@ -94,6 +94,7 @@
   transition: background-color 0.3s;
 }
 .schedule-msg-btn {
+  color: #333333 !important;
   background-color: #ffffff !important;
 }
 .submit-btn:hover {

@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const InvoiceList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
+
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showNewTable, setShowNewTable] = useState(false);
@@ -13,6 +16,9 @@ const InvoiceList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useAuth();
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -281,7 +287,7 @@ const InvoiceList = () => {
               </thead>
               <tbody>
                 {currentInvoices.length > 0 ? (
-                  currentInvoices.map((invoice) => (
+                  currentInvoices.map((invoice, index) => (
                     <tr key={invoice.id}>
                       <td className="invoice-table-cell">{invoice.id}</td>
                       <td className="invoice-table-cell">
@@ -292,12 +298,30 @@ const InvoiceList = () => {
                         {invoice.billing_period}
                       </td>
                       <td className="invoice-table-cell">
-                        <button
+                        <HiDotsHorizontal
+                          size={30}
+                          onClick={() => toggleDropdown(index)}
+                          className="cursor-pointer"
+                        />
+                        {activeDropdown === index && (
+                          <div
+                            className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                            style={{ marginLeft: "-140px" }}
+                          >
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => fetchInvoiceDetails(invoice.id)}
+                            >
+                              View Details
+                            </a>
+                          </div>
+                        )}
+                        {/* <button
                           className="view-invoice-btn"
                           onClick={() => fetchInvoiceDetails(invoice.id)}
                         >
                           View Details
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))

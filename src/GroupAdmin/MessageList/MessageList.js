@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const MessageList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -20,6 +22,10 @@ const MessageList = () => {
     time_send: "",
     date_send: "",
   });
+
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
 
   const fetchMessages = async (page = 1) => {
     try {
@@ -52,21 +58,21 @@ const MessageList = () => {
 
   const formatDateTime = (timeString) => {
     if (!timeString) return "N/A";
-    
+
     try {
       // If it's already a full ISO string
-      if (timeString.includes('T')) {
+      if (timeString.includes("T")) {
         return new Date(timeString).toLocaleString();
       }
-      
+
       // If it's just time (HH:MM:SS)
       if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
         const today = new Date();
-        const [hours, minutes, seconds] = timeString.split(':');
+        const [hours, minutes, seconds] = timeString.split(":");
         today.setHours(hours, minutes, seconds);
         return today.toLocaleTimeString();
       }
-      
+
       // Fallback to original string if format is unknown
       return timeString;
     } catch (e) {
@@ -104,22 +110,22 @@ const MessageList = () => {
 
         // Handle time_send - it might be just time (HH:MM:SS) or full datetime
         let datetime;
-        let date = '';
-        let time = '';
-        
+        let date = "";
+        let time = "";
+
         if (messageData.time_send) {
           // If it's just time (HH:MM:SS)
           if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
             const today = new Date();
-            const [hours, minutes] = messageData.time_send.split(':');
+            const [hours, minutes] = messageData.time_send.split(":");
             today.setHours(hours, minutes);
-            date = today.toISOString().split('T')[0];
+            date = today.toISOString().split("T")[0];
             time = `${hours}:${minutes}`;
-          } 
+          }
           // If it's a full datetime string
           else if (!isNaN(new Date(messageData.time_send).getTime())) {
             datetime = new Date(messageData.time_send);
-            date = datetime.toISOString().split('T')[0];
+            date = datetime.toISOString().split("T")[0];
             time = datetime.toTimeString().substring(0, 5);
           }
         }
@@ -127,7 +133,7 @@ const MessageList = () => {
         // Fallback to current date/time if not set
         if (!date || !time) {
           datetime = new Date();
-          date = datetime.toISOString().split('T')[0];
+          date = datetime.toISOString().split("T")[0];
           time = datetime.toTimeString().substring(0, 5);
         }
 
@@ -381,7 +387,7 @@ const MessageList = () => {
               </thead>
               <tbody>
                 {messages.length > 0 ? (
-                  messages.map((message) => (
+                  messages.map((message,index) => (
                     <tr key={message.id}>
                       <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
@@ -392,9 +398,7 @@ const MessageList = () => {
                             : message.message
                           : "N/A"}
                       </td>
-                      <td>
-                        {formatDateTime(message.time_send)}
-                      </td>
+                      <td>{formatDateTime(message.time_send)}</td>
                       <td>
                         <span
                           className={`status-badge ${(
@@ -405,12 +409,30 @@ const MessageList = () => {
                         </span>
                       </td>
                       <td>
-                        <button
+                        <HiDotsHorizontal
+                          size={30}
+                          onClick={() => toggleDropdown(index)}
+                          className="cursor-pointer"
+                        />
+                        {activeDropdown === index && (
+                          <div
+                            className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                            style={{ marginLeft: "-140px" }}
+                          >
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => fetchMessageDetails(message.id)}
+                            >
+                              View
+                            </a>
+                          </div>
+                        )}
+                        {/* <button
                           className="view-btn"
                           onClick={() => fetchMessageDetails(message.id)}
                         >
                           View
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))

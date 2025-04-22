@@ -7,8 +7,10 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
-
+import { HiDotsHorizontal } from "react-icons/hi";
 const AdminProducts = () => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
@@ -21,8 +23,18 @@ const AdminProducts = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const { token } = useAuth();
 
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
+
   // Fields to exclude from modal display
-  const excludedFields = ['group_id', 'addedby_id', 'updated_at', 'created_at', 'id'];
+  const excludedFields = [
+    "group_id",
+    "addedby_id",
+    "updated_at",
+    "created_at",
+    "id",
+  ];
 
   const fetchProducts = () => {
     setLoading(true);
@@ -49,7 +61,10 @@ const AdminProducts = () => {
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -76,13 +91,16 @@ const AdminProducts = () => {
 
   const executeDelete = () => {
     if (!productToDelete) return;
-    
+
     axios
-      .delete(`${config.BASE_URL}/api/supervisor/products/${productToDelete.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .delete(
+        `${config.BASE_URL}/api/supervisor/products/${productToDelete.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then(() => {
         fetchProducts();
         toast.success("Product deleted successfully!");
@@ -128,7 +146,8 @@ const AdminProducts = () => {
     }
 
     axios
-      .put(`${config.BASE_URL}/api/supervisor/products/${id}`, 
+      .put(
+        `${config.BASE_URL}/api/supervisor/products/${id}`,
         { ...editProductData, fixed_rate: fixedRate },
         {
           headers: {
@@ -209,30 +228,60 @@ const AdminProducts = () => {
             </thead>
             <tbody>
               {currentProducts.length > 0 ? (
-                currentProducts.map((product) => (
+                currentProducts.map((product, index) => (
                   <tr key={product.id}>
                     <td>{product.product_name}</td>
                     <td>{product.light_category}</td>
                     <td>{product.fixed_rate}</td>
                     <td>
-                      <button
+                      <HiDotsHorizontal
+                        size={30}
+                        onClick={() => toggleDropdown(index)}
+                        className="cursor-pointer"
+                      />
+                      {activeDropdown === index && (
+                        <div
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                          style={{ marginLeft: "-140px" }}
+                        >
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => openModal(product)}
+                          >
+                            View Details
+                          </a>
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => enterEditMode(product)}
+                          >
+                            Edit
+                          </a>
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => confirmDelete(product)}
+                          >
+                            Delete
+                          </a>
+                        </div>
+                      )}
+                      {/* <button
                         className="btn"
                         onClick={() => openModal(product)}
                       >
                         View Details
-                      </button>{" "}
-                      <button
+                      </button> */}
+                      {/* <button
                         className="btn btn-edit"
                         onClick={() => enterEditMode(product)}
                       >
                         Edit
-                      </button>{" "}
-                      <button
+                      </button> */}
+                      {/* <button
                         className="btn btn-danger"
                         onClick={() => confirmDelete(product)}
                       >
                         Delete
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
@@ -288,7 +337,9 @@ const AdminProducts = () => {
         <div className="confirmation-modal-overlay">
           <div className="confirmation-modal-content">
             <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete "{productToDelete.product_name}"?</p>
+            <p>
+              Are you sure you want to delete "{productToDelete.product_name}"?
+            </p>
             <div className="confirmation-buttons">
               <button className="btn btn-danger" onClick={executeDelete}>
                 Yes, Delete

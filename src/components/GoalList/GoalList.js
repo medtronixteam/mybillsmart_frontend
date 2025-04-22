@@ -2,15 +2,19 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const AgentGoalList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [editingGoal, setEditingGoal] = useState(null);
   const { token } = useAuth();
-
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -45,14 +49,11 @@ const AgentGoalList = () => {
 
     try {
       setLoading(true);
-      await axios.delete(
-        `https://bill.medtronix.world/api/goals/${goalId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.delete(`https://bill.medtronix.world/api/goals/${goalId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setSuccess("Goal deleted successfully!");
       fetchGoals();
     } catch (err) {
@@ -221,7 +222,7 @@ const AgentGoalList = () => {
                       </td>
                     </tr>
                   ) : (
-                    goals.map((goal) => (
+                    goals.map((goal, index) => (
                       <tr key={goal.id}>
                         <td>{goal.task_name}</td>
                         <td>{formatDate(goal.start_date)}</td>
@@ -232,20 +233,46 @@ const AgentGoalList = () => {
                             goal.status.slice(1).replace("_", " ")}
                         </td>
                         <td className="actions">
-                          <button
+                          <HiDotsHorizontal
+                            size={30}
+                            onClick={() => toggleDropdown(index)}
+                            className="cursor-pointer"
+                          />
+                          {activeDropdown === index && (
+                            <div
+                              className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                              style={{ marginLeft: "-140px" }}
+                            >
+                              <a
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                onClick={() => handleEdit(goal)}
+                                disabled={loading}
+                              >
+                                Edit
+                              </a>
+                              <a
+                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                onClick={() => handleDelete(goal.id)}
+                                disabled={loading}
+                              >
+                                Delete
+                              </a>
+                            </div>
+                          )}
+                          {/* <button
                             onClick={() => handleEdit(goal)}
                             className="btn btn-edit"
                             disabled={loading}
                           >
                             Edit
-                          </button>
-                          <button
+                          </button> */}
+                          {/* <button
                             onClick={() => handleDelete(goal.id)}
                             className="btn btn-delete"
                             disabled={loading}
                           >
                             Delete
-                          </button>
+                          </button> */}
                         </td>
                       </tr>
                     ))

@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "../../config";
-
+import "./ProfileSetting.css";
 const ProfileEdit = () => {
   // State for profile data
   const [profileData, setProfileData] = useState({
@@ -159,13 +159,15 @@ const ProfileEdit = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.ok) {
-        toast.success("OTP sent to your email. Please check and enter the code.");
-        setTwoFA((prev) => ({ 
-          ...prev, 
+        toast.success(
+          "OTP sent to your email. Please check and enter the code."
+        );
+        setTwoFA((prev) => ({
+          ...prev,
           loading: false,
-          showOTPInput: true
+          showOTPInput: true,
         }));
       } else {
         throw new Error("Failed to send OTP");
@@ -444,7 +446,7 @@ const ProfileEdit = () => {
 
         {/* 2FA Card */}
         <div className="col-12 mt-4">
-          <div className="card profile-2fa-card">
+          <div className=" profile-2fa-card bg-transparent py-5 shadow-none">
             <h3 className="profile-card-heading">
               Two-Factor Authentication (2FA)
             </h3>

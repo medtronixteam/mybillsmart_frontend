@@ -7,8 +7,11 @@ import { toast } from "react-toastify"; // For toast messages
 import "react-toastify/dist/ReactToastify.css"; // Toast CSS
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const Products = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
+
   const [products, setProducts] = useState([]); // State to store products
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const [productsPerPage] = useState(10); // Products per page
@@ -18,7 +21,9 @@ const Products = () => {
   const [isEditMode, setIsEditMode] = useState(false); // Edit mode state
   const [editProductData, setEditProductData] = useState({}); // Product data for editing
   const { token } = useAuth(); // Get token from AuthContext
-
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
   // Fetch products from the API
   const fetchProducts = () => {
     setLoading(true);
@@ -213,13 +218,43 @@ const Products = () => {
             </thead>
             <tbody>
               {currentProducts.length > 0 ? (
-                currentProducts.map((product) => (
+                currentProducts.map((product, index) => (
                   <tr key={product.id}>
                     <td>{product.product_name}</td>
                     <td>{product.light_category}</td>
                     <td>{product.fixed_rate}</td>
                     <td>
-                      <button
+                      <HiDotsHorizontal
+                        size={30}
+                        onClick={() => toggleDropdown(index)}
+                        className="cursor-pointer"
+                      />
+                      {activeDropdown === index && (
+                        <div
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                          style={{ marginLeft: "-140px" }}
+                        >
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => openModal(product)}
+                          >
+                            View Details
+                          </a>
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => enterEditMode(product)}
+                          >
+                            Edit
+                          </a>
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => deleteProduct(product.id)}
+                          >
+                            Delete
+                          </a>
+                        </div>
+                      )}
+                      {/* <button
                         className="btn"
                         onClick={() => openModal(product)}
                       >
@@ -236,7 +271,7 @@ const Products = () => {
                         onClick={() => deleteProduct(product.id)}
                       >
                         Delete
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
