@@ -34,9 +34,9 @@ const GoalList = () => {
     } catch (err) {
       console.error("Error fetching goals:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch goals. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch goals. Please try again.",
       });
       setLoading(false);
     }
@@ -49,13 +49,13 @@ const GoalList = () => {
 
   const handleDelete = async (goalId) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (!result.isConfirmed) return;
@@ -67,18 +67,14 @@ const GoalList = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      Swal.fire(
-        'Deleted!',
-        'Goal has been deleted successfully.',
-        'success'
-      );
+      Swal.fire("Deleted!", "Goal has been deleted successfully.", "success");
       fetchGoals();
     } catch (err) {
       console.error("Error deleting goal:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to delete goal. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete goal. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -108,18 +104,18 @@ const GoalList = () => {
         }
       );
       Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Goal updated successfully!',
+        icon: "success",
+        title: "Success",
+        text: "Goal updated successfully!",
       });
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
       console.error("Error updating goal:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update goal. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to update goal. Please try again.",
       });
     } finally {
       setLoading(false);
