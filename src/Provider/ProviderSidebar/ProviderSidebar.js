@@ -14,7 +14,19 @@ import {
   FaLink,
   FaGem,
   FaSignOutAlt,
+  FaBoxOpen,
 } from "react-icons/fa";
+import {
+  MdViewList,
+  MdPersonAdd,
+  MdManageAccounts,
+  MdSettings,
+  MdEmail,
+  MdMessage,
+  MdListAlt,
+  MdHistory,
+} from "react-icons/md";
+import { HiOutlineUserGroup } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import "./ProviderSidebar.css";
 
@@ -100,7 +112,7 @@ const ProviderSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                        <FaBoxes />
+                        <FaBoxOpen />
                       </div>
                       <span className="nav-link-text ">Add Product</span>
                     </NavLink>
@@ -112,7 +124,7 @@ const ProviderSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                        <FaBoxes />
+                        <MdViewList />
                       </div>
                       <span className="nav-link-text">Product List</span>
                     </NavLink>
@@ -157,7 +169,7 @@ const ProviderSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaBoxes />
+                <MdManageAccounts />
               </div>
               <span className="nav-link-text">Manage Users</span>
               <RiArrowDropDownLine size={30} />
@@ -177,7 +189,7 @@ const ProviderSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaBoxes />
+                        <MdPersonAdd />
                       </div>
                       <span className="nav-link-text">Add User</span>
                     </NavLink>
@@ -189,7 +201,7 @@ const ProviderSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaBoxes />
+                        <HiOutlineUserGroup />
                       </div>
                       <span className="nav-link-text">User List</span>
                     </NavLink>
@@ -234,7 +246,7 @@ const ProviderSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaBoxes />
+                <MdSettings />
               </div>
               <span className="nav-link-text">Settings</span>
               <RiArrowDropDownLine size={30} />
@@ -254,7 +266,7 @@ const ProviderSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <MdEmail />
                       </div>
                       <span className="nav-link-text">Submission Link</span>
                     </NavLink>
@@ -270,7 +282,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdMessage />
               </div>
               <span className="nav-link-text">Message List</span>
             </NavLink>
@@ -282,7 +294,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdListAlt />
               </div>
               <span className="nav-link-text">Goal List</span>
             </NavLink>
@@ -294,7 +306,7 @@ const ProviderSidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdHistory />
               </div>
               <span className="nav-link-text ms-1">Session History</span>
             </NavLink>

@@ -5,6 +5,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import {
+  MdViewList,
+  MdManageAccounts,
+  MdPersonAdd,
+  MdAddCircle,
+  MdListAlt,
+  MdMessage,
+  MdSchedule,
+  MdSettings,
+  MdEmail,
+} from "react-icons/md";
+import { HiOutlineUserGroup } from "react-icons/hi";
+
+import {
+  FaFileInvoice,
   FaHome,
   FaUserPlus,
   FaUsers,
@@ -15,6 +29,12 @@ import {
   FaSignOutAlt,
   FaFileUpload,
   FaListAlt,
+  FaBoxOpen,
+  FaBoxes,
+  FaBullseye,
+  FaListUl,
+  FaRedo,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./GroupAdminSidebar.css";
@@ -86,7 +106,7 @@ const GroupAdminSidebar = () => {
               // activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <FaFileInvoice />
               </div>
               <span className="nav-link-text">Manage Invoices</span>
               <RiArrowDropDownLine size={30} />
@@ -111,7 +131,7 @@ const GroupAdminSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                         <FaFileUpload />
                       </div>
-                      <span className="nav-link-text">Manage Invoice</span>
+                      <span className="nav-link-text">Upload Invoice</span>
                     </NavLink>
                   </li>
                   <li>
@@ -121,7 +141,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <FaListAlt />
                       </div>
                       <span className="nav-link-text">Invoice List</span>
                     </NavLink>
@@ -167,7 +187,7 @@ const GroupAdminSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <FaBoxes />
               </div>
               <span className="nav-link-text">Manage Products</span>
               <RiArrowDropDownLine size={30} />
@@ -187,9 +207,9 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <FaBoxOpen />
                       </div>
-                      <span className="nav-link-text">Manage Product</span>
+                      <span className="nav-link-text">Add Product</span>
                     </NavLink>
                   </li>
                   <li>
@@ -199,7 +219,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <MdViewList />
                       </div>
                       <span className="nav-link-text">Products List</span>
                     </NavLink>
@@ -232,7 +252,7 @@ const GroupAdminSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <MdManageAccounts />
               </div>
               <span className="nav-link-text">Manage Users</span>
               <RiArrowDropDownLine size={30} />
@@ -252,9 +272,9 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <MdPersonAdd />
                       </div>
-                      <span className="nav-link-text">Manage User</span>
+                      <span className="nav-link-text">Add User</span>
                     </NavLink>
                   </li>
                   <li>
@@ -264,7 +284,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <HiOutlineUserGroup />
                       </div>
                       <span className="nav-link-text">User List</span>
                     </NavLink>
@@ -346,7 +366,7 @@ const GroupAdminSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <FaBullseye />
               </div>
               <span className="nav-link-text">Manage Goals</span>
               <RiArrowDropDownLine size={30} />
@@ -366,9 +386,9 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <MdAddCircle />
                       </div>
-                      <span className="nav-link-text">Manage Goal</span>
+                      <span className="nav-link-text">Create Goal</span>
                     </NavLink>
                   </li>
                   <li>
@@ -378,7 +398,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <MdListAlt />
                       </div>
                       <span className="nav-link-text">Goal List</span>
                     </NavLink>
@@ -426,7 +446,7 @@ const GroupAdminSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <MdMessage />
               </div>
               <span className="nav-link-text">Manage Messages</span>
               <RiArrowDropDownLine size={30} />
@@ -446,7 +466,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <MdSchedule />
                       </div>
                       <span className="nav-link-text">Schedule Message</span>
                     </NavLink>
@@ -458,7 +478,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileUpload />
+                        <FaListUl />
                       </div>
                       <span className="nav-link-text">Message List</span>
                     </NavLink>
@@ -477,7 +497,7 @@ const GroupAdminSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileUpload />
+                <MdSettings />
               </div>
               <span className="nav-link-text">Settings</span>
               <RiArrowDropDownLine size={30} />
@@ -497,7 +517,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <MdEmail />
                       </div>
                       <span className="nav-link-text">Submission Link</span>
                     </NavLink>
@@ -510,7 +530,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <FaRedo />
                       </div>
                       <span className="nav-link-text">Points Update</span>
                     </NavLink>
@@ -523,7 +543,7 @@ const GroupAdminSidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <FaWhatsapp />
                       </div>
                       <span className="nav-link-text">WhatsApp Link</span>
                     </NavLink>

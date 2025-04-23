@@ -11,10 +11,23 @@ import {
   FaGem,
   FaSignOutAlt,
   FaLink,
+  FaListAlt,
+  FaFileUpload,
+  FaFileInvoice,
+  FaWhatsapp,
 } from "react-icons/fa";
 import { NavLink, Link } from "react-router-dom";
 import "./Sidebar.css";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import {
+  MdPersonAdd,
+  MdManageAccounts,
+  MdMessage,
+  MdListAlt,
+  MdSettings,
+  MdEmail,
+} from "react-icons/md";
+import { HiOutlineUserGroup } from "react-icons/hi";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -90,7 +103,7 @@ const Sidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaFileInvoiceDollar />
+                <FaFileInvoice />
               </div>
               <span className="nav-link-text">Manage Invoices</span>
               <RiArrowDropDownLine size={30} />
@@ -110,9 +123,9 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileInvoiceDollar />
+                        <FaFileUpload />
                       </div>
-                      <span className="nav-link-text">Manage Invoice</span>
+                      <span className="nav-link-text">Upload Invoice</span>
                     </NavLink>
                   </li>
                   <li>
@@ -122,7 +135,7 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaFileInvoiceDollar />
+                        <FaListAlt />
                       </div>
                       <span className="nav-link-text">Invoice List</span>
                     </NavLink>
@@ -178,7 +191,7 @@ const Sidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaUserPlus />
+                <MdManageAccounts />
               </div>
               <span className="nav-link-text">Manage Client</span>
               <RiArrowDropDownLine size={30} />
@@ -198,7 +211,7 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaUserPlus />
+                        <MdPersonAdd />
                       </div>
                       <span className="nav-link-text">Add Client</span>
                     </NavLink>
@@ -210,7 +223,7 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaUserPlus />
+                        <HiOutlineUserGroup />
                       </div>
                       <span className="nav-link-text">Client List</span>
                     </NavLink>
@@ -275,7 +288,7 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdListAlt />
               </div>
               <span className="nav-link-text">Goal List</span>
             </NavLink>
@@ -287,7 +300,7 @@ const Sidebar = () => {
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdMessage />
               </div>
               <span className="nav-link-text ">View Messages</span>
             </NavLink>
@@ -302,7 +315,7 @@ const Sidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                <FaLink />
+                <MdSettings />
               </div>
               <span className="nav-link-text">Settings</span>
               <RiArrowDropDownLine size={30} />
@@ -322,7 +335,7 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <MdEmail />
                       </div>
                       <span className="nav-link-text">Submission Link</span>
                     </NavLink>
@@ -346,7 +359,7 @@ const Sidebar = () => {
                       activeClassName="active-class"
                     >
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                        <FaLink />
+                        <FaWhatsapp />
                       </div>
                       <span className="nav-link-text ">WhatsApp Link</span>
                     </NavLink>
