@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import "./PointsUpdate.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
@@ -33,7 +32,7 @@ const PointsUpdate = () => {
           }
         );
 
-        const pointsData = response.data.data; // Adjust according to your API response structure
+        const pointsData = response.data.data;
 
         setFormData({
           levelOnePoints: pointsData.level_1_points || "",
@@ -42,11 +41,11 @@ const PointsUpdate = () => {
         });
       } catch (error) {
         console.error("Error fetching points:", error);
-        // toast.error(
-        //   error.response?.data?.message ||
-        //   error.message ||
-        //   "Failed to fetch current points."
-        // );
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch current points.",
+        });
       } finally {
         setIsFetching(false);
       }
@@ -73,7 +72,11 @@ const PointsUpdate = () => {
       !formData.levelTwoPoints ||
       !formData.levelThreePoints
     ) {
-      toast.error("Please fill all fields");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please fill all fields",
+      });
       return;
     }
 
@@ -95,16 +98,21 @@ const PointsUpdate = () => {
         }
       );
 
-      toast.success("Points updated successfully!");
-      // Optionally fetch the updated points again
-      // Or you can keep the current formData since it was successfully updated
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Points updated successfully!",
+      });
     } catch (error) {
       console.error("Error updating points:", error);
-      toast.error(
-        error.response?.data?.message ||
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.response?.data?.message ||
           error.message ||
-          "Failed to update points. Please try again."
-      );
+          "Failed to update points. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }

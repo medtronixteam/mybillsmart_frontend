@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 
 const UserList = () => {
-  // const [show, setShow] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-
-  const toggleDropdown = (index) => {
-    setActiveDropdown((prev) => (prev === index ? null : index));
-  };
-
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
     name: "",
-    // email: "",
     password: "",
     phone: "",
     address: "",
@@ -33,7 +25,7 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  // Pagination states for user list
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
 
@@ -49,9 +41,10 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
-  // const toggleDropdown = () => {
-  //   setShow(!show);
-  // };
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -64,32 +57,31 @@ const UserList = () => {
       if (result.status === "success") {
         setUsers(result.data);
       } else {
-        toast.error("Failed to fetch users!");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch users!",
+        });
       }
     } catch (error) {
       console.error("Error fetching users:", error);
-      toast.error("Failed to fetch users!");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch users!",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Get current users for pagination
+  // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Change page for user list
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Previous page for user list
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  // Next page for user list
+  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
   const nextPage = () => {
     if (currentPage < Math.ceil(users.length / usersPerPage)) {
       setCurrentPage(currentPage + 1);
@@ -99,66 +91,55 @@ const UserList = () => {
   // Session history pagination
   const indexOfLastSession = currentSessionPage * sessionsPerPage;
   const indexOfFirstSession = indexOfLastSession - sessionsPerPage;
-  const currentSessions = sessionHistory.slice(
-    indexOfFirstSession,
-    indexOfLastSession
-  );
+  const currentSessions = sessionHistory.slice(indexOfFirstSession, indexOfLastSession);
 
   const paginateSessions = (pageNumber) => setCurrentSessionPage(pageNumber);
-
-  const prevSessionPage = () => {
-    if (currentSessionPage > 1) {
-      setCurrentSessionPage(currentSessionPage - 1);
-    }
-  };
-
+  const prevSessionPage = () => currentSessionPage > 1 && setCurrentSessionPage(currentSessionPage - 1);
   const nextSessionPage = () => {
-    if (
-      currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)
-    ) {
+    if (currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)) {
       setCurrentSessionPage(currentSessionPage + 1);
     }
   };
 
   const fetchUserDetails = async (id) => {
     try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/detail/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/group/user/detail/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const result = await response.json();
       if (result.status === "success") {
         return result.data.user;
       } else {
-        toast.error("Failed to fetch user details!");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch user details!",
+        });
         return null;
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
-      toast.error("Failed to fetch user details!");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch user details!",
+      });
       return null;
     }
   };
 
   const fetchSessionHistory = async (userId) => {
     try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/session/history`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            user_id: userId,
-          }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/group/session/history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
       const result = await response.json();
       if (result.status === "success") {
         setSessionHistory(result.message || []);
@@ -166,80 +147,151 @@ const UserList = () => {
         setShowSessionHistory(true);
         setCurrentSessionPage(1);
       } else {
-        toast.error(result.message || "Failed to fetch session history!");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Failed to fetch session history!",
+        });
       }
     } catch (error) {
       console.error("Error fetching session history:", error);
-      toast.error("Failed to fetch session history!");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch session history!",
+      });
     }
   };
 
   const handleDisableClick = async (id) => {
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/disable/${id}`,
-        {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to disable this user!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, disable it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`${config.BASE_URL}/api/group/user/disable/${id}`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "User disabled successfully!",
+          });
+          fetchUsers();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to disable user!",
+          });
         }
-      );
-      if (response.ok) {
-        toast.success("User disabled successfully!");
-        fetchUsers();
-      } else {
-        toast.error("Failed to disable user!");
+      } catch (error) {
+        console.error("Error disabling user:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to disable user!",
+        });
       }
-    } catch (error) {
-      console.error("Error disabling user:", error);
-      toast.error("Failed to disable user!");
     }
   };
 
   const handleEnableClick = async (id) => {
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/enable/${id}`,
-        {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to enable this user!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, enable it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`${config.BASE_URL}/api/group/user/enable/${id}`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "User enabled successfully!",
+          });
+          fetchUsers();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to enable user!",
+          });
         }
-      );
-      if (response.ok) {
-        toast.success("User enabled successfully!");
-        fetchUsers();
-      } else {
-        toast.error("Failed to enable user!");
+      } catch (error) {
+        console.error("Error enabling user:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to enable user!",
+        });
       }
-    } catch (error) {
-      console.error("Error enabling user:", error);
-      toast.error("Failed to enable user!");
     }
   };
 
   const handleDeleteClick = async (id) => {
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/delete/${id}`,
-        {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`${config.BASE_URL}/api/group/user/delete/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "User has been deleted.",
+          });
+          fetchUsers();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to delete user!",
+          });
         }
-      );
-      if (response.ok) {
-        toast.success("User deleted successfully!");
-        fetchUsers();
-      } else {
-        toast.error("Failed to delete user!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to delete user!",
+        });
       }
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      toast.error("Failed to delete user!");
     }
   };
 
@@ -249,8 +301,6 @@ const UserList = () => {
       setEditData({
         id: userDetails.id,
         name: userDetails.name,
-        // email: userDetails.email,
-        password: "",
         phone: userDetails.phone || "",
         address: userDetails.address || "",
         country: userDetails.country || "",
@@ -264,52 +314,57 @@ const UserList = () => {
   };
 
   const handleSaveClick = async () => {
-    if (
-      !editData.name ||
-      // !editData.email ||
-      !editData.phone ||
-      !editData.country ||
-      !editData.city ||
-      !editData.postalCode
-    ) {
-      toast.error("All fields are required!");
+    if (!editData.name || !editData.phone || !editData.country || !editData.city || !editData.postalCode) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "All fields are required!",
+      });
       return;
     }
 
     try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/edit/${editData.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: editData.name,
-            // email: editData.email,
-            phone: editData.phone,
-            address: editData.address,
-            country: editData.country,
-            city: editData.city,
-            postal_code: editData.postalCode,
-            role: editData.role,
-            status: editData.status,
-          }),
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/group/user/edit/${editData.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: editData.name,
+          phone: editData.phone,
+          address: editData.address,
+          country: editData.country,
+          city: editData.city,
+          postal_code: editData.postalCode,
+          role: editData.role,
+          status: editData.status,
+        }),
+      });
 
       const result = await response.json();
       if (result.status === "success") {
-        toast.success("User updated successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "User updated successfully!",
+        });
         fetchUsers();
         setIsModalOpen(false);
       } else {
-        toast.error(result.message || "Failed to update user!");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Failed to update user!",
+        });
       }
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error("Failed to update user!");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update user!",
+      });
     }
   };
 
@@ -340,53 +395,22 @@ const UserList = () => {
     <div className="user-list-container">
       {showSessionHistory ? (
         <div className="session-history-container">
-          <button
-            onClick={handleBackFromSessionHistory}
-            className="back-button"
-          >
+          <button onClick={handleBackFromSessionHistory} className="back-button">
             Back to User List
           </button>
 
           {selectedSession ? (
             <div className="session-details-card">
-              <button
-                onClick={handleBackFromSessionDetails}
-                className="back-button"
-              >
+              <button onClick={handleBackFromSessionDetails} className="back-button">
                 Back to Session History
               </button>
               <h2>Session Details</h2>
               <div className="session-details">
-                <div className="session-detail-item">
-                  <strong>ID:</strong> {selectedSession.id}
-                </div>
-                <div className="session-detail-item">
-                  <strong>User ID:</strong> {selectedSession.user_id}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Session ID:</strong> {selectedSession.session_id}
-                </div>
-                <div className="session-detail-item">
-                  <strong>IP Address:</strong> {selectedSession.ip_address}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Device:</strong> {selectedSession.device}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Platform:</strong> {selectedSession.platform}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Browser:</strong> {selectedSession.browser}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Logged In At:</strong> {selectedSession.logged_in_at}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Created At:</strong> {selectedSession.created_at}
-                </div>
-                <div className="session-detail-item">
-                  <strong>Updated At:</strong> {selectedSession.updated_at}
-                </div>
+                {Object.entries(selectedSession).map(([key, value]) => (
+                  <div key={key} className="session-detail-item">
+                    <strong>{key.replace(/_/g, " ")}:</strong> {value || "N/A"}
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
@@ -428,7 +452,6 @@ const UserList = () => {
                     </tbody>
                   </table>
 
-                  {/* Session History Pagination */}
                   <div className="pagination">
                     <button
                       onClick={prevSessionPage}
@@ -439,16 +462,12 @@ const UserList = () => {
                     </button>
 
                     {Array.from({
-                      length: Math.ceil(
-                        sessionHistory.length / sessionsPerPage
-                      ),
+                      length: Math.ceil(sessionHistory.length / sessionsPerPage),
                     }).map((_, index) => (
                       <button
                         key={index}
                         onClick={() => paginateSessions(index + 1)}
-                        className={`page-button ${
-                          currentSessionPage === index + 1 ? "active" : ""
-                        }`}
+                        className={`page-button ${currentSessionPage === index + 1 ? "active" : ""}`}
                       >
                         {index + 1}
                       </button>
@@ -456,10 +475,7 @@ const UserList = () => {
 
                     <button
                       onClick={nextSessionPage}
-                      disabled={
-                        currentSessionPage ===
-                        Math.ceil(sessionHistory.length / sessionsPerPage)
-                      }
+                      disabled={currentSessionPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
                       className="page-button"
                     >
                       Next
@@ -477,8 +493,7 @@ const UserList = () => {
             <p>Loading users...</p>
           ) : users.length === 0 ? (
             <p>
-              No users added yet.{" "}
-              <Link to="/group_admin/add-user">Add User</Link>
+              No users added yet. <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
             <>
@@ -545,46 +560,12 @@ const UserList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          onClick={() => handleEditClick(index, user)}
-                          className="edit-btn"
-                        >
-                          Edit
-                        </button> */}
-                        {/* <button
-                          onClick={() => fetchSessionHistory(user.id)}
-                          className="session-history-btn"
-                        >
-                          Session History
-                        </button> */}
-                        {/* {user.status === 1 ? (
-                          <button
-                            onClick={() => handleDisableClick(user.id)}
-                            className="disable-btn"
-                          >
-                            Disable
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleEnableClick(user.id)}
-                            className="enable-btn"
-                          >
-                            Enable
-                          </button>
-                        )} */}
-                        {/* <button
-                          onClick={() => handleDeleteClick(user.id)}
-                          className="delete-btn"
-                        >
-                          Delete
-                        </button> */}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              {/* Pagination */}
               <div className="pagination">
                 <button
                   onClick={prevPage}
@@ -600,9 +581,7 @@ const UserList = () => {
                   <button
                     key={index}
                     onClick={() => paginate(index + 1)}
-                    className={`page-button ${
-                      currentPage === index + 1 ? "active" : ""
-                    }`}
+                    className={`page-button ${currentPage === index + 1 ? "active" : ""}`}
                   >
                     {index + 1}
                   </button>
@@ -610,9 +589,7 @@ const UserList = () => {
 
                 <button
                   onClick={nextPage}
-                  disabled={
-                    currentPage === Math.ceil(users.length / usersPerPage)
-                  }
+                  disabled={currentPage === Math.ceil(users.length / usersPerPage)}
                   className="page-button"
                 >
                   Next
@@ -635,15 +612,6 @@ const UserList = () => {
                       onChange={handleEditChange}
                     />
                   </div>
-                  {/* <div className="form-group">
-                    <label>Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={editData.email || ""}
-                      onChange={handleEditChange}
-                    />
-                  </div> */}
                   <div className="form-group">
                     <label>Phone</label>
                     <input
@@ -653,7 +621,6 @@ const UserList = () => {
                       onChange={handleEditChange}
                     />
                   </div>
-
                   <div className="form-group">
                     <label>Country</label>
                     <input

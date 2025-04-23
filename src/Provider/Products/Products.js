@@ -3,28 +3,27 @@ import axios from "axios";
 import "./Products.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
-import { toast } from "react-toastify"; // For toast messages
-import "react-toastify/dist/ReactToastify.css"; // Toast CSS
+import Swal from "sweetalert2"; 
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
 
 const Products = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editProductData, setEditProductData] = useState({});
+  const { token } = useAuth();
 
-  const [products, setProducts] = useState([]); // State to store products
-  const [currentPage, setCurrentPage] = useState(1); // Pagination state
-  const [productsPerPage] = useState(10); // Products per page
-  const [loading, setLoading] = useState(true); // Loading state
-  const [selectedProduct, setSelectedProduct] = useState(null); // Selected product for modal
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [isEditMode, setIsEditMode] = useState(false); // Edit mode state
-  const [editProductData, setEditProductData] = useState({}); // Product data for editing
-  const { token } = useAuth(); // Get token from AuthContext
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
-  // Fetch products from the API
+
   const fetchProducts = () => {
     setLoading(true);
     axios
@@ -34,13 +33,18 @@ const Products = () => {
         },
       })
       .then((response) => {
-        console.log("API Response:", response.data); // Log the actual API response
-        setProducts(response.data || []); // Use response.data directly
+        console.log("API Response:", response.data);
+        setProducts(response.data || []);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to fetch products',
+        });
       });
   };
 
@@ -48,7 +52,6 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
@@ -56,37 +59,53 @@ const Products = () => {
     indexOfLastProduct
   );
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Open modal with product details
   const openModal = (product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const closeModal = () => {
     setSelectedProduct(null);
     setIsModalOpen(false);
   };
 
-  // Delete a product
   const deleteProduct = (id) => {
-    axios
-      .delete(`${config.BASE_URL}/api/supervisor/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        fetchProducts(); // Refresh the product list
-        toast.success("Product deleted successfully!");
-      })
-      .catch((error) => {
-        console.error("Error deleting product:", error);
-        toast.error("Failed to delete product.");
-      });
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`${config.BASE_URL}/api/supervisor/products/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(() => {
+            fetchProducts();
+            Swal.fire(
+              'Deleted!',
+              'Product has been deleted.',
+              'success'
+            );
+          })
+          .catch((error) => {
+            console.error("Error deleting product:", error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to delete product',
+            });
+          });
+      }
+    });
   };
 
   const enterEditMode = (product) => {
@@ -98,9 +117,12 @@ const Products = () => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    // Ensure fixed_rate is a number
     if (name === "fixed_rate" && isNaN(value)) {
-      toast.error("Fixed rate must be a valid number.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Input',
+        text: 'Fixed rate must be a valid number.',
+      });
       return;
     }
 
@@ -108,18 +130,24 @@ const Products = () => {
   };
 
   const saveEditedProduct = () => {
-    const id = editProductData.id; // Get the product ID from the state
-    console.log("Product ID:", id); // Debug: Check if the ID is correct
+    const id = editProductData.id;
 
     if (!id || isNaN(id)) {
-      toast.error("Invalid Product ID.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Invalid Product ID.',
+      });
       return;
     }
 
-    // Ensure the fixed_rate is a number before making the API call
     const fixedRate = parseFloat(editProductData.fixed_rate);
     if (isNaN(fixedRate)) {
-      toast.error("Fixed rate must be a valid number.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Input',
+        text: 'Fixed rate must be a valid number.',
+      });
       return;
     }
 
@@ -127,7 +155,6 @@ const Products = () => {
     console.log("API URL:", apiUrl);
 
     const requestBody = { ...editProductData, fixed_rate: fixedRate };
-    // console.log("Request Body:", requestBody);
 
     axios
       .put(apiUrl, requestBody, {
@@ -136,21 +163,28 @@ const Products = () => {
         },
       })
       .then((response) => {
-        console.log("API Response:", response.data); // Debug: Check the response
-        fetchProducts(); // Refresh the product list
-        setIsEditMode(false); // Exit edit mode
-        toast.success("Product updated successfully!");
+        console.log("API Response:", response.data);
+        fetchProducts();
+        setIsEditMode(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Product updated successfully!',
+        });
       })
       .catch((error) => {
         console.error("Error updating product:", error);
         if (error.response) {
-          console.error("API Error Response:", error.response.data); // Debug: Check error response
+          console.error("API Error Response:", error.response.data);
         }
-        toast.error("Failed to update product.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update product.',
+        });
       });
   };
 
-  // Exit edit mode
   const exitEditMode = () => {
     setIsEditMode(false);
     setEditProductData({});
@@ -168,22 +202,19 @@ const Products = () => {
       {loading ? (
         <p>Loading products...</p>
       ) : isEditMode ? (
-        // Edit Mode Card
         <div className="edit-product-card shadow-none">
           <h3>Edit Product</h3>
           <form>
             <div className="edit-form-grid custom-form-fields-gap">
               {Object.entries(editProductData).map(
                 ([key, value]) =>
-                  // Skip 'id' and 'created_at' fields
                   key !== "id" &&
                   key !== "created_at" && (
                     <div className="form-group mb-0" key={key}>
                       <label>
-                        {key.replace(/_/g, " ")}:{" "}
-                        {/* Replace underscores with spaces */}
+                        {key.replace(/_/g, " ")}:
                         <input
-                          type={key.includes("date") ? "date" : "text"} // Use "date" type for date fields
+                          type={key.includes("date") ? "date" : "text"}
                           name={key}
                           value={value || ""}
                           onChange={handleEditChange}
@@ -205,7 +236,6 @@ const Products = () => {
           </form>
         </div>
       ) : (
-        // Table View
         <>
           <table className="products-table">
             <thead>
@@ -254,24 +284,6 @@ const Products = () => {
                           </a>
                         </div>
                       )}
-                      {/* <button
-                        className="btn"
-                        onClick={() => openModal(product)}
-                      >
-                        View Details
-                      </button>{" "}
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => enterEditMode(product)}
-                      >
-                        Edit
-                      </button>{" "}
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => deleteProduct(product.id)}
-                      >
-                        Delete
-                      </button> */}
                     </td>
                   </tr>
                 ))
@@ -283,7 +295,6 @@ const Products = () => {
             </tbody>
           </table>
 
-          {/* Pagination */}
           <div className="pagination">
             <button
               onClick={() => paginate(currentPage - 1)}
@@ -302,7 +313,6 @@ const Products = () => {
         </>
       )}
 
-      {/* Modal for displaying additional product details */}
       {isModalOpen && selectedProduct && (
         <div className="product-modal-overlay">
           <div className="product-modal-content">

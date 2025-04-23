@@ -4,18 +4,19 @@ import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from "sweetalert2";
 
 const GoalList = () => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [editingGoal, setEditingGoal] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const { token } = useAuth();
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
+
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -31,9 +32,13 @@ const GoalList = () => {
       setGoals(response.data.data);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch goals. Please try again.");
-      setLoading(false);
       console.error("Error fetching goals:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch goals. Please try again.",
+      });
+      setLoading(false);
     }
   };
 
@@ -43,7 +48,17 @@ const GoalList = () => {
   };
 
   const handleDelete = async (goalId) => {
-    if (!window.confirm("Are you sure you want to delete this goal?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setLoading(true);
@@ -52,11 +67,15 @@ const GoalList = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setSuccess("Goal deleted successfully!");
+      Swal.fire("Deleted!", "Goal has been deleted successfully.", "success");
       fetchGoals();
     } catch (err) {
-      setError("Failed to delete goal. Please try again.");
       console.error("Error deleting goal:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete goal. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -84,12 +103,20 @@ const GoalList = () => {
           },
         }
       );
-      setSuccess("Goal updated successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Goal updated successfully!",
+      });
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
-      setError("Failed to update goal. Please try again.");
       console.error("Error updating goal:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update goal. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -106,9 +133,6 @@ const GoalList = () => {
   return (
     <div className="goal-list-container">
       <h2>Goals List</h2>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
 
       {loading && !editingGoal ? (
         <div className="loading">Loading goals...</div>
@@ -258,20 +282,6 @@ const GoalList = () => {
                               </a>
                             </div>
                           )}
-                          {/* <button
-                            onClick={() => handleEdit(goal)}
-                            className="btn btn-edit"
-                            disabled={loading}
-                          >
-                            Edit
-                          </button> */}
-                          {/* <button
-                            onClick={() => handleDelete(goal.id)}
-                            className="btn btn-delete"
-                            disabled={loading}
-                          >
-                            Delete
-                          </button> */}
                         </td>
                       </tr>
                     ))
