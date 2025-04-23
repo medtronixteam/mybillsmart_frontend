@@ -95,6 +95,7 @@ import SubscriptionOrder from "./GroupAdmin/SubscriptionOrder/SubscriptionOrder"
 import CompanyDetails from "./GroupAdmin/CompanyDetails/CompanyDetails";
 import ComapnyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
 import CompanyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
+import AgentSessionHistory from "./components/SessionHistory/AgentSessionHistory";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -319,6 +320,10 @@ const App = () => {
                           <Route
                             path="message"
                             element={<AgentMessageList />}
+                          />
+                          <Route
+                            path="session-history"
+                            element={<AgentSessionHistory />}
                           />
                           <Route path="goal" element={<AgentGoalList />} />
 

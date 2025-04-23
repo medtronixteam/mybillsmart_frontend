@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CompanyDetails.css';
 import config from '../../config';
@@ -18,8 +18,45 @@ const CompanyDetails = () => {
     company_logo: null
   });
 
+  const [existingLogo, setExistingLogo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { token } = useAuth();
+
+  useEffect(() => {
+    const fetchCompanyDetails = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/group/company/details`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.data.status === "success" && response.data.data) {
+          const data = response.data.data;
+          setFormData({
+            company_name: data.company_name || '',
+            company_address: data.company_address || '',
+            company_email: data.company_email || '',
+            company_city: data.company_city || '',
+            company_state: data.company_state || '',
+            company_zip: data.company_zip || '',
+            company_country: data.company_country || '',
+            company_phone: data.company_phone || '',
+            company_logo: null
+          });
+          setExistingLogo(data.company_logo ? `${config.BASE_URL}/${data.company_logo}` : null);
+        }
+      } catch (error) {
+        console.error('Error fetching company details:', error);
+        // No problem if no data exists yet
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCompanyDetails();
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +71,9 @@ const CompanyDetails = () => {
       ...prev,
       company_logo: e.target.files[0]
     }));
+    if (e.target.files[0]) {
+      setExistingLogo(URL.createObjectURL(e.target.files[0]));
+    }
   };
 
   const showSuccessAlert = (message) => {
@@ -68,38 +108,44 @@ const CompanyDetails = () => {
     }
 
     try {
-      const response = await axios.post(`${config.BASE_URL}/api/group/company/details`, formDataToSend, {
+      // Determine if we're updating or creating new
+      const hasExistingData = existingLogo !== null;
+      const method = hasExistingData ? 'put' : 'post';
+
+      const response = await axios[method](`${config.BASE_URL}/api/group/company/details`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         }
       });
 
-      const successMessage = response.data?.message || 'Company details submitted successfully!';
+      const successMessage = response.data?.message || 
+        (hasExistingData ? 'Company details updated successfully!' : 'Company details created successfully!');
       showSuccessAlert(successMessage);
       
-      // Clear form after successful submission
-      setFormData({
-        company_name: '',
-        company_address: '',
-        company_email: '',
-        company_city: '',
-        company_state: '',
-        company_zip: '',
-        company_country: '',
-        company_phone: '',
-        company_logo: null
-      });
+      // Update the logo display if a new one was uploaded
+      if (formData.company_logo && response.data.data?.company_logo) {
+        setExistingLogo(`${config.BASE_URL}/${response.data.data.company_logo}`);
+      }
       
     } catch (error) {
       console.error('Error submitting company details:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to submit company details. Please try again.';
+      const errorMessage = error.response?.data?.message || 
+        'Failed to save company details. Please try again.';
       showErrorAlert(errorMessage);
-      
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading company details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="company-details-container">
@@ -203,6 +249,12 @@ const CompanyDetails = () => {
               onChange={handleFileChange}
               accept="image/*"
             />
+            {existingLogo && (
+              <div className="logo-preview">
+                <img src={existingLogo} alt="Current Company Logo" />
+                <small>Current logo</small>
+              </div>
+            )}
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 
 const CompanyDetailsList = () => {
   const [companyDetails, setCompanyDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);   
   const { token } = useAuth();
 
   useEffect(() => {
