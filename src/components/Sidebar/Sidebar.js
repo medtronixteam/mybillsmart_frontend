@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { NavLink, Link } from "react-router-dom";
 import "./Sidebar.css";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -59,14 +60,14 @@ const Sidebar = () => {
               activeClassName="active-class"
               exact
             >
-              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
-              <span className="nav-link-text ms-1">Dashboard</span>
+              <span className="nav-link-text ">Dashboard</span>
             </NavLink>
           </li>
 
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/invoice"
@@ -77,8 +78,61 @@ const Sidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Manage Invoice</span>
             </NavLink>
-          </li>
+          </li> */}
+
           <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseInvoices"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaFileInvoiceDollar />
+              </div>
+              <span className="nav-link-text">Manage Invoices</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseInvoices"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/agent/invoice"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaFileInvoiceDollar />
+                      </div>
+                      <span className="nav-link-text">Manage Invoice</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/agent/invoice-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaFileInvoiceDollar />
+                      </div>
+                      <span className="nav-link-text">Invoice List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/contract-list"
@@ -89,8 +143,8 @@ const Sidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Contract List</span>
             </NavLink>
-          </li>
-          <li className="nav-item">
+          </li> */}
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/invoice-list"
@@ -101,7 +155,7 @@ const Sidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Invoice List</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -114,7 +168,7 @@ const Sidebar = () => {
               <span className="nav-link-text ms-1">Manage Client</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/submission-link"
@@ -149,7 +203,7 @@ const Sidebar = () => {
               </div>
               <span className="nav-link-text ms-1">WhatsApp Link</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -174,6 +228,70 @@ const Sidebar = () => {
               <span className="nav-link-text ms-1">View Messages</span>
             </NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseSettings"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text">Settings</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseSettings"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      className="nav-link"
+                      to="/agent/submission-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaLink />
+                      </div>
+                      <span className="nav-link-text">Submission Link</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      className="nav-link"
+                      to="/agent/refferal-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaLink />
+                      </div>
+                      <span className="nav-link-text">Refferal Link</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      className="nav-link"
+                      to="/agent/whatsapp"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaLink />
+                      </div>
+                      <span className="nav-link-text ">WhatsApp Link</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

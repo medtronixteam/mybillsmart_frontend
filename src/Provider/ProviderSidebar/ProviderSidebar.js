@@ -2,6 +2,8 @@ import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
 import { Link, useNavigate } from "react-router-dom";
+import { RiArrowDropDownLine } from "react-icons/ri";
+
 import { useAuth } from "../../contexts/AuthContext";
 import {
   FaHome,
@@ -49,17 +51,17 @@ const ProviderSidebar = () => {
               to="/supervisor/dashboard"
               activeClassName="active-class"
             >
-              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
-              <span className="nav-link-text ms-1">Dashboard</span>
+              <span className="nav-link-text ">Dashboard</span>
             </NavLink>
           </li>
 
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
-              to="/supervisor/product-list"
+              to="/supervisor/add-product"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -67,7 +69,59 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Manage Products</span>
             </NavLink>
+          </li> */}
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseProducts"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
+                <FaBoxes />
+              </div>
+              <span className="nav-link-text ">Manage Products</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseProducts"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/supervisor/add-product"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
+                        <FaBoxes />
+                      </div>
+                      <span className="nav-link-text ">Add Product</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/supervisor/product-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
+                        <FaBoxes />
+                      </div>
+                      <span className="nav-link-text">Product List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </li>
+
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -80,7 +134,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text ms-1">Add Product</span>
             </NavLink>
           </li> */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/add-client"
@@ -91,8 +145,61 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Add User</span>
             </NavLink>
-          </li>
+          </li> */}
+
           <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseUsers"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaBoxes />
+              </div>
+              <span className="nav-link-text">Manage Users</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseUsers"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/supervisor/add-client"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaBoxes />
+                      </div>
+                      <span className="nav-link-text">Add User</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/supervisor/client-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaBoxes />
+                      </div>
+                      <span className="nav-link-text">User List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/client-list"
@@ -103,18 +210,58 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">User List</span>
             </NavLink>
-          </li>
-          <li className="nav-item">
+          </li> */}
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/submission-link"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Submission Link</span>
+              <span className="nav-link-text">Submission Link</span>
             </NavLink>
+          </li> */}
+
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseSettings"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaBoxes />
+              </div>
+              <span className="nav-link-text">Settings</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseSettings"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="/supervisor/submission-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaLink />
+                      </div>
+                      <span className="nav-link-text">Submission Link</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </li>
           <li className="nav-item">
             <NavLink
@@ -122,10 +269,10 @@ const ProviderSidebar = () => {
               to="/supervisor/message"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Message List</span>
+              <span className="nav-link-text">Message List</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -134,10 +281,10 @@ const ProviderSidebar = () => {
               to="/supervisor/goal"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Goal List</span>
+              <span className="nav-link-text">Goal List</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">

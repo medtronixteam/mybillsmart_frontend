@@ -1,3 +1,10 @@
+.accordion-button.sidebar-accordion::after {
+  display: none !important;
+}
+.accordion-button.sidebar-accordion svg[width="30"] {
+  position: absolute;
+  right: 40px;
+}
 #icon-color {
   background-color: #2d3e50 !important;
   color: white;

@@ -268,7 +268,7 @@ const InvoiceList = () => {
   return (
     <div className="invoice-list-container">
       <div className="d-flex justify-content-between align-items-center">
-        <h1 className="invoice-list-title">Invoice List</h1>
+        <h1 className="invoice-list-title mb-0">Invoice List</h1>
         <Link
           to="/group_admin/client-contract-list"
           type="button"

@@ -5,6 +5,7 @@ import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { Link } from "react-router-dom";
 
 const AddClient = ({ onAddUser }) => {
   const [formData, setFormData] = useState({
@@ -89,7 +90,12 @@ const AddClient = ({ onAddUser }) => {
 
   return (
     <div className="add-user-container">
-      <h1>Add User</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 className="mb-0">Add User</h1>
+        <Link to="/supervisor/client-list">
+          <button className="btn btn-primary w-100 fs-6">User List</button>
+        </Link>
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"

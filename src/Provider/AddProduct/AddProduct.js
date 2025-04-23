@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./AddProduct.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { Link } from "react-router-dom";
 
 const AddProduct = () => {
   const { token } = useAuth();
@@ -21,12 +22,11 @@ const AddProduct = () => {
     p4: "",
     p5: "",
     p6: "",
-    points_per_deal:"",
+    points_per_deal: "",
     discount_period_start: "",
     discount_period_end: "",
     meter_rental: "",
     sales_commission: "",
-    
   });
 
   const handleChange = (e) => {
@@ -43,14 +43,17 @@ const AddProduct = () => {
     }
 
     try {
-      const response = await fetch(`${config.BASE_URL}/api/supervisor/products`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/products`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to add product");
@@ -76,7 +79,6 @@ const AddProduct = () => {
         discount_period_end: "",
         meter_rental: "",
         sales_commission: "",
-       
       });
     } catch (error) {
       toast.error(error.message);
@@ -85,7 +87,13 @@ const AddProduct = () => {
 
   return (
     <div className="add-product-container mx-auto">
-      <h1>Add Products</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 className="mb-0">Add Products</h1>
+        <Link to="/supervisor/product-list">
+          <button className="btn btn-primary w-100 fs-6">Products List</button>
+        </Link>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
