@@ -110,14 +110,20 @@ const ClientContractDocx = () => {
 
   return (
     <div className="client-contract-docx-container container">
-      <h1>Client Contract Documents</h1>
-      
+      <h1>Client Agreement Documents</h1>
+
       {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">Documents uploaded successfully!</div>}
-      
+      {success && (
+        <div className="alert alert-success">
+          Documents uploaded successfully!
+        </div>
+      )}
+
       <form className="row" onSubmit={handleSubmit}>
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="name">Name</label>
+          <label className="form-label m-0" htmlFor="name">
+            Name
+          </label>
           <input
             id="name"
             name="name"
@@ -129,9 +135,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="phone">Phone</label>
+          <label className="form-label m-0" htmlFor="phone">
+            Phone
+          </label>
           <input
             id="phone"
             name="phone"
@@ -143,9 +151,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-12 mb-3">
-          <label className="form-label m-0" htmlFor="address">Address</label>
+          <label className="form-label m-0" htmlFor="address">
+            Address
+          </label>
           <input
             id="address"
             name="address"
@@ -157,9 +167,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="date_of_birth">Date of Birth</label>
+          <label className="form-label m-0" htmlFor="date_of_birth">
+            Date of Birth
+          </label>
           <input
             id="date_of_birth"
             name="date_of_birth"
@@ -170,9 +182,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="expiration_date">Expiration Date</label>
+          <label className="form-label m-0" htmlFor="expiration_date">
+            Expiration Date
+          </label>
           <input
             id="expiration_date"
             name="expiration_date"
@@ -185,7 +199,9 @@ const ClientContractDocx = () => {
         </div>
 
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="cnic_front">ID Card/NIE (Front)</label>
+          <label className="form-label m-0" htmlFor="cnic_front">
+            ID Card/NIE (Front)
+          </label>
           <input
             id="cnic_front"
             type="file"
@@ -195,9 +211,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="cnic_back">ID Card/NIE (Back)</label>
+          <label className="form-label m-0" htmlFor="cnic_back">
+            ID Card/NIE (Back)
+          </label>
           <input
             id="cnic_back"
             type="file"
@@ -207,10 +225,12 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="differentiation">Individual and Company</label>
-          <select 
+          <label className="form-label m-0" htmlFor="differentiation">
+            Individual and Company
+          </label>
+          <select
             className="form-select"
             id="differentiation"
             name="differentiation"
@@ -222,9 +242,11 @@ const ClientContractDocx = () => {
             <option value="Company">Company</option>
           </select>
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="bank_receipt">Bank Receipt</label>
+          <label className="form-label m-0" htmlFor="bank_receipt">
+            Bank Receipt
+          </label>
           <input
             id="bank_receipt"
             type="file"
@@ -234,9 +256,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="last_service_invoice">Last Service Invoice</label>
+          <label className="form-label m-0" htmlFor="last_service_invoice">
+            Last Service Invoice
+          </label>
           <input
             id="last_service_invoice"
             type="file"
@@ -246,9 +270,11 @@ const ClientContractDocx = () => {
             required
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="lease_agreement">Lease Agreement (if applicable)</label>
+          <label className="form-label m-0" htmlFor="lease_agreement">
+            Lease Agreement (if applicable)
+          </label>
           <input
             id="lease_agreement"
             type="file"
@@ -257,9 +283,11 @@ const ClientContractDocx = () => {
             onChange={handleFileChange}
           />
         </div>
-        
+
         <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="bank_account_certificate">Bank Account Ownership Certificate</label>
+          <label className="form-label m-0" htmlFor="bank_account_certificate">
+            Bank Account Ownership Certificate
+          </label>
           <input
             id="bank_account_certificate"
             type="file"
@@ -271,17 +299,19 @@ const ClientContractDocx = () => {
         </div>
 
         <div className="col-12 mt-2 mb-4">
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? (
               <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 Submitting...
               </>
-            ) : "Submit"}
+            ) : (
+              "Submit"
+            )}
           </button>
         </div>
       </form>

@@ -145,11 +145,11 @@ const AdminContractForm = () => {
       
       // Success modal replaced with SweetAlert
       await Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Contract added successfully!',
+        icon: "success",
+        title: "Success",
+        text: "Agreement added successfully!",
         timer: 3000,
-        showConfirmButton: false
+        showConfirmButton: false,
       });
 
       setFormData({
@@ -164,11 +164,11 @@ const AdminContractForm = () => {
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to submit contract.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to submit Agreement.",
         timer: 3000,
-        showConfirmButton: false
+        showConfirmButton: false,
       });
     }
   };
@@ -180,12 +180,12 @@ const AdminContractForm = () => {
 
   return (
     <div className="add-Contract-container">
-      <h2 className="add-Contract-heading">Add Contracts Data</h2>
+      <h2 className="add-Contract-heading">Add Agreements Data</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="name"
-          placeholder="Please Enter Contract Name"
+          placeholder="Please Enter Agreement Name"
           value={formData.name}
           onChange={handleChange}
           required
@@ -208,7 +208,7 @@ const AdminContractForm = () => {
         <input
           type="text"
           name="contracted_provider"
-          placeholder="Please Enter Contracted Provider"
+          placeholder="Please Enter Agreemented Provider"
           value={formData.contracted_provider}
           onChange={handleChange}
           required
@@ -217,7 +217,7 @@ const AdminContractForm = () => {
         <input
           type="number"
           name="contracted_rate"
-          placeholder="Please Enter Contracted Rate"
+          placeholder="Please Enter Agreemented Rate"
           value={formData.contracted_rate}
           onChange={handleChange}
           required
@@ -232,7 +232,7 @@ const AdminContractForm = () => {
           required
         />
 
-        <button type="submit">Add Contract</button>
+        <button type="submit">Add Agreement</button>
       </form>
     </div>
   );

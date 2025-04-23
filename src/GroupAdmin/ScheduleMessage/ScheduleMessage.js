@@ -49,15 +49,15 @@ const ScheduleMessage = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to schedule message");
+        throw new Error(errorData.message || "Failed to schedule campaign");
       }
 
       // Show success alert
       await Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Message scheduled successfully!',
-        confirmButtonColor: '#3085d6',
+        icon: "success",
+        title: "Success!",
+        text: "Campaign scheduled successfully!",
+        confirmButtonColor: "#3085d6",
       });
 
       // Reset form
@@ -83,9 +83,9 @@ const ScheduleMessage = () => {
   return (
     <div className="schedule-message-container p-lg-5 p-4 mt-5">
       <div className="d-flex justify-content-between align-items-center px-lg-4 px-3 pb-lg-4 pb-3">
-        <h2 className="page-title mb-0">Schedule New Message</h2>
+        <h2 className="page-title mb-0">Schedule New Campaign</h2>
         <Link to="/group_admin/message-list">
-          <button className="btn bg-white msg-list-btn">Message List</button>
+          <button className="btn bg-white msg-list-btn">Campaign List</button>
         </Link>
       </div>
 
@@ -112,13 +112,13 @@ const ScheduleMessage = () => {
         </div>
 
         <div className="form-group mb-2">
-          <label htmlFor="body">Message Content</label>
+          <label htmlFor="body">Campaign Content</label>
           <textarea
             id="body"
             name="body"
             value={formData.body}
             onChange={handleChange}
-            placeholder="Type your message here..."
+            placeholder="Type your campaign here..."
             rows="5"
             className="form-control"
             required
@@ -140,7 +140,7 @@ const ScheduleMessage = () => {
             />
           </div>
 
-          <div className="form-group mb-2"> 
+          <div className="form-group mb-2">
             <label htmlFor="time_send">Time</label>
             <input
               type="time"
@@ -164,7 +164,7 @@ const ScheduleMessage = () => {
               <span className="spinner"></span> Scheduling...
             </>
           ) : (
-            "Schedule Message"
+            "Schedule Campaign"
           )}
         </button>
       </form>

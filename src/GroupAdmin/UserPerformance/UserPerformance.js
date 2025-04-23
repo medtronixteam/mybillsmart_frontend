@@ -245,7 +245,7 @@ const UserPerformance = () => {
           <div className="data-section">
             <div className="section-header">
               <h3>
-                Contracts{" "}
+                Agreements{" "}
                 <span className="count-badge">
                   {selectedUser.contracts.length}
                 </span>
@@ -326,7 +326,7 @@ const UserPerformance = () => {
             ) : (
               <div className="empty-state">
                 <i className="fas fa-file-contract"></i>
-                <p>No contracts found for this user</p>
+                <p>No agreements found for this user</p>
               </div>
             )}
           </div>
@@ -347,7 +347,7 @@ const UserPerformance = () => {
               </thead>
               <tbody>
                 {users.length > 0 ? (
-                  users.map((user,index) => (
+                  users.map((user, index) => (
                     <tr key={user.id}>
                       <td data-label="ID">{user.id}</td>
                       <td data-label="Name">{user.name}</td>

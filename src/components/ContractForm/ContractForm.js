@@ -131,7 +131,7 @@ const ContractForm = () => {
           },
         }
       );
-      setModalMessage("Contract added successfully!");
+      setModalMessage("Agreement added successfully!");
       setIsModalOpen(true);
       setFormData({
         name: "",
@@ -144,7 +144,7 @@ const ContractForm = () => {
       });
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
-      toast.error("Failed to submit contract.");
+      toast.error("Failed to submit agreement.");
     }
   };
 
@@ -155,12 +155,12 @@ const ContractForm = () => {
   return (
     <>
       <div className="add-Contract-container">
-        <h2 className="add-Contract-heading">Add Contracts Data</h2>
+        <h2 className="add-Contract-heading">Add Agreements Data</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             name="name"
-            placeholder="Please Enter Contract Name"
+            placeholder="Please Enter Agreement Name"
             value={formData.name}
             onChange={handleChange}
             required
@@ -183,7 +183,7 @@ const ContractForm = () => {
           <input
             type="text"
             name="contracted_provider"
-            placeholder="Please Enter Contracted Provider"
+            placeholder="Please Enter Agreemented Provider"
             value={formData.contracted_provider}
             onChange={handleChange}
             required
@@ -192,7 +192,7 @@ const ContractForm = () => {
           <input
             type="number"
             name="contracted_rate"
-            placeholder="Please Enter Contracted Rate"
+            placeholder="Please Enter Agreemented Rate"
             value={formData.contracted_rate}
             onChange={handleChange}
             required
@@ -207,7 +207,7 @@ const ContractForm = () => {
             required
           />
 
-          <button type="submit">Add Contract</button>
+          <button type="submit">Add Agreement</button>
         </form>
       </div>
 

@@ -52,19 +52,19 @@ const AdminContractList = () => {
 
   return (
     <div className="contract-list-container">
-      <h1>Contract List</h1>
+      <h1>Agreement List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (
           <div className="no-contracts-message">
-            <p className="text-center">No contracts list available.</p>
+            <p className="text-center">No agreements list available.</p>
           </div>
         ) : (
           <table className="contract-table">
             <thead>
               <tr>
                 <th className="contract-table-header">Client Name</th>
-                <th className="contract-table-header">Contracted Provider</th>
-                <th className="contract-table-header">Contracted Rate</th>
+                <th className="contract-table-header">Agreemented Provider</th>
+                <th className="contract-table-header">Agreemented Rate</th>
                 <th className="contract-table-header">Closure Date</th>
                 <th className="contract-table-header">Status</th>
               </tr>

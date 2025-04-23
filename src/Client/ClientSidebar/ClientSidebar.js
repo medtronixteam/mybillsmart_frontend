@@ -66,7 +66,7 @@ const ClientSidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaCube />
               </div>
-              <span className="nav-link-text ms-1">Contract List</span>
+              <span className="nav-link-text ms-1">Agreement List</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -120,16 +120,11 @@ const ClientSidebar = () => {
           />
         </div>
         <Link to="/client/subscription">
-                  <button
-                    className="btn mt-5 w-100"
-                    
-                    type="button"
-                    id="icon-color"
-                  >
-                    <FaGem className="me-2" />
-                    Subscription
-                  </button>
-                </Link>
+          <button className="btn mt-5 w-100" type="button" id="icon-color">
+            <FaGem className="me-2" />
+            Subscription
+          </button>
+        </Link>
         {/* LogOut Button - On Click, it triggers handleLogout function */}
         <button
           className="btn mt-1 w-100"

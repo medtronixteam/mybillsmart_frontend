@@ -274,7 +274,7 @@ const InvoiceList = () => {
           type="button"
           className="btn btn-primary"
         >
-          Contract List
+          Agreement List
         </Link>
       </div>
 

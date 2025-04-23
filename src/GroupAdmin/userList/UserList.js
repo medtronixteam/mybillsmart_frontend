@@ -453,13 +453,19 @@ const UserList = () => {
     <div className="user-list-container">
       {showSessionHistory ? (
         <div className="session-history-container">
-          <button onClick={handleBackFromSessionHistory} className="back-button">
+          <button
+            onClick={handleBackFromSessionHistory}
+            className="back-button"
+          >
             Back to User List
           </button>
 
           {selectedSession ? (
             <div className="session-details-card">
-              <button onClick={handleBackFromSessionDetails} className="back-button">
+              <button
+                onClick={handleBackFromSessionDetails}
+                className="back-button"
+              >
                 Back to Session History
               </button>
               <h2>Session Details</h2>
@@ -520,12 +526,16 @@ const UserList = () => {
                     </button>
 
                     {Array.from({
-                      length: Math.ceil(sessionHistory.length / sessionsPerPage),
+                      length: Math.ceil(
+                        sessionHistory.length / sessionsPerPage
+                      ),
                     }).map((_, index) => (
                       <button
                         key={index}
                         onClick={() => paginateSessions(index + 1)}
-                        className={`page-button ${currentSessionPage === index + 1 ? "active" : ""}`}
+                        className={`page-button ${
+                          currentSessionPage === index + 1 ? "active" : ""
+                        }`}
                       >
                         {index + 1}
                       </button>
@@ -533,7 +543,10 @@ const UserList = () => {
 
                     <button
                       onClick={nextSessionPage}
-                      disabled={currentSessionPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
+                      disabled={
+                        currentSessionPage ===
+                        Math.ceil(sessionHistory.length / sessionsPerPage)
+                      }
                       className="page-button"
                     >
                       Next
@@ -635,21 +648,22 @@ const UserList = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {paginate(performanceData.invoices, currentInvoicePage).map(
-                          (invoice) => (
-                            <tr key={invoice.id}>
-                              <td data-label="ID">{invoice.id}</td>
-                              <td data-label="Type">{invoice.bill_type}</td>
-                              <td data-label="Period">
-                                {invoice.billing_period}
-                              </td>
-                              <td data-label="Address">{invoice.address}</td>
-                              <td data-label="Total Bill">
-                                €{invoice.bill_info?.["total bill"] || "N/A"}
-                              </td>
-                            </tr>
-                          )
-                        )}
+                        {paginate(
+                          performanceData.invoices,
+                          currentInvoicePage
+                        ).map((invoice) => (
+                          <tr key={invoice.id}>
+                            <td data-label="ID">{invoice.id}</td>
+                            <td data-label="Type">{invoice.bill_type}</td>
+                            <td data-label="Period">
+                              {invoice.billing_period}
+                            </td>
+                            <td data-label="Address">{invoice.address}</td>
+                            <td data-label="Total Bill">
+                              €{invoice.bill_info?.["total bill"] || "N/A"}
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -688,7 +702,7 @@ const UserList = () => {
             <div className="data-section">
               <div className="section-header">
                 <h3>
-                  Contracts{" "}
+                  Agreements{" "}
                   <span className="count-badge">
                     {performanceData.contracts.length}
                   </span>
@@ -732,7 +746,9 @@ const UserList = () => {
                             </td>
                             <td data-label="End Date">
                               {contract.end_date
-                                ? new Date(contract.end_date).toLocaleDateString()
+                                ? new Date(
+                                    contract.end_date
+                                  ).toLocaleDateString()
                                 : "N/A"}
                             </td>
                             <td data-label="Status">
@@ -769,7 +785,7 @@ const UserList = () => {
               ) : (
                 <div className="empty-state">
                   <i className="fas fa-file-contract"></i>
-                  <p>No contracts found for this user</p>
+                  <p>No agreements found for this user</p>
                 </div>
               )}
             </div>
@@ -782,7 +798,8 @@ const UserList = () => {
             <p>Loading users...</p>
           ) : users.length === 0 ? (
             <p>
-              No users added yet. <Link to="/group_admin/add-user">Add User</Link>
+              No users added yet.{" "}
+              <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
             <>
@@ -876,7 +893,9 @@ const UserList = () => {
                   <button
                     key={index}
                     onClick={() => paginateUsers(index + 1)}
-                    className={`page-button ${currentPage === index + 1 ? "active" : ""}`}
+                    className={`page-button ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
                   >
                     {index + 1}
                   </button>
@@ -884,7 +903,9 @@ const UserList = () => {
 
                 <button
                   onClick={nextPage}
-                  disabled={currentPage === Math.ceil(users.length / usersPerPage)}
+                  disabled={
+                    currentPage === Math.ceil(users.length / usersPerPage)
+                  }
                   className="page-button"
                 >
                   Next

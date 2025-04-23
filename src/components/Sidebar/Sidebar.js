@@ -302,7 +302,7 @@ const Sidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <MdMessage />
               </div>
-              <span className="nav-link-text ">View Messages</span>
+              <span className="nav-link-text ">Campaign List</span>
             </NavLink>
           </li>
           <li className="nav-item">

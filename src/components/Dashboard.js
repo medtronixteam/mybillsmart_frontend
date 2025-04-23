@@ -127,7 +127,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Pending Contracts
+                  Pending Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.data?.pending_contracts || 0}
@@ -149,7 +149,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Completed Contracts
+                  Completed Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.data?.completed_contracts || 0}
@@ -171,7 +171,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Rejected Contracts
+                  Rejected Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.data?.rejected_contracts || 0}
@@ -196,7 +196,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Total Invoices
+                  Total Invoices
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.data?.total_invoices || 0}
@@ -218,7 +218,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Referral Points
+                  Referral Points
                 </p>
                 <h5 className="font-weight-bolder mb-0">0</h5>
               </div>
@@ -238,7 +238,7 @@ const Dashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Session History
+                  Session History
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.data?.session_count || 0}
@@ -254,8 +254,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-     
 
       {/* Bar Chart Section */}
       <div className="row mt-4">
@@ -285,11 +283,7 @@ const Dashboard = () => {
                     fill="#3498db"
                     radius={[4, 4, 0, 0]}
                   />
-                  <Bar
-                    dataKey="Pending"
-                    fill="#f39c12"
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="Pending" fill="#f39c12" radius={[4, 4, 0, 0]} />
                   <Bar
                     dataKey="Completed"
                     fill="#2ecc71"

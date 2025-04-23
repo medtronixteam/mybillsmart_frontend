@@ -269,7 +269,7 @@ const InvoiceList = () => {
       <div className="d-flex justify-content-between align-items-center ">
         <h1 className=" mb-0">Invoice List</h1>
         <Link to="/agent/contract-list">
-          <button className="btn btn-primary w-100">Contract List</button>
+          <button className="btn btn-primary w-100">Agreement List</button>
         </Link>
       </div>
 

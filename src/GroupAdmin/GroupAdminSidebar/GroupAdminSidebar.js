@@ -448,7 +448,7 @@ const GroupAdminSidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <MdMessage />
               </div>
-              <span className="nav-link-text">Manage Messages</span>
+              <span className="nav-link-text">Manage Campaign</span>
               <RiArrowDropDownLine size={30} />
             </NavLink>
             <div
@@ -468,7 +468,7 @@ const GroupAdminSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                         <MdSchedule />
                       </div>
-                      <span className="nav-link-text">Schedule Message</span>
+                      <span className="nav-link-text">Schedule Campaign</span>
                     </NavLink>
                   </li>
                   <li>
@@ -480,7 +480,7 @@ const GroupAdminSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                         <FaListUl />
                       </div>
-                      <span className="nav-link-text">Message List</span>
+                      <span className="nav-link-text">Campaign List</span>
                     </NavLink>
                   </li>
                 </ul>

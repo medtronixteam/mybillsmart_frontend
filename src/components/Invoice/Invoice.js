@@ -785,7 +785,7 @@ const Invoice = () => {
                     className="invoice-confirmation-btn"
                     onClick={() => handleContractClick(offer)}
                   >
-                    Manage Contract
+                    Manage Agreement
                   </button>
                 </div>
               </div>

@@ -74,7 +74,7 @@ const AgentMessageList = () => {
 
       if (!response.ok) {
         throw new Error(
-          responseData.message || "Failed to fetch message details"
+          responseData.message || "Failed to fetch campaign details"
         );
       }
 
@@ -108,7 +108,7 @@ const AgentMessageList = () => {
       }
     } catch (err) {
       setError(err.message);
-      console.error("Error fetching message details:", err);
+      console.error("Error fetching campaign details:", err);
     } finally {
       setLoading(false);
     }
@@ -139,7 +139,7 @@ const AgentMessageList = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update message");
+        throw new Error(errorData.message || "Failed to update campaign");
       }
 
       fetchMessages(currentPage);
@@ -205,12 +205,12 @@ const AgentMessageList = () => {
 
   return (
     <div className="message-list-container">
-      <h2 className="page-title">Scheduled Messages</h2>
+      <h2 className="page-title">Scheduled Campaigns</h2>
 
       {selectedMessage ? (
         editMode ? (
           <div className="edit-form">
-            <h3>Edit Message</h3>
+            <h3>Edit Campaign</h3>
 
             <div className="form-group">
               <label>Phone Number</label>
@@ -225,12 +225,12 @@ const AgentMessageList = () => {
             </div>
 
             <div className="form-group">
-              <label>Message Content</label>
+              <label>Campaign Content</label>
               <textarea
                 name="message"
                 value={editForm.message}
                 onChange={handleEditChange}
-                placeholder="Type your message"
+                placeholder="Type your campaign"
                 rows="5"
                 required
               />
@@ -277,7 +277,7 @@ const AgentMessageList = () => {
         ) : (
           <div className="message-details">
             <div className="detail-header">
-              <h3>Message Details</h3>
+              <h3>Campaign Details</h3>
               <button
                 className="back-button"
                 onClick={() => setSelectedMessage(null)}
@@ -300,7 +300,7 @@ const AgentMessageList = () => {
                 </span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">Message:</span>
+                <span className="detail-label">Campaign:</span>
                 <span className="detail-value">
                   {selectedMessage.message || "N/A"}
                 </span>
@@ -342,7 +342,7 @@ const AgentMessageList = () => {
                 <tr>
                   <th>ID</th>
                   <th>To Number</th>
-                  <th>Message</th>
+                  <th>Campaign</th>
                   <th>Scheduled Time</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -406,7 +406,7 @@ const AgentMessageList = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="no-messages">
-                      No scheduled messages found
+                      No scheduled campaigns found
                     </td>
                   </tr>
                 )}

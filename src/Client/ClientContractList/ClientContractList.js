@@ -49,17 +49,17 @@ const ClientContractList = () => {
 
   return (
     <div className="contract-list-container">
-      <h1>Contract List</h1>
+      <h1>Agreement List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (
-          <div className="no-data-message text-center">No contracts found.</div>
+          <div className="no-data-message text-center">No Agreement found.</div>
         ) : (
           <table className="contract-table">
             <thead>
               <tr>
                 <th className="contract-table-header">Client ID</th>
-                <th className="contract-table-header">Contracted Provider</th>
-                <th className="contract-table-header">Contracted Rate</th>
+                <th className="contract-table-header">Agreemented Provider</th>
+                <th className="contract-table-header">Agreemented Rate</th>
                 <th className="contract-table-header">Closure Date</th>
                 <th className="contract-table-header">Status</th>
                 <th className="contract-table-header">Action</th>
@@ -75,7 +75,9 @@ const ClientContractList = () => {
                   <td className="contract-table-cell">
                     {contract.contracted_rate}
                   </td>
-                  <td className="contract-table-cell">{contract.closure_date}</td>
+                  <td className="contract-table-cell">
+                    {contract.closure_date}
+                  </td>
                   <td className="contract-table-cell">
                     <button
                       className={`w-100 status-button status-${contract.status.toLowerCase()}`}

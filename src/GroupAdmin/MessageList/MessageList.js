@@ -185,9 +185,9 @@ const MessageList = () => {
       }
 
       await Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Message updated successfully!',
+        icon: "success",
+        title: "Success!",
+        text: "Campaign updated successfully!",
       });
 
       fetchMessages(currentPage);
@@ -230,13 +230,13 @@ const MessageList = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete message");
+        throw new Error("Failed to delete campaign");
       }
 
       await Swal.fire({
-        icon: 'success',
-        title: 'Deleted!',
-        text: 'Your message has been deleted.',
+        icon: "success",
+        title: "Deleted!",
+        text: "Your campaign has been deleted.",
       });
 
       fetchMessages(currentPage);
@@ -277,12 +277,12 @@ const MessageList = () => {
 
   return (
     <div className="message-list-container">
-      <h2 className="page-title">Scheduled Messages</h2>
+      <h2 className="page-title">Scheduled Campaigns</h2>
 
       {selectedMessage ? (
         editMode ? (
           <div className="edit-form">
-            <h3>Edit Message</h3>
+            <h3>Edit Campaign</h3>
 
             <div className="form-group">
               <label>Phone Number</label>
@@ -297,12 +297,12 @@ const MessageList = () => {
             </div>
 
             <div className="form-group">
-              <label>Message Content</label>
+              <label>Campaign Content</label>
               <textarea
                 name="message"
                 value={editForm.message}
                 onChange={handleEditChange}
-                placeholder="Type your message"
+                placeholder="Type your campaign"
                 rows="5"
                 required
               />
@@ -348,7 +348,7 @@ const MessageList = () => {
         ) : (
           <div className="message-details">
             <div className="detail-header">
-              <h3>Message Details</h3>
+              <h3>Campaign Details</h3>
               <button
                 className="back-button"
                 onClick={() => setSelectedMessage(null)}
@@ -371,7 +371,7 @@ const MessageList = () => {
                 </span>
               </div>
               <div className="detail-row">
-                <span className="detail-label">Message:</span>
+                <span className="detail-label">Campaign:</span>
                 <span className="detail-value">
                   {selectedMessage.message || "N/A"}
                 </span>
@@ -411,7 +411,7 @@ const MessageList = () => {
                 <tr>
                   <th>ID</th>
                   <th>To Number</th>
-                  <th>Message</th>
+                  <th>Campaign</th>
                   <th>Scheduled Time</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -465,7 +465,7 @@ const MessageList = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="no-messages">
-                      No scheduled messages found
+                      No scheduled campaigns found
                     </td>
                   </tr>
                 )}

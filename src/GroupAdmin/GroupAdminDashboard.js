@@ -134,7 +134,7 @@ const GroupAdminDashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Pending Contracts
+                  Pending Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.pending_contracts || 0}
@@ -156,7 +156,7 @@ const GroupAdminDashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Completed Contracts
+                  Completed Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.completed_contracts || 0}
@@ -178,7 +178,7 @@ const GroupAdminDashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Rejected Contracts
+                  Rejected Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.rejected_contracts || 0}
@@ -203,7 +203,7 @@ const GroupAdminDashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Total Invoices
+                  Total Invoices
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.total_invoices || 0}
@@ -247,7 +247,7 @@ const GroupAdminDashboard = () => {
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Referral Points
+                  Referral Points
                 </p>
                 <h5 className="font-weight-bolder mb-0">
                   {dashboardData?.referral_points || 0}
@@ -286,14 +286,13 @@ const GroupAdminDashboard = () => {
         </div> */}
       </div>
 
-  {/* Latest Invoices Table */}
-  <div className="row mt-4">
+      {/* Latest Invoices Table */}
+      <div className="row mt-4">
         <div className="col-12">
           <div className="card">
-            <div className="card-header">
-            </div>
+            <div className="card-header"></div>
             <div className="card-body">
-            <h5 className="card-title mb-2">Latest Invoices</h5>
+              <h5 className="card-title mb-2">Latest Invoices</h5>
 
               <div className="table-responsive">
                 <table className="table table-hover">
@@ -303,7 +302,7 @@ const GroupAdminDashboard = () => {
                       <th>Bill Type</th>
                       <th>Address</th>
                       <th>CUPS</th>
-                     
+
                       <th>Total Bill</th>
                     </tr>
                   </thead>
@@ -315,9 +314,8 @@ const GroupAdminDashboard = () => {
                           <td>{invoice.bill_type}</td>
                           <td>{invoice.address}</td>
                           <td>{invoice.CUPS}</td>
-                         
-                   
-                          <td>{invoice.bill_info?.['total bill'] || 'N/A'}</td>
+
+                          <td>{invoice.bill_info?.["total bill"] || "N/A"}</td>
                         </tr>
                       ))
                     ) : (
@@ -335,16 +333,20 @@ const GroupAdminDashboard = () => {
               {dashboardData?.latest_invoices?.length > invoicesPerPage && (
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <div>
-                    Showing {indexOfFirstInvoice + 1} to{' '}
+                    Showing {indexOfFirstInvoice + 1} to{" "}
                     {Math.min(
                       indexOfLastInvoice,
                       dashboardData.latest_invoices.length
-                    )}{' '}
+                    )}{" "}
                     of {dashboardData.latest_invoices.length} entries
                   </div>
                   <nav>
                     <ul className="pagination">
-                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                      <li
+                        className={`page-item ${
+                          currentPage === 1 ? "disabled" : ""
+                        }`}
+                      >
                         <button
                           className="page-link"
                           onClick={() => paginate(currentPage - 1)}
@@ -357,7 +359,9 @@ const GroupAdminDashboard = () => {
                         (number) => (
                           <li
                             key={number}
-                            className={`page-item ${currentPage === number ? 'active' : ''}`}
+                            className={`page-item ${
+                              currentPage === number ? "active" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -368,7 +372,11 @@ const GroupAdminDashboard = () => {
                           </li>
                         )
                       )}
-                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                      <li
+                        className={`page-item ${
+                          currentPage === totalPages ? "disabled" : ""
+                        }`}
+                      >
                         <button
                           className="page-link"
                           onClick={() => paginate(currentPage + 1)}
@@ -406,7 +414,7 @@ const GroupAdminDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value) => [value, ""]}
                     labelFormatter={(label) => <strong>{label}</strong>}
                   />
@@ -441,15 +449,12 @@ const GroupAdminDashboard = () => {
                     fill="#9b59b6"
                     radius={[4, 4, 0, 0]}
                   />
-                
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
       </div>
-
-    
     </div>
   );
 };
