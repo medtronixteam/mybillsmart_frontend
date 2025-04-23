@@ -278,7 +278,7 @@
 /* Pagination */
 .pagination {
   display: flex;
-  justify-content: end !important;
+  justify-content: center;
   margin-top: 20px;
   gap: 5px;
 }

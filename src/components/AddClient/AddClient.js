@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from 'sweetalert2';
 import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
@@ -15,9 +14,28 @@ const AddClients = () => {
     country: "",
     city: "",
     postalCode: "",
-    // role field removed from state as it will be hardcoded now
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { token } = useAuth();
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +44,7 @@ const AddClients = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Validate all fields
     if (
@@ -37,12 +56,22 @@ const AddClients = () => {
       !formData.city ||
       !formData.postalCode
     ) {
-      toast.error("All fields are required!");
+      showErrorAlert("All fields are required!");
+      setIsSubmitting(false);
       return;
     }
 
+    // Show loading alert
+    const loadingAlert = Swal.fire({
+      title: 'Adding Client',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
-      // Prepare data for API with hardcoded role as "client"
       const apiData = {
         name: formData.name,
         email: formData.email,
@@ -51,11 +80,11 @@ const AddClients = () => {
         country: formData.country,
         city: formData.city,
         postalCode: formData.postalCode,
-        role: "client", // Hardcoded role as "client"
+        role: "client",
       };
 
       const response = await axios.post(
-        `${config.BASE_URL}/api/agent/user`, // Changed endpoint
+        `${config.BASE_URL}/api/agent/user`,
         apiData,
         {
           headers: {
@@ -65,7 +94,8 @@ const AddClients = () => {
         }
       );
 
-      toast.success("User added successfully!");
+      loadingAlert.close();
+      showSuccessAlert("Client added successfully!");
 
       // Reset the form
       setFormData({
@@ -78,14 +108,17 @@ const AddClients = () => {
         postalCode: "",
       });
     } catch (error) {
-      console.error("Error adding user:", error);
-      toast.error("Failed to add user. Please try again.");
+      loadingAlert.close();
+      console.error("Error adding client:", error);
+      showErrorAlert(error.response?.data?.message || "Failed to add client. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="add-user-container">
-      <h1>Add User</h1>
+      <h1>Add Client</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -143,10 +176,11 @@ const AddClients = () => {
           onChange={handleChange}
           required
         />
+       
       </form>
-      <button type="submit" onClick={handleSubmit}>
-        Add User
-      </button>
+      <button type="submit" disabled={isSubmitting} onClick={handleSubmit}>
+          {isSubmitting ? 'Adding Client...' : 'Add Client'}
+        </button>
     </div>
   );
 };

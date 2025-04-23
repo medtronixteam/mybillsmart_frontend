@@ -4,23 +4,55 @@ import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import config from "../../config";
+import Swal from 'sweetalert2';
 
 const AgentGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [editingGoal, setEditingGoal] = useState(null);
   const { token } = useAuth();
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
+
+  const showLoadingAlert = () => {
+    return Swal.fire({
+      title: 'Loading',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  };
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
+
   useEffect(() => {
     fetchGoals();
   }, []);
 
-  const fetchGoals = async () => {   
+  const fetchGoals = async () => {
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
       const response = await axios.get(
@@ -32,11 +64,13 @@ const AgentGoalList = () => {
         }
       );
       setGoals(response.data.data);
-      setLoading(false);
+      loadingAlert.close();
     } catch (err) {
-      setError("Failed to fetch goals. Please try again.");
-      setLoading(false);
+      loadingAlert.close();
+      showErrorAlert("Failed to fetch goals. Please try again.");
       console.error("Error fetching goals:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,20 +79,37 @@ const AgentGoalList = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleDelete = async (goalId) => {
-    if (!window.confirm("Are you sure you want to delete this goal?")) return;
+  const confirmDelete = async (goalId) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
 
+    if (result.isConfirmed) {
+      await handleDelete(goalId);
+    }
+  };
+
+  const handleDelete = async (goalId) => {
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
-      await axios.delete(`https://bill.medtronix.world/api/goals/${goalId}`, {
+      await axios.delete(`${config.BASE_URL}/api/goals/${goalId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setSuccess("Goal deleted successfully!");
+      loadingAlert.close();
+      showSuccessAlert("Goal deleted successfully!");
       fetchGoals();
     } catch (err) {
-      setError("Failed to delete goal. Please try again.");
+      loadingAlert.close();
+      showErrorAlert("Failed to delete goal. Please try again.");
       console.error("Error deleting goal:", err);
     } finally {
       setLoading(false);
@@ -75,10 +126,11 @@ const AgentGoalList = () => {
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
       await axios.patch(
-        `https://bill.medtronix.world/api/goals/${editingGoal.id}/status`,
+        `${config.BASE_URL}/api/goals/${editingGoal.id}/status`,
         editingGoal,
         {
           headers: {
@@ -87,11 +139,13 @@ const AgentGoalList = () => {
           },
         }
       );
-      setSuccess("Goal updated successfully!");
+      loadingAlert.close();
+      showSuccessAlert("Goal updated successfully!");
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
-      setError("Failed to update goal. Please try again.");
+      loadingAlert.close();
+      showErrorAlert("Failed to update goal. Please try again.");
       console.error("Error updating goal:", err);
     } finally {
       setLoading(false);
@@ -110,11 +164,10 @@ const AgentGoalList = () => {
     <div className="goal-list-container">
       <h2>Goals List</h2>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-
       {loading && !editingGoal ? (
-        <div className="loading">Loading goals...</div>
+        <div className="loading-spinner-container">
+          <div className="loading-spinner"></div>
+        </div>
       ) : (
         <>
           {editingGoal ? (
@@ -189,7 +242,7 @@ const AgentGoalList = () => {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    Save Changes
+                    {loading ? 'Saving...' : 'Save Changes'}
                   </button>
                   <button
                     type="button"
@@ -247,33 +300,17 @@ const AgentGoalList = () => {
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                                 onClick={() => handleEdit(goal)}
-                                disabled={loading}
                               >
                                 Edit
                               </a>
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleDelete(goal.id)}
-                                disabled={loading}
+                                onClick={() => confirmDelete(goal.id)}
                               >
                                 Delete
                               </a>
                             </div>
                           )}
-                          {/* <button
-                            onClick={() => handleEdit(goal)}
-                            className="btn btn-edit"
-                            disabled={loading}
-                          >
-                            Edit
-                          </button> */}
-                          {/* <button
-                            onClick={() => handleDelete(goal.id)}
-                            className="btn btn-delete"
-                            disabled={loading}
-                          >
-                            Delete
-                          </button> */}
                         </td>
                       </tr>
                     ))

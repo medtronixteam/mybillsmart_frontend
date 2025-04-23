@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import "./UserList.css";
+import "./AgentUserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 
-const UserList = () => {
+const AgentUserList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [users, setUsers] = useState([]);
   const [editData, setEditData] = useState({
@@ -24,13 +24,6 @@ const UserList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
-
-  // Performance view states
-  const [showPerformance, setShowPerformance] = useState(false);
-  const [performanceData, setPerformanceData] = useState(null);
-  const [currentInvoicePage, setCurrentInvoicePage] = useState(1);
-  const [currentContractPage, setCurrentContractPage] = useState(1);
-  const itemsPerPage = 5;
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +48,7 @@ const UserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${config.BASE_URL}/api/group/users/list`, {
+      const response = await fetch(`${config.BASE_URL}/api/agent/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,63 +75,12 @@ const UserList = () => {
     }
   };
 
-  // Performance view functions
-  const fetchPerformanceData = async (userId) => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${config.BASE_URL}/api/group/user/detail/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch performance data");
-      }
-
-      const result = await response.json();
-      setPerformanceData(result.data.user);
-      setShowPerformance(true);
-      setCurrentInvoicePage(1);
-      setCurrentContractPage(1);
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: err.message || "Failed to fetch performance data",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBackFromPerformance = () => {
-    setShowPerformance(false);
-    setPerformanceData(null);
-  };
-
-  // Pagination functions
-  const paginate = (array, page) => {
-    const startIndex = (page - 1) * itemsPerPage;
-    return array.slice(startIndex, startIndex + itemsPerPage);
-  };
-
-  const totalInvoicePages = performanceData
-    ? Math.ceil(performanceData.invoices.length / itemsPerPage)
-    : 0;
-  const totalContractPages = performanceData
-    ? Math.ceil(performanceData.contracts.length / itemsPerPage)
-    : 0;
-
-  // User list pagination logic
+  // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
-  const paginateUsers = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
   const nextPage = () => {
     if (currentPage < Math.ceil(users.length / usersPerPage)) {
@@ -544,237 +486,6 @@ const UserList = () => {
             </>
           )}
         </div>
-      ) : showPerformance ? (
-        <div className="performance-view-container">
-          <button onClick={handleBackFromPerformance} className="back-button">
-            Back to User List
-          </button>
-
-          <div className="user-details-container">
-            <div className="user-profile-card">
-              <div className="profile-header">
-                <div className="avatar">{performanceData.name.charAt(0)}</div>
-                <div className="profile-info">
-                  <h3>{performanceData.name}</h3>
-                  <p className="user-role">{performanceData.role}</p>
-                </div>
-                <span
-                  className={`status-badge ${
-                    performanceData.status === 1 ? "active" : "inactive"
-                  }`}
-                >
-                  {performanceData.status === 1 ? "Active" : "Inactive"}
-                </span>
-              </div>
-
-              <div className="profile-details-grid">
-                <div className="detail-item">
-                  <span className="detail-label">Email:</span>
-                  <span className="detail-value">{performanceData.email}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Phone:</span>
-                  <span className="detail-value">
-                    {performanceData.phone || "N/A"}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Last Login:</span>
-                  <span className="detail-value">
-                    {performanceData.last_login_at || "Never logged in"}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Member Since:</span>
-                  <span className="detail-value">
-                    {new Date(performanceData.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Location:</span>
-                  <span className="detail-value">
-                    {performanceData.city
-                      ? `${performanceData.city}, ${performanceData.country}`
-                      : "N/A"}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Points:</span>
-                  <span className="detail-value">{performanceData.points}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Invoices Section */}
-            <div className="data-section">
-              <div className="section-header">
-                <h3>
-                  Invoices{" "}
-                  <span className="count-badge">
-                    {performanceData.invoices.length}
-                  </span>
-                </h3>
-                {performanceData.invoices.length > 0 && (
-                  <div className="pagination-info">
-                    Page {currentInvoicePage} of {totalInvoicePages}
-                  </div>
-                )}
-              </div>
-
-              {performanceData.invoices.length > 0 ? (
-                <>
-                  <div className="responsive-table">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Type</th>
-                          <th>Period</th>
-                          <th>Address</th>
-                          <th>Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginate(performanceData.invoices, currentInvoicePage).map(
-                          (invoice) => (
-                            <tr key={invoice.id}>
-                              <td data-label="ID">{invoice.id}</td>
-                              <td data-label="Type">{invoice.bill_type}</td>
-                              <td data-label="Period">
-                                {invoice.billing_period}
-                              </td>
-                              <td data-label="Address">{invoice.address}</td>
-                              <td data-label="Total Bill">
-                                €{invoice.bill_info?.["total bill"] || "N/A"}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() =>
-                        setCurrentInvoicePage((p) => Math.max(p - 1, 1))
-                      }
-                      disabled={currentInvoicePage === 1}
-                      className="pagination-btn"
-                    >
-                      <i className="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <button
-                      onClick={() =>
-                        setCurrentInvoicePage((p) =>
-                          Math.min(p + 1, totalInvoicePages)
-                        )
-                      }
-                      disabled={currentInvoicePage === totalInvoicePages}
-                      className="pagination-btn"
-                    >
-                      Next <i className="fas fa-chevron-right"></i>
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="empty-state">
-                  <i className="fas fa-file-invoice"></i>
-                  <p>No invoices found for this user</p>
-                </div>
-              )}
-            </div>
-
-            {/* Contracts Section */}
-            <div className="data-section">
-              <div className="section-header">
-                <h3>
-                  Contracts{" "}
-                  <span className="count-badge">
-                    {performanceData.contracts.length}
-                  </span>
-                </h3>
-                {performanceData.contracts.length > 0 && (
-                  <div className="pagination-info">
-                    Page {currentContractPage} of {totalContractPages}
-                  </div>
-                )}
-              </div>
-
-              {performanceData.contracts.length > 0 ? (
-                <>
-                  <div className="responsive-table">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Type</th>
-                          <th>Start Date</th>
-                          <th>End Date</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginate(
-                          performanceData.contracts,
-                          currentContractPage
-                        ).map((contract) => (
-                          <tr key={contract.id}>
-                            <td data-label="ID">{contract.id}</td>
-                            <td data-label="Type">
-                              {contract.contract_type || "N/A"}
-                            </td>
-                            <td data-label="Start Date">
-                              {contract.start_date
-                                ? new Date(
-                                    contract.start_date
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </td>
-                            <td data-label="End Date">
-                              {contract.end_date
-                                ? new Date(contract.end_date).toLocaleDateString()
-                                : "N/A"}
-                            </td>
-                            <td data-label="Status">
-                              {contract.status || "N/A"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() =>
-                        setCurrentContractPage((p) => Math.max(p - 1, 1))
-                      }
-                      disabled={currentContractPage === 1}
-                      className="pagination-btn"
-                    >
-                      <i className="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <button
-                      onClick={() =>
-                        setCurrentContractPage((p) =>
-                          Math.min(p + 1, totalContractPages)
-                        )
-                      }
-                      disabled={currentContractPage === totalContractPages}
-                      className="pagination-btn"
-                    >
-                      Next <i className="fas fa-chevron-right"></i>
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="empty-state">
-                  <i className="fas fa-file-contract"></i>
-                  <p>No contracts found for this user</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       ) : (
         <>
           <h1>User List</h1>
@@ -782,7 +493,7 @@ const UserList = () => {
             <p>Loading users...</p>
           ) : users.length === 0 ? (
             <p>
-              No users added yet. <Link to="/group_admin/add-user">Add User</Link>
+              No users added yet. <Link to="/agent/add-client">Add User</Link>
             </p>
           ) : (
             <>
@@ -825,12 +536,6 @@ const UserList = () => {
                               onClick={() => fetchSessionHistory(user.id)}
                             >
                               Session History
-                            </a>
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchPerformanceData(user.id)}
-                            >
-                              Performance
                             </a>
                             {user.status === 1 ? (
                               <a
@@ -875,7 +580,7 @@ const UserList = () => {
                 }).map((_, index) => (
                   <button
                     key={index}
-                    onClick={() => paginateUsers(index + 1)}
+                    onClick={() => paginate(index + 1)}
                     className={`page-button ${currentPage === index + 1 ? "active" : ""}`}
                   >
                     {index + 1}
@@ -993,4 +698,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default AgentUserList;

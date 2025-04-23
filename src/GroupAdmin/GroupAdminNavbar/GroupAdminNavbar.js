@@ -80,12 +80,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
               >
                 Company Details
               </Link>
-              <Link
-                to="/group_admin/company-details-list"
-                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-              >
-                Company Details List
-              </Link>
+              
             </div>
           )}
         </div>

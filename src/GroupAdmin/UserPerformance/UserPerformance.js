@@ -9,7 +9,7 @@ const UserPerformance = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null);  
   const [currentInvoicePage, setCurrentInvoicePage] = useState(1);
   const [currentContractPage, setCurrentContractPage] = useState(1);
   const itemsPerPage = 5;

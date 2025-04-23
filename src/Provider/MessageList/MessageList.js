@@ -3,13 +3,12 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from 'sweetalert2';
 
 const ProviderMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
-
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,14 +22,45 @@ const ProviderMessageList = () => {
     time_send: "",
     date_send: "",
   });
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
+
+  const showLoadingAlert = () => {
+    return Swal.fire({
+      title: 'Loading',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  };
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
 
   const fetchMessages = async (page = 1) => {
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
         {
@@ -50,16 +80,17 @@ const ProviderMessageList = () => {
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
-      setError(err.message);
+      showErrorAlert(err.message);
     } finally {
+      loadingAlert.close();
       setLoading(false);
     }
   };
 
   const fetchMessageDetails = async (id) => {
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -70,7 +101,6 @@ const ProviderMessageList = () => {
       );
 
       const responseData = await response.json();
-      console.log("API Response:", responseData);
 
       if (!response.ok) {
         throw new Error(
@@ -83,17 +113,16 @@ const ProviderMessageList = () => {
       if (messageData) {
         setSelectedMessage(messageData);
 
-        // Handle invalid/missing time_send
         let datetime;
         try {
           datetime = messageData.time_send
             ? new Date(messageData.time_send)
             : new Date();
           if (isNaN(datetime.getTime())) {
-            datetime = new Date(); // Fallback to current date if invalid
+            datetime = new Date();
           }
         } catch (e) {
-          datetime = new Date(); // Fallback to current date if error
+          datetime = new Date();
         }
 
         const date = datetime.toISOString().split("T")[0];
@@ -107,18 +136,62 @@ const ProviderMessageList = () => {
         });
       }
     } catch (err) {
-      setError(err.message);
-      console.error("Error fetching message details:", err);
+      showErrorAlert(err.message);
     } finally {
+      loadingAlert.close();
+      setLoading(false);
+    }
+  };
+
+  const confirmDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      await deleteMessage(id);
+    }
+  };
+
+  const deleteMessage = async (id) => {
+    const loadingAlert = showLoadingAlert();
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${config.BASE_URL}/api/auto-messages/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete message");
+      }
+
+      showSuccessAlert("Message deleted successfully!");
+      fetchMessages(currentPage);
+      setSelectedMessage(null);
+    } catch (err) {
+      showErrorAlert(err.message);
+    } finally {
+      loadingAlert.close();
       setLoading(false);
     }
   };
 
   const updateMessage = async (id) => {
+    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
-      setError(null);
-
       const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
 
       const response = await fetch(
@@ -142,40 +215,14 @@ const ProviderMessageList = () => {
         throw new Error(errorData.message || "Failed to update message");
       }
 
+      showSuccessAlert("Message updated successfully!");
       fetchMessages(currentPage);
       setEditMode(false);
       setSelectedMessage(null);
     } catch (err) {
-      setError(err.message);
+      showErrorAlert(err.message);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteMessage = async (id) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(
-        `${config.BASE_URL}/api/auto-messages/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete message");
-      }
-
-      fetchMessages(currentPage);
-      setSelectedMessage(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
+      loadingAlert.close();
       setLoading(false);
     }
   };
@@ -199,9 +246,13 @@ const ProviderMessageList = () => {
     fetchMessages();
   }, []);
 
-  if (loading && messages.length === 0)
-    return <div className="loading-spinner"></div>;
-  if (error) return <div className="error-message">Error: {error}</div>;
+  if (loading && messages.length === 0) {
+    return (
+      <div className="loading-spinner-container">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="message-list-container">
@@ -258,8 +309,6 @@ const ProviderMessageList = () => {
                 />
               </div>
             </div>
-
-            {error && <div className="error-message">{error}</div>}
 
             <div className="form-actions">
               <button className="cancel-btn" onClick={() => setEditMode(false)}>
@@ -327,7 +376,7 @@ const ProviderMessageList = () => {
               </button>
               <button
                 className="delete-btn"
-                onClick={() => deleteMessage(selectedMessage.id)}
+                onClick={() => confirmDelete(selectedMessage.id)}
               >
                 Delete
               </button>
@@ -394,12 +443,6 @@ const ProviderMessageList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-btn"
-                          onClick={() => fetchMessageDetails(message.id)}
-                        >
-                          View
-                        </button> */}
                       </td>
                     </tr>
                   ))

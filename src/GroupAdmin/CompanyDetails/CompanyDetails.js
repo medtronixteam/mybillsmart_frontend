@@ -110,7 +110,7 @@ const CompanyDetails = () => {
     try {
       // Determine if we're updating or creating new
       const hasExistingData = existingLogo !== null;
-      const method = hasExistingData ? 'put' : 'post';
+      const method = 'post';
 
       const response = await axios[method](`${config.BASE_URL}/api/group/company/details`, formDataToSend, {
         headers: {
@@ -249,16 +249,11 @@ const CompanyDetails = () => {
               onChange={handleFileChange}
               accept="image/*"
             />
-            {existingLogo && (
-              <div className="logo-preview">
-                <img src={existingLogo} alt="Current Company Logo" />
-                <small>Current logo</small>
-              </div>
-            )}
+          
           </div>
         </div>
 
-        <button type="submit" disabled={isSubmitting} className="submit-btn">
+        <button type="submit" disabled={isSubmitting} className="company-details-submit">
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </form>

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from 'sweetalert2';
 import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
@@ -17,15 +16,36 @@ const AddClient = ({ onAddUser }) => {
     postalCode: "",
     role: "agent",
   });
-  const { token } = useAuth(); // Get token from AuthContext
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Validate all fields
     if (
@@ -37,12 +57,22 @@ const AddClient = ({ onAddUser }) => {
       !formData.city ||
       !formData.postalCode
     ) {
-      toast.error("All fields are required!");
+      showErrorAlert("All fields are required!");
+      setIsSubmitting(false);
       return;
     }
 
+    // Show loading alert
+    const loadingAlert = Swal.fire({
+      title: 'Adding User',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
-      // Extract only required fields for API
       const apiData = {
         name: formData.name,
         email: formData.email,
@@ -56,13 +86,13 @@ const AddClient = ({ onAddUser }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Pass token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      // If the API call is successful, show success message
-      toast.success("User added successfully!");
+      loadingAlert.close();
+      showSuccessAlert("User added successfully!");
 
       // Reset the form
       setFormData({
@@ -73,17 +103,18 @@ const AddClient = ({ onAddUser }) => {
         country: "",
         city: "",
         postalCode: "",
-        role: "agent", // Reset to default role
+        role: "agent",
       });
 
-      // Call the onAddUser prop if needed (optional)
       if (onAddUser) {
         onAddUser(formData);
       }
     } catch (error) {
-      // Handle API errors
+      loadingAlert.close();
       console.error("Error adding user:", error);
-      toast.error("Failed to add user. Please try again.");
+      showErrorAlert(error.response?.data?.message || "Failed to add user. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,11 +185,12 @@ const AddClient = ({ onAddUser }) => {
           required
         >
           <option value="agent">Sale Agent</option>
-          {/* <option value="supervisor">Supervisor</option> */}
           <option value="client">Clients</option>
         </select>
 
-        <button type="submit">Add User</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Adding User...' : 'Add User'}
+        </button>
       </form>
     </div>
   );

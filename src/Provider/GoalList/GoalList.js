@@ -3,14 +3,14 @@ import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from 'sweetalert2';
+import config from "../../config";
 
 
 const ProviderGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [editingGoal, setEditingGoal] = useState(null);
   const { token } = useAuth();
 
@@ -22,11 +22,41 @@ const ProviderGoalList = () => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
 
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showLoadingAlert = () => {
+    return Swal.fire({
+      title: 'Loading Goals',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  };
+
   const fetchGoals = async () => {
+    const loadingAlert = showLoadingAlert();
     try {
-      setLoading(true);
       const response = await axios.get(
-        "https://bill.medtronix.world/api/goals",
+        `${config.BASE_URL}/api/goals`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -34,11 +64,13 @@ const ProviderGoalList = () => {
         }
       );
       setGoals(response.data.data);
-      setLoading(false);
+      loadingAlert.close();
     } catch (err) {
-      setError("Failed to fetch goals. Please try again.");
-      setLoading(false);
+      loadingAlert.close();
+      showErrorAlert("Failed to fetch goals. Please try again.");
       console.error("Error fetching goals:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,25 +80,35 @@ const ProviderGoalList = () => {
   };
 
   const handleDelete = async (goalId) => {
-    if (!window.confirm("Are you sure you want to delete this goal?")) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
 
-    try {
-      setLoading(true);
-      await axios.delete(
-        `https://bill.medtronix.world/api/goals/${goalId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setSuccess("Goal deleted successfully!");
-      fetchGoals();
-    } catch (err) {
-      setError("Failed to delete goal. Please try again.");
-      console.error("Error deleting goal:", err);
-    } finally {
-      setLoading(false);
+    if (result.isConfirmed) {
+      const loadingAlert = showLoadingAlert();
+      try {
+        await axios.delete(
+          `${config.BASE_URL}/api/goals/${goalId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        loadingAlert.close();
+        showSuccessAlert("Goal deleted successfully!");
+        fetchGoals();
+      } catch (err) {
+        loadingAlert.close();
+        showErrorAlert("Failed to delete goal. Please try again.");
+        console.error("Error deleting goal:", err);
+      }
     }
   };
 
@@ -80,10 +122,10 @@ const ProviderGoalList = () => {
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
+    const loadingAlert = showLoadingAlert();
     try {
-      setLoading(true);
       await axios.patch(
-        `https://bill.medtronix.world/api/goals/${editingGoal.id}/status`,
+        `${config.BASE_URL}/api/goals/${editingGoal.id}/status`,
         editingGoal,
         {
           headers: {
@@ -92,14 +134,14 @@ const ProviderGoalList = () => {
           },
         }
       );
-      setSuccess("Goal updated successfully!");
+      loadingAlert.close();
+      showSuccessAlert("Goal updated successfully!");
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
-      setError("Failed to update goal. Please try again.");
+      loadingAlert.close();
+      showErrorAlert("Failed to update goal. Please try again.");
       console.error("Error updating goal:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -115,179 +157,152 @@ const ProviderGoalList = () => {
     <div className="goal-list-container">
       <h2>Goals List</h2>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-
-      {loading && !editingGoal ? (
-        <div className="loading">Loading goals...</div>
-      ) : (
-        <>
-          {editingGoal ? (
-            <div className="edit-goal-form">
-              <h3>Edit Goal</h3>
-              <form onSubmit={handleSaveEdit}>
-                <div className="form-group">
-                  <label>Task Name</label>
-                  <input
-                    type="text"
-                    name="task_name"
-                    value={editingGoal.task_name}
-                    onChange={handleEditInputChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Start Date</label>
-                    <input
-                      type="date"
-                      name="start_date"
-                      value={editingGoal.start_date}
-                      onChange={handleEditInputChange}
-                      className="form-control"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>End Date</label>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={editingGoal.end_date}
-                      onChange={handleEditInputChange}
-                      className="form-control"
-                      required
-                      min={editingGoal.start_date}
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Points</label>
-                  <input
-                    type="number"
-                    name="points"
-                    value={editingGoal.points}
-                    onChange={handleEditInputChange}
-                    className="form-control"
-                    required
-                    min="1"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Status</label>
-                  <select
-                    name="status"
-                    value={editingGoal.status}
-                    onChange={handleEditInputChange}
-                    className="form-control"
-                    required
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-                <div className="form-actions">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+      {editingGoal ? (
+        <div className="edit-goal-form">
+          <h3>Edit Goal</h3>
+          <form onSubmit={handleSaveEdit}>
+            <div className="form-group">
+              <label>Task Name</label>
+              <input
+                type="text"
+                name="task_name"
+                value={editingGoal.task_name}
+                onChange={handleEditInputChange}
+                className="form-control"
+                required
+              />
             </div>
-          ) : (
-            <div className="goals-table-container table-responsive">
-              <table className="goals-table table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Task Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Points</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {goals.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="text-center">
-                        No goals found
-                      </td>
-                    </tr>
-                  ) : (
-                    goals.map((goal,index) => (
-                      <tr key={goal.id}>
-                        <td>{goal.task_name}</td>
-                        <td>{formatDate(goal.start_date)}</td>
-                        <td>{formatDate(goal.end_date)}</td>
-                        <td>{goal.points}</td>
-                        <td>
-                          {goal.status.charAt(0).toUpperCase() +
-                            goal.status.slice(1).replace("_", " ")}
-                        </td>
-                        <td className="actions">
-                          <HiDotsHorizontal
-                            size={30}
-                            onClick={() => toggleDropdown(index)}
-                            className="cursor-pointer"
-                          />
-                          {activeDropdown === index && (
-                            <div
-                              className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                              style={{ marginLeft: "-140px" }}
-                            >
-                              <a
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleEdit(goal)}
-                                disabled={loading}
-                              >
-                                Edit
-                              </a>
-                              <a
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleDelete(goal.id)}
-                                disabled={loading}
-                              >
-                                Delete
-                              </a>
-                            </div>
-                          )}
-                          {/* <button
+            <div className="form-row">
+              <div className="form-group">
+                <label>Start Date</label>
+                <input
+                  type="date"
+                  name="start_date"
+                  value={editingGoal.start_date}
+                  onChange={handleEditInputChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>End Date</label>
+                <input
+                  type="date"
+                  name="end_date"
+                  value={editingGoal.end_date}
+                  onChange={handleEditInputChange}
+                  className="form-control"
+                  required
+                  min={editingGoal.start_date}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Points</label>
+              <input
+                type="number"
+                name="points"
+                value={editingGoal.points}
+                onChange={handleEditInputChange}
+                className="form-control"
+                required
+                min="1"
+              />
+            </div>
+            <div className="form-group">
+              <label>Status</label>
+              <select
+                name="status"
+                value={editingGoal.status}
+                onChange={handleEditInputChange}
+                className="form-control"
+                required
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="btn btn-primary"
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleCancelEdit}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="goals-table-container table-responsive">
+          <table className="goals-table table table-bordered">
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Points</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {goals.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="text-center">
+                    {loading ? 'Loading goals...' : 'No goals found'}
+                  </td>
+                </tr>
+              ) : (
+                goals.map((goal, index) => (
+                  <tr key={goal.id}>
+                    <td>{goal.task_name}</td>
+                    <td>{formatDate(goal.start_date)}</td>
+                    <td>{formatDate(goal.end_date)}</td>
+                    <td>{goal.points}</td>
+                    <td>
+                      {goal.status.charAt(0).toUpperCase() +
+                        goal.status.slice(1).replace("_", " ")}
+                    </td>
+                    <td className="actions">
+                      <HiDotsHorizontal
+                        size={30}
+                        onClick={() => toggleDropdown(index)}
+                        className="cursor-pointer"
+                      />
+                      {activeDropdown === index && (
+                        <div
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                          style={{ marginLeft: "-140px" }}
+                        >
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                             onClick={() => handleEdit(goal)}
-                            className="btn btn-edit"
-                            disabled={loading}
                           >
                             Edit
-                          </button> */}
-                          {/* <button
+                          </a>
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                             onClick={() => handleDelete(goal.id)}
-                            className="btn btn-delete"
-                            disabled={loading}
                           >
                             Delete
-                          </button> */}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
+                          </a>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
