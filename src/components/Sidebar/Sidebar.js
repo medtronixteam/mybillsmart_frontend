@@ -156,7 +156,7 @@ const Sidebar = () => {
               <span className="nav-link-text ms-1">Invoice List</span>
             </NavLink>
           </li> */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/add-client"
@@ -167,7 +167,59 @@ const Sidebar = () => {
               </div>
               <span className="nav-link-text">Manage Client</span>
             </NavLink>
+          </li> */}
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseClients"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaUserPlus />
+              </div>
+              <span className="nav-link-text">Manage Client</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseClients"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/agent/add-client"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaUserPlus />
+                      </div>
+                      <span className="nav-link-text">Add Client</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/agent/user-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaUserPlus />
+                      </div>
+                      <span className="nav-link-text">Client List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </li>
+
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

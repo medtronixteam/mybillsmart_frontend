@@ -488,7 +488,7 @@ const AgentUserList = () => {
         </div>
       ) : (
         <>
-          <h1>User List</h1>
+          <h1>Client List</h1>
           {loading ? (
             <p>Loading users...</p>
           ) : users.length === 0 ? (
