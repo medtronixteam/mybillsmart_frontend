@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import "./ClientList.css";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from 'sweetalert2';
 
 const ClientList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -26,12 +25,34 @@ const ClientList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      title: 'Success!',
+      text: message,
+      icon: 'success',
+      confirmButtonText: 'OK',
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  };
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      title: 'Error!',
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'OK'
+    });
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -46,11 +67,11 @@ const ClientList = () => {
       if (result.status === "success") {
         setUsers(result.data);
       } else {
-        toast.error(result.message || "Failed to fetch users!");
+        showErrorAlert(result.message || "Failed to fetch users!");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
-      toast.error("Failed to fetch users!");
+      showErrorAlert("Failed to fetch users!");
     } finally {
       setLoading(false);
     }
@@ -70,17 +91,29 @@ const ClientList = () => {
       if (result.status === "success") {
         return result.data;
       } else {
-        toast.error(result.message || "Failed to fetch user details!");
+        showErrorAlert(result.message || "Failed to fetch user details!");
         return null;
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
-      toast.error("Failed to fetch user details!");
+      showErrorAlert("Failed to fetch user details!");
       return null;
     }
   };
 
   const handleDisableClick = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to disable this user!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, disable it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const response = await fetch(
         `${config.BASE_URL}/api/supervisor/user/disable/${id}`,
@@ -93,18 +126,30 @@ const ClientList = () => {
       );
       const result = await response.json();
       if (response.ok && result.status === "success") {
-        toast.success("User disabled successfully!");
+        showSuccessAlert("User disabled successfully!");
         fetchUsers();
       } else {
-        toast.error(result.message || "Failed to disable user!");
+        showErrorAlert(result.message || "Failed to disable user!");
       }
     } catch (error) {
       console.error("Error disabling user:", error);
-      toast.error("Failed to disable user!");
+      showErrorAlert("Failed to disable user!");
     }
   };
 
   const handleEnableClick = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to enable this user!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, enable it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const response = await fetch(
         `${config.BASE_URL}/api/supervisor/user/enable/${id}`,
@@ -117,19 +162,29 @@ const ClientList = () => {
       );
       const result = await response.json();
       if (response.ok && result.status === "success") {
-        toast.success("User enabled successfully!");
+        showSuccessAlert("User enabled successfully!");
         fetchUsers();
       } else {
-        toast.error(result.message || "Failed to enable user!");
+        showErrorAlert(result.message || "Failed to enable user!");
       }
     } catch (error) {
       console.error("Error enabling user:", error);
-      toast.error("Failed to enable user!");
+      showErrorAlert("Failed to enable user!");
     }
   };
 
   const handleDeleteClick = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(
@@ -143,14 +198,14 @@ const ClientList = () => {
       );
       const result = await response.json();
       if (response.ok && result.status === "success") {
-        toast.success("User deleted successfully!");
+        showSuccessAlert("User deleted successfully!");
         fetchUsers();
       } else {
-        toast.error(result.message || "Failed to delete user!");
+        showErrorAlert(result.message || "Failed to delete user!");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error("Failed to delete user!");
+      showErrorAlert("Failed to delete user!");
     }
   };
 
@@ -176,7 +231,7 @@ const ClientList = () => {
 
   const handleSaveClick = async () => {
     if (!editData.name || !editData.email || !editData.phone) {
-      toast.error("Name, email and phone are required!");
+      showErrorAlert("Name, email and phone are required!");
       return;
     }
 
@@ -205,15 +260,15 @@ const ClientList = () => {
       const result = await response.json();
 
       if (response.ok && result.status === "success") {
-        toast.success("User updated successfully!");
+        showSuccessAlert("User updated successfully!");
         fetchUsers();
         setIsModalOpen(false);
       } else {
-        toast.error(result.message || "Failed to update user!");
+        showErrorAlert(result.message || "Failed to update user!");
       }
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error("Failed to update user!");
+      showErrorAlert("Failed to update user!");
     }
   };
 
@@ -252,8 +307,7 @@ const ClientList = () => {
 
       {loading ? (
         <div className="loading-spinner">
-          <div className="spinner"></div>
-          {/* <p>Loading users...</p> */}
+         
         </div>
       ) : users.length === 0 ? (
         <div className="no-users-message">
@@ -332,33 +386,6 @@ const ClientList = () => {
                         </a>
                       </div>
                     )}
-                    {/* <button
-                      className="edit-btn"
-                      onClick={() => handleEditClick(user)}
-                    >
-                      Edit
-                    </button> */}
-                    {/* {user.status === 1 ? (
-                      <button
-                        className="disable-btn"
-                        onClick={() => handleDisableClick(user.id)}
-                      >
-                        Disable
-                      </button>
-                    ) : (
-                      <button
-                        className="enable-btn"
-                        onClick={() => handleEnableClick(user.id)}
-                      >
-                        Enable
-                      </button>
-                    )} */}
-                    {/* <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteClick(user.id)}
-                    >
-                      Delete
-                    </button> */}
                   </td>
                 </tr>
               ))}

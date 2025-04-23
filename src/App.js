@@ -95,6 +95,9 @@ import SubscriptionOrder from "./GroupAdmin/SubscriptionOrder/SubscriptionOrder"
 import CompanyDetails from "./GroupAdmin/CompanyDetails/CompanyDetails";
 import ComapnyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
 import CompanyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsList";
+import AgentSessionHistory from "./components/SessionHistory/AgentSessionHistory";
+import SupervisorSessionHistory from "./Provider/SessionHistory/SupervisorSessionHistory";
+import AgentUserList from "./components/AgentUserList/AgentUserList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -320,6 +323,14 @@ const App = () => {
                             path="message"
                             element={<AgentMessageList />}
                           />
+                          <Route
+                            path="session-history"
+                            element={<AgentSessionHistory />}
+                          />
+                          <Route
+                            path="user-list"
+                            element={<AgentUserList />}
+                          />
                           <Route path="goal" element={<AgentGoalList />} />
 
                           <Route path="*" element={<NotFound />} />
@@ -386,6 +397,10 @@ const App = () => {
                           <Route
                             path="message"
                             element={<ProviderMessageList />}
+                          />
+                          <Route
+                            path="session-history"
+                            element={<SupervisorSessionHistory/>}
                           />
                           <Route path="goal" element={<ProviderGoalList />} />
                           <Route path="*" element={<NotFound />} />
@@ -514,6 +529,7 @@ const App = () => {
                             path="company-details-list"
                             element={<CompanyDetailsList />}
                           />
+                          
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

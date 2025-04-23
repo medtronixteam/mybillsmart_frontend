@@ -1,24 +1,48 @@
 import React, { useState } from "react";
-import {
-  FaPaperPlane,
-  FaCheckCircle,
-  FaEnvelope,
-  FaCopy,
-} from "react-icons/fa";
+import { FaPaperPlane, FaCheckCircle, FaEnvelope, FaCopy } from "react-icons/fa";
 import "./RefferalLink.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Swal from 'sweetalert2';
 
 const RefferalLink = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
-  const [copyStatus, setCopyStatus] = useState("");
   const { token } = useAuth();
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Show loading alert
+    const loadingAlert = Swal.fire({
+      title: 'Generating Link',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(
@@ -38,9 +62,12 @@ const RefferalLink = () => {
       const data = await response.json();
       setGeneratedLink(data.referral_url);
       setIsSubmitted(true);
+      loadingAlert.close();
+      showSuccessAlert("Referral link generated successfully!");
     } catch (error) {
+      loadingAlert.close();
       console.error("Error:", error);
-      alert("Failed to generate link. Please try again.");
+      showErrorAlert(error.message || "Failed to generate link. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -50,8 +77,7 @@ const RefferalLink = () => {
     if (!generatedLink) return;
 
     navigator.clipboard.writeText(generatedLink);
-    setCopyStatus("Copied!");
-    setTimeout(() => setCopyStatus(""), 2000);
+    showSuccessAlert("Link copied to clipboard!");
   };
 
   return (
@@ -101,9 +127,6 @@ const RefferalLink = () => {
                 </a>
                 <button onClick={copyToClipboard} className="copy-btn">
                   <FaCopy className="copy-icon" />
-                  {copyStatus && (
-                    <span className="copy-status">{copyStatus}</span>
-                  )}
                 </button>
               </div>
             </div>

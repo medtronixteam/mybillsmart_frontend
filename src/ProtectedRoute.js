@@ -1,16 +1,22 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 
 const ProtectedRoute = ({ element, requiredRole }) => {
-  const { token, role } = useAuth();
+  const { token, role, initialized } = useAuth();
+  const location = useLocation();
+
+  if (!initialized) {
+    return <div>Loading...</div>; // Or a loading spinner
+  }
 
   if (!token) {
-    localStorage.setItem('redirectUrl', window.location.pathname); 
+    // Save the full path including search params
+    localStorage.setItem('redirectUrl', location.pathname + location.search);
     return <Navigate to="/login" />;
   }
 
-  if (role !== requiredRole) {
+  if (requiredRole && role !== requiredRole) {
     return <Navigate to={`/${role}/dashboard`} />;
   }
 

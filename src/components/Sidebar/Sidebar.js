@@ -162,13 +162,25 @@ const Sidebar = () => {
               to="/agent/add-client"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                 <FaUserPlus />
               </div>
-              <span className="nav-link-text ms-1">Manage Client</span>
+              <span className="nav-link-text">Manage Client</span>
             </NavLink>
           </li>
           {/* <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/agent/user-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaLink />
+              </div>
+              <span className="nav-link-text ms-1">Client List</span>
+            </NavLink>
+          </li>
+          <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/submission-link"
@@ -210,10 +222,10 @@ const Sidebar = () => {
               to="/agent/goal"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">Goal List</span>
+              <span className="nav-link-text">Goal List</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -222,10 +234,10 @@ const Sidebar = () => {
               to="/agent/message"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">View Messages</span>
+              <span className="nav-link-text ">View Messages</span>
             </NavLink>
           </li>
           <li className="nav-item">
@@ -291,19 +303,21 @@ const Sidebar = () => {
               </div>
             </div>
           </li>
-
-          {/* <li className="nav-item">
+        </ul>
+        {/* <li className="nav-item">
+=======
+>>>>>>> c8e098c85e0b6398da98771ca3336b6a4cab80ba
             <NavLink
               className="nav-link"
-              to="/agent/goal"
+              to="/agent/session-history"
               activeClassName="active-class"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <FaLink />
               </div>
-              <span className="nav-link-text ms-1">View Goal</span>
+              <span className="nav-link-text ms-1">Session History</span>
             </NavLink>
-          </li> */}
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3">

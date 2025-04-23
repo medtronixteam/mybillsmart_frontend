@@ -114,22 +114,27 @@ const MessageList = () => {
         if (messageData.time_send) {
           if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
             const today = new Date();
-            const [hours, minutes] = messageData.time_send.split(":");
-            today.setHours(hours, minutes);
+            const [hours, minutes, seconds] = messageData.time_send.split(":");
             date = today.toISOString().split("T")[0];
-            time = `${hours}:${minutes}`;
+            time = `${hours}:${minutes}:${seconds}`;
           }
           else if (!isNaN(new Date(messageData.time_send).getTime())) {
             datetime = new Date(messageData.time_send);
             date = datetime.toISOString().split("T")[0];
-            time = datetime.toTimeString().substring(0, 5);
+            const hours = datetime.getHours().toString().padStart(2, '0');
+            const minutes = datetime.getMinutes().toString().padStart(2, '0');
+            const seconds = datetime.getSeconds().toString().padStart(2, '0');
+            time = `${hours}:${minutes}:${seconds}`;
           }
         }
 
         if (!date || !time) {
           datetime = new Date();
           date = datetime.toISOString().split("T")[0];
-          time = datetime.toTimeString().substring(0, 5);
+          const hours = datetime.getHours().toString().padStart(2, '0');
+          const minutes = datetime.getMinutes().toString().padStart(2, '0');
+          const seconds = datetime.getSeconds().toString().padStart(2, '0');
+          time = `${hours}:${minutes}:${seconds}`;
         }
 
         setEditForm({
@@ -155,8 +160,9 @@ const MessageList = () => {
     try {
       setLoading(true);
 
-      const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
-
+      // Combine date and time into a single datetime string
+      const datetimeString = `${editForm.date_send}T${editForm.time_send}`;
+      
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -168,7 +174,7 @@ const MessageList = () => {
           body: JSON.stringify({
             to_number: editForm.to_number,
             message: editForm.message,
-            time_send: datetime,
+            time_send: datetimeString, // Send combined datetime
           }),
         }
       );
@@ -314,12 +320,13 @@ const MessageList = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Time</label>
+                <label>Time (HH:MM:SS)</label>
                 <input
                   type="time"
                   name="time_send"
                   value={editForm.time_send}
                   onChange={handleEditChange}
+                  step="1"
                   required
                 />
               </div>
@@ -412,7 +419,7 @@ const MessageList = () => {
               </thead>
               <tbody>
                 {messages.length > 0 ? (
-                  messages.map((message,index) => (
+                  messages.map((message, index) => (
                     <tr key={message.id}>
                       <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
@@ -469,6 +476,12 @@ const MessageList = () => {
           {totalPages > 1 && (
             <div className="pagination-controls">
               <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </button>
+              <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
@@ -482,6 +495,12 @@ const MessageList = () => {
                 disabled={currentPage === totalPages}
               >
                 Next
+              </button>
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                Last
               </button>
             </div>
           )}

@@ -13,8 +13,8 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
   const [twoFACode, setTwoFACode] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
-  const { login, isAuthenticated } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,12 +53,10 @@ const Login = () => {
         throw new Error(data.message || "Login failed!");
       }
 
-      // Check if 2FA is required
       if (data.status === "2fa") {
         setSuccess("Code has been sent to your email for verification.");
         setShow2FA(true);
       } else {
-        // Handle regular login
         if (!data?.user) {
           throw new Error("Invalid user data received from server");
         }
@@ -149,19 +147,11 @@ const Login = () => {
     
     setSuccess("Login successful! Redirecting...");
     
-    setTimeout(() => {
-      const redirectUrl = localStorage.getItem("redirectUrl") || `/${role}/dashboard`;
-      localStorage.removeItem("redirectUrl");
-      navigate(redirectUrl);
-    }, 1000);
+    // Get redirect URL from localStorage or default to dashboard
+    const redirectUrl = localStorage.getItem("redirectUrl") || `/${role}/dashboard`;
+    localStorage.removeItem("redirectUrl");
+    navigate(redirectUrl);
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      const role = localStorage.getItem("role") || "user";
-      navigate(`/${role}/dashboard`);
-    }
-  }, [isAuthenticated, navigate]);
 
   return (
     <div className="container-login">
@@ -203,7 +193,7 @@ const Login = () => {
                 alt="icon"
                 height={20}
               />
-              <input
+              <input 
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={password}

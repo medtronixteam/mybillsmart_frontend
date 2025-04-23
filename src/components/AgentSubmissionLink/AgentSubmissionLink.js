@@ -1,25 +1,54 @@
 import React, { useState } from "react";
-import {
-  FaPaperPlane,
-  FaCheckCircle,
-  FaEnvelope,
-  FaCopy,
-} from "react-icons/fa";
+import { FaPaperPlane, FaCheckCircle, FaEnvelope, FaCopy } from "react-icons/fa";
 import "./AgentSubmissionLink.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Swal from 'sweetalert2';
 
 const AgentSubmissionLink = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
-  const [copyStatus, setCopyStatus] = useState();
   const { token } = useAuth();
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3085d6'
+    });
+  };
+
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      confirmButtonColor: '#3085d6',
+      timer: 1500
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!email) {
+      showErrorAlert("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
+    
+    const loadingAlert = Swal.fire({
+      title: 'Generating Link',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
     try {
       const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
@@ -38,9 +67,12 @@ const AgentSubmissionLink = () => {
       const data = await response.json();
       setGeneratedLink(data.url);
       setIsSubmitted(true);
+      loadingAlert.close();
+      showSuccessAlert("Submission link generated and sent successfully!");
     } catch (error) {
+      loadingAlert.close();
       console.error("Error:", error);
-      alert("Failed to send link. Please try again.");
+      showErrorAlert(error.message || "Failed to send link. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +80,7 @@ const AgentSubmissionLink = () => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);
-    setCopyStatus("Copied!");
-    setTimeout(() => setCopyStatus(), 2000);
+    showSuccessAlert("Link copied to clipboard!");
   };
 
   return (
@@ -96,7 +127,6 @@ const AgentSubmissionLink = () => {
             </p>
 
             <div className="generated-link-container">
-              {/* <p className="link-label">Generated Link:</p> */}
               <div className="link-box">
                 <a
                   href={generatedLink}

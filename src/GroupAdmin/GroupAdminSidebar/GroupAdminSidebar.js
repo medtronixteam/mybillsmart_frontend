@@ -333,6 +333,7 @@ const GroupAdminSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Manage Goal</span>
             </NavLink>
+<<<<<<< HEAD
           </li> */}
 
           <li className="nav-item">
@@ -400,6 +401,10 @@ const GroupAdminSidebar = () => {
             </NavLink>
           </li> */}
           {/* <li className="nav-item">
+          </li>
+          
+          <li className="nav-item">
+
             <NavLink
               className="nav-link"
               to="/group_admin/schedule-message"
