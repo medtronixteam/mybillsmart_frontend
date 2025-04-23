@@ -3,6 +3,7 @@ import axios from "axios";
 import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const GoalList = () => {
   const [goals, setGoals] = useState([]);
@@ -19,15 +20,6 @@ const GoalList = () => {
     fetchGoals();
   }, []);
 
-  const showAlert = (type, title, text) => {
-    Swal.fire({
-      icon: type,
-      title: title,
-      text: text,
-      confirmButtonColor: "#3085d6",
-    });
-  };
-
   const fetchGoals = async () => {
     try {
       setLoading(true);
@@ -40,7 +32,6 @@ const GoalList = () => {
       setLoading(false);
     } catch (err) {
       setError("Failed to fetch goals. Please try again.");
-      showAlert("error", "Error", "Failed to fetch goals. Please try again.");
       setLoading(false);
       console.error("Error fetching goals:", err);
     }
@@ -52,17 +43,7 @@ const GoalList = () => {
   };
 
   const handleDelete = async (goalId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (!result.isConfirmed) return;
+    if (!window.confirm("Are you sure you want to delete this goal?")) return;
 
     try {
       setLoading(true);
@@ -72,11 +53,9 @@ const GoalList = () => {
         },
       });
       setSuccess("Goal deleted successfully!");
-      showAlert("success", "Deleted!", "Goal deleted successfully!");
       fetchGoals();
     } catch (err) {
       setError("Failed to delete goal. Please try again.");
-      showAlert("error", "Error", "Failed to delete goal. Please try again.");
       console.error("Error deleting goal:", err);
     } finally {
       setLoading(false);
@@ -106,12 +85,10 @@ const GoalList = () => {
         }
       );
       setSuccess("Goal updated successfully!");
-      showAlert("success", "Success!", "Goal updated successfully!");
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
       setError("Failed to update goal. Please try again.");
-      showAlert("error", "Error", "Failed to update goal. Please try again.");
       console.error("Error updating goal:", err);
     } finally {
       setLoading(false);
