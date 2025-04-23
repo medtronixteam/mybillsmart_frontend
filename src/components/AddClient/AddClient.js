@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import "./AddClient.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { Link } from "react-router-dom";
+
 
 const AddClients = () => {
   const [formData, setFormData] = useState({
@@ -20,20 +22,20 @@ const AddClients = () => {
 
   const showErrorAlert = (message) => {
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: "error",
+      title: "Error",
       text: message,
-      confirmButtonColor: '#3085d6'
+      confirmButtonColor: "#3085d6",
     });
   };
 
   const showSuccessAlert = (message) => {
     Swal.fire({
-      icon: 'success',
-      title: 'Success',
+      icon: "success",
+      title: "Success",
       text: message,
-      confirmButtonColor: '#3085d6',
-      timer: 1500
+      confirmButtonColor: "#3085d6",
+      timer: 1500,
     });
   };
 
@@ -63,12 +65,12 @@ const AddClients = () => {
 
     // Show loading alert
     const loadingAlert = Swal.fire({
-      title: 'Adding Client',
-      html: 'Please wait...',
+      title: "Adding Client",
+      html: "Please wait...",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
 
     try {
@@ -110,7 +112,10 @@ const AddClients = () => {
     } catch (error) {
       loadingAlert.close();
       console.error("Error adding client:", error);
-      showErrorAlert(error.response?.data?.message || "Failed to add client. Please try again.");
+      showErrorAlert(
+        error.response?.data?.message ||
+          "Failed to add client. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -118,7 +123,12 @@ const AddClients = () => {
 
   return (
     <div className="add-user-container">
-      <h1>Add Client</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 className="mb-0">Add Client</h1>
+        <Link to="/agent/user-list">
+          <button className="btn btn-primary w-100 fs-6">Client List</button>
+        </Link>
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -176,11 +186,10 @@ const AddClients = () => {
           onChange={handleChange}
           required
         />
-       
       </form>
       <button type="submit" disabled={isSubmitting} onClick={handleSubmit}>
-          {isSubmitting ? 'Adding Client...' : 'Add Client'}
-        </button>
+        {isSubmitting ? "Adding Client..." : "Add Client"}
+      </button>
     </div>
   );
 };
