@@ -3,23 +3,31 @@ import { useNavigate } from "react-router-dom";
 import "./ClientContractList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { HiDotsHorizontal } from "react-icons/hi";
 
 const ClientContractList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
+
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
   const navigate = useNavigate();
-
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prev) => (prev === index ? null : index));
+  };
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const response = await fetch(`${config.BASE_URL}/api/client/contracts/list`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${config.BASE_URL}/api/client/contracts/list`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!response.ok) throw new Error("Network response was not ok");
         const result = await response.json();
         setContracts(result.data || []);
@@ -86,12 +94,33 @@ const ClientContractList = () => {
                     </button>
                   </td>
                   <td className="contract-table-cell">
-                    <button
+                    <HiDotsHorizontal
+                      size={30}
+                      onClick={() => toggleDropdown(index)}
+                      className="cursor-pointer"
+                    />
+                    {activeDropdown === index && (
+                      <div
+                        className="dropdown-menu show shadow rounded-3 bg-white mt-3 p-2 border-0"
+                        style={{ marginLeft: "-140px" }}
+                      >
+                        <a
+                          className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                          onClick={() => {
+                            handleViewDetails(contract.id);
+                            setActiveDropdown(false);
+                          }}
+                        >
+                          Upload Document
+                        </a>
+                      </div>
+                    )}
+                    {/* <button
                       onClick={() => handleViewDetails(contract.id)}
                       className="view-document-button"
                     >
                       View Details
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))}
