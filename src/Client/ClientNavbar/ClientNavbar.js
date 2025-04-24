@@ -64,7 +64,7 @@ const ClientNavbar = ({ toggleSidebar }) => {
             >
               {getInitials(name)}
             </div>
-            <span className="ms-2 text-sm font-weight-bold text-dark">
+            <span className=" text-sm font-weight-bold text-dark">
               {name || "User"}
             </span>
             {/* </Link> */}

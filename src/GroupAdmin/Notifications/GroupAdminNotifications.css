@@ -1,0 +1,10 @@
+.see-more-notification {
+  background-color: #2d3e50;
+}
+.see-more-notification:hover {
+  background-color: #2d3e50;
+  color: #ffffff;
+}
+.notifications_card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
