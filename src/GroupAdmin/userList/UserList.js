@@ -830,31 +830,35 @@ const UserList = () => {
       ) : (
         <>
           <h1>User List</h1>
-          <div className="filter-container">
-            <label htmlFor="role-filter">Filter by Role:</label>
-            <select 
-              id="role-filter"
-              value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="role-filter-dropdown"
-            >
-              <option value="all">All Roles</option>
-            
-              <option value="client">Client</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="provider">Provider</option>
-            </select>
+          <div className="row align-items-center mb-3">
+            <div className="col-12 col-md-4">
+              <label htmlFor="role-filter" className="form-label mb-md-0 fs-5">
+                Filter by Role:
+              </label>
+            </div>
+            <div className="col-12 col-md-8">
+              <select
+                id="role-filter"
+                value={roleFilter}
+                onChange={(e) => {
+                  setRoleFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="form-select"
+              >
+                <option value="all">All Roles</option>
+                <option value="client">Client</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="provider">Provider</option>
+              </select>
+            </div>
           </div>
 
           {loading ? (
             <p>Loading users...</p>
           ) : filteredUsers.length === 0 ? (
             <p>
-              No users found.{" "}
-              <Link to="/group_admin/add-user">Add User</Link>
+              No users found. <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
             <>
@@ -969,7 +973,7 @@ const UserList = () => {
                     className={`page-button ${
                       currentPage === index + 1 ? "active" : ""
                     }`}
-                    >
+                  >
                     {index + 1}
                   </button>
                 ))}
@@ -977,7 +981,8 @@ const UserList = () => {
                 <button
                   onClick={nextPage}
                   disabled={
-                    currentPage === Math.ceil(filteredUsers.length / usersPerPage)
+                    currentPage ===
+                    Math.ceil(filteredUsers.length / usersPerPage)
                   }
                   className="page-button"
                 >

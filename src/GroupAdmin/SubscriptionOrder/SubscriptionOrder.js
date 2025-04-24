@@ -4,6 +4,7 @@ import config from "../../config";
 import "./SubscriptionOrder.css";
 import { FaFilePdf } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { HiOutlineDocumentDownload } from "react-icons/hi";
 
 const SubscriptionOrder = () => {
   const [activeTab, setActiveTab] = useState('subscriptions');
@@ -216,22 +217,26 @@ const SubscriptionOrder = () => {
       } else {
         return (
           <tr key={index}>
-            <td>{item.planName || 'N/A'}</td>
-            <td>{item.amount || '0.00'}</td>
-            <td>{item.currency?.toUpperCase() || 'N/A'}</td>
+            <td>{item.planName || "N/A"}</td>
+            <td>{item.amount || "0.00"}</td>
+            <td>{item.currency?.toUpperCase() || "N/A"}</td>
             <td>
-              <span className={`status-badge ${item.status?.toLowerCase() || 'pending'}`}>
-                {item.status || 'Pending'}
+              <span
+                className={`status-badge ${
+                  item.status?.toLowerCase() || "pending"
+                }`}
+              >
+                {item.status || "Pending"}
               </span>
             </td>
-            <td>{item.date || 'N/A'}</td>
+            <td>{item.date || "N/A"}</td>
             <td>
-              <button 
+              <button
                 onClick={() => downloadReceipt(item.id)}
                 className="pdf-icon-btn"
                 title="Download Receipt"
               >
-                <FaFilePdf />
+                <HiOutlineDocumentDownload size={25}/>
               </button>
             </td>
           </tr>
