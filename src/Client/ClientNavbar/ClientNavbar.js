@@ -71,7 +71,7 @@ const ClientNavbar = ({ toggleSidebar }) => {
             {show && (
               <div
                 className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "160px", marginLeft: "-30px" }}
+                style={{ marginTop: "160px", marginLeft: "-5px" }}
               >
                 <Link
                   to="/client/profile-edit"

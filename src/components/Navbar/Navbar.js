@@ -33,9 +33,13 @@ const Navbar = ({ toggleSidebar }) => {
           Sale Agent Dashboard
         </h6>
 
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center">
           <Link to="/agent/notifications">
-            <IoIosNotificationsOutline size={30} color="#344767" />
+            <IoIosNotificationsOutline
+              size={30}
+              color="#344767"
+              className="me-2"
+            />
           </Link>
           {/* <Link
             to="/agent/profile-edit"
@@ -45,7 +49,7 @@ const Navbar = ({ toggleSidebar }) => {
             onClick={toggleDropdown}
           >
             <div
-              className="avatar avatar-sm d-flex align-items-center justify-content-center"
+              className="avatar avatar-sm d-flex align-items-center justify-content-center me-0"
               style={{
                 width: "30px",
                 height: "30px",
@@ -59,13 +63,13 @@ const Navbar = ({ toggleSidebar }) => {
             >
               {getInitials(name)}
             </div>
-            <span className="ms-2 text-sm font-weight-bold text-dark">
+            <span className="ps-2 text-sm font-weight-bold text-dark">
               {name || "User"}
             </span>
             {show && (
               <div
                 className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "120px", marginLeft: "0px" }}
+                style={{ marginTop: "120px" }}
               >
                 <Link
                   to="/agent/profile-edit"
