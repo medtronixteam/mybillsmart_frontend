@@ -212,6 +212,9 @@ const AdminProducts = () => {
               {Object.entries(editProductData).map(
                 ([key, value]) =>
                   key !== "id" &&
+                  key !== "group_id" &&
+                  key !== "addedby_id" &&
+                  key !== "updated_at" &&
                   key !== "created_at" && (
                     <div className="form-group mb-0" key={key}>
                       <label>
