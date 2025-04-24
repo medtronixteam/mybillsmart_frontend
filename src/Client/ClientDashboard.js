@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
   FaFileAlt,
-  FaCoins,
-  FaHistory,
-  FaChartBar,
-  FaFileContract
+  FaFileContract,
+  FaCheckCircle,
+  FaTimesCircle
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -21,14 +20,14 @@ import config from "../config";
 
 const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
-    total_contracts: 0,
-    total_documents: 0,
+    tota_contracts: 0,
+    pending_contracts: 0,
+    completed_contracts: 0,
+    rejected_contracts: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
-
- 
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -48,9 +47,7 @@ const ClientDashboard = () => {
         }
 
         const data = await response.json();
-        setDashboardData({
-          ...data.data,
-        });
+        setDashboardData(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -59,23 +56,18 @@ const ClientDashboard = () => {
     };
 
     fetchDashboardData();
- 
   }, [token]);
-
-
 
   // Prepare data for the chart
   const chartData = [
     {
       name: "Contracts",
-      "Total Contracts": dashboardData?.total_contracts || 0,
-    },
-    {
-      name: "Documents",
-      "Total Documents": dashboardData?.total_documents || 0,
+      "Total Contracts": dashboardData?.tota_contracts || 0,
+      "Pending": dashboardData?.pending_contracts || 0,
+      "Completed": dashboardData?.completed_contracts || 0,
+      "Rejected": dashboardData?.rejected_contracts || 0,
     }
   ];
-
 
   if (loading) {
     return (
@@ -111,7 +103,7 @@ const ClientDashboard = () => {
                   Total Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.total_contracts || 0}
+                  {dashboardData?.tota_contracts || 0}
                 </h5>
               </div>
               <div
@@ -124,21 +116,21 @@ const ClientDashboard = () => {
           </div>
         </div>
 
-        {/* Total Documents Card */}
+        {/* Pending Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Total Documents
+                  Pending Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.total_documents || 0}
+                  {dashboardData?.pending_contracts || 0}
                 </h5>
               </div>
               <div
                 className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#2ecc71" }}
+                style={{ backgroundColor: "#f39c12" }}
               >
                 <FaFileAlt className="text-white text-lg opacity-10" />
               </div>
@@ -146,29 +138,50 @@ const ClientDashboard = () => {
           </div>
         </div>
 
-      
-
-        {/* Referral Points Card */}
-        {/* <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        {/* Completed Contracts Card */}
+        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
             <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
               <div className="numbers text-center">
                 <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Referral Points
+                  Completed Agreements
                 </p>
-                <h5 className="font-weight-bolder mb-0">0</h5>
+                <h5 className="font-weight-bolder mb-0">
+                  {dashboardData?.completed_contracts || 0}
+                </h5>
+              </div>
+              <div
+                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
+                style={{ backgroundColor: "#2ecc71" }}
+              >
+                <FaCheckCircle className="text-white text-lg opacity-10" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rejected Contracts Card */}
+        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div className="card bg-white h-100">
+            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
+              <div className="numbers text-center">
+                <p className="text-sm mb-0 text-capitalize font-weight-bold">
+                  Rejected Agreements
+                </p>
+                <h5 className="font-weight-bolder mb-0">
+                  {dashboardData?.rejected_contracts || 0}
+                </h5>
               </div>
               <div
                 className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
                 style={{ backgroundColor: "#e74c3c" }}
               >
-                <FaCoins className="text-white text-lg opacity-10" />
+                <FaTimesCircle className="text-white text-lg opacity-10" />
               </div>
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
-
 
       {/* Bar Chart Section */}
       <div className="row mt-4">
@@ -198,9 +211,19 @@ const ClientDashboard = () => {
                     fill="#3498db"
                     radius={[4, 4, 0, 0]}
                   />
+                  <Bar 
+                    dataKey="Pending" 
+                    fill="#f39c12" 
+                    radius={[4, 4, 0, 0]} 
+                  />
                   <Bar
-                    dataKey="Total Documents"
+                    dataKey="Completed"
                     fill="#2ecc71"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="Rejected"
+                    fill="#e74c3c"
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
