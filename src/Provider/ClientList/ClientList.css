@@ -67,7 +67,7 @@
 
 /* Table Styles */
 .users-table-container {
-  overflow-x: auto;
+  /* overflow-x: auto; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   height: auto !important;
