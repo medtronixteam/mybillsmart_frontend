@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import Swal from 'sweetalert2';
 
-const SupervisorSessionHistory = () => {
+const ClientSessionHistory = () => {
   const [sessionHistory, setSessionHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -198,4 +198,4 @@ const SupervisorSessionHistory = () => {
   );
 };
 
-export default SupervisorSessionHistory;
+export default ClientSessionHistory;

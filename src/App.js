@@ -101,6 +101,7 @@ import AgentUserList from "./components/AgentUserList/AgentUserList";
 import ClientInvoiceList from "./Client/InvoiceList/ClientInvoiceList";
 import ProviderNotifications from "./Provider/Notifications/ProviderNotifications";
 import GroupAdminNotifications from "./GroupAdmin/Notifications/GroupAdminNotifications";
+import ClientSessionHistory from "./Client/SessionHistory/ClientSessionHistory";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -573,6 +574,10 @@ const App = () => {
                           <Route
                             path="profile-edit"
                             element={<ClientProfileSetting />}
+                          />
+                          <Route
+                            path="session-history"
+                            element={<ClientSessionHistory />}
                           />
                           <Route
                             path="contract-list"
