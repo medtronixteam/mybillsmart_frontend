@@ -17,6 +17,7 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import config from "../config";
 
 const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -39,7 +40,7 @@ const ClientDashboard = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://bill.medtronix.world/api/client/dashboard/stats",
+          `${config.BASE_URL}/api/client/dashboard/stats`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -71,7 +72,7 @@ const ClientDashboard = () => {
       setSessionLoading(true);
       setSessionError(null);
       const response = await fetch(
-        "https://bill.medtronix.world/api/session/history",
+        `${config.BASE_URL}/api/session/history`,
         {
           method: "GET",
           headers: {

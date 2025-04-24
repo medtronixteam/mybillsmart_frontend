@@ -4,9 +4,7 @@ import {
   FaFileAlt,
   FaCheckCircle,
   FaTimesCircle,
-  FaCoins,
   FaFileInvoiceDollar,
-  FaHistory
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import config from "../config";
@@ -59,18 +57,14 @@ const Dashboard = () => {
   // Prepare data for the chart
   const chartData = [
     {
-      name: "Users",
-      "Total Users": dashboardData?.data?.total_users || 0,
-    },
-    {
       name: "Contracts",
-      "Pending": dashboardData?.data?.pending_contracts || 0,
-      "Completed": dashboardData?.data?.completed_contracts || 0,
-      "Rejected": dashboardData?.data?.rejected_contracts || 0,
+      "Pending": dashboardData?.pending_contracts || 0,
+      "Completed": dashboardData?.completed_contracts || 0,
+      "Rejected": dashboardData?.rejected_contracts || 0,
     },
     {
       name: "Invoices",
-      "Total Invoices": dashboardData?.data?.total_invoices || 0,
+      "Total Invoices": dashboardData?.total_invoices || 0,
     }
   ];
 
@@ -99,28 +93,6 @@ const Dashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
-        {/* Total Users Card */}
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Total Users
-                </p>
-                <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.total_users || 0}
-                </h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#3498db" }}
-              >
-                <FaUsers className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Pending Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -130,7 +102,7 @@ const Dashboard = () => {
                   Pending Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.pending_contracts || 0}
+                  {dashboardData?.pending_contracts || 0}
                 </h5>
               </div>
               <div
@@ -152,7 +124,7 @@ const Dashboard = () => {
                   Completed Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.completed_contracts || 0}
+                  {dashboardData?.completed_contracts || 0}
                 </h5>
               </div>
               <div
@@ -174,7 +146,7 @@ const Dashboard = () => {
                   Rejected Agreements
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.rejected_contracts || 0}
+                  {dashboardData?.rejected_contracts || 0}
                 </h5>
               </div>
               <div
@@ -186,10 +158,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Second Row of Cards */}
-      <div className="row mt-4">
         {/* Total Invoices Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -199,7 +168,7 @@ const Dashboard = () => {
                   Total Invoices
                 </p>
                 <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.total_invoices || 0}
+                  {dashboardData?.total_invoices || 0}
                 </h5>
               </div>
               <div
@@ -207,48 +176,6 @@ const Dashboard = () => {
                 style={{ backgroundColor: "#9b59b6" }}
               >
                 <FaFileInvoiceDollar className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Referral Points Card */}
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Referral Points
-                </p>
-                <h5 className="font-weight-bolder mb-0">0</h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#1abc9c" }}
-              >
-                <FaCoins className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Session History Card */}
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Session History
-                </p>
-                <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.data?.session_count || 0}
-                </h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#34495e" }}
-              >
-                <FaHistory className="text-white text-lg opacity-10" />
               </div>
             </div>
           </div>
@@ -278,11 +205,6 @@ const Dashboard = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar
-                    dataKey="Total Users"
-                    fill="#3498db"
-                    radius={[4, 4, 0, 0]}
-                  />
                   <Bar dataKey="Pending" fill="#f39c12" radius={[4, 4, 0, 0]} />
                   <Bar
                     dataKey="Completed"

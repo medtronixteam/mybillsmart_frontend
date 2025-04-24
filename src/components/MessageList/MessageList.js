@@ -340,7 +340,6 @@ const AgentMessageList = () => {
             <table className="messages-table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>To Number</th>
                   <th>Campaign</th>
                   <th>Scheduled Time</th>
@@ -352,7 +351,6 @@ const AgentMessageList = () => {
                 {messages.length > 0 ? (
                   messages.map((message, index) => (
                     <tr key={message.id}>
-                      <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
                       <td className="message-preview">
                         {message.message

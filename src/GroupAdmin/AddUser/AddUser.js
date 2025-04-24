@@ -16,8 +16,9 @@ const AddUser = ({ onAddUser }) => {
     city: "",
     postalCode: "",
     role: "agent", // Default role
+    address: ""
   });
-  const { token } = useAuth(); // Get token from AuthContext
+  const { token } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,7 +48,6 @@ const AddUser = ({ onAddUser }) => {
     }
 
     try {
-      // Extract only required fields for API
       const apiData = {
         name: formData.name,
         email: formData.email,
@@ -66,16 +66,17 @@ const AddUser = ({ onAddUser }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Pass token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      // If the API call is successful, show success message
+      // Show success message with API response if available
+      const successMessage = response.data?.message || 'User added successfully!';
       Swal.fire({
         icon: 'success',
         title: 'Success!',
-        text: 'User added successfully!',
+        text: successMessage,
         confirmButtonText: 'OK',
         timer: 3000,
         timerProgressBar: true,
@@ -90,23 +91,28 @@ const AddUser = ({ onAddUser }) => {
         country: "",
         city: "",
         postalCode: "",
-        role: "agent", // Reset to default role
-        address: "",
+        role: "agent",
+        address: ""
       });
 
-      // Call the onAddUser prop if needed (optional)
       if (onAddUser) {
         onAddUser(formData);
       }
     } catch (error) {
-      // Handle API errors
       console.error("Error adding user:", error);
+      
+      // Extract error message from API response or use default error message
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         error.message || 
+                         'Failed to add user';
+      
       Swal.fire({
         icon: 'error',
         title: 'Error!',
-        text: 'Failed to add user. Please try again.',
+        text: errorMessage,
         confirmButtonText: 'OK'
-      });
+      }); 
     }
   };
 
@@ -115,7 +121,7 @@ const AddUser = ({ onAddUser }) => {
       <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
         <h2 className="mb-0">Add User</h2>
         <Link to="/group_admin/user-list">
-          <button className=" w-100 fs-6 rounded px-3 py-2 btn bg-white">
+          <button className="w-100 fs-6 rounded px-3 py-2 btn bg-white">
             Users List
           </button>
         </Link>
@@ -177,6 +183,13 @@ const AddUser = ({ onAddUser }) => {
           onChange={handleChange}
           required
         />
+        <input
+          type="text"
+          name="address"
+          placeholder="Address"
+          value={formData.address}
+          onChange={handleChange}
+        />
 
         <select
           name="role"
@@ -188,10 +201,11 @@ const AddUser = ({ onAddUser }) => {
           <option value="supervisor">Supervisor</option>
           <option value="client">Clients</option>
         </select>
-        <button type="submit">
+       
+      </form>
+      <button type="submit" onClick={handleSubmit}>
           Add User
         </button>
-      </form>
     </div>
   );
 };

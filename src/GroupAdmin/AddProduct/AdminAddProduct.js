@@ -47,7 +47,7 @@ const AdminAddProduct = () => {
     }
 
     try {
-      const response = await fetch(
+      const response = await fetch( 
         `${config.BASE_URL}/api/supervisor/products`,
         {
           method: "POST",

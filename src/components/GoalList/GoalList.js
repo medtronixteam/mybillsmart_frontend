@@ -233,6 +233,7 @@ const AgentGoalList = () => {
                     <option value="completed">Completed</option>
                   </select>
                 </div>
+
                 <div className="form-actions">
                   <button
                     type="submit"
@@ -262,7 +263,6 @@ const AgentGoalList = () => {
                     <th>End Date</th>
                     <th>Points</th>
                     <th>Status</th>
-                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -283,6 +283,7 @@ const AgentGoalList = () => {
                           {goal.status.charAt(0).toUpperCase() +
                             goal.status.slice(1).replace("_", " ")}
                         </td>
+
                         <td className="actions">
                           <HiDotsHorizontal
                             size={30}

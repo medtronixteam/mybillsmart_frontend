@@ -24,6 +24,7 @@ const UserList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
+  const [roleFilter, setRoleFilter] = useState("all");
 
   // Performance view states
   const [showPerformance, setShowPerformance] = useState(false);
@@ -82,6 +83,11 @@ const UserList = () => {
     }
   };
 
+  // Filter users based on selected role
+  const filteredUsers = roleFilter === "all" 
+    ? users 
+    : users.filter(user => user.role === roleFilter);
+
   // Performance view functions
   const fetchPerformanceData = async (userId) => {
     try {
@@ -136,12 +142,12 @@ const UserList = () => {
   // User list pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   const paginateUsers = (pageNumber) => setCurrentPage(pageNumber);
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
   const nextPage = () => {
-    if (currentPage < Math.ceil(users.length / usersPerPage)) {
+    if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -824,11 +830,30 @@ const UserList = () => {
       ) : (
         <>
           <h1>User List</h1>
+          <div className="filter-container">
+            <label htmlFor="role-filter">Filter by Role:</label>
+            <select 
+              id="role-filter"
+              value={roleFilter}
+              onChange={(e) => {
+                setRoleFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="role-filter-dropdown"
+            >
+              <option value="all">All Roles</option>
+            
+              <option value="client">Client</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="provider">Provider</option>
+            </select>
+          </div>
+
           {loading ? (
             <p>Loading users...</p>
-          ) : users.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <p>
-              No users added yet.{" "}
+              No users found.{" "}
               <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
@@ -936,7 +961,7 @@ const UserList = () => {
                 </button>
 
                 {Array.from({
-                  length: Math.ceil(users.length / usersPerPage),
+                  length: Math.ceil(filteredUsers.length / usersPerPage),
                 }).map((_, index) => (
                   <button
                     key={index}
@@ -944,7 +969,7 @@ const UserList = () => {
                     className={`page-button ${
                       currentPage === index + 1 ? "active" : ""
                     }`}
-                  >
+                    >
                     {index + 1}
                   </button>
                 ))}
@@ -952,7 +977,7 @@ const UserList = () => {
                 <button
                   onClick={nextPage}
                   disabled={
-                    currentPage === Math.ceil(users.length / usersPerPage)
+                    currentPage === Math.ceil(filteredUsers.length / usersPerPage)
                   }
                   className="page-button"
                 >

@@ -205,6 +205,9 @@ const Products = () => {
               {Object.entries(editProductData).map(
                 ([key, value]) =>
                   key !== "id" &&
+                  key !== "updated_at" &&
+                  key !== "group_id" &&
+                  key !== "addedby_id" &&
                   key !== "created_at" && (
                     <div className="form-group mb-0" key={key}>
                       <label>
@@ -326,11 +329,13 @@ const Products = () => {
             </button>
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
-              {Object.entries(selectedProduct).map(([key, value]) => (
-                <p key={key}>
-                  <strong>{key.replace(/_/g, " ")}:</strong> {value}
-                </p>
-              ))}
+              {Object.entries(selectedProduct)
+                .filter(([key]) => !['id', 'group_id', 'addedby_id', 'created_at', 'updated_at'].includes(key))
+                .map(([key, value]) => (
+                  <p key={key}>
+                    <strong>{key.replace(/_/g, " ")}:</strong> {value}
+                  </p>
+                ))}
             </div>
           </div>
         </div>

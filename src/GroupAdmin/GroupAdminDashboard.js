@@ -241,27 +241,6 @@ const GroupAdminDashboard = () => {
           </div>
         </div> */}
 
-        {/* Referral Points Card */}
-        <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                  Referral Points
-                </p>
-                <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.referral_points || 0}
-                </h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#f1c40f" }}
-              >
-                <FaCoins className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Empty Card for Layout */}
         {/* <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
