@@ -33,55 +33,61 @@ const ClientNavbar = ({ toggleSidebar }) => {
           Client Dashboard
         </h6>
 
-        <div
-          className="d-flex align-items-center cursor-pointer"
-          onClick={toggleDropdown}
-        >
+        <div className="d-flex align-items-center">
           <Link to="/client/notifications">
-            <IoIosNotificationsOutline size={30} color="#344767" />
+            <IoIosNotificationsOutline
+              size={30}
+              color="#344767"
+              className="me-2"
+            />
           </Link>
-          {/* <Link
+          <div
+            className="d-flex align-items-center cursor-pointer"
+            onClick={toggleDropdown}
+          >
+            {/* <Link
             to="/client/profile-edit"
             className="d-flex align-items-center text-decoration-none"
           > */}
-          <div
-            className="avatar avatar-sm d-flex align-items-center justify-content-center"
-            style={{
-              width: "30px",
-              height: "30px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              backgroundColor: "#344767",
-              color: "white",
-              fontSize: "12px",
-              fontWeight: "bold",
-            }}
-          >
-            {getInitials(name)}
-          </div>
-          <span className="ms-2 text-sm font-weight-bold text-dark">
-            {name || "User"}
-          </span>
-          {/* </Link> */}
-          {show && (
             <div
-              className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-              style={{ marginTop: "160px" }}
+              className="avatar avatar-sm d-flex align-items-center justify-content-center"
+              style={{
+                width: "30px",
+                height: "30px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                backgroundColor: "#344767",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
             >
-              <Link
-                to="/client/profile-edit"
-                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-              >
-                Profile Setting
-              </Link>
-              <Link
-                to="/client/dashboard"
-                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-              >
-                Session History
-              </Link>
+              {getInitials(name)}
             </div>
-          )}
+            <span className="ms-2 text-sm font-weight-bold text-dark">
+              {name || "User"}
+            </span>
+            {/* </Link> */}
+            {show && (
+              <div
+                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ marginTop: "160px", marginLeft: "-30px" }}
+              >
+                <Link
+                  to="/client/profile-edit"
+                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                >
+                  Profile Setting
+                </Link>
+                <Link
+                  to="/client/dashboard"
+                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                >
+                  Session History
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         <button

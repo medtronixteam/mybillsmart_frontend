@@ -159,13 +159,15 @@ const ClientProfileSetting = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.ok) {
-        toast.success("OTP sent to your email. Please check and enter the code.");
-        setTwoFA((prev) => ({ 
-          ...prev, 
+        toast.success(
+          "OTP sent to your email. Please check and enter the code."
+        );
+        setTwoFA((prev) => ({
+          ...prev,
           loading: false,
-          showOTPInput: true
+          showOTPInput: true,
         }));
       } else {
         throw new Error("Failed to send OTP");
@@ -270,7 +272,7 @@ const ClientProfileSetting = () => {
         <div className="col-xl-6">
           <form
             onSubmit={handleProfileSubmit}
-            className="card profile-info-card h-100"
+            className="card profile-info-card h-100 shadow-none bg-transparent"
           >
             <h3 className="profile-card-heading">Edit Your Profile Info</h3>
             <div className="">
@@ -373,7 +375,7 @@ const ClientProfileSetting = () => {
         <div className="col-xl-6">
           <form
             onSubmit={handlePasswordSubmit}
-            className="card profile-password-card h-100"
+            className="card profile-password-card h-100 shadow-none bg-transparent"
           >
             <h3 className="profile-card-heading">Update Your Password</h3>
             <div className="">
@@ -444,7 +446,7 @@ const ClientProfileSetting = () => {
 
         {/* 2FA Card */}
         <div className="col-12 mt-4">
-          <div className="card profile-2fa-card">
+          <div className="card profile-2fa-card shadow-none bg-transparent">
             <h3 className="profile-card-heading">
               Two-Factor Authentication (2FA)
             </h3>
@@ -454,7 +456,8 @@ const ClientProfileSetting = () => {
                 {twoFA.showConfirmation ? (
                   <div className="confirmation-dialog">
                     <p className="text-white">
-                      Are you sure you want to disable 2FA? This will reduce your account security.
+                      Are you sure you want to disable 2FA? This will reduce
+                      your account security.
                     </p>
                     <div className="d-flex justify-content-center gap-2 mt-3">
                       <button
@@ -513,11 +516,13 @@ const ClientProfileSetting = () => {
                         {twoFA.loading ? "Verifying..." : "Verify & Enable"}
                       </button>
                       <button
-                        onClick={() => setTwoFA((prev) => ({ 
-                          ...prev, 
-                          code: "",
-                          showOTPInput: false 
-                        }))}
+                        onClick={() =>
+                          setTwoFA((prev) => ({
+                            ...prev,
+                            code: "",
+                            showOTPInput: false,
+                          }))
+                        }
                         className="btn btn-secondary"
                       >
                         Cancel

@@ -15,6 +15,7 @@ import {
   FaFileUpload,
   FaFileInvoice,
   FaListAlt,
+  FaFileContract,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -55,10 +56,10 @@ const ClientSidebar = () => {
               to="/client/dashboard"
               activeClassName="active-class"
             >
-              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <div className="icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaHome id="icon" />
               </div>
-              <span className="nav-link-text ms-1">Dashboard</span>
+              <span className="nav-link-text ">Dashboard</span>
             </NavLink>
           </li>
 
@@ -96,7 +97,7 @@ const ClientSidebar = () => {
               aria-controls="collapseInvoices"
             >
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
-                 <FaFileInvoice />
+                <FaFileInvoice />
               </div>
               <span className="nav-link-text">Manage Invoices</span>
               <RiArrowDropDownLine size={30} />
@@ -144,10 +145,10 @@ const ClientSidebar = () => {
               to="/client/contract-list"
               activeClassName="active-class"
             >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCube />
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <FaFileContract />
               </div>
-              <span className="nav-link-text ms-1">Agreement List</span>
+              <span className="nav-link-text">Agreement List</span>
             </NavLink>
           </li>
 
