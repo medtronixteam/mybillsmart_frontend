@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import "./SubscriptionOrder.css";
+import { FaFilePdf } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 const SubscriptionOrder = () => {
   const [activeTab, setActiveTab] = useState('subscriptions');
@@ -42,6 +44,7 @@ const SubscriptionOrder = () => {
         const formattedData = data.map(item => {
           if (activeTab === 'subscriptions') {
             return {
+              id: item.id,
               planName: item.plan_name,
               amount: parseFloat(item.amount).toFixed(2),
               status: item.status,
@@ -50,6 +53,7 @@ const SubscriptionOrder = () => {
             };
           } else {
             return {
+              id: item.id,
               planName: item.plan_name,
               amount: parseFloat(item.amount).toFixed(2),
               status: item.status,
@@ -79,6 +83,50 @@ const SubscriptionOrder = () => {
 
     fetchData();
   }, [activeTab, token]);
+
+  // Function to download receipt PDF
+  const downloadReceipt = async (orderId) => {
+    try {
+      Swal.fire({
+        title: 'Generating Receipt',
+        text: 'Please wait while we generate your receipt...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const response = await fetch(`${config.BASE_URL}/api/payment/receipt`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ order_id: orderId })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate receipt');
+      }
+
+      const result = await response.json();
+      
+      if (result.message) {
+        // Open the PDF URL in a new tab
+        window.open(result.message, '_blank');
+        Swal.close();
+      } else {
+        throw new Error('Somthing Went Wrong');
+      }
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Failed to download receipt'
+      });
+    }
+  };
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -113,6 +161,7 @@ const SubscriptionOrder = () => {
           <th>Currency</th>
           <th>Status</th>
           <th>Date</th>
+          <th>Receipt</th>
         </>
       );
     }
@@ -122,7 +171,7 @@ const SubscriptionOrder = () => {
     if (isLoading) {
       return (
         <tr>
-          <td colSpan={5} className="loading-cell">
+          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="loading-cell">
             Loading...
           </td>
         </tr>
@@ -132,7 +181,7 @@ const SubscriptionOrder = () => {
     if (error) {
       return (
         <tr>
-          <td colSpan={5} className="error-cell">
+          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="error-cell">
             Error: {error}
           </td>
         </tr>
@@ -142,7 +191,7 @@ const SubscriptionOrder = () => {
     if (paginatedItems.length === 0) {
       return (
         <tr>
-          <td colSpan={5} className="empty-cell">
+          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="empty-cell">
             No data available
           </td>
         </tr>
@@ -176,6 +225,15 @@ const SubscriptionOrder = () => {
               </span>
             </td>
             <td>{item.date || 'N/A'}</td>
+            <td>
+              <button 
+                onClick={() => downloadReceipt(item.id)}
+                className="pdf-icon-btn"
+                title="Download Receipt"
+              >
+                <FaFilePdf />
+              </button>
+            </td>
           </tr>
         );
       }
