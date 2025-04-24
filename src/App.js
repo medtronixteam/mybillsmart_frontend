@@ -99,6 +99,8 @@ import AgentSessionHistory from "./components/SessionHistory/AgentSessionHistory
 import SupervisorSessionHistory from "./Provider/SessionHistory/SupervisorSessionHistory";
 import AgentUserList from "./components/AgentUserList/AgentUserList";
 import ClientInvoiceList from "./Client/InvoiceList/ClientInvoiceList";
+import ProviderNotifications from "./Provider/Notifications/ProviderNotifications";
+import GroupAdminNotifications from "./GroupAdmin/Notifications/GroupAdminNotifications";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -372,6 +374,10 @@ const App = () => {
                           <Route path="add-client" element={<AddClient />} />
                           <Route path="client-list" element={<ClientList />} />
                           <Route
+                            path="notifications"
+                            element={<ProviderNotifications />}
+                          />
+                          <Route
                             path="submission-link"
                             element={<ProviderSubmissionLink />}
                           />
@@ -441,6 +447,10 @@ const App = () => {
                           <Route
                             path="profile-edit"
                             element={<GroupAdminProfileSetting />}
+                          />
+                          <Route
+                            path="notifications"
+                            element={<GroupAdminNotifications />}
                           />
                           <Route
                             path="invoice-list"
