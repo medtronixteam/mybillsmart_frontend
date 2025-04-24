@@ -80,7 +80,7 @@ const ClientList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/user/${id}`,
+        `${config.BASE_URL}/api/supervisor/user/detail/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -309,7 +309,7 @@ const ClientList = () => {
         <div className="loading-spinner"></div>
       ) : users.length === 0 ? (
         <div className="no-users-message">
-          <p>No users found in the system.</p>
+          <p>No users found in the system.</p>  
         </div>
       ) : (
         <div className="users-table-container">

@@ -110,7 +110,7 @@ const AgentUserList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/group/user/detail/${id}`,
+        `${config.BASE_URL}/api/agent/user/detail/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -142,14 +142,14 @@ const AgentUserList = () => {
   const fetchSessionHistory = async (userId) => {
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/group/session/history`,
+        `${config.BASE_URL}/api/session/history`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ user_id: userId }),
+    
         }
       );
       const result = await response.json();
@@ -189,7 +189,7 @@ const AgentUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/group/user/disable/${id}`,
+          `${config.BASE_URL}/api/agent/user/disable/${id}`,
           {
             method: "POST",
             headers: {
@@ -236,7 +236,7 @@ const AgentUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/group/user/enable/${id}`,
+          `${config.BASE_URL}/api/agent/user/enable/${id}`,
           {
             method: "POST",
             headers: {
@@ -283,7 +283,7 @@ const AgentUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/group/user/delete/${id}`,
+          `${config.BASE_URL}/api/agent/user/delete/${id}`,
           {
             method: "DELETE",
             headers: {
@@ -352,7 +352,7 @@ const AgentUserList = () => {
 
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/group/user/edit/${editData.id}`,
+        `${config.BASE_URL}/api/agent/user/edit/${editData.id}`,
         {
           method: "POST",
           headers: {
