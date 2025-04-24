@@ -638,11 +638,11 @@ const Invoice = () => {
         toast.success("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
-          `${config.BASE_URL}/api/notifications`,
+          `${config.BASE_URL}/api/agent/send/client/portal`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
-          },
+          }, 
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -701,7 +701,7 @@ const Invoice = () => {
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Upload a File here"}</p>
+              <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
               {file && (
                 <div className="file-preview">
                   {/* <p>Selected file: {file.name}</p>  */}

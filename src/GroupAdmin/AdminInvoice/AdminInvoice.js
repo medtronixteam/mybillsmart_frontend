@@ -100,7 +100,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to fetch group information',
+        text: 'Your Internet connection is unstable. Please try again.',
         timer: 3000,
         showConfirmButton: false
       });
@@ -229,7 +229,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Error uploading file. Please try again.',
+        text: 'Your Internet connection is unstable. Please try again.',
         timer: 3000,
         showConfirmButton: false
       });
@@ -319,7 +319,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Error submitting form. Please try again.',
+        text: 'Your Internet connection is unstable. Please try again.',
         timer: 3000,
         showConfirmButton: false
       });
@@ -443,7 +443,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to generate CSV file',
+        text: 'Something went wrong downloading the CSV file. Please try again.',
         timer: 3000,
         showConfirmButton: false
       });
@@ -727,7 +727,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: errorMessage,
+        text: errorMessage, 
         timer: 3000,
         showConfirmButton: false
       });
@@ -778,9 +778,10 @@ const AdminInvoice = () => {
         });
       } else if (modalType === "portal") {
         const response = await axios.post(
-          `${config.BASE_URL}/api/notifications`,
+          `${config.BASE_URL}/api/group/send/client/portal
+`,
           {
-            user_id: selectedClient,
+            client_id: selectedClient,
             invoice_id: invoiceId,
           },
           {
@@ -857,7 +858,7 @@ const AdminInvoice = () => {
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Upload File Here"}</p>
+              <p>{uploading ? "Uploading..." : "Choose / Drop File here "}</p>
               {file && (
                 <div className="file-preview">
                   <p>({Math.round(file.size / 1024)} KB)</p>

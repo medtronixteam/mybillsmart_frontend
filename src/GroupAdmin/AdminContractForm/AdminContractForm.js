@@ -18,12 +18,9 @@ const AdminContractForm = () => {
     client_id: "",
     contracted_provider: "",
     contracted_rate: "",
-    status: "pending", // Default status set to "Pending"
+    status: "pending",
     closure_date: "",
   });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     if (location.state) {
@@ -61,8 +58,8 @@ const AdminContractForm = () => {
             icon: 'error',
             title: 'Error',
             text: 'Failed to fetch clients.',
-            timer: 3000,
-            showConfirmButton: false
+            showConfirmButton: true,
+            confirmButtonColor: '#3085d6'
           });
         }
       }
@@ -89,17 +86,25 @@ const AdminContractForm = () => {
     }
   };
 
+  const showSuccessAlert = () => {
+    return Swal.fire({
+      title: "Success!",
+      text: "Agreement added successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted");
 
     if (!offerData) {
-      Swal.fire({
+      await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: 'Offer data is missing!',
-        timer: 3000,
-        showConfirmButton: false
+        confirmButtonColor: '#3085d6'
       });
       return;
     }
@@ -111,12 +116,11 @@ const AdminContractForm = () => {
       !formData.contracted_rate ||
       !formData.closure_date
     ) {
-      Swal.fire({
+      await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: 'All fields are required!',
-        timer: 3000,
-        showConfirmButton: false
+        confirmButtonColor: '#3085d6'
       });
       return;
     }
@@ -127,7 +131,7 @@ const AdminContractForm = () => {
       offer_id: offerData.id,
       contracted_provider: formData.contracted_provider,
       contracted_rate: formData.contracted_rate,
-      status: formData.status, // Will always be "Pending"
+      status: formData.status,
       closure_date: formData.closure_date,
     };
 
@@ -143,40 +147,27 @@ const AdminContractForm = () => {
         }
       );
       
-      // Success modal replaced with SweetAlert
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Agreement added successfully!",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-
+      await showSuccessAlert();
+      
       setFormData({
         name: "",
         selectedClient: "",
         client_id: "",
         contracted_provider: "",
         contracted_rate: "",
-        status: "pending", // Reset to "Pending"
+        status: "pending",
         closure_date: "",
       });
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to submit Agreement.",
-        timer: 3000,
-        showConfirmButton: false,
+        text: error.response?.data?.message || "Failed to submit Agreement.",
+        confirmButtonColor: "#3085d6"
       });
     }
   };
-
-  // You can remove the modal-related code since we're using SweetAlert now
-  // const handleModalClose = () => {
-  //   setIsModalOpen(false);
-  // };
 
   return (
     <div className="add-Contract-container">

@@ -6,6 +6,7 @@ import axios from "axios";
 import "./ContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Swal from "sweetalert2";
 
 const ContractForm = () => {
   const location = useLocation();
@@ -22,9 +23,6 @@ const ContractForm = () => {
     status: "pending",
     closure_date: "",
   });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     if (location.state) {
@@ -84,6 +82,26 @@ const ContractForm = () => {
     }
   };
 
+  const showSuccessAlert = () => {
+    Swal.fire({
+      title: "Success!",
+      text: "Agreement added successfully!",
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+    }).then(() => {
+      setFormData({
+        name: "",
+        selectedClient: "",
+        client_id: "",
+        contracted_provider: "",
+        contracted_rate: "",
+        status: "pending",
+        closure_date: "",
+      });
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted");
@@ -117,7 +135,7 @@ const ContractForm = () => {
       contracted_rate: formData.contracted_rate,
       status: formData.status,
       closure_date: formData.closure_date,
-      group_id: groupId, // Include group_id from auth context
+      group_id: groupId,
     };
 
     try {
@@ -131,98 +149,76 @@ const ContractForm = () => {
           },
         }
       );
-      setModalMessage("Agreement added successfully!");
-      setIsModalOpen(true);
-      setFormData({
-        name: "",
-        selectedClient: "",
-        client_id: "",
-        contracted_provider: "",
-        contracted_rate: "",
-        status: "pending",
-        closure_date: "",
-      });
+      showSuccessAlert();
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
-      toast.error("Failed to submit agreement.");
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to submit agreement.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
   return (
-    <>
-      <div className="add-Contract-container">
-        <h2 className="add-Contract-heading">Add Agreements Data</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Please Enter Agreement Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+    <div className="add-Contract-container">
+      <h2 className="add-Contract-heading">Add Agreements Data</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="name"
+          placeholder="Please Enter Agreement Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
 
-          <select
-            name="selectedClient"
-            value={formData.selectedClient}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select a Client</option>
-            {clients.map((client) => (
-              <option key={client.id} value={client.name}>
-                {client.name}
-              </option>
-            ))}
-          </select>
+        <select
+          name="selectedClient"
+          value={formData.selectedClient}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select a Client</option>
+          {clients.map((client) => (
+            <option key={client.id} value={client.name}>
+              {client.name}
+            </option>
+          ))}
+        </select>
 
-          <input
-            type="text"
-            name="contracted_provider"
-            placeholder="Please Enter Agreemented Provider"
-            value={formData.contracted_provider}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="text"
+          name="contracted_provider"
+          placeholder="Please Enter Agreemented Provider"
+          value={formData.contracted_provider}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            type="number"
-            name="contracted_rate"
-            placeholder="Please Enter Agreemented Rate"
-            value={formData.contracted_rate}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="number"
+          name="contracted_rate"
+          placeholder="Please Enter Agreemented Rate"
+          value={formData.contracted_rate}
+          onChange={handleChange}
+          required
+        />
 
-          <input
-            type="date"
-            name="closure_date"
-            placeholder="Please Enter Closure Date"
-            value={formData.closure_date}
-            onChange={handleChange}
-            required
-          />
+        <input
+          type="date"
+          name="closure_date"
+          placeholder="Please Enter Closure Date"
+          value={formData.closure_date}
+          onChange={handleChange}
+          required
+        />
 
-          <button type="submit">Add Agreement</button>
-        </form>
-      </div>
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-icon">✔️</div>
-            <p className="modal-message">{modalMessage}</p>
-            <button className="modal-ok-button" onClick={handleModalClose}>
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+        <button type="submit">Add Agreement</button>
+      </form>
+    </div>
   );
 };
 

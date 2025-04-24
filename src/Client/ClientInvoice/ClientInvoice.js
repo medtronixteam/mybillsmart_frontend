@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { BsCloudUpload } from "react-icons/bs";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  BsCloudUpload,
+  BsDownload,
+} from "react-icons/bs";
 import "./ClientInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
+import jsPDF from "jspdf";
+import { FaFileCsv, FaFileExcel } from "react-icons/fa";
+import config from "../../config";
+import Swal from "sweetalert2";
 
 const ClientInvoice = () => {
   const [step, setStep] = useState(1);
@@ -14,31 +19,97 @@ const ClientInvoice = () => {
   const [uploading, setUploading] = useState(false);
   const [responseData, setResponseData] = useState(null);
   const [submittedData, setSubmittedData] = useState(null);
-  const [invoiceId, setInvoiceId] = useState(null); // State to store invoice_id
+  const [invoiceId, setInvoiceId] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, groupId } = useAuth();
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
+  useEffect(() => {
+    const preventDefaults = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    };
+
+    const handleDragEnter = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
+
+    return () => {
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
+    };
+  }, []);
+
+  const showAlert = (icon, title, text) => {
+    Swal.fire({
+      icon,
+      title,
+      text,
+      showConfirmButton: true,
+      timer: 3000
+    });
+  };
+
+  const handleFiles = useCallback(
+    (files) => {
+      const selectedFile = files[0];
+      if (!selectedFile) return;
+
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        showAlert('error', 'Error', 'Only JPEG, PNG, and PDF files are allowed.');
         return;
       }
 
       if (file) {
-        toast.info("A file is already uploaded. Please submit the form.");
+        showAlert('info', 'Info', 'A file is already uploaded. Please submit the form.');
         return;
       }
-      setFile(selectedFile);
+
       uploadFile(selectedFile);
+    },
+    [file]
+  );
+
+  const handleFileChange = (e) => {
+    e.stopPropagation();
+    if (e.target.files && e.target.files.length > 0) {
+      handleFiles(e.target.files);
     }
+    e.target.value = "";
   };
 
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
     setUploading(true);
+    setFile(selectedFile);
     const formData = new FormData();
     formData.append("file", selectedFile);
 
@@ -55,15 +126,15 @@ const ClientInvoice = () => {
         setResponseData(response.data);
         setFormData(response.data);
         setStep(2);
-        toast.success("File uploaded successfully!");
+        showAlert('success', 'Success', 'File uploaded successfully!');
       }
     } catch (error) {
       console.error("Error uploading file", error);
-      toast.error("Error uploading file. Please try again.");
+      showAlert('error', 'Error', 'Error uploading file. Please try again.');
+      setFile(null);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    setFile(selectedFile);
-    document.getElementById("file-input").value = "";
   };
 
   const handleFormChange = (e) => {
@@ -78,21 +149,30 @@ const ClientInvoice = () => {
     e.preventDefault();
 
     try {
-      // Step 1: Call match API
+      const matchData = {
+        ...formData,
+        group_id: groupId,
+      };
+
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
-        formData,
+        matchData,
         {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log("Match API Response:", matchResponse.data);
+      
       setSubmittedData(matchResponse.data);
+      setOffers(matchResponse.data);
+      
+      const invoiceData = {
+        ...formData,
+        group_id: groupId,
+      };
 
-      // Step 2: Call invoices API to get invoice_id
       const invoiceResponse = await axios.post(
-        "https://bill.medtronix.world/api/agent/invoices",
-        formData,
+        `${config.BASE_URL}/api/client/invoices`,
+        invoiceData,
         {
           headers: {
             "Content-Type": "application/json",
@@ -100,37 +180,23 @@ const ClientInvoice = () => {
           },
         }
       );
-      console.log("Invoice API Response:", invoiceResponse.data);
 
-      // Extract invoice_id from the response
       const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId); // Store invoice_id in state
-
-      // Step 3: Call offers API with invoice_id and match API data
-      const offersData = matchResponse.data.map((item) => ({
-        ...item,
-        invoice_id: invoiceId, // Add invoice_id to each object
-      }));
-
-      // const offersResponse = await axios.post("https://bill.medtronix.world/api/offers", offersData, {
-      //   headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      // });
-      // console.log("Offers API Response:", offersResponse.data);
+      setInvoiceId(invoiceId);
 
       setStep(3);
-      toast.success("Form submitted successfully!");
+      showAlert('success', 'Success', 'Form submitted successfully!');
     } catch (error) {
       console.error("Error submitting data", error);
-      toast.error("Error submitting form. Please try again.");
+      showAlert('error', 'Error', 'Error submitting form. Please try again.');
     }
   };
 
   const renderFormFields = (data) => {
     return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object") // Filter out null and nested objects
+      .filter((key) => data[key] !== null && typeof data[key] !== "object")
       .map((key, index) => {
         const value = data[key];
-
         return (
           <div key={index} className="form-field">
             <label>
@@ -151,11 +217,188 @@ const ClientInvoice = () => {
       });
   };
 
+  const convertToCSV = (data) => {
+    if (!Array.isArray(data) || data.length === 0) return "";
+
+    const allKeys = data.reduce((keys, item) => {
+      Object.keys(item).forEach((key) => {
+        if (
+          !keys.includes(key) &&
+          ![
+            "user_id",
+            "invoice_id",
+            "created_at",
+            "updated_at",
+            "id",
+            "Client_id",
+          ].includes(key)
+        ) {
+          keys.push(key);
+        }
+      });
+      return keys;
+    }, []);
+
+    const headers = allKeys
+      .map(
+        (key) =>
+          `"${key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())}"`
+      )
+      .join(",");
+
+    const rows = data
+      .map((item) => {
+        return allKeys
+          .map((key) => {
+            const value = item[key] !== undefined ? item[key] : "";
+            return `"${String(value).replace(/"/g, '""')}"`;
+          })
+          .join(",");
+      })
+      .join("\n");
+
+    return `${headers}\n${rows}`;
+  };
+
+  const downloadFile = (content, fileName, mimeType) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadCSV = () => {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
+      showAlert('error', 'Error', 'No data available to download');
+      return;
+    }
+
+    try {
+      const csvContent = convertToCSV(submittedData);
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.csv`,
+        "text/csv;charset=utf-8;"
+      );
+      showAlert('success', 'Success', 'CSV downloaded successfully');
+    } catch (error) {
+      console.error("Error generating CSV:", error);
+      showAlert('error', 'Error', 'Failed to generate CSV file');
+    }
+  };
+
+  const downloadExcel = () => {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
+      showAlert('error', 'Error', 'No data available to download');
+      return;
+    }
+
+    try {
+      const csvContent = "\uFEFF" + convertToCSV(submittedData);
+      downloadFile(
+        csvContent,
+        `invoice_${invoiceId}_data.xls`,
+        "application/vnd.ms-excel;charset=utf-8;"
+      );
+      showAlert('success', 'Success', 'Excel file downloaded successfully');
+    } catch (error) {
+      console.error("Error generating Excel:", error);
+      showAlert('error', 'Error', 'Failed to generate Excel file');
+    }
+  };
+
+  const generatePDF = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let yOffset = 20;
+
+    pdf.setFontSize(18);
+    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setLineWidth(0.5);
+    pdf.line(10, yOffset, pageWidth - 10, yOffset);
+    yOffset += 10;
+
+    pdf.setFontSize(12);
+
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
+        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
+        yOffset += 10;
+
+        Object.keys(supplier).forEach((key) => {
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
+            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
+            yOffset += 10;
+          }
+        });
+
+        yOffset += 10;
+      });
+    } else {
+      pdf.text("No supplier data available", 10, yOffset);
+    }
+
+    pdf.save("invoice_details.pdf");
+  };
+
+  const handleContractClick = (offer) => {
+    navigate("/agent/contract", {
+      state: {
+        offerData: offer,
+        offerId: offer.id,
+      },
+    });
+  };
+
   return (
     <div className="invoice-container">
-      <ToastContainer />
+      {isDragging && (
+        <div className="drag-drop-overlay">
+          <div className="drag-drop-content">
+            <BsCloudUpload className="drag-drop-icon" />
+            <h3>Drop your file here</h3>
+            <p>Supported formats: JPEG, PNG, PDF</p>
+          </div>
+        </div>
+      )}
 
-      {/* Stepper Navigation */}
       <div className="invoice-stepper">
         <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
         <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -164,31 +407,40 @@ const ClientInvoice = () => {
         <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
       </div>
 
-      {/* Step 1: Upload Invoice */}
       {step === 1 && (
         <>
           <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
           <div
-            className="invoice-file-upload-box"
-            onClick={() => document.getElementById("file-input").click()}
+            className={`invoice-file-upload-box ${
+              isDragging ? "dragging" : ""
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              document.getElementById("file-input").click();
+            }}
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Click to Upload"}</p>
+              <p>{uploading ? "Uploading..." : "Choose / Drop a File Here"}</p>
+              {file && (
+                <div className="file-preview">
+                  <p>({Math.round(file.size / 1024)} KB)</p>
+                </div>
+              )}
             </label>
             <input
               type="file"
               id="file-input"
               className="invoice-file-input"
               onChange={handleFileChange}
+              accept=".jpg,.jpeg,.png,.pdf"
             />
           </div>
         </>
       )}
 
-      {/* Step 2: Fill the Form */}
       {step === 2 && responseData && (
-        <div className="invoice-form-container">
+        <div className="invoice-form-container w-100">
           <h2 className="invoice-form-heading">Verify your Invoice</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-row">
@@ -199,7 +451,7 @@ const ClientInvoice = () => {
               ))}
             </div>
             <div>
-              <button type="submit" className="invoice-submit-btn">
+              <button type="submit" className="invoice-submit-btn mb-3">
                 Submit
               </button>
             </div>
@@ -207,40 +459,84 @@ const ClientInvoice = () => {
         </div>
       )}
 
-      {/* Step 3: Confirmation */}
-      {step === 3 && submittedData && (
-        <div className="invoice-confirmation-container">
-          {submittedData.map((supplier, index) => (
-            <div className="invoice-card" key={index}>
-              <h3 className="invoice-confirmation-heading">
-                {supplier["Supplier Name"]}
-              </h3>
-              {Object.keys(supplier).map((key, keyIndex) => {
-                if (key !== "Supplier Name") {
-                  return (
-                    <p key={keyIndex}>
-                      <strong>
-                        {key
-                          .replace(/([A-Z])/g, " $1")
-                          .replace(/^./, (str) => str.toUpperCase())}
-                        :
-                      </strong>{" "}
-                      {supplier[key]}
-                    </p>
-                  );
-                }
-                return null;
-              })}
-
-              {/* <button
-                className="invoice-confirmation-btn"
-                onClick={() => navigate("/agent/contract")} // Navigate to the route
-              >
-                Manage Contract
-              </button> */}
+      {step === 3 && offers.length > 0 && (
+        <>
+          <div className="text-center container">
+            <div className="row">
+              <div className="col-12">
+                <h1 className="best-offers-heading mb-0">
+                  Here is some best offers for you choose one of them
+                </h1>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+
+          <div className="justify-content-center row w-100">
+            {offers.map((offer, index) => (
+              <div className="col-xl-4 col-md-6" key={index}>
+                <div className="invoice-card-responsive invoice-card h-100 w-100">
+                  {Object.keys(offer).map((key) => {
+                    if (
+                      key !== "user_id" &&
+                      key !== "invoice_id" &&
+                      key !== "created_at" &&
+                      key !== "updated_at" &&
+                      key !== "id" &&
+                      key !== "Client_id" &&
+                      offer[key]
+                    ) {
+                      return (
+                        <p key={key}>
+                          <strong>
+                            {key
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            :
+                          </strong>{" "}
+                          {offer[key]}
+                        </p>
+                      );
+                    }
+                    return null;
+                  })}
+                 
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+              <button
+                onClick={generatePDF}
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+              >
+                <BsDownload className="me-2" />
+                Download PDF
+              </button>
+            </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+              <button
+                onClick={downloadCSV}
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                disabled={!submittedData || submittedData.length === 0}
+              >
+                <FaFileCsv className="me-2" />
+                Download CSV
+              </button>
+            </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+              <button
+                onClick={downloadExcel}
+                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                disabled={!submittedData || submittedData.length === 0}
+              >
+                <FaFileExcel className="me-2" />
+                Export Excel
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
