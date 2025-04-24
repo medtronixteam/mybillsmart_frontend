@@ -91,23 +91,32 @@ const AgentUserList = () => {
   // Session history pagination
   const indexOfLastSession = currentSessionPage * sessionsPerPage;
   const indexOfFirstSession = indexOfLastSession - sessionsPerPage;
-  const currentSessions = sessionHistory.slice(indexOfFirstSession, indexOfLastSession);
+  const currentSessions = sessionHistory.slice(
+    indexOfFirstSession,
+    indexOfLastSession
+  );
 
   const paginateSessions = (pageNumber) => setCurrentSessionPage(pageNumber);
-  const prevSessionPage = () => currentSessionPage > 1 && setCurrentSessionPage(currentSessionPage - 1);
+  const prevSessionPage = () =>
+    currentSessionPage > 1 && setCurrentSessionPage(currentSessionPage - 1);
   const nextSessionPage = () => {
-    if (currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)) {
+    if (
+      currentSessionPage < Math.ceil(sessionHistory.length / sessionsPerPage)
+    ) {
       setCurrentSessionPage(currentSessionPage + 1);
     }
   };
 
   const fetchUserDetails = async (id) => {
     try {
-      const response = await fetch(`${config.BASE_URL}/api/group/user/detail/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/user/detail/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const result = await response.json();
       if (result.status === "success") {
         return result.data.user;
@@ -132,14 +141,17 @@ const AgentUserList = () => {
 
   const fetchSessionHistory = async (userId) => {
     try {
-      const response = await fetch(`${config.BASE_URL}/api/group/session/history`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ user_id: userId }),
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/session/history`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      );
       const result = await response.json();
       if (result.status === "success") {
         setSessionHistory(result.message || []);
@@ -176,12 +188,15 @@ const AgentUserList = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${config.BASE_URL}/api/group/user/disable/${id}`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${config.BASE_URL}/api/group/user/disable/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
           Swal.fire({
             icon: "success",
@@ -220,12 +235,15 @@ const AgentUserList = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${config.BASE_URL}/api/group/user/enable/${id}`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${config.BASE_URL}/api/group/user/enable/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
           Swal.fire({
             icon: "success",
@@ -264,12 +282,15 @@ const AgentUserList = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`${config.BASE_URL}/api/group/user/delete/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${config.BASE_URL}/api/group/user/delete/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.ok) {
           Swal.fire({
             icon: "success",
@@ -314,7 +335,13 @@ const AgentUserList = () => {
   };
 
   const handleSaveClick = async () => {
-    if (!editData.name || !editData.phone || !editData.country || !editData.city || !editData.postalCode) {
+    if (
+      !editData.name ||
+      !editData.phone ||
+      !editData.country ||
+      !editData.city ||
+      !editData.postalCode
+    ) {
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -324,23 +351,26 @@ const AgentUserList = () => {
     }
 
     try {
-      const response = await fetch(`${config.BASE_URL}/api/group/user/edit/${editData.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: editData.name,
-          phone: editData.phone,
-          address: editData.address,
-          country: editData.country,
-          city: editData.city,
-          postal_code: editData.postalCode,
-          role: editData.role,
-          status: editData.status,
-        }),
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/user/edit/${editData.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: editData.name,
+            phone: editData.phone,
+            address: editData.address,
+            country: editData.country,
+            city: editData.city,
+            postal_code: editData.postalCode,
+            role: editData.role,
+            status: editData.status,
+          }),
+        }
+      );
 
       const result = await response.json();
       if (result.status === "success") {
@@ -395,13 +425,19 @@ const AgentUserList = () => {
     <div className="user-list-container">
       {showSessionHistory ? (
         <div className="session-history-container">
-          <button onClick={handleBackFromSessionHistory} className="back-button">
+          <button
+            onClick={handleBackFromSessionHistory}
+            className="back-button"
+          >
             Back to User List
           </button>
 
           {selectedSession ? (
             <div className="session-details-card">
-              <button onClick={handleBackFromSessionDetails} className="back-button">
+              <button
+                onClick={handleBackFromSessionDetails}
+                className="back-button"
+              >
                 Back to Session History
               </button>
               <h2>Session Details</h2>
@@ -462,12 +498,16 @@ const AgentUserList = () => {
                     </button>
 
                     {Array.from({
-                      length: Math.ceil(sessionHistory.length / sessionsPerPage),
+                      length: Math.ceil(
+                        sessionHistory.length / sessionsPerPage
+                      ),
                     }).map((_, index) => (
                       <button
                         key={index}
                         onClick={() => paginateSessions(index + 1)}
-                        className={`page-button ${currentSessionPage === index + 1 ? "active" : ""}`}
+                        className={`page-button ${
+                          currentSessionPage === index + 1 ? "active" : ""
+                        }`}
                       >
                         {index + 1}
                       </button>
@@ -475,7 +515,10 @@ const AgentUserList = () => {
 
                     <button
                       onClick={nextSessionPage}
-                      disabled={currentSessionPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
+                      disabled={
+                        currentSessionPage ===
+                        Math.ceil(sessionHistory.length / sessionsPerPage)
+                      }
                       className="page-button"
                     >
                       Next
@@ -527,26 +570,38 @@ const AgentUserList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => handleEditClick(index, user)}
+                              onClick={() => {
+                                handleEditClick(index, user);
+                                setActiveDropdown(false);
+                              }}
                             >
                               Edit
                             </a>
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchSessionHistory(user.id)}
+                              onClick={() => {
+                                fetchSessionHistory(user.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               Session History
                             </a>
                             {user.status === 1 ? (
                               <a
-                                onClick={() => handleDisableClick(user.id)}
+                                onClick={() => {
+                                  handleDisableClick(user.id);
+                                  setActiveDropdown(false);
+                                }}
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               >
                                 Disable
                               </a>
                             ) : (
                               <a
-                                onClick={() => handleEnableClick(user.id)}
+                                onClick={() => {
+                                  handleEnableClick(user.id);
+                                  setActiveDropdown(false);
+                                }}
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               >
                                 Enable
@@ -554,7 +609,10 @@ const AgentUserList = () => {
                             )}
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => handleDeleteClick(user.id)}
+                              onClick={() => {
+                                handleDeleteClick(user.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               Delete
                             </a>
@@ -581,7 +639,9 @@ const AgentUserList = () => {
                   <button
                     key={index}
                     onClick={() => paginate(index + 1)}
-                    className={`page-button ${currentPage === index + 1 ? "active" : ""}`}
+                    className={`page-button ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
                   >
                     {index + 1}
                   </button>
@@ -589,7 +649,9 @@ const AgentUserList = () => {
 
                 <button
                   onClick={nextPage}
-                  disabled={currentPage === Math.ceil(users.length / usersPerPage)}
+                  disabled={
+                    currentPage === Math.ceil(users.length / usersPerPage)
+                  }
                   className="page-button"
                 >
                   Next

@@ -316,7 +316,10 @@ const InvoiceList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchInvoiceDetails(invoice.id)}
+                              onClick={() => {
+                                fetchInvoiceDetails(invoice.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               View Details
                             </a>

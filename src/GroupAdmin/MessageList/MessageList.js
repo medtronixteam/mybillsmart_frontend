@@ -22,7 +22,7 @@ const MessageList = () => {
     time_send: "",
     date_send: "",
   });
-// some changing
+  // some changing
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -50,8 +50,8 @@ const MessageList = () => {
       setCurrentPage(data.current_page || 1);
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: err.message,
       });
     } finally {
@@ -117,13 +117,12 @@ const MessageList = () => {
             const [hours, minutes, seconds] = messageData.time_send.split(":");
             date = today.toISOString().split("T")[0];
             time = `${hours}:${minutes}:${seconds}`;
-          }
-          else if (!isNaN(new Date(messageData.time_send).getTime())) {
+          } else if (!isNaN(new Date(messageData.time_send).getTime())) {
             datetime = new Date(messageData.time_send);
             date = datetime.toISOString().split("T")[0];
-            const hours = datetime.getHours().toString().padStart(2, '0');
-            const minutes = datetime.getMinutes().toString().padStart(2, '0');
-            const seconds = datetime.getSeconds().toString().padStart(2, '0');
+            const hours = datetime.getHours().toString().padStart(2, "0");
+            const minutes = datetime.getMinutes().toString().padStart(2, "0");
+            const seconds = datetime.getSeconds().toString().padStart(2, "0");
             time = `${hours}:${minutes}:${seconds}`;
           }
         }
@@ -131,9 +130,9 @@ const MessageList = () => {
         if (!date || !time) {
           datetime = new Date();
           date = datetime.toISOString().split("T")[0];
-          const hours = datetime.getHours().toString().padStart(2, '0');
-          const minutes = datetime.getMinutes().toString().padStart(2, '0');
-          const seconds = datetime.getSeconds().toString().padStart(2, '0');
+          const hours = datetime.getHours().toString().padStart(2, "0");
+          const minutes = datetime.getMinutes().toString().padStart(2, "0");
+          const seconds = datetime.getSeconds().toString().padStart(2, "0");
           time = `${hours}:${minutes}:${seconds}`;
         }
 
@@ -146,8 +145,8 @@ const MessageList = () => {
       }
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: err.message,
       });
       console.error("Error fetching message details:", err);
@@ -162,7 +161,7 @@ const MessageList = () => {
 
       // Combine date and time into a single datetime string
       const datetimeString = `${editForm.date_send}T${editForm.time_send}`;
-      
+
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -195,8 +194,8 @@ const MessageList = () => {
       setSelectedMessage(null);
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: err.message,
       });
     } finally {
@@ -207,13 +206,13 @@ const MessageList = () => {
   const deleteMessage = async (id) => {
     try {
       const result = await Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
       });
 
       if (!result.isConfirmed) return;
@@ -243,8 +242,8 @@ const MessageList = () => {
       setSelectedMessage(null);
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: err.message,
       });
     } finally {
@@ -453,7 +452,10 @@ const MessageList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchMessageDetails(message.id)}
+                              onClick={() => {
+                                fetchMessageDetails(message.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               View
                             </a>

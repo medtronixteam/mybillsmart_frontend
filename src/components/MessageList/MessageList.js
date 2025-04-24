@@ -388,7 +388,10 @@ const AgentMessageList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchMessageDetails(message.id)}
+                              onClick={() => {
+                                fetchMessageDetails(message.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               View
                             </a>

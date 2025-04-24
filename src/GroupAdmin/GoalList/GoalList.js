@@ -268,14 +268,20 @@ const GoalList = () => {
                             >
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleEdit(goal)}
+                                onClick={() => {
+                                  handleEdit(goal);
+                                  setActiveDropdown(false);
+                                }}
                                 disabled={loading}
                               >
                                 Edit
                               </a>
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleDelete(goal.id)}
+                                onClick={() => {
+                                  handleDelete(goal.id);
+                                  setActiveDropdown(false);
+                                }}
                                 disabled={loading}
                               >
                                 Delete

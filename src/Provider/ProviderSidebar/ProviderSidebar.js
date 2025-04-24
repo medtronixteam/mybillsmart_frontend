@@ -299,7 +299,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text">Goal List</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/session-history"
@@ -310,7 +310,7 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text ms-1">Session History</span>
             </NavLink>
-          </li>
+          </li> */}
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">

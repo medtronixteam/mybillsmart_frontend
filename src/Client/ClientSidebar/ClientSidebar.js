@@ -1,8 +1,8 @@
 import React from "react";
 import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
-import { Link, useNavigate } from "react-router-dom"; 
-import { useAuth } from "../../contexts/AuthContext"; 
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   FaGem,
   FaHome,
@@ -10,20 +10,25 @@ import {
   FaCreditCard,
   FaCube,
   FaCog,
-  FaUser, 
+  FaUser,
   FaSignInAlt,
+  FaFileUpload,
+  FaFileInvoice,
+  FaListAlt,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { RiArrowDropDownLine } from "react-icons/ri";
+
 import "./ClientSidebar.css";
 
 const ClientSidebar = () => {
-  const { logout } = useAuth();  
-  const navigate = useNavigate();  
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const handleLogout = () => {
-    logout();  
-    localStorage.removeItem("authToken");  
-    localStorage.removeItem("role");  
-    navigate("/login");  
+    logout();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    navigate("/login");
   };
   return (
     <div>
@@ -40,7 +45,7 @@ const ClientSidebar = () => {
       </div>
       <hr className="horizontal dark mt-0" />
       <div
-        className="collapse navbar-collapse w-auto max-height-vh-100 h-100"
+        className="collapse navbar-collapse overflow-hidden h-100"
         id="sidenav-collapse-main"
       >
         <ul className="navbar-nav">
@@ -57,6 +62,82 @@ const ClientSidebar = () => {
             </NavLink>
           </li>
 
+          {/* <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/client/contract-list"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCube />
+              </div>
+              <span className="nav-link-text ms-1">Agreement List</span>
+            </NavLink>
+          </li> */}
+          {/* <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to="/client/client-invoice"
+              activeClassName="active-class"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                <FaCreditCard />
+              </div>
+              <span className="nav-link-text ms-1">Invoice</span>
+            </NavLink>
+          </li> */}
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseInvoices"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                 <FaFileInvoice />
+              </div>
+              <span className="nav-link-text">Manage Invoices</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseInvoices"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/client/client-invoice"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaFileUpload />
+                      </div>
+                      <span className="nav-link-text">Upload Invoice</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/group_admin/invoice-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaListAlt />
+                      </div>
+                      <span className="nav-link-text">Invoice List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
+
           <li className="nav-item">
             <NavLink
               className="nav-link"
@@ -69,18 +150,7 @@ const ClientSidebar = () => {
               <span className="nav-link-text ms-1">Agreement List</span>
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink
-              className="nav-link"
-              to="/client/client-invoice"
-              activeClassName="active-class"
-            >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <FaCreditCard />
-              </div>
-              <span className="nav-link-text ms-1">Invoice</span>
-            </NavLink>
-          </li>
+
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

@@ -244,7 +244,7 @@ const AdminAddProduct = () => {
           value={formData.sales_commission}
           onChange={handleChange}
         />
-        <button type="submit" className="submit-btn">
+        <button type="submit" className="submit-btn btn bg-white fs-6">
           Add Product
         </button>
       </form>

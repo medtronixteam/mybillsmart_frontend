@@ -60,7 +60,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
           {show && (
             <div
               className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-              style={{ marginTop: "195px", marginLeft:"-40px" }}
+              style={{ marginTop: "195px", marginLeft: "-40px" }}
             >
               <Link
                 to="/group_admin/profile-edit"
@@ -80,7 +80,6 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
               >
                 Company Details
               </Link>
-              
             </div>
           )}
         </div>

@@ -234,14 +234,14 @@
     font-size: 15px;
   }
 }
-select{
+select {
   width: 100%;
   padding: 8px;
   margin: 8px 0;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-#btn-danger{
+#btn-danger {
   background-color: rgb(234, 72, 72);
 }
 /* Styling for the edit product card container */
@@ -252,7 +252,7 @@ select{
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 20px auto;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .edit-product-card h3 {
@@ -266,7 +266,7 @@ select{
 .edit-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Create two columns */
-  gap: 15px; /* Space between columns */
+  gap: 0px 15px; /* Space between columns */
   margin-bottom: 20px;
 }
 
@@ -312,7 +312,7 @@ select{
 
 .form-actions {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   /* margin-top: 20px; */
 }
@@ -332,13 +332,13 @@ select{
   background-color: #0056b3;
 }
 
-.form-actions button[type="button"] {
+/* .form-actions button[type="button"] {
   background-color: #dc3545;
 }
 
 .form-actions button[type="button"]:hover {
   background-color: #c82333;
-}
+} */
 
 .error-message {
   color: red;
@@ -348,7 +348,7 @@ select{
 
 @media screen and (max-width: 768px) {
   .edit-form-grid {
-    grid-template-columns: 1fr; 
+    grid-template-columns: 1fr;
     gap: 0px;
   }
 }

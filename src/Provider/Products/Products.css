@@ -337,13 +337,13 @@ select {
   background-color: #0056b3;
 }
 
-.form-actions button[type="button"] {
+/* .form-actions button[type="button"] {
   background-color: #dc3545;
 }
 
 .form-actions button[type="button"]:hover {
   background-color: #c82333;
-}
+} */
 
 .error-message {
   color: red;

@@ -4,7 +4,7 @@ import "./GoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import config from "../../config";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const AgentGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -15,31 +15,31 @@ const AgentGoalList = () => {
 
   const showErrorAlert = (message) => {
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: "error",
+      title: "Error",
       text: message,
-      confirmButtonColor: '#3085d6'
+      confirmButtonColor: "#3085d6",
     });
   };
 
   const showSuccessAlert = (message) => {
     Swal.fire({
-      icon: 'success',
-      title: 'Success',
+      icon: "success",
+      title: "Success",
       text: message,
-      confirmButtonColor: '#3085d6',
-      timer: 1500
+      confirmButtonColor: "#3085d6",
+      timer: 1500,
     });
   };
 
   const showLoadingAlert = () => {
     return Swal.fire({
-      title: 'Loading',
-      html: 'Please wait...',
+      title: "Loading",
+      html: "Please wait...",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
   };
 
@@ -55,14 +55,11 @@ const AgentGoalList = () => {
     const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${config.BASE_URL}/api/goals`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${config.BASE_URL}/api/goals`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setGoals(response.data.data);
       loadingAlert.close();
     } catch (err) {
@@ -81,13 +78,13 @@ const AgentGoalList = () => {
 
   const confirmDelete = async (goalId) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
@@ -242,7 +239,7 @@ const AgentGoalList = () => {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    {loading ? 'Saving...' : 'Save Changes'}
+                    {loading ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     type="button"
@@ -299,13 +296,19 @@ const AgentGoalList = () => {
                             >
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => handleEdit(goal)}
+                                onClick={() => {
+                                  handleEdit(goal);
+                                  setActiveDropdown(false);
+                                }}
                               >
                                 Edit
                               </a>
                               <a
                                 className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => confirmDelete(goal.id)}
+                                onClick={() => {
+                                  confirmDelete(goal.id);
+                                  setActiveDropdown(false);
+                                }}
                               >
                                 Delete
                               </a>

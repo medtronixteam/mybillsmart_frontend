@@ -205,7 +205,7 @@ const AdminProducts = () => {
       {loading ? (
         <p>Loading products...</p>
       ) : isEditMode ? (
-        <div className="edit-product-card">
+        <div className="edit-product-card bg-transparent shadow-none">
           <h3>Edit Product</h3>
           <form>
             <div className="edit-form-grid">
@@ -213,7 +213,7 @@ const AdminProducts = () => {
                 ([key, value]) =>
                   key !== "id" &&
                   key !== "created_at" && (
-                    <div className="form-group" key={key}>
+                    <div className="form-group mb-0" key={key}>
                       <label>
                         {key.replace(/_/g, " ")}:
                         <input
@@ -228,11 +228,19 @@ const AdminProducts = () => {
               )}
             </div>
             <div className="form-actions">
-              <button type="button" onClick={saveEditedProduct}>
-                Save
-              </button>
-              <button type="button" onClick={exitEditMode}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={exitEditMode}
+              >
                 Back
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={saveEditedProduct}
+              >
+                Save
               </button>
             </div>
           </form>
@@ -268,19 +276,28 @@ const AdminProducts = () => {
                         >
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => openModal(product)}
+                            onClick={() => {
+                              openModal(product);
+                              setActiveDropdown(false);
+                            }}
                           >
                             View Details
                           </a>
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => enterEditMode(product)}
+                            onClick={() => {
+                              enterEditMode(product);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Edit
                           </a>
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => confirmDelete(product)}
+                            onClick={() => {
+                              confirmDelete(product);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Delete
                           </a>

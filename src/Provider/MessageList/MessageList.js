@@ -3,7 +3,7 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const ProviderMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -25,31 +25,31 @@ const ProviderMessageList = () => {
 
   const showErrorAlert = (message) => {
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: "error",
+      title: "Error",
       text: message,
-      confirmButtonColor: '#3085d6'
+      confirmButtonColor: "#3085d6",
     });
   };
 
   const showSuccessAlert = (message) => {
     Swal.fire({
-      icon: 'success',
-      title: 'Success',
+      icon: "success",
+      title: "Success",
       text: message,
-      confirmButtonColor: '#3085d6',
-      timer: 1500
+      confirmButtonColor: "#3085d6",
+      timer: 1500,
     });
   };
 
   const showLoadingAlert = () => {
     return Swal.fire({
-      title: 'Loading',
-      html: 'Please wait...',
+      title: "Loading",
+      html: "Please wait...",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
   };
 
@@ -145,13 +145,13 @@ const ProviderMessageList = () => {
 
   const confirmDelete = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
@@ -437,7 +437,10 @@ const ProviderMessageList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchMessageDetails(message.id)}
+                              onClick={() => {
+                                fetchMessageDetails(message.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               View
                             </a>

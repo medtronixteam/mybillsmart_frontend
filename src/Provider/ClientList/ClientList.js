@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import "./ClientList.css";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const ClientList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -36,10 +36,10 @@ const ClientList = () => {
 
   const showSuccessAlert = (message) => {
     Swal.fire({
-      title: 'Success!',
+      title: "Success!",
       text: message,
-      icon: 'success',
-      confirmButtonText: 'OK',
+      icon: "success",
+      confirmButtonText: "OK",
       timer: 3000,
       timerProgressBar: true,
     });
@@ -47,10 +47,10 @@ const ClientList = () => {
 
   const showErrorAlert = (message) => {
     Swal.fire({
-      title: 'Error!',
+      title: "Error!",
       text: message,
-      icon: 'error',
-      confirmButtonText: 'OK'
+      icon: "error",
+      confirmButtonText: "OK",
     });
   };
 
@@ -103,13 +103,13 @@ const ClientList = () => {
 
   const handleDisableClick = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You are about to disable this user!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, disable it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, disable it!",
     });
 
     if (!result.isConfirmed) return;
@@ -139,13 +139,13 @@ const ClientList = () => {
 
   const handleEnableClick = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You are about to enable this user!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, enable it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, enable it!",
     });
 
     if (!result.isConfirmed) return;
@@ -175,13 +175,13 @@ const ClientList = () => {
 
   const handleDeleteClick = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (!result.isConfirmed) return;
@@ -306,9 +306,7 @@ const ClientList = () => {
       </div>
 
       {loading ? (
-        <div className="loading-spinner">
-         
-        </div>
+        <div className="loading-spinner"></div>
       ) : users.length === 0 ? (
         <div className="no-users-message">
           <p>No users found in the system.</p>
@@ -355,32 +353,44 @@ const ClientList = () => {
                     {activeDropdown === index && (
                       <div
                         className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                        style={{ marginLeft: "-140px" }}
+                        style={{ marginTop: "40px", marginLeft: "-140px" }}
                       >
                         <a
                           className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                          onClick={() => handleEditClick(user)}
+                          onClick={() => {
+                            handleEditClick(user);
+                            setActiveDropdown(false);
+                          }}
                         >
                           Edit
                         </a>
                         {user.status === 1 ? (
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => handleDisableClick(user.id)}
+                            onClick={() => {
+                              handleDisableClick(user.id);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Disable
                           </a>
                         ) : (
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => handleEnableClick(user.id)}
+                            onClick={() => {
+                              handleEnableClick(user.id);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Enable
                           </a>
                         )}
                         <a
                           className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                          onClick={() => handleDeleteClick(user.id)}
+                          onClick={() => {
+                            handleDeleteClick(user.id);
+                            setActiveDropdown(false);
+                          }}
                         >
                           Delete
                         </a>

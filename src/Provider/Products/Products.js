@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Products.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
-import Swal from "sweetalert2"; 
+import Swal from "sweetalert2";
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -41,9 +41,9 @@ const Products = () => {
         console.error("Error fetching products:", error);
         setLoading(false);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch products',
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch products",
         });
       });
   };
@@ -73,13 +73,13 @@ const Products = () => {
 
   const deleteProduct = (id) => {
     Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
         axios
@@ -90,18 +90,14 @@ const Products = () => {
           })
           .then(() => {
             fetchProducts();
-            Swal.fire(
-              'Deleted!',
-              'Product has been deleted.',
-              'success'
-            );
+            Swal.fire("Deleted!", "Product has been deleted.", "success");
           })
           .catch((error) => {
             console.error("Error deleting product:", error);
             Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Failed to delete product',
+              icon: "error",
+              title: "Error",
+              text: "Failed to delete product",
             });
           });
       }
@@ -119,9 +115,9 @@ const Products = () => {
 
     if (name === "fixed_rate" && isNaN(value)) {
       Swal.fire({
-        icon: 'error',
-        title: 'Invalid Input',
-        text: 'Fixed rate must be a valid number.',
+        icon: "error",
+        title: "Invalid Input",
+        text: "Fixed rate must be a valid number.",
       });
       return;
     }
@@ -134,9 +130,9 @@ const Products = () => {
 
     if (!id || isNaN(id)) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Invalid Product ID.',
+        icon: "error",
+        title: "Error",
+        text: "Invalid Product ID.",
       });
       return;
     }
@@ -144,9 +140,9 @@ const Products = () => {
     const fixedRate = parseFloat(editProductData.fixed_rate);
     if (isNaN(fixedRate)) {
       Swal.fire({
-        icon: 'error',
-        title: 'Invalid Input',
-        text: 'Fixed rate must be a valid number.',
+        icon: "error",
+        title: "Invalid Input",
+        text: "Fixed rate must be a valid number.",
       });
       return;
     }
@@ -167,9 +163,9 @@ const Products = () => {
         fetchProducts();
         setIsEditMode(false);
         Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Product updated successfully!',
+          icon: "success",
+          title: "Success",
+          text: "Product updated successfully!",
         });
       })
       .catch((error) => {
@@ -178,9 +174,9 @@ const Products = () => {
           console.error("API Error Response:", error.response.data);
         }
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to update product.',
+          icon: "error",
+          title: "Error",
+          text: "Failed to update product.",
         });
       });
   };
@@ -266,19 +262,28 @@ const Products = () => {
                         >
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => openModal(product)}
+                            onClick={() => {
+                              openModal(product);
+                              setActiveDropdown(false);
+                            }}
                           >
                             View Details
                           </a>
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => enterEditMode(product)}
+                            onClick={() => {
+                              enterEditMode(product);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Edit
                           </a>
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => deleteProduct(product.id)}
+                            onClick={() => {
+                              deleteProduct(product.id);
+                              setActiveDropdown(false);
+                            }}
                           >
                             Delete
                           </a>

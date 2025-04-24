@@ -49,9 +49,9 @@ const InvoiceList = () => {
       } catch (error) {
         console.error("Error fetching invoices:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch invoices. Please try again.',
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch invoices. Please try again.",
         });
         setInvoices([]);
       } finally {
@@ -100,9 +100,9 @@ const InvoiceList = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch invoice details. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch invoice details. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -260,7 +260,6 @@ const InvoiceList = () => {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-    
       </div>
     );
   }
@@ -321,7 +320,10 @@ const InvoiceList = () => {
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => fetchInvoiceDetails(invoice.id)}
+                              onClick={() => {
+                                fetchInvoiceDetails(invoice.id);
+                                setActiveDropdown(false);
+                              }}
                             >
                               View Details
                             </a>
