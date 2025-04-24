@@ -216,3 +216,29 @@
       order: -1;
     }
   }
+  /* Add these styles to your existing CSS */
+.pdf-icon-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.3s ease;
+}
+
+.pdf-icon-btn:hover {
+  color: #c0392b;
+  transform: scale(1.1);
+}
+
+.pdf-icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Adjust table column widths */
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+  width: 60px;
+  text-align: center;
+}
