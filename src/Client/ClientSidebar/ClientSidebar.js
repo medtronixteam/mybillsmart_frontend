@@ -124,7 +124,7 @@ const ClientSidebar = () => {
                   </li>
                   <li>
                     <NavLink
-                      to="/group_admin/invoice-list"
+                      to="/client/invoice-list"
                       className="nav-link "
                       activeClassName="active-class"
                     >

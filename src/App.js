@@ -98,6 +98,7 @@ import CompanyDetailsList from "./GroupAdmin/ComapnyDetailsList/ComapnyDetailsLi
 import AgentSessionHistory from "./components/SessionHistory/AgentSessionHistory";
 import SupervisorSessionHistory from "./Provider/SessionHistory/SupervisorSessionHistory";
 import AgentUserList from "./components/AgentUserList/AgentUserList";
+import ClientInvoiceList from "./Client/InvoiceList/ClientInvoiceList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -327,10 +328,7 @@ const App = () => {
                             path="session-history"
                             element={<AgentSessionHistory />}
                           />
-                          <Route
-                            path="user-list"
-                            element={<AgentUserList />}
-                          />
+                          <Route path="user-list" element={<AgentUserList />} />
                           <Route path="goal" element={<AgentGoalList />} />
 
                           <Route path="*" element={<NotFound />} />
@@ -400,7 +398,7 @@ const App = () => {
                           />
                           <Route
                             path="session-history"
-                            element={<SupervisorSessionHistory/>}
+                            element={<SupervisorSessionHistory />}
                           />
                           <Route path="goal" element={<ProviderGoalList />} />
                           <Route path="*" element={<NotFound />} />
@@ -513,7 +511,7 @@ const App = () => {
                             path="message-list"
                             element={<MessageList />}
                           />
-                           <Route
+                          <Route
                             path="session-history"
                             element={<SessionHistory />}
                           />
@@ -529,7 +527,7 @@ const App = () => {
                             path="company-details-list"
                             element={<CompanyDetailsList />}
                           />
-                          
+
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
@@ -577,6 +575,10 @@ const App = () => {
                           <Route
                             path="client-invoice"
                             element={<ClientInvoice />}
+                          />
+                          <Route
+                            path="invoice-list"
+                            element={<ClientInvoiceList />}
                           />
                           <Route
                             path="notifications"
