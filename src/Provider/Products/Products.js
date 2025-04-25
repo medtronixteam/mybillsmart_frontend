@@ -11,6 +11,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 const Products = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,14 @@ const Products = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editProductData, setEditProductData] = useState({});
   const { token } = useAuth();
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [rateRange, setRateRange] = useState({
+    min: "",
+    max: ""
+  });
 
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
@@ -35,6 +44,7 @@ const Products = () => {
       .then((response) => {
         console.log("API Response:", response.data);
         setProducts(response.data || []);
+        setFilteredProducts(response.data || []);
         setLoading(false);
       })
       .catch((error) => {
@@ -48,13 +58,49 @@ const Products = () => {
       });
   };
 
+  // Apply filters whenever products or filter criteria change
+  useEffect(() => {
+    let result = [...products];
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(product => 
+        (product.product_name && product.product_name.toLowerCase().includes(term)) ||
+        (product.light_category && product.light_category.toLowerCase().includes(term))
+      );
+    }
+    
+    // Apply category filter
+    if (categoryFilter !== "all") {
+      result = result.filter(product => 
+        product.light_category && product.light_category.toLowerCase() === categoryFilter.toLowerCase()
+      );
+    }
+    
+    // Apply rate range filter
+    if (rateRange.min || rateRange.max) {
+      const minRate = rateRange.min ? parseFloat(rateRange.min) : -Infinity;
+      const maxRate = rateRange.max ? parseFloat(rateRange.max) : Infinity;
+      
+      result = result.filter(product => {
+        const productRate = parseFloat(product.fixed_rate);
+        return productRate >= minRate && productRate <= maxRate;
+      });
+    }
+    
+    setFilteredProducts(result);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [products, searchTerm, categoryFilter, rateRange]);
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // Get current products for pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(
+  const currentProducts = filteredProducts.slice(
     indexOfFirstProduct,
     indexOfLastProduct
   );
@@ -186,6 +232,15 @@ const Products = () => {
     setEditProductData({});
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setCategoryFilter("all");
+    setRateRange({ min: "", max: "" });
+  };
+
+  // Extract unique categories for filter dropdown
+  const categories = [...new Set(products.map(product => product.light_category))];
+
   return (
     <div className="products-container">
       <div className="products-header">
@@ -193,6 +248,43 @@ const Products = () => {
         <Link to="/supervisor/add-product">
           <button className="btn btn-primary mb-0">Add Product</button>
         </Link>
+      </div>
+
+      {/* Filter Controls */}
+      <div className="filter-controls">
+        <div className="filter-row">
+          <div className="filter-group">
+            <label htmlFor="searchTerm">Search</label>
+            <input
+              type="text"
+              id="searchTerm"
+              placeholder="Search by name or category..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="categoryFilter">Category</label>
+            <select
+              id="categoryFilter"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="all">All Categories</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+
+          <button className="reset-filters" onClick={resetFilters}>
+            Reset Filters
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -297,7 +389,7 @@ const Products = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">No products available</td>
+                  <td colSpan="4">No products found matching your filters</td>
                 </tr>
               )}
             </tbody>
@@ -310,10 +402,12 @@ const Products = () => {
             >
               Prev
             </button>
-            <span>Page {currentPage}</span>
+            <span>
+              Page {currentPage} of {Math.ceil(filteredProducts.length / productsPerPage)}
+            </span>
             <button
               onClick={() => paginate(currentPage + 1)}
-              disabled={indexOfLastProduct >= products.length}
+              disabled={indexOfLastProduct >= filteredProducts.length}
             >
               Next
             </button>

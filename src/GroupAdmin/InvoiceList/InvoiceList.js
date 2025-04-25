@@ -288,7 +288,7 @@ const InvoiceList = () => {
             <table className="invoice-table">
               <thead>
                 <tr>
-                  <th className="invoice-table-header">Invoice ID</th>
+               
                   <th className="invoice-table-header">Bill Type</th>
                   <th className="invoice-table-header">Address</th>
                   <th className="invoice-table-header">Billing Period</th>
@@ -299,7 +299,7 @@ const InvoiceList = () => {
                 {currentInvoices.length > 0 ? (
                   currentInvoices.map((invoice, index) => (
                     <tr key={invoice.id}>
-                      <td className="invoice-table-cell">{invoice.id}</td>
+                     
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>

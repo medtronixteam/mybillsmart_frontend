@@ -7,6 +7,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 const AgentMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -15,6 +16,11 @@ const AgentMessageList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const { token } = useAuth();
   const itemsPerPage = 10;
+
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [editForm, setEditForm] = useState({
     to_number: "",
@@ -47,6 +53,7 @@ const AgentMessageList = () => {
       }
 
       setMessages(data.data || []);
+      setFilteredMessages(data.data || []); // Initialize filtered messages
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
@@ -54,6 +61,51 @@ const AgentMessageList = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [messages, statusFilter, dateFilter, searchTerm]);
+
+  const applyFilters = () => {
+    let result = [...messages];
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      result = result.filter(
+        (message) => message.status?.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+
+    // Apply date filter
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter).setHours(0, 0, 0, 0);
+      result = result.filter((message) => {
+        if (!message.time_send) return false;
+        const messageDate = new Date(message.time_send).setHours(0, 0, 0, 0);
+        return messageDate === filterDate;
+      });
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (message) =>
+          message.to_number?.toLowerCase().includes(term) ||
+          message.message?.toLowerCase().includes(term)
+      );
+    }
+
+    setFilteredMessages(result);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setDateFilter("");
+    setSearchTerm("");
   };
 
   const fetchMessageDetails = async (id) => {
@@ -191,7 +243,8 @@ const AgentMessageList = () => {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchMessages(newPage);
+      // For client-side pagination with filtered results
+      // No need to fetch again as we have all data
     }
   };
 
@@ -203,9 +256,63 @@ const AgentMessageList = () => {
     return <div className="loading-spinner"></div>;
   if (error) return <div className="error-message">Error: {error}</div>;
 
+  // Get current messages for pagination
+  const indexOfLastMessage = currentPage * itemsPerPage;
+  const indexOfFirstMessage = indexOfLastMessage - itemsPerPage;
+  const currentMessages = filteredMessages.slice(
+    indexOfFirstMessage,
+    indexOfLastMessage
+  );
+
   return (
     <div className="message-list-container">
       <h2 className="page-title">Scheduled Campaigns</h2>
+
+      {/* Filter Section */}
+      <div className="filters-section mb-4 p-3 bg-light rounded">
+        <div className="row">
+          <div className="col-md-3 mb-2">
+            <label>Status</label>
+            <select
+              className="form-control"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="sent">Sent</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Search</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by number or message"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2 d-flex align-items-end">
+            <button
+              className="btn btn-secondary w-100"
+              onClick={resetFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
+        </div>
+      </div>
 
       {selectedMessage ? (
         editMode ? (
@@ -348,8 +455,8 @@ const AgentMessageList = () => {
                 </tr>
               </thead>
               <tbody>
-                {messages.length > 0 ? (
-                  messages.map((message, index) => (
+                {currentMessages.length > 0 ? (
+                  currentMessages.map((message, index) => (
                     <tr key={message.id}>
                       <td>{message.to_number || "N/A"}</td>
                       <td className="message-preview">
@@ -395,12 +502,6 @@ const AgentMessageList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-btn"
-                          onClick={() => fetchMessageDetails(message.id)}
-                        >
-                          View
-                        </button> */}
                       </td>
                     </tr>
                   ))
@@ -415,7 +516,7 @@ const AgentMessageList = () => {
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {filteredMessages.length > itemsPerPage && (
             <div className="pagination-controls">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
