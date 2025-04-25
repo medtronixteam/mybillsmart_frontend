@@ -33,21 +33,22 @@ const GoalList = () => {
   useEffect(() => {
     // Apply filters whenever goals, statusFilter or searchTerm changes
     let result = [...goals];
-    
+
     // Apply status filter
     if (statusFilter !== "all") {
-      result = result.filter(goal => goal.status === statusFilter);
+      result = result.filter((goal) => goal.status === statusFilter);
     }
-    
+
     // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(goal => 
-        goal.task_name.toLowerCase().includes(term) ||
-        goal.status.toLowerCase().includes(term)
+      result = result.filter(
+        (goal) =>
+          goal.task_name.toLowerCase().includes(term) ||
+          goal.status.toLowerCase().includes(term)
       );
     }
-    
+
     setFilteredGoals(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [goals, statusFilter, searchTerm]);
@@ -174,13 +175,15 @@ const GoalList = () => {
       <h2>Goals List</h2>
 
       {/* Filter Controls */}
-      <div className="filter-controls mb-4">
-        <div className="row">
-          <div className="col-md-4 mb-2">
-            <label htmlFor="statusFilter" className="form-label">Filter by Status</label>
+      <div className="container-fluid mb-4">
+        <div className="row g-3 align-items-center">
+          <div className="col-12 col-md-6 col-lg-4">
+            <label htmlFor="statusFilter" className="form-label mx-0 mb-2">
+              Filter by Status
+            </label>
             <select
               id="statusFilter"
-              className="form-select"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -190,12 +193,14 @@ const GoalList = () => {
               <option value="completed">Completed</option>
             </select>
           </div>
-          <div className="col-md-4 mb-2">
-            <label htmlFor="searchTerm" className="form-label">Search</label>
+          <div className="col-12 col-md-6 col-lg-4">
+            <label htmlFor="searchTerm" className="form-label mx-0 mb-2">
+              Search
+            </label>
             <input
               type="text"
               id="searchTerm"
-              className="form-control"
+              className="form-control my-0"
               placeholder="Search by task name or status..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -371,35 +376,53 @@ const GoalList = () => {
               {filteredGoals.length > goalsPerPage && (
                 <nav className="mt-4">
                   <ul className="pagination justify-content-center">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
                       >
                         Pre
                       </button>
                     </li>
-                    
-                    {Array.from({ length: Math.ceil(filteredGoals.length / goalsPerPage) }).map((_, index) => (
-                      <li 
-                        key={index} 
-                        className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+
+                    {Array.from({
+                      length: Math.ceil(filteredGoals.length / goalsPerPage),
+                    }).map((_, index) => (
+                      <li
+                        key={index}
+                        className={`page-item ${
+                          currentPage === index + 1 ? "active" : ""
+                        }`}
                       >
-                        <button 
-                          className="page-link" 
+                        <button
+                          className="page-link"
                           onClick={() => paginate(index + 1)}
                         >
                           {index + 1}
                         </button>
                       </li>
                     ))}
-                    
-                    <li className={`page-item ${currentPage === Math.ceil(filteredGoals.length / goalsPerPage) ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+
+                    <li
+                      className={`page-item ${
+                        currentPage ===
+                        Math.ceil(filteredGoals.length / goalsPerPage)
+                          ? "disabled"
+                          : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage + 1)}
-                        disabled={currentPage === Math.ceil(filteredGoals.length / goalsPerPage)}
+                        disabled={
+                          currentPage ===
+                          Math.ceil(filteredGoals.length / goalsPerPage)
+                        }
                       >
                         Next
                       </button>
@@ -410,7 +433,9 @@ const GoalList = () => {
 
               {/* Results count */}
               <div className="text-muted mt-2">
-                Showing {indexOfFirstGoal + 1} to {Math.min(indexOfLastGoal, filteredGoals.length)} of {filteredGoals.length} goals
+                Showing {indexOfFirstGoal + 1} to{" "}
+                {Math.min(indexOfLastGoal, filteredGoals.length)} of{" "}
+                {filteredGoals.length} goals
               </div>
             </>
           )}

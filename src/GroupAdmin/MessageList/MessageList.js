@@ -27,7 +27,7 @@ const MessageList = () => {
     message: "",
     time_send: "",
     date_send: "",
-    status: 0 // 0 for pending, 1 for completed
+    status: 0, // 0 for pending, 1 for completed
   });
 
   // Helper function to get status text
@@ -80,40 +80,44 @@ const MessageList = () => {
   // Apply filters whenever messages or filter criteria change
   useEffect(() => {
     let result = [...messages];
-    
+
     // Apply status filter
     if (statusFilter !== "all") {
       if (statusFilter === "pending") {
-        result = result.filter(message => message.status === 0);
+        result = result.filter((message) => message.status === 0);
       } else if (statusFilter === "completed") {
-        result = result.filter(message => message.status === 1);
+        result = result.filter((message) => message.status === 1);
       }
     }
-    
+
     // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(message => 
-        (message.to_number && message.to_number.toLowerCase().includes(term)) ||
-        (message.message && message.message.toLowerCase().includes(term)) ||
-        (getStatusText(message.status).toLowerCase().includes(term))
+      result = result.filter(
+        (message) =>
+          (message.to_number &&
+            message.to_number.toLowerCase().includes(term)) ||
+          (message.message && message.message.toLowerCase().includes(term)) ||
+          getStatusText(message.status).toLowerCase().includes(term)
       );
     }
-    
+
     // Apply date filter
     if (dateFilter) {
-      result = result.filter(message => {
+      result = result.filter((message) => {
         if (!message.time_send) return false;
-        
+
         try {
-          const messageDate = new Date(message.time_send).toISOString().split('T')[0];
+          const messageDate = new Date(message.time_send)
+            .toISOString()
+            .split("T")[0];
           return messageDate === dateFilter;
         } catch (e) {
           return false;
         }
       });
     }
-    
+
     setFilteredMessages(result);
     setCurrentPage(1);
     setTotalPages(Math.ceil(result.length / itemsPerPage));
@@ -156,7 +160,9 @@ const MessageList = () => {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Failed to fetch message details");
+        throw new Error(
+          responseData.message || "Failed to fetch message details"
+        );
       }
 
       const messageData = responseData.data || responseData;
@@ -198,7 +204,7 @@ const MessageList = () => {
           message: messageData.message || "",
           date_send: date,
           time_send: time,
-          status: messageData.status || 0
+          status: messageData.status || 0,
         });
       }
     } catch (err) {
@@ -232,7 +238,7 @@ const MessageList = () => {
             to_number: editForm.to_number,
             message: editForm.message,
             time_send: datetimeString,
-            status: editForm.status
+            status: editForm.status,
           }),
         }
       );
@@ -322,7 +328,7 @@ const MessageList = () => {
     const status = parseInt(e.target.value);
     setEditForm((prev) => ({
       ...prev,
-      status: status
+      status: status,
     }));
   };
 
@@ -349,19 +355,25 @@ const MessageList = () => {
   // Get current messages for pagination (client-side)
   const indexOfLastMessage = currentPage * itemsPerPage;
   const indexOfFirstMessage = indexOfLastMessage - itemsPerPage;
-  const currentMessages = filteredMessages.slice(indexOfFirstMessage, indexOfLastMessage);
+  const currentMessages = filteredMessages.slice(
+    indexOfFirstMessage,
+    indexOfLastMessage
+  );
 
   return (
     <div className="message-list-container">
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Controls */}
-      <div className="filter-controls">
-        <div className="filter-row">
-          <div className="filter-group">
-            <label htmlFor="statusFilter">Status</label>
+      <div className="container-fluid mb-4">
+        <div className="row g-3 align-items-end">
+          <div className="col-12 col-md-4">
+            <label htmlFor="statusFilter" className="form-label mx-0 mb-2">
+              Status
+            </label>
             <select
               id="statusFilter"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -371,20 +383,28 @@ const MessageList = () => {
             </select>
           </div>
 
-          <div className="filter-group search-group">
-            <label htmlFor="searchTerm">Search</label>
+          <div className="col-12 col-md-4">
+            <label htmlFor="searchTerm" className="form-label mx-0 mb-2">
+              Search
+            </label>
             <input
               type="text"
               id="searchTerm"
+              className="form-control my-0"
               placeholder="Search by number or message..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <button className="reset-filters" onClick={resetFilters}>
-            Reset Filters
-          </button>
+          <div className="col-12 col-md-4">
+            <button
+              className="btn btn-primary w-100 my-0"
+              onClick={resetFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
         </div>
       </div>
 
@@ -508,7 +528,11 @@ const MessageList = () => {
               <div className="detail-row">
                 <span className="detail-label">Status:</span>
                 <span className="detail-value">
-                  <span className={`status-badge ${getStatusClass(selectedMessage.status)}`}>
+                  <span
+                    className={`status-badge ${getStatusClass(
+                      selectedMessage.status
+                    )}`}
+                  >
                     {getStatusText(selectedMessage.status)}
                   </span>
                 </span>
@@ -555,7 +579,11 @@ const MessageList = () => {
                       </td>
                       <td>{formatDateTime(message.time_send)}</td>
                       <td>
-                        <span className={`status-badge ${getStatusClass(message.status)}`}>
+                        <span
+                          className={`status-badge ${getStatusClass(
+                            message.status
+                          )}`}
+                        >
                           {getStatusText(message.status)}
                         </span>
                       </td>
@@ -610,17 +638,28 @@ const MessageList = () => {
                 Previous
               </button>
               <span>
-                Page {currentPage} of {Math.ceil(filteredMessages.length / itemsPerPage)}
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredMessages.length / itemsPerPage)}
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === Math.ceil(filteredMessages.length / itemsPerPage)}
+                disabled={
+                  currentPage ===
+                  Math.ceil(filteredMessages.length / itemsPerPage)
+                }
               >
                 Next
               </button>
               <button
-                onClick={() => handlePageChange(Math.ceil(filteredMessages.length / itemsPerPage))}
-                disabled={currentPage === Math.ceil(filteredMessages.length / itemsPerPage)}
+                onClick={() =>
+                  handlePageChange(
+                    Math.ceil(filteredMessages.length / itemsPerPage)
+                  )
+                }
+                disabled={
+                  currentPage ===
+                  Math.ceil(filteredMessages.length / itemsPerPage)
+                }
               >
                 Last
               </button>
