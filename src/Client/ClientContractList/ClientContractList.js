@@ -65,7 +65,7 @@ const ClientContractList = () => {
           <table className="contract-table">
             <thead>
               <tr>
-                <th className="contract-table-header">Client ID</th>
+                {/* <th className="contract-table-header">Client ID</th> */}
                 <th className="contract-table-header">Agreemented Provider</th>
                 <th className="contract-table-header">Agreemented Rate</th>
                 <th className="contract-table-header">Closure Date</th>
@@ -76,7 +76,7 @@ const ClientContractList = () => {
             <tbody>
               {contracts.map((contract, index) => (
                 <tr key={index} className="contract-table-row">
-                  <td className="contract-table-cell">{contract.client_id}</td>
+                  {/* <td className="contract-table-cell">{contract.client_id}</td> */}
                   <td className="contract-table-cell">
                     {contract.contracted_provider}
                   </td>
