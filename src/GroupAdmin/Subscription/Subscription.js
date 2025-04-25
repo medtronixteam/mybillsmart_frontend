@@ -14,9 +14,9 @@ const Subscription = () => {
     starter: false,
     pro: false,
     enterprise: false,
-    growth: false,
-    scale: false,
-    max: false
+    growth_pack: false,
+    scale_pack: false,
+    max_pack: false
   });
   const [planPrices, setPlanPrices] = useState({});
 

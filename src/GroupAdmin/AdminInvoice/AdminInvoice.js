@@ -792,7 +792,7 @@ const AdminInvoice = () => {
           }
         );
 
-        if (response.data.success) {
+        if (response.status === 200) {
           Swal.fire({
             icon: 'success',
             title: 'Success',

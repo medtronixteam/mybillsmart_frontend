@@ -9,9 +9,18 @@ import Swal from "sweetalert2";
 const AgentGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [goals, setGoals] = useState([]);
+  const [filteredGoals, setFilteredGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingGoal, setEditingGoal] = useState(null);
   const { token } = useAuth();
+
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [goalsPerPage] = useState(10); 
 
   const showErrorAlert = (message) => {
     Swal.fire({
@@ -51,6 +60,11 @@ const AgentGoalList = () => {
     fetchGoals();
   }, []);
 
+  useEffect(() => {
+    applyFilters();
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [goals, statusFilter, startDateFilter, endDateFilter, searchTerm]);
+
   const fetchGoals = async () => {
     const loadingAlert = showLoadingAlert();
     try {
@@ -75,6 +89,54 @@ const AgentGoalList = () => {
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const applyFilters = () => {
+    let result = [...goals];
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      result = result.filter((goal) => goal.status === statusFilter);
+    }
+
+    // Apply date range filter
+    if (startDateFilter) {
+      result = result.filter(
+        (goal) => new Date(goal.start_date) >= new Date(startDateFilter)
+      );
+    }
+
+    if (endDateFilter) {
+      result = result.filter(
+        (goal) => new Date(goal.end_date) <= new Date(endDateFilter)
+      );
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter((goal) =>
+        goal.task_name.toLowerCase().includes(term)
+      );
+    }
+
+    setFilteredGoals(result);
+  };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setStartDateFilter("");
+    setEndDateFilter("");
+    setSearchTerm("");
+  };
+
+  // Get current goals for pagination
+  const indexOfLastGoal = currentPage * goalsPerPage;
+  const indexOfFirstGoal = indexOfLastGoal - goalsPerPage;
+  const currentGoals = filteredGoals.slice(indexOfFirstGoal, indexOfLastGoal);
+  const totalPages = Math.ceil(filteredGoals.length / goalsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const confirmDelete = async (goalId) => {
     const result = await Swal.fire({
@@ -157,9 +219,110 @@ const AgentGoalList = () => {
     });
   };
 
+  // Pagination component
+  const Pagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <nav>
+        <ul className="pagination justify-content-center">
+          <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+          </li>
+          
+          {pageNumbers.map((number) => (
+            <li
+              key={number}
+              className={`page-item ${currentPage === number ? "active" : ""}`}
+            >
+              <button
+                className="page-link"
+                onClick={() => paginate(number)}
+              >
+                {number}
+              </button>
+            </li>
+          ))}
+          
+          <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+            <button
+              className="page-link"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+    );
+  };
+
   return (
     <div className="goal-list-container">
       <h2>Goals List</h2>
+
+      {/* Filter Section */}
+      <div className="filters-section mb-4 p-3 bg-light rounded">
+        <div className="row">
+          <div className="col-md-3 mb-2">
+            <label>Status</label>
+            <select
+              className="form-control"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Start Date From</label>
+            <input
+              type="date"
+              className="form-control"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>End Date To</label>
+            <input
+              type="date"
+              className="form-control"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+              min={startDateFilter}
+            />
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Search</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by task name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+        <button
+          className="btn btn-secondary mt-2"
+          onClick={resetFilters}
+        >
+          Reset Filters
+        </button>
+      </div>
 
       {loading && !editingGoal ? (
         <div className="loading-spinner-container">
@@ -254,75 +417,89 @@ const AgentGoalList = () => {
               </form>
             </div>
           ) : (
-            <div className="goals-table-container table-responsive">
-              <table className="goals-table table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Task Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Points</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {goals.length === 0 ? (
+            <>
+              <div className="goals-table-container table-responsive">
+                <table className="goals-table table table-bordered">
+                  <thead>
                     <tr>
-                      <td colSpan="6" className="text-center">
-                        No goals found
-                      </td>
+                      <th>Task Name</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Points</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
-                  ) : (
-                    goals.map((goal, index) => (
-                      <tr key={goal.id}>
-                        <td>{goal.task_name}</td>
-                        <td>{formatDate(goal.start_date)}</td>
-                        <td>{formatDate(goal.end_date)}</td>
-                        <td>{goal.points}</td>
-                        <td>
-                          {goal.status.charAt(0).toUpperCase() +
-                            goal.status.slice(1).replace("_", " ")}
-                        </td>
-
-                        <td className="actions">
-                          <HiDotsHorizontal
-                            size={30}
-                            onClick={() => toggleDropdown(index)}
-                            className="cursor-pointer"
-                          />
-                          {activeDropdown === index && (
-                            <div
-                              className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                              style={{ marginLeft: "-140px" }}
-                            >
-                              <a
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => {
-                                  handleEdit(goal);
-                                  setActiveDropdown(false);
-                                }}
-                              >
-                                Edit
-                              </a>
-                              <a
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => {
-                                  confirmDelete(goal.id);
-                                  setActiveDropdown(false);
-                                }}
-                              >
-                                Delete
-                              </a>
-                            </div>
-                          )}
+                  </thead>
+                  <tbody>
+                    {currentGoals.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center">
+                          No goals found
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    ) : (
+                      currentGoals.map((goal, index) => (
+                        <tr key={goal.id}>
+                          <td>{goal.task_name}</td>
+                          <td>{formatDate(goal.start_date)}</td>
+                          <td>{formatDate(goal.end_date)}</td>
+                          <td>{goal.points}</td>
+                          <td>
+                            {goal.status.charAt(0).toUpperCase() +
+                              goal.status.slice(1).replace("_", " ")}
+                          </td>
+
+                          <td className="actions">
+                            <HiDotsHorizontal
+                              size={30}
+                              onClick={() => toggleDropdown(index)}
+                              className="cursor-pointer"
+                            />
+                            {activeDropdown === index && (
+                              <div
+                                className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                                style={{ marginLeft: "-140px" }}
+                              >
+                                <a
+                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                  onClick={() => {
+                                    handleEdit(goal);
+                                    setActiveDropdown(false);
+                                  }}
+                                >
+                                  Edit
+                                </a>
+                                <a
+                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                  onClick={() => {
+                                    confirmDelete(goal.id);
+                                    setActiveDropdown(false);
+                                  }}
+                                >
+                                  Delete
+                                </a>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Pagination */}
+              {filteredGoals.length > goalsPerPage && (
+                <div className="mt-4">
+                  <Pagination />
+                  <div className="text-center text-muted">
+                    Showing {indexOfFirstGoal + 1} to{" "}
+                    {Math.min(indexOfLastGoal, filteredGoals.length)} of{" "}
+                    {filteredGoals.length} goals
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

@@ -3,18 +3,24 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
-import Swal from "sweetalert2";
 
 const ProviderMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { token } = useAuth();
   const itemsPerPage = 10;
+
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [editForm, setEditForm] = useState({
     to_number: "",
@@ -23,44 +29,14 @@ const ProviderMessageList = () => {
     date_send: "",
   });
 
-  const showErrorAlert = (message) => {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: message,
-      confirmButtonColor: "#3085d6",
-    });
-  };
-
-  const showSuccessAlert = (message) => {
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: message,
-      confirmButtonColor: "#3085d6",
-      timer: 1500,
-    });
-  };
-
-  const showLoadingAlert = () => {
-    return Swal.fire({
-      title: "Loading",
-      html: "Please wait...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  };
-
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
 
   const fetchMessages = async (page = 1) => {
-    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
         {
@@ -77,20 +53,67 @@ const ProviderMessageList = () => {
       }
 
       setMessages(data.data || []);
+      setFilteredMessages(data.data || []);
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
-      showErrorAlert(err.message);
+      setError(err.message);
     } finally {
-      loadingAlert.close();
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    applyFilters();
+  }, [messages, statusFilter, dateFilter, searchTerm]);
+
+  const applyFilters = () => {
+    let result = [...messages];
+
+    // Apply status filter (0 = Pending, 1 = Completed)
+    if (statusFilter !== "all") {
+      result = result.filter((message) => {
+        if (statusFilter === "0") return message.status === 0 || message.status === "0";
+        if (statusFilter === "1") return message.status === 1 || message.status === "1";
+        return true;
+      });
+    }
+
+    // Apply date filter
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter).setHours(0, 0, 0, 0);
+      result = result.filter((message) => {
+        if (!message.time_send) return false;
+        const messageDate = new Date(message.time_send).setHours(0, 0, 0, 0);
+        return messageDate === filterDate;
+      });
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (message) =>
+          message.to_number?.toLowerCase().includes(term) ||
+          message.message?.toLowerCase().includes(term)
+      );
+    }
+
+    setFilteredMessages(result);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setDateFilter("");
+    setSearchTerm("");
+  };
+
   const fetchMessageDetails = async (id) => {
-    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -136,62 +159,18 @@ const ProviderMessageList = () => {
         });
       }
     } catch (err) {
-      showErrorAlert(err.message);
+      setError(err.message);
+      console.error("Error fetching campaign details:", err);
     } finally {
-      loadingAlert.close();
-      setLoading(false);
-    }
-  };
-
-  const confirmDelete = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (result.isConfirmed) {
-      await deleteMessage(id);
-    }
-  };
-
-  const deleteMessage = async (id) => {
-    const loadingAlert = showLoadingAlert();
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${config.BASE_URL}/api/auto-messages/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete campaign");
-      }
-
-      showSuccessAlert("Campaign deleted successfully!");
-      fetchMessages(currentPage);
-      setSelectedMessage(null);
-    } catch (err) {
-      showErrorAlert(err.message);
-    } finally {
-      loadingAlert.close();
       setLoading(false);
     }
   };
 
   const updateMessage = async (id) => {
-    const loadingAlert = showLoadingAlert();
     try {
       setLoading(true);
+      setError(null);
+
       const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
 
       const response = await fetch(
@@ -215,14 +194,40 @@ const ProviderMessageList = () => {
         throw new Error(errorData.message || "Failed to update campaign");
       }
 
-      showSuccessAlert("Campaign updated successfully!");
       fetchMessages(currentPage);
       setEditMode(false);
       setSelectedMessage(null);
     } catch (err) {
-      showErrorAlert(err.message);
+      setError(err.message);
     } finally {
-      loadingAlert.close();
+      setLoading(false);
+    }
+  };
+
+  const deleteMessage = async (id) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        `${config.BASE_URL}/api/auto-messages/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete message");
+      }
+
+      fetchMessages(currentPage);
+      setSelectedMessage(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -238,7 +243,6 @@ const ProviderMessageList = () => {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchMessages(newPage);
     }
   };
 
@@ -246,17 +250,73 @@ const ProviderMessageList = () => {
     fetchMessages();
   }, []);
 
-  if (loading && messages.length === 0) {
-    return (
-      <div className="loading-spinner-container">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
+  if (loading && messages.length === 0)
+    return <div className="loading-spinner"></div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
+
+  // Get current messages for pagination
+  const indexOfLastMessage = currentPage * itemsPerPage;
+  const indexOfFirstMessage = indexOfLastMessage - itemsPerPage;
+  const currentMessages = filteredMessages.slice(
+    indexOfFirstMessage,
+    indexOfLastMessage
+  );
+
+  // Function to display status text
+  const getStatusText = (status) => {
+    if (status === 0 || status === "0") return "Pending";
+    if (status === 1 || status === "1") return "Completed";
+    return status || "Pending";
+  };
 
   return (
     <div className="message-list-container">
       <h2 className="page-title">Scheduled Campaigns</h2>
+
+      {/* Filter Section */}
+      <div className="filters-section mb-4 p-3 bg-light rounded">
+        <div className="row">
+          <div className="col-md-3 mb-2">
+            <label>Status</label>
+            <select
+              className="form-control"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="0">Pending</option>
+              <option value="1">Completed</option>
+            </select>
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Search</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by number or message"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2 d-flex align-items-end">
+            <button
+              className="btn btn-secondary w-100"
+              onClick={resetFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
+        </div>
+      </div>
 
       {selectedMessage ? (
         editMode ? (
@@ -309,6 +369,8 @@ const ProviderMessageList = () => {
                 />
               </div>
             </div>
+
+            {error && <div className="error-message">{error}</div>}
 
             <div className="form-actions">
               <button className="cancel-btn" onClick={() => setEditMode(false)}>
@@ -365,7 +427,7 @@ const ProviderMessageList = () => {
               <div className="detail-row">
                 <span className="detail-label">Status:</span>
                 <span className="detail-value">
-                  {selectedMessage.status || "Pending"}
+                  {getStatusText(selectedMessage.status)}
                 </span>
               </div>
             </div>
@@ -376,7 +438,7 @@ const ProviderMessageList = () => {
               </button>
               <button
                 className="delete-btn"
-                onClick={() => confirmDelete(selectedMessage.id)}
+                onClick={() => deleteMessage(selectedMessage.id)}
               >
                 Delete
               </button>
@@ -389,7 +451,6 @@ const ProviderMessageList = () => {
             <table className="messages-table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>To Number</th>
                   <th>Campaign</th>
                   <th>Scheduled Time</th>
@@ -398,10 +459,9 @@ const ProviderMessageList = () => {
                 </tr>
               </thead>
               <tbody>
-                {messages.length > 0 ? (
-                  messages.map((message, index) => (
+                {currentMessages.length > 0 ? (
+                  currentMessages.map((message, index) => (
                     <tr key={message.id}>
-                      <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
                       <td className="message-preview">
                         {message.message
@@ -417,11 +477,13 @@ const ProviderMessageList = () => {
                       </td>
                       <td>
                         <span
-                          className={`status-badge ${(
-                            message.status || ""
-                          ).toLowerCase()}`}
+                          className={`status-badge ${
+                            message.status === 1 || message.status === "1"
+                              ? "completed"
+                              : "pending"
+                          }`}
                         >
-                          {message.status || "Pending"}
+                          {getStatusText(message.status)}
                         </span>
                       </td>
                       <td>
@@ -460,7 +522,7 @@ const ProviderMessageList = () => {
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {filteredMessages.length > itemsPerPage && (
             <div className="pagination-controls">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}

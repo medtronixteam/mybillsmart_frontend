@@ -651,7 +651,7 @@ const Invoice = () => {
           }
         );
 
-        if (response.data.success) {
+        if (response.status === 200) {
           toast.success("Invoice sent to client portal successfully!");
         } else {
           toast.error("Failed to send to client portal");

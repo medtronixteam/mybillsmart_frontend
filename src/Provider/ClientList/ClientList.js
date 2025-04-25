@@ -75,7 +75,7 @@ const ClientList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };   
 
   const fetchUserDetails = async (id) => {
     try {
