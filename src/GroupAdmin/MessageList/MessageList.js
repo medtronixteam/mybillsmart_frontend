@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 const MessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [filteredMessages, setFilteredMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -16,13 +17,29 @@ const MessageList = () => {
   const { token } = useAuth();
   const itemsPerPage = 10;
 
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+
   const [editForm, setEditForm] = useState({
     to_number: "",
     message: "",
     time_send: "",
     date_send: "",
+    status: 0 // 0 for pending, 1 for completed
   });
-  // some changing
+
+  // Helper function to get status text
+  const getStatusText = (status) => {
+    return status === 1 ? "Completed" : "Pending";
+  };
+
+  // Helper function to get status class
+  const getStatusClass = (status) => {
+    return status === 1 ? "completed" : "pending";
+  };
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -46,6 +63,7 @@ const MessageList = () => {
       }
 
       setMessages(data.data || []);
+      setFilteredMessages(data.data || []);
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
@@ -58,6 +76,48 @@ const MessageList = () => {
       setLoading(false);
     }
   };
+
+  // Apply filters whenever messages or filter criteria change
+  useEffect(() => {
+    let result = [...messages];
+    
+    // Apply status filter
+    if (statusFilter !== "all") {
+      if (statusFilter === "pending") {
+        result = result.filter(message => message.status === 0);
+      } else if (statusFilter === "completed") {
+        result = result.filter(message => message.status === 1);
+      }
+    }
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(message => 
+        (message.to_number && message.to_number.toLowerCase().includes(term)) ||
+        (message.message && message.message.toLowerCase().includes(term)) ||
+        (getStatusText(message.status).toLowerCase().includes(term))
+      );
+    }
+    
+    // Apply date filter
+    if (dateFilter) {
+      result = result.filter(message => {
+        if (!message.time_send) return false;
+        
+        try {
+          const messageDate = new Date(message.time_send).toISOString().split('T')[0];
+          return messageDate === dateFilter;
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+    
+    setFilteredMessages(result);
+    setCurrentPage(1);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+  }, [messages, statusFilter, searchTerm, dateFilter]);
 
   const formatDateTime = (timeString) => {
     if (!timeString) return "N/A";
@@ -94,12 +154,9 @@ const MessageList = () => {
       );
 
       const responseData = await response.json();
-      console.log("API Response:", responseData);
 
       if (!response.ok) {
-        throw new Error(
-          responseData.message || "Failed to fetch message details"
-        );
+        throw new Error(responseData.message || "Failed to fetch message details");
       }
 
       const messageData = responseData.data || responseData;
@@ -141,6 +198,7 @@ const MessageList = () => {
           message: messageData.message || "",
           date_send: date,
           time_send: time,
+          status: messageData.status || 0
         });
       }
     } catch (err) {
@@ -173,7 +231,8 @@ const MessageList = () => {
           body: JSON.stringify({
             to_number: editForm.to_number,
             message: editForm.message,
-            time_send: datetimeString, // Send combined datetime
+            time_send: datetimeString,
+            status: editForm.status
           }),
         }
       );
@@ -259,11 +318,24 @@ const MessageList = () => {
     }));
   };
 
+  const handleStatusChange = (e) => {
+    const status = parseInt(e.target.value);
+    setEditForm((prev) => ({
+      ...prev,
+      status: status
+    }));
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchMessages(newPage);
     }
+  };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setSearchTerm("");
+    setDateFilter("");
   };
 
   useEffect(() => {
@@ -274,9 +346,47 @@ const MessageList = () => {
     return <div className="loading-spinner"></div>;
   }
 
+  // Get current messages for pagination (client-side)
+  const indexOfLastMessage = currentPage * itemsPerPage;
+  const indexOfFirstMessage = indexOfLastMessage - itemsPerPage;
+  const currentMessages = filteredMessages.slice(indexOfFirstMessage, indexOfLastMessage);
+
   return (
     <div className="message-list-container">
       <h2 className="page-title">Scheduled Campaigns</h2>
+
+      {/* Filter Controls */}
+      <div className="filter-controls">
+        <div className="filter-row">
+          <div className="filter-group">
+            <label htmlFor="statusFilter">Status</label>
+            <select
+              id="statusFilter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div className="filter-group search-group">
+            <label htmlFor="searchTerm">Search</label>
+            <input
+              type="text"
+              id="searchTerm"
+              placeholder="Search by number or message..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <button className="reset-filters" onClick={resetFilters}>
+            Reset Filters
+          </button>
+        </div>
+      </div>
 
       {selectedMessage ? (
         editMode ? (
@@ -329,6 +439,20 @@ const MessageList = () => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>Status</label>
+              <select
+                name="status"
+                value={editForm.status}
+                onChange={handleStatusChange}
+                className="form-control"
+                required
+              >
+                <option value={0}>Pending</option>
+                <option value={1}>Completed</option>
+              </select>
             </div>
 
             <div className="form-actions">
@@ -384,7 +508,9 @@ const MessageList = () => {
               <div className="detail-row">
                 <span className="detail-label">Status:</span>
                 <span className="detail-value">
-                  {selectedMessage.status || "Pending"}
+                  <span className={`status-badge ${getStatusClass(selectedMessage.status)}`}>
+                    {getStatusText(selectedMessage.status)}
+                  </span>
                 </span>
               </div>
             </div>
@@ -408,7 +534,6 @@ const MessageList = () => {
             <table className="messages-table">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>To Number</th>
                   <th>Campaign</th>
                   <th>Scheduled Time</th>
@@ -417,10 +542,9 @@ const MessageList = () => {
                 </tr>
               </thead>
               <tbody>
-                {messages.length > 0 ? (
-                  messages.map((message, index) => (
+                {currentMessages.length > 0 ? (
+                  currentMessages.map((message, index) => (
                     <tr key={message.id}>
-                      <td>{message.id || "N/A"}</td>
                       <td>{message.to_number || "N/A"}</td>
                       <td className="message-preview">
                         {message.message
@@ -431,12 +555,8 @@ const MessageList = () => {
                       </td>
                       <td>{formatDateTime(message.time_send)}</td>
                       <td>
-                        <span
-                          className={`status-badge ${(
-                            message.status || ""
-                          ).toLowerCase()}`}
-                        >
-                          {message.status || "Pending"}
+                        <span className={`status-badge ${getStatusClass(message.status)}`}>
+                          {getStatusText(message.status)}
                         </span>
                       </td>
                       <td>
@@ -475,7 +595,7 @@ const MessageList = () => {
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {filteredMessages.length > itemsPerPage && (
             <div className="pagination-controls">
               <button
                 onClick={() => handlePageChange(1)}
@@ -490,17 +610,17 @@ const MessageList = () => {
                 Previous
               </button>
               <span>
-                Page {currentPage} of {totalPages}
+                Page {currentPage} of {Math.ceil(filteredMessages.length / itemsPerPage)}
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === Math.ceil(filteredMessages.length / itemsPerPage)}
               >
                 Next
               </button>
               <button
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(Math.ceil(filteredMessages.length / itemsPerPage))}
+                disabled={currentPage === Math.ceil(filteredMessages.length / itemsPerPage)}
               >
                 Last
               </button>

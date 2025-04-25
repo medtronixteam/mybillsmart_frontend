@@ -847,9 +847,9 @@ const UserList = () => {
                 className="form-select"
               >
                 <option value="all">All Roles</option>
+                <option value="group_admin">Group Admin</option>
                 <option value="client">Client</option>
                 <option value="supervisor">Supervisor</option>
-                <option value="provider">Provider</option>
               </select>
             </div>
           </div>
