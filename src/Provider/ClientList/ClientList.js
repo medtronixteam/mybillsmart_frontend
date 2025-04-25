@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 const ClientList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [editData, setEditData] = useState({
     id: "",
     name: "",
@@ -26,6 +27,11 @@ const ClientList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
+  // Filter states
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -33,6 +39,44 @@ const ClientList = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [users, roleFilter, statusFilter, searchTerm]);
+
+  const applyFilters = () => {
+    let result = [...users];
+
+    // Apply role filter
+    if (roleFilter !== "all") {
+      result = result.filter((user) => user.role === roleFilter);
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      const filterStatus = statusFilter === "active" ? 1 : 0;
+      result = result.filter((user) => user.status === filterStatus);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        (user) =>
+          user.name.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term) ||
+          user.phone?.toLowerCase().includes(term)
+      );
+    }
+
+    setFilteredUsers(result);
+  };
+
+  const resetFilters = () => {
+    setRoleFilter("all");
+    setStatusFilter("all");
+    setSearchTerm("");
+  };
 
   const showSuccessAlert = (message) => {
     Swal.fire({
@@ -75,7 +119,7 @@ const ClientList = () => {
     } finally {
       setLoading(false);
     }
-  };   
+  };
 
   const fetchUserDetails = async (id) => {
     try {
@@ -305,11 +349,59 @@ const ClientList = () => {
         </Link>
       </div>
 
+      {/* Filter Section */}
+      <div className="filters-section mb-4 p-3 bg-light rounded">
+        <div className="row">
+          <div className="col-md-3 mb-2">
+            <label>Role</label>
+            <select
+              className="form-control"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              <option value="agent">Agent</option>
+              <option value="client">Client</option>
+            </select>
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Status</label>
+            <select
+              className="form-control"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div className="col-md-3 mb-2">
+            <label>Search</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name, email or phone"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3 mb-2 d-flex align-items-end">
+            <button
+              className="btn btn-secondary w-100"
+              onClick={resetFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
         <div className="loading-spinner"></div>
-      ) : users.length === 0 ? (
+      ) : filteredUsers.length === 0 ? (
         <div className="no-users-message">
-          <p>No users found in the system.</p>  
+          <p>No users found matching your criteria.</p>  
         </div>
       ) : (
         <div className="users-table-container">
@@ -324,7 +416,7 @@ const ClientList = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
+              {filteredUsers.map((user, index) => (
                 <tr key={user.id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
