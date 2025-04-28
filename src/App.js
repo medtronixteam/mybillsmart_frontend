@@ -102,6 +102,8 @@ import ClientInvoiceList from "./Client/InvoiceList/ClientInvoiceList";
 import ProviderNotifications from "./Provider/Notifications/ProviderNotifications";
 import GroupAdminNotifications from "./GroupAdmin/Notifications/GroupAdminNotifications";
 import ClientSessionHistory from "./Client/SessionHistory/ClientSessionHistory";
+import Agrement from "./GroupAdmin/Agrement/Agrement";
+import AgrementList from "./GroupAdmin/AgrementList/AgrementList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -539,6 +541,14 @@ const App = () => {
                             element={<CompanyDetailsList />}
                           />
 
+                           <Route
+                            path="agrement"
+                            element={<Agrement />}
+                          /> 
+                          <Route
+                            path="agrement-list"
+                            element={<AgrementList />}
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

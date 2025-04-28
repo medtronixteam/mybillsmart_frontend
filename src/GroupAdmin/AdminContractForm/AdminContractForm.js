@@ -11,11 +11,14 @@ const AdminContractForm = () => {
   const [supplierData, setSupplierData] = useState(null);
   const [offerData, setOfferData] = useState(null);
   const [clients, setClients] = useState([]);
+  const [agreements, setAgreements] = useState([]); // New state for agreements
   const { token } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     selectedClient: "",
     client_id: "",
+    selectedAgreement: "", // New field for agreement selection
+    agreement_id: "", // New field for agreement ID
     contracted_provider: "",
     contracted_rate: "",
     status: "pending",
@@ -39,7 +42,7 @@ const AdminContractForm = () => {
     const fetchClients = async () => {
       try {
         const response = await axios.get(
-          `${config.BASE_URL}/api/agent/client/list`,
+          `${config.BASE_URL}/api/group/client/list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -65,7 +68,37 @@ const AdminContractForm = () => {
       }
     };
 
+    const fetchAgreements = async () => {
+      try {
+        const response = await axios.get(
+          `${config.BASE_URL}/api/group/agreements`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (isMounted && response.data && Array.isArray(response.data.data)) {
+          setAgreements(response.data.data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error("Error fetching agreements:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch agreements.',
+            showConfirmButton: true,
+            confirmButtonColor: '#3085d6'
+          });
+        }
+      }
+    };
+
     fetchClients();
+    fetchAgreements();
 
     return () => {
       isMounted = false;
@@ -74,6 +107,7 @@ const AdminContractForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     if (name === "selectedClient") {
       const selectedClient = clients.find((client) => client.name === value);
       setFormData({
@@ -81,7 +115,16 @@ const AdminContractForm = () => {
         selectedClient: value,
         client_id: selectedClient ? selectedClient.id : "",
       });
-    } else {
+    } 
+    else if (name === "selectedAgreement") {
+      const selectedAgreement = agreements.find((agreement) => agreement.title === value);
+      setFormData({
+        ...formData,
+        selectedAgreement: value,
+        agreement_id: selectedAgreement ? selectedAgreement.id : "",
+      });
+    }
+    else {
       setFormData({ ...formData, [name]: value });
     }
   };
@@ -89,7 +132,7 @@ const AdminContractForm = () => {
   const showSuccessAlert = () => {
     return Swal.fire({
       title: "Success!",
-      text: "Agreement added successfully!",
+      text: "Agreement submitted to client successfully ",
       icon: "success",
       confirmButtonText: "OK",
       confirmButtonColor: "#3085d6",
@@ -112,6 +155,7 @@ const AdminContractForm = () => {
     if (
       !formData.name ||
       !formData.selectedClient ||
+      !formData.selectedAgreement ||
       !formData.contracted_provider ||
       !formData.contracted_rate ||
       !formData.closure_date
@@ -129,6 +173,7 @@ const AdminContractForm = () => {
       name: formData.name,
       client_id: formData.client_id,
       offer_id: offerData.id,
+      agreement_id: formData.agreement_id, // Include agreement_id in payload
       contracted_provider: formData.contracted_provider,
       contracted_rate: formData.contracted_rate,
       status: formData.status,
@@ -153,6 +198,8 @@ const AdminContractForm = () => {
         name: "",
         selectedClient: "",
         client_id: "",
+        selectedAgreement: "",
+        agreement_id: "",
         contracted_provider: "",
         contracted_rate: "",
         status: "pending",
@@ -163,7 +210,7 @@ const AdminContractForm = () => {
       await Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.message || "Failed to submit Agreement.",
+        text: error.response?.data?.message || "Failed to submit Contract.",
         confirmButtonColor: "#3085d6"
       });
     }
@@ -171,12 +218,12 @@ const AdminContractForm = () => {
 
   return (
     <div className="add-Contract-container">
-      <h2 className="add-Contract-heading">Add Agreements Data</h2>
+      <h2 className="add-Contract-heading">Client Agreement</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="name"
-          placeholder="Please Enter Agreement Name"
+          placeholder="Please Enter Contract Name"
           value={formData.name}
           onChange={handleChange}
           required
@@ -196,10 +243,25 @@ const AdminContractForm = () => {
           ))}
         </select>
 
+        {/* New Agreement Selection Field */}
+        <select
+          name="selectedAgreement"
+          value={formData.selectedAgreement}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select an Agreement</option>
+          {agreements.map((agreement) => (
+            <option key={agreement.id} value={agreement.title}>
+              {agreement.title}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           name="contracted_provider"
-          placeholder="Please Enter Agreemented Provider"
+          placeholder="Please Enter Contracted Provider"
           value={formData.contracted_provider}
           onChange={handleChange}
           required
@@ -208,7 +270,7 @@ const AdminContractForm = () => {
         <input
           type="number"
           name="contracted_rate"
-          placeholder="Please Enter Agreemented Rate"
+          placeholder="Please Enter Contracted Rate"
           value={formData.contracted_rate}
           onChange={handleChange}
           required
@@ -223,7 +285,7 @@ const AdminContractForm = () => {
           required
         />
 
-        <button type="submit">Add Agreement</button>
+        <button type="submit">Add Contract</button>
       </form>
     </div>
   );
