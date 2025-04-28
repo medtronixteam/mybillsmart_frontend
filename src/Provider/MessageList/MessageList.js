@@ -73,8 +73,10 @@ const ProviderMessageList = () => {
     // Apply status filter (0 = Pending, 1 = Completed)
     if (statusFilter !== "all") {
       result = result.filter((message) => {
-        if (statusFilter === "0") return message.status === 0 || message.status === "0";
-        if (statusFilter === "1") return message.status === 1 || message.status === "1";
+        if (statusFilter === "0")
+          return message.status === 0 || message.status === "0";
+        if (statusFilter === "1")
+          return message.status === 1 || message.status === "1";
         return true;
       });
     }
@@ -274,12 +276,12 @@ const ProviderMessageList = () => {
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Section */}
-      <div className="filters-section mb-4 p-3 bg-light rounded">
-        <div className="row">
-          <div className="col-md-3 mb-2">
-            <label>Status</label>
+      <div className="filters-section mb-4 p-4 bg-transparent shadow-none">
+        <div className="row g-3 align-items-end justify-content-center w-100">
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Status</label>
             <select
-              className="form-control"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -288,8 +290,9 @@ const ProviderMessageList = () => {
               <option value="1">Completed</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Date</label>
+
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Date</label>
             <input
               type="date"
               className="form-control"
@@ -297,8 +300,9 @@ const ProviderMessageList = () => {
               onChange={(e) => setDateFilter(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Search</label>
+
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Search</label>
             <input
               type="text"
               className="form-control"
@@ -307,11 +311,9 @@ const ProviderMessageList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2 d-flex align-items-end">
-            <button
-              className="btn btn-secondary w-100"
-              onClick={resetFilters}
-            >
+
+          <div className="col-12 col-md-6 col-lg-3">
+            <button className="btn btn-primary w-100 my-0" onClick={resetFilters}>
               Reset Filters
             </button>
           </div>

@@ -45,7 +45,7 @@ const Navbar = ({ toggleSidebar }) => {
             to="/agent/profile-edit"
             className="d-flex align-items-center text-decoration-none"> */}
           <div
-            className="d-flex align-items-center cursor-pointer"
+            className="d-flex align-items-center cursor-pointer drop_menu_responsive"
             onClick={toggleDropdown}
           >
             <div
@@ -68,8 +68,8 @@ const Navbar = ({ toggleSidebar }) => {
             </span>
             {show && (
               <div
-                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "120px" }}
+                className="position-absolute dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ top: "65px", right: "0px" }}
               >
                 <Link
                   to="/agent/profile-edit"

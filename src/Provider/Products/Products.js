@@ -26,7 +26,7 @@ const Products = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rateRange, setRateRange] = useState({
     min: "",
-    max: ""
+    max: "",
   });
 
   const toggleDropdown = (index) => {
@@ -61,34 +61,39 @@ const Products = () => {
   // Apply filters whenever products or filter criteria change
   useEffect(() => {
     let result = [...products];
-    
+
     // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(product => 
-        (product.product_name && product.product_name.toLowerCase().includes(term)) ||
-        (product.light_category && product.light_category.toLowerCase().includes(term))
+      result = result.filter(
+        (product) =>
+          (product.product_name &&
+            product.product_name.toLowerCase().includes(term)) ||
+          (product.light_category &&
+            product.light_category.toLowerCase().includes(term))
       );
     }
-    
+
     // Apply category filter
     if (categoryFilter !== "all") {
-      result = result.filter(product => 
-        product.light_category && product.light_category.toLowerCase() === categoryFilter.toLowerCase()
+      result = result.filter(
+        (product) =>
+          product.light_category &&
+          product.light_category.toLowerCase() === categoryFilter.toLowerCase()
       );
     }
-    
+
     // Apply rate range filter
     if (rateRange.min || rateRange.max) {
       const minRate = rateRange.min ? parseFloat(rateRange.min) : -Infinity;
       const maxRate = rateRange.max ? parseFloat(rateRange.max) : Infinity;
-      
-      result = result.filter(product => {
+
+      result = result.filter((product) => {
         const productRate = parseFloat(product.fixed_rate);
         return productRate >= minRate && productRate <= maxRate;
       });
     }
-    
+
     setFilteredProducts(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [products, searchTerm, categoryFilter, rateRange]);
@@ -239,7 +244,9 @@ const Products = () => {
   };
 
   // Extract unique categories for filter dropdown
-  const categories = [...new Set(products.map(product => product.light_category))];
+  const categories = [
+    ...new Set(products.map((product) => product.light_category)),
+  ];
 
   return (
     <div className="products-container">
@@ -251,39 +258,56 @@ const Products = () => {
       </div>
 
       {/* Filter Controls */}
-      <div className="filter-controls">
-        <div className="filter-row">
-          <div className="filter-group">
-            <label htmlFor="searchTerm">Search</label>
-            <input
-              type="text"
-              id="searchTerm"
-              placeholder="Search by name or category..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <div className="container my-3">
+        <div className="row g-3 align-items-end">
+          {/* Search Input */}
+          <div className="col-12 col-md-4">
+            <div className="form-group mb-0">
+              <label htmlFor="searchTerm" className="form-label mx-0">
+                Search
+              </label>
+              <input
+                type="text"
+                className="form-control my-0"
+                id="searchTerm"
+                placeholder="Search by name or category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="categoryFilter">Category</label>
-            <select
-              id="categoryFilter"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+          {/* Category Filter */}
+          <div className="col-12 col-md-4">
+            <div className="form-group mb-0">
+              <label htmlFor="categoryFilter" className="form-label mx-0">
+                Category
+              </label>
+              <select
+                className="form-select my-0"
+                id="categoryFilter"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Reset Button */}
+          <div className="col-12 col-md-4">
+            <button
+              className="btn btn-primary my-0 w-100"
+              onClick={resetFilters}
             >
-              <option value="all">All Categories</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              Reset Filters
+            </button>
           </div>
-
-
-          <button className="reset-filters" onClick={resetFilters}>
-            Reset Filters
-          </button>
         </div>
       </div>
 
@@ -403,7 +427,8 @@ const Products = () => {
               Prev
             </button>
             <span>
-              Page {currentPage} of {Math.ceil(filteredProducts.length / productsPerPage)}
+              Page {currentPage} of{" "}
+              {Math.ceil(filteredProducts.length / productsPerPage)}
             </span>
             <button
               onClick={() => paginate(currentPage + 1)}
@@ -424,7 +449,16 @@ const Products = () => {
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
               {Object.entries(selectedProduct)
-                .filter(([key]) => !['id', 'group_id', 'addedby_id', 'created_at', 'updated_at'].includes(key))
+                .filter(
+                  ([key]) =>
+                    ![
+                      "id",
+                      "group_id",
+                      "addedby_id",
+                      "created_at",
+                      "updated_at",
+                    ].includes(key)
+                )
                 .map(([key, value]) => (
                   <p key={key}>
                     <strong>{key.replace(/_/g, " ")}:</strong> {value}

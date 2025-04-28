@@ -49,23 +49,24 @@ const AgentUserList = () => {
   // Apply filters whenever users or filter criteria change
   useEffect(() => {
     let result = [...users];
-    
+
     // Apply status filter
     if (statusFilter !== "all") {
       const statusValue = statusFilter === "active" ? 1 : 0;
-      result = result.filter(user => user.status === statusValue);
+      result = result.filter((user) => user.status === statusValue);
     }
-    
+
     // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(user => 
-        (user.name && user.name.toLowerCase().includes(term)) ||
-        (user.email && user.email.toLowerCase().includes(term)) ||
-        (user.role && user.role.toLowerCase().includes(term))
+      result = result.filter(
+        (user) =>
+          (user.name && user.name.toLowerCase().includes(term)) ||
+          (user.email && user.email.toLowerCase().includes(term)) ||
+          (user.role && user.role.toLowerCase().includes(term))
       );
     }
-    
+
     setFilteredUsers(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [users, statusFilter, searchTerm]);
@@ -171,16 +172,13 @@ const AgentUserList = () => {
 
   const fetchSessionHistory = async (userId) => {
     try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/session/history`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/session/history`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const result = await response.json();
       if (result.status === "success") {
         setSessionHistory(result.message || []);
@@ -566,37 +564,55 @@ const AgentUserList = () => {
       ) : (
         <>
           <h1>Client List</h1>
-          
+
           {/* Filter Controls */}
-          <div className="filter-controls">
-            <div className="filter-row">
-              <div className="filter-group">
-                <label htmlFor="statusFilter">Status</label>
-                <select
-                  id="statusFilter"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+          <div className="container my-3">
+            <div className="row g-3 align-items-end w-100">
+              {/* Status Filter */}
+              <div className="col-12 col-md-4">
+                <div className="form-group mb-0">
+                  <label htmlFor="statusFilter" className="form-label mx-0 mb-0">
+                    Status
+                  </label>
+                  <select
+                    className="form-select my-0"
+                    id="statusFilter"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Search Input */}
+              <div className="col-12 col-md-4">
+                <div className="form-group mb-0">
+                  <label htmlFor="searchTerm" className="form-label mx-0 mb-0">
+                    Search
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control my-0"
+                    id="searchTerm"
+                    placeholder="Search by name, email or role..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Reset Button */}
+              <div className="col-12 col-md-4">
+                <button
+                  className="btn btn-primary my-0 w-100 filter-btn"
+                  onClick={resetFilters}
                 >
-                  <option value="all">All Statuses</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
+                  Reset Filters
+                </button>
               </div>
-
-              <div className="filter-group search-group">
-                <label htmlFor="searchTerm">Search</label>
-                <input
-                  type="text"
-                  id="searchTerm"
-                  placeholder="Search by name, email or role..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              <button className="reset-filters" onClick={resetFilters}>
-                Reset Filters
-              </button>
             </div>
           </div>
 
@@ -625,11 +641,15 @@ const AgentUserList = () => {
                       <td>{user.email}</td>
                       <td>{user.role}</td>
                       <td>
-                        <span className={`status-badge ${user.status === 1 ? 'active' : 'inactive'}`}>
+                        <span
+                          className={`status-badge ${
+                            user.status === 1 ? "active" : "inactive"
+                          }`}
+                        >
                           {getStatusText(user.status)}
                         </span>
                       </td>
-                      <td className="actions-cell">
+                      <td className="actions-cell w-100">
                         <HiDotsHorizontal
                           size={30}
                           onClick={() => toggleDropdown(index)}
@@ -722,7 +742,8 @@ const AgentUserList = () => {
                 <button
                   onClick={nextPage}
                   disabled={
-                    currentPage === Math.ceil(filteredUsers.length / usersPerPage)
+                    currentPage ===
+                    Math.ceil(filteredUsers.length / usersPerPage)
                   }
                   className="page-button"
                 >

@@ -20,7 +20,7 @@ const AgentGoalList = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [goalsPerPage] = useState(10); 
+  const [goalsPerPage] = useState(10);
 
   const showErrorAlert = (message) => {
     Swal.fire({
@@ -238,22 +238,23 @@ const AgentGoalList = () => {
               Previous
             </button>
           </li>
-          
+
           {pageNumbers.map((number) => (
             <li
               key={number}
               className={`page-item ${currentPage === number ? "active" : ""}`}
             >
-              <button
-                className="page-link"
-                onClick={() => paginate(number)}
-              >
+              <button className="page-link" onClick={() => paginate(number)}>
                 {number}
               </button>
             </li>
           ))}
-          
-          <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+
+          <li
+            className={`page-item ${
+              currentPage === totalPages ? "disabled" : ""
+            }`}
+          >
             <button
               className="page-link"
               onClick={() => paginate(currentPage + 1)}
@@ -272,12 +273,12 @@ const AgentGoalList = () => {
       <h2>Goals List</h2>
 
       {/* Filter Section */}
-      <div className="filters-section mb-4 p-3 bg-light rounded">
-        <div className="row">
-          <div className="col-md-3 mb-2">
-            <label>Status</label>
+      <div className="filters-section mb-4 p-4 rounded bg-transparent shadow-none justify-content-center">
+        <div className="row g-3 align-items-end w-100">
+          <div className="col-12 col-md-6 col-lg-3">
+            <label className="form-label m-0">Status</label>
             <select
-              className="form-control"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -286,8 +287,9 @@ const AgentGoalList = () => {
               <option value="completed">Completed</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Start Date From</label>
+
+          <div className="col-12 col-md-6 col-lg-3">
+            <label className="form-label m-0">Start Date From</label>
             <input
               type="date"
               className="form-control"
@@ -295,8 +297,9 @@ const AgentGoalList = () => {
               onChange={(e) => setStartDateFilter(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2">
-            <label>End Date To</label>
+
+          <div className="col-12 col-md-6 col-lg-3">
+            <label className="form-label m-0">End Date To</label>
             <input
               type="date"
               className="form-control"
@@ -305,8 +308,9 @@ const AgentGoalList = () => {
               min={startDateFilter}
             />
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Search</label>
+
+          <div className="col-12 col-md-6 col-lg-3">
+            <label className="form-label m-0">Search</label>
             <input
               type="text"
               className="form-control"
@@ -315,13 +319,13 @@ const AgentGoalList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          <div className="col-12 text-center">
+            <button className="btn btn-primary mt-3" onClick={resetFilters}>
+              Reset Filters
+            </button>
+          </div>
         </div>
-        <button
-          className="btn btn-secondary mt-2"
-          onClick={resetFilters}
-        >
-          Reset Filters
-        </button>
       </div>
 
       {loading && !editingGoal ? (
@@ -458,7 +462,10 @@ const AgentGoalList = () => {
                             {activeDropdown === index && (
                               <div
                                 className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                                style={{ marginLeft: "-140px" }}
+                                style={{
+                                  marginLeft: "-130px",
+                                  marginTop: "40px",
+                                }}
                               >
                                 <a
                                   className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
@@ -487,7 +494,7 @@ const AgentGoalList = () => {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Pagination */}
               {filteredGoals.length > goalsPerPage && (
                 <div className="mt-4">

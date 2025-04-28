@@ -176,7 +176,7 @@ const GoalList = () => {
 
       {/* Filter Controls */}
       <div className="container-fluid mb-4">
-        <div className="row g-3 align-items-center">
+        <div className="row g-3 align-items-center justify-content-center">
           <div className="col-12 col-md-6 col-lg-4">
             <label htmlFor="statusFilter" className="form-label mx-0 mb-2">
               Filter by Status
@@ -339,8 +339,11 @@ const GoalList = () => {
 
                             {activeDropdown === index && (
                               <div
-                                className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0"
-                                style={{ marginLeft: "-140px" }}
+                                className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0 "
+                                style={{
+                                  marginLeft: "-130px",
+                                  marginTop: "30px",
+                                }}
                               >
                                 <a
                                   className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"

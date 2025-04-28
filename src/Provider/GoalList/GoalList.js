@@ -270,7 +270,7 @@ const ProviderGoalList = () => {
                       {activeDropdown === index && (
                         <div
                           className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                          style={{ marginLeft: "-140px" }}
+                          style={{ marginLeft: "-130px", marginTop: "40px" }}
                         >
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"

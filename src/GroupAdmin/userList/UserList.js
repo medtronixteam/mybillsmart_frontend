@@ -879,7 +879,7 @@ const UserList = () => {
                       <td>{user.email}</td>
                       <td>{user.role}</td>
                       <td>{getStatusText(user.status)}</td>
-                      <td className="actions-cell">
+                      <td className="actions-cell w-100">
                         <HiDotsHorizontal
                           size={30}
                           onClick={() => toggleDropdown(index)}

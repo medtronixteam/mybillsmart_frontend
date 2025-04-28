@@ -350,12 +350,12 @@ const ClientList = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="filters-section mb-4 p-3 bg-light rounded">
-        <div className="row">
-          <div className="col-md-3 mb-2">
-            <label>Role</label>
+      <div className="filters-section mb-4 rounded bg-transparent shadow-none">
+        <div className="row g-3 align-items-end w-100 justify-content-center">
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Role</label>
             <select
-              className="form-control"
+              className="form-select my-0"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
             >
@@ -364,10 +364,11 @@ const ClientList = () => {
               <option value="client">Client</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Status</label>
+
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Status</label>
             <select
-              className="form-control"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -376,8 +377,9 @@ const ClientList = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Search</label>
+
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Search</label>
             <input
               type="text"
               className="form-control"
@@ -386,9 +388,10 @@ const ClientList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2 d-flex align-items-end">
+
+          <div className="col-12 col-md-4 col-lg-3 d-flex">
             <button
-              className="btn btn-secondary w-100"
+              className="btn btn-primary w-100 my-0"
               onClick={resetFilters}
             >
               Reset Filters
@@ -401,7 +404,7 @@ const ClientList = () => {
         <div className="loading-spinner"></div>
       ) : filteredUsers.length === 0 ? (
         <div className="no-users-message">
-          <p>No users found matching your criteria.</p>  
+          <p>No users found matching your criteria.</p>
         </div>
       ) : (
         <div className="users-table-container">

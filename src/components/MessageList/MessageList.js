@@ -73,7 +73,8 @@ const AgentMessageList = () => {
     // Apply status filter
     if (statusFilter !== "all") {
       result = result.filter(
-        (message) => message.status?.toLowerCase() === statusFilter.toLowerCase()
+        (message) =>
+          message.status?.toLowerCase() === statusFilter.toLowerCase()
       );
     }
 
@@ -269,12 +270,12 @@ const AgentMessageList = () => {
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Section */}
-      <div className="filters-section mb-4 p-3 bg-light rounded">
-        <div className="row">
-          <div className="col-md-3 mb-2">
-            <label>Status</label>
+      <div className="filters-section mb-4 p-3 rounded bg-transparent shadow-none">
+        <div className="row align-items-end w-100 gy-4 justify-content-center">
+          <div className="col-12 col-md-4 col-lg-3">
+            <label className="form-label m-0">Status</label>
             <select
-              className="form-control"
+              className="form-control my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -284,8 +285,8 @@ const AgentMessageList = () => {
               <option value="failed">Failed</option>
             </select>
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Date</label>
+          <div className="col-12 col-md-4 col-lg-3 m-0">
+            <label className="form-label m-0">Date</label>
             <input
               type="date"
               className="form-control"
@@ -293,8 +294,8 @@ const AgentMessageList = () => {
               onChange={(e) => setDateFilter(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2">
-            <label>Search</label>
+          <div className="col-12 col-md-4 col-lg-3 m-0">
+            <label className="form-label m-0">Search</label>
             <input
               type="text"
               className="form-control"
@@ -303,9 +304,9 @@ const AgentMessageList = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="col-md-3 mb-2 d-flex align-items-end">
+          <div className="col-12 col-md-6 col-lg-3">
             <button
-              className="btn btn-secondary w-100"
+              className="btn btn-primary my-0 w-100"
               onClick={resetFilters}
             >
               Reset Filters
@@ -489,7 +490,7 @@ const AgentMessageList = () => {
                         {activeDropdown === index && (
                           <div
                             className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                            style={{ marginLeft: "-140px" }}
+                            style={{ marginLeft: "-130px", marginTop: "40px" }}
                           >
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"

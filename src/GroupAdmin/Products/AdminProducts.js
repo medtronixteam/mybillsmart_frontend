@@ -274,8 +274,8 @@ const AdminProducts = () => {
                       />
                       {activeDropdown === index && (
                         <div
-                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                          style={{ marginLeft: "-140px" }}
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0 mt-2"
+                          style={{ marginLeft: "-130px" }}
                         >
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"

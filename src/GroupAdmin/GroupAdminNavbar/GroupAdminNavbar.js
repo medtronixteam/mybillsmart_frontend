@@ -30,7 +30,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
         <h6 className="font-weight-bolder mb-0 d-none d-lg-block">
           Group Admin Dashboard
         </h6>
-        <div className="d-flex align-items-center">
+        <div className="d-flex align-items-center drop_menu_responsive">
           <Link to="/group_admin/notifications">
             <IoIosNotificationsOutline
               size={30}
@@ -66,8 +66,8 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
             {/* </Link> */}
             {show && (
               <div
-                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "195px", marginLeft: "-15px" }}
+                className="position-absolute dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ top: "65px", right: "0px" }}
               >
                 <Link
                   to="/group_admin/profile-edit"

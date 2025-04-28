@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './AgrementList.css';
-import axios from 'axios';
-import config from '../../config';
-import { useAuth } from '../../contexts/AuthContext';
-import { HiDotsHorizontal } from 'react-icons/hi';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect, useRef } from "react";
+import "./AgrementList.css";
+import axios from "axios";
+import config from "../../config";
+import { useAuth } from "../../contexts/AuthContext";
+import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from "sweetalert2";
 
 const AgreementList = () => {
   const [agreements, setAgreements] = useState([]);
@@ -12,38 +12,40 @@ const AgreementList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [editData, setEditData] = useState({
-    id: '',
-    title: '',
-    description: '',
-    status: ''
+    id: "",
+    title: "",
+    description: "",
+    status: "",
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const { token } = useAuth();
   const itemsPerPage = 10;
-  const dropdownRefs = useRef([]);
+  // const dropdownRefs = useRef([]);
 
   // Filter states
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const toggleDropdown = (e, index) => {
-    e.stopPropagation();
+  const toggleDropdown = (index) => {
+    // e.stopPropagation();
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!dropdownRefs.current.some(ref => ref && ref.contains(event.target))) {
-        setActiveDropdown(null);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (
+  //       !dropdownRefs.current.some((ref) => ref && ref.contains(event.target))
+  //     ) {
+  //       setActiveDropdown(null);
+  //     }
+  //   };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   useEffect(() => {
     fetchAgreements();
@@ -52,23 +54,29 @@ const AgreementList = () => {
   const fetchAgreements = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${config.BASE_URL}/api/group/agreements`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.get(
+        `${config.BASE_URL}/api/group/agreements`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       let filteredData = [...response.data.data];
-      
-      if (statusFilter !== 'all') {
-        filteredData = filteredData.filter(agreement => agreement.status === statusFilter);
+
+      if (statusFilter !== "all") {
+        filteredData = filteredData.filter(
+          (agreement) => agreement.status === statusFilter
+        );
       }
-      
+
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        filteredData = filteredData.filter(agreement => 
-          agreement.title.toLowerCase().includes(term) || 
-          agreement.description.toLowerCase().includes(term)
+        filteredData = filteredData.filter(
+          (agreement) =>
+            agreement.title.toLowerCase().includes(term) ||
+            agreement.description.toLowerCase().includes(term)
         );
       }
 
@@ -77,16 +85,19 @@ const AgreementList = () => {
       setTotalPages(totalPages);
 
       const startIndex = (currentPage - 1) * itemsPerPage;
-      const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+      const paginatedData = filteredData.slice(
+        startIndex,
+        startIndex + itemsPerPage
+      );
 
       setAgreements(paginatedData);
     } catch (error) {
-      console.error('Error fetching agreements:', error);
+      console.error("Error fetching agreements:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch agreements',
-        confirmButtonColor: '#3085d6',
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch agreements",
+        confirmButtonColor: "#3085d6",
       });
     } finally {
       setLoading(false);
@@ -95,57 +106,60 @@ const AgreementList = () => {
 
   const fetchAgreementDetails = async (id) => {
     try {
-      const response = await axios.get(`${config.BASE_URL}/api/group/agreement/view/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.get(
+        `${config.BASE_URL}/api/group/agreement/view/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
-      console.log('API Response:', response.data);
-      
+      );
+
+      console.log("API Response:", response.data);
+
       // Access the nested agreement object from the response
       return response.data.data.agreement;
     } catch (error) {
-      console.error('Error fetching agreement details:', error);
+      console.error("Error fetching agreement details:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch agreement details',
-        confirmButtonColor: '#3085d6',
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch agreement details",
+        confirmButtonColor: "#3085d6",
       });
       return null;
     }
   };
-  
+
   const handleEditAgreement = async (id) => {
     const agreementData = await fetchAgreementDetails(id);
     if (agreementData) {
-      console.log('Setting edit data:', agreementData);
+      console.log("Setting edit data:", agreementData);
       setEditData({
         id: agreementData.id, // Make sure this matches your API response
         title: agreementData.title,
         description: agreementData.description,
-        status: agreementData.status
+        status: agreementData.status,
       });
       setIsEditModalOpen(true);
       setActiveDropdown(null);
     }
   };
-  
+
   const handleUpdateAgreement = async () => {
-    console.log('Submitting with data:', editData);
-    
+    console.log("Submitting with data:", editData);
+
     if (!editData.id) {
-      console.error('No ID found in editData:', editData);
+      console.error("No ID found in editData:", editData);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No agreement ID found for update',
-        confirmButtonColor: '#3085d6',
+        icon: "error",
+        title: "Error",
+        text: "No agreement ID found for update",
+        confirmButtonColor: "#3085d6",
       });
       return;
     }
-  
+
     try {
       setLoading(true);
       const response = await axios.post(
@@ -153,34 +167,34 @@ const AgreementList = () => {
         {
           title: editData.title,
           description: editData.description,
-          status: editData.status
+          status: editData.status,
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
-      console.log('Update response:', response.data);
-  
+
+      console.log("Update response:", response.data);
+
       Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Agreement updated successfully!',
-        confirmButtonColor: '#3085d6',
-        timer: 2000
+        icon: "success",
+        title: "Success",
+        text: "Agreement updated successfully!",
+        confirmButtonColor: "#3085d6",
+        timer: 2000,
       });
       setIsEditModalOpen(false);
       fetchAgreements();
     } catch (error) {
-      console.error('Error updating agreement:', error);
+      console.error("Error updating agreement:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to update agreement',
-        confirmButtonColor: '#3085d6',
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to update agreement",
+        confirmButtonColor: "#3085d6",
       });
     } finally {
       setLoading(false);
@@ -189,39 +203,42 @@ const AgreementList = () => {
 
   const handleDeleteAgreement = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You won\'t be able to revert this!',
-      icon: 'warning',
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
         setLoading(true);
-        await axios.delete(`${config.BASE_URL}/api/group/agreement/delete/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        await axios.delete(
+          `${config.BASE_URL}/api/group/agreement/delete/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
 
         Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Agreement has been deleted.',
-          confirmButtonColor: '#3085d6',
-          timer: 2000
+          icon: "success",
+          title: "Deleted!",
+          text: "Agreement has been deleted.",
+          confirmButtonColor: "#3085d6",
+          timer: 2000,
         });
         fetchAgreements();
       } catch (error) {
-        console.error('Error deleting agreement:', error);
+        console.error("Error deleting agreement:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.response?.data?.message || 'Failed to delete agreement',
-          confirmButtonColor: '#3085d6',
+          icon: "error",
+          title: "Error",
+          text: error.response?.data?.message || "Failed to delete agreement",
+          confirmButtonColor: "#3085d6",
         });
       } finally {
         setLoading(false);
@@ -234,50 +251,58 @@ const AgreementList = () => {
   };
 
   const resetFilters = () => {
-    setStatusFilter('all');
-    setSearchTerm('');
+    setStatusFilter("all");
+    setSearchTerm("");
     setCurrentPage(1);
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setEditData(prev => ({
+    setEditData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   return (
     <div className="agreement-list-container">
-      <h2>Agreements List</h2>
+      <h2 className="text-center">Agreements List</h2>
+      <div className="filters-section mb-4 p-4 bg-transparent shadow-none">
+        <div className="row g-3 align-items-end w-100">
+          <div className="col-12 col-md-6 col-lg-4">
+            <label className="form-label m-0">Status</label>
+            <select
+              className="form-select my-0"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="private">Private</option>
+              <option value="public">Public</option>
+              <option value="global">Global</option>
+            </select>
+          </div>
 
-      <div className="filters-section">
-        <div className="filter-group">
-          <label>Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Statuses</option>
-            <option value="private">Private</option>
-            <option value="public">Public</option>
-            <option value="global">Global</option>
-          </select>
+          <div className="col-12 col-md-6 col-lg-4">
+            <label className="form-label m-0">Search</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by title or description"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="col-12 col-lg-4">
+            <button
+              className="btn btn-primary w-100 my-0"
+              onClick={resetFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
         </div>
-
-        <div className="filter-group">
-          <label>Search</label>
-          <input
-            type="text"
-            placeholder="Search by title or description"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <button className="reset-btn" onClick={resetFilters}>
-          Reset Filters
-        </button>
       </div>
 
       {loading ? (
@@ -312,15 +337,15 @@ const AgreementList = () => {
                   <td className="actions">
                     <HiDotsHorizontal
                       size={30}
-                      onClick={(e) => toggleDropdown(e, index)}
+                      onClick={() => toggleDropdown(index)}
                       className="cursor-pointer"
                     />
-                    
+
                     {activeDropdown === index && (
                       <div
-                        ref={el => dropdownRefs.current[index] = el}
-                        className="dropdown-menu show shadow rounded-3 bg-white mt-4 p-2 border-0"
-                        style={{ marginLeft: "-140px" }}
+                        // ref={(el) => (dropdownRefs.current[index] = el)}
+                        className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0 mt-4"
+                        style={{ marginLeft: "-130px", marginTop: "50px" }}
                       >
                         <a
                           className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
@@ -375,7 +400,7 @@ const AgreementList = () => {
               <input
                 type="text"
                 name="title"
-                value={editData.title || ''}
+                value={editData.title || ""}
                 onChange={handleEditChange}
               />
             </div>
@@ -383,7 +408,7 @@ const AgreementList = () => {
               <label>Description</label>
               <textarea
                 name="description"
-                value={editData.description || ''}
+                value={editData.description || ""}
                 onChange={handleEditChange}
                 rows="5"
               />
@@ -392,7 +417,7 @@ const AgreementList = () => {
               <label>Status</label>
               <select
                 name="status"
-                value={editData.status || 'private'}
+                value={editData.status || "private"}
                 onChange={handleEditChange}
               >
                 <option value="private">Private</option>
@@ -412,7 +437,7 @@ const AgreementList = () => {
                 onClick={handleUpdateAgreement}
                 disabled={loading}
               >
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

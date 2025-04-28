@@ -68,4 +68,8 @@ body.sidebar-open {
   main.main-content {
     margin-left: 0;
   }
+  .drop_menu_responsive .dropdown-menu {
+    left: 50px;
+    right: unset !important;
+  }
 }

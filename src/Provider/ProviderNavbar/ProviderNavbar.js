@@ -40,7 +40,7 @@ const ProviderNavbar = ({ toggleSidebar }) => {
             />
           </Link>
           <div
-            className="d-flex align-items-center cursor-pointer"
+            className="d-flex align-items-center cursor-pointer drop_menu_responsive"
             onClick={toggleDropdown}
           >
             {/* <Link
@@ -68,8 +68,8 @@ const ProviderNavbar = ({ toggleSidebar }) => {
             {/* </Link> */}
             {show && (
               <div
-                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "160px", marginLeft: "-5px" }}
+                className="position-absolute dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ top: "65px", right: "0px" }}
               >
                 <Link
                   to="/supervisor/profile-edit"
