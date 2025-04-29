@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import "./InvoiceList.css";
+import "./UserInvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-import { Link, useNavigate } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { FaCheck, FaTimes } from "react-icons/fa";
-import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
-const InvoiceList = () => {
-  const [activeDropdown, setActiveDropdown] = useState(null);
+const UserInvoiceList = () => {
+  const [activeDropdown, setActiveDropdown] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showNewTable, setShowNewTable] = useState(false);
@@ -16,9 +14,8 @@ const InvoiceList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { token } = useAuth();
-  const navigate = useNavigate();
-
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -27,7 +24,8 @@ const InvoiceList = () => {
     const fetchInvoices = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${config.BASE_URL}/api/group/invoices`, {
+        setError(null);
+        const response = await fetch(`${config.BASE_URL}/api/client/invoices`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -50,11 +48,7 @@ const InvoiceList = () => {
         }
       } catch (error) {
         console.error("Error fetching invoices:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to fetch invoices. Please try again.",
-        });
+        setError(error.message);
         setInvoices([]);
       } finally {
         setLoading(false);
@@ -67,13 +61,15 @@ const InvoiceList = () => {
   const fetchInvoiceDetails = async (id) => {
     try {
       setLoading(true);
+      setError(null);
+
       const [invoiceResponse, offersResponse] = await Promise.all([
-        fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
+        fetch(`${config.BASE_URL}/api/client/invoices/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch(`${config.BASE_URL}/api/group/invoice/offers`, {
+        fetch(`${config.BASE_URL}/api/agent/invoice/offers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -101,11 +97,7 @@ const InvoiceList = () => {
       setShowNewTable(true);
     } catch (error) {
       console.error("Error fetching data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch invoice details. Please try again.",
-      });
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -140,17 +132,21 @@ const InvoiceList = () => {
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
 
+    // Exclude all fields containing 'id' (case insensitive)
     const excludedFields = ["created_at", "updated_at"];
-    const excludedPattern = /id$/i;
+    const excludedPattern = /id$/i; // Regex to match any field ending with 'id'
 
+    // Flatten the entire invoice object first
     const flattenedInvoice = flattenObject(invoice);
 
     return flattenedInvoice
       .filter(([key]) => {
+        // Exclude specific fields and any field ending with 'id'
         const baseKey = key.split(".")[0];
-        return !excludedFields.includes(baseKey) && !excludedPattern.test(key);
+        return !excludedFields.includes(baseKey) && !excludedPattern.test(key); // This will exclude any field ending with 'id'
       })
       .filter(([_, value]) => {
+        // Filter out empty values
         return (
           value !== null &&
           value !== undefined &&
@@ -159,28 +155,13 @@ const InvoiceList = () => {
         );
       })
       .map(([key, value]) => {
+        // Format the keys for display
         const displayKey = key
           .split(".")
           .map((part) => formatFieldName(part))
           .join(" → ");
         return [displayKey, value];
       });
-  };
-
-  const handleCreateAgreement = (offerId) => {
-    navigate(`/group_admin/admin-contract-from?offer_id=${offerId}`);
-  };
-
-  const renderOfferStatus = (status) => {
-    return status === 1 ? (
-      <span className="offer-selected-yes">
-        <FaCheck className="text-success me-1" /> Yes
-      </span>
-    ) : (
-      <span className="offer-selected-no">
-        <FaTimes className="text-danger me-1" /> No
-      </span>
-    );
   };
 
   const renderInvoiceDetails = () => {
@@ -204,11 +185,7 @@ const InvoiceList = () => {
           {filteredData.map(([key, value]) => (
             <div key={key} className="detail-item">
               <div className="detail-label">{key}:</div>
-              <div className="detail-value">
-                {key.toLowerCase().includes("offer selected") ? 
-                  renderOfferStatus(value) : 
-                  formatValue(value)}
-              </div>
+              <div className="detail-value">{formatValue(value)}</div>
             </div>
           ))}
         </div>
@@ -219,21 +196,20 @@ const InvoiceList = () => {
   const renderOfferCards = () => {
     if (!offers || offers.length === 0) {
       return (
-        <div className="no-offers">No offers available for this invoice</div>
+        <div className="no-offers d-none">
+          No offers available for this invoice
+        </div>
       );
     }
 
     return (
-      <div className="offers-section">
+      <div className="offers-section d-none">
         <h2 className="offers-title">Available Offers</h2>
         <div className="offers-grid">
           {offers.map((offer, index) => (
             <div key={offer.id || index} className="offer-card">
               <div className="offer-card-header">
                 <h3>Offer #{index + 1}</h3>
-                {offer.is_selected && (
-                  <span className="selected-badge">Selected</span>
-                )}
               </div>
 
               <div className="offer-card-body">
@@ -262,22 +238,6 @@ const InvoiceList = () => {
                     {offer.sales_commission || "0"}%
                   </span>
                 </div>
-
-                <div className="offer-field">
-                  <span className="offer-label">Status:</span>
-                  <span className="offer-value">
-                    {renderOfferStatus(offer.is_selected || 0)}
-                  </span>
-                </div>
-
-                {selectedInvoice?.is_offer_selected === 0 && (
-                  <button
-                    className="create-agreement-btn"
-                    onClick={() => handleCreateAgreement(offer.id)}
-                  >
-                    Create Agreement
-                  </button>
-                )}
               </div>
             </div>
           ))}
@@ -298,24 +258,20 @@ const InvoiceList = () => {
   };
 
   if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-      </div>
-    );
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error: {error}</div>;
   }
 
   return (
     <div className="invoice-list-container">
-      <div className="d-flex justify-content-between align-items-center">
-        <h1 className="invoice-list-title mb-0">Invoice List</h1>
-        <Link
-          to="/group_admin/client-contract-list"
-          type="button"
-          className="btn btn-primary"
-        >
-         Client Agreement List
-        </Link>
+      <div className="d-flex justify-content-between align-items-center ">
+        <h1 className=" mb-0">Invoice List</h1>
+        {/* <Link to="/agent/contract-list">
+          <button className="btn btn-primary w-100">Agreement List</button>
+        </Link> */}
       </div>
 
       {showNewTable ? (
@@ -329,32 +285,26 @@ const InvoiceList = () => {
             <table className="invoice-table">
               <thead>
                 <tr>
+                  <th className="invoice-table-header">Invoice ID</th>
                   <th className="invoice-table-header">Bill Type</th>
-                  <th className="invoice-table-header">Agreement</th>
                   <th className="invoice-table-header">Address</th>
                   <th className="invoice-table-header">Billing Period</th>
-                  <th className="invoice-table-header">Offer Selected</th>
-                  <th className="invoice-table-header">Action</th>
+                  <th className="invoice-table-header d-none">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {currentInvoices.length > 0 ? (
                   currentInvoices.map((invoice, index) => (
                     <tr key={invoice.id}>
+                      <td className="invoice-table-cell">{invoice.id}</td>
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
-                      </td>
-                      <td className="invoice-table-cell">
-                        {invoice.agreement}
                       </td>
                       <td className="invoice-table-cell">{invoice.address}</td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
                       </td>
-                      <td className="invoice-table-cell">
-                        {renderOfferStatus(invoice.is_offer_selected || 0)}
-                      </td>
-                      <td className="invoice-table-cell">
+                      <td className="invoice-table-cell d-none">
                         <HiDotsHorizontal
                           size={30}
                           onClick={() => toggleDropdown(index)}
@@ -376,12 +326,18 @@ const InvoiceList = () => {
                             </a>
                           </div>
                         )}
+                        {/* <button
+                          className="view-invoice-btn"
+                          onClick={() => fetchInvoiceDetails(invoice.id)}
+                        >
+                          View Details
+                        </button> */}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="no-invoices">
+                    <td colSpan="5" className="no-invoices">
                       No invoices found
                     </td>
                   </tr>
@@ -419,4 +375,4 @@ const InvoiceList = () => {
   );
 };
 
-export default InvoiceList;
+export default UserInvoiceList;

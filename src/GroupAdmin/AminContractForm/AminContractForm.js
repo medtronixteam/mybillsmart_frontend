@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import "./AdminContractForm.css";
+import "./AminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 
-const AdminContractForm = () => {
+const AminContractForm = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [supplierData, setSupplierData] = useState(null);
   const [offerData, setOfferData] = useState(null);
+  const [offerId, setOfferId] = useState(null);
   const [clients, setClients] = useState([]);
-  const [agreements, setAgreements] = useState([]); // New state for agreements
+  const [agreements, setAgreements] = useState([]); 
   const { token } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     selectedClient: "",
     client_id: "",
-    selectedAgreement: "", // New field for agreement selection
-    agreement_id: "", // New field for agreement ID
+    selectedAgreement: "",
+    agreement_id: "",
     contracted_provider: "",
     contracted_rate: "",
     status: "pending",
@@ -26,15 +28,26 @@ const AdminContractForm = () => {
   });
 
   useEffect(() => {
-    if (location.state) {
+    // First try to get offer_id from URL query parameters
+    const urlOfferId = searchParams.get("offer_id");
+    
+    if (urlOfferId) {
+      setOfferId(urlOfferId);
+    } 
+    // If not in URL, check location state
+    else if (location.state) {
+      if (location.state.offerData) {
+        setOfferData(location.state.offerData);
+        setOfferId(location.state.offerData.id);
+      }
+      if (location.state.offer_id) {
+        setOfferId(location.state.offer_id);
+      }
       if (location.state.supplierData) {
         setSupplierData(location.state.supplierData);
       }
-      if (location.state.offerData) {
-        setOfferData(location.state.offerData);
-      }
     }
-  }, [location.state]);
+  }, [location.state, searchParams]);
 
   useEffect(() => {
     let isMounted = true;
@@ -132,7 +145,7 @@ const AdminContractForm = () => {
   const showSuccessAlert = () => {
     return Swal.fire({
       title: "Success!",
-      text: "Agreement submitted to client successfully ",
+      text: "Agreement submitted to client successfully",
       icon: "success",
       confirmButtonText: "OK",
       confirmButtonColor: "#3085d6",
@@ -142,11 +155,11 @@ const AdminContractForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!offerData) {
+    if (!offerId) {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Offer data is missing!',
+        text: 'Offer ID is missing! Please make sure you came from a valid offer.',
         confirmButtonColor: '#3085d6'
       });
       return;
@@ -172,8 +185,8 @@ const AdminContractForm = () => {
     const payload = {
       name: formData.name,
       client_id: formData.client_id,
-      offer_id: offerData.id,
-      agreement_id: formData.agreement_id, // Include agreement_id in payload
+      offer_id: offerId,
+      agreement_id: formData.agreement_id,
       contracted_provider: formData.contracted_provider,
       contracted_rate: formData.contracted_rate,
       status: formData.status,
@@ -219,6 +232,7 @@ const AdminContractForm = () => {
   return (
     <div className="add-Contract-container">
       <h2 className="add-Contract-heading">Client Agreement</h2>
+     
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -243,7 +257,6 @@ const AdminContractForm = () => {
           ))}
         </select>
 
-        {/* New Agreement Selection Field */}
         <select
           name="selectedAgreement"
           value={formData.selectedAgreement}
@@ -291,4 +304,4 @@ const AdminContractForm = () => {
   );
 };
 
-export default AdminContractForm;
+export default AminContractForm;

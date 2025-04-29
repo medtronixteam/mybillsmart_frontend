@@ -18,7 +18,7 @@ import {
 } from "recharts";
 import config from "../config";
 
-const UserDashboard = () => {
+const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     tota_contracts: 0,
     pending_contracts: 0,
@@ -236,4 +236,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default ClientDashboard;
