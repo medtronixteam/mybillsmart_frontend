@@ -14,7 +14,7 @@ const Breadcrumbs = ({ homePath }) => {
 
   return (
     <nav aria-label="breadcrumb">
-      <ol className="d-flex list-unstyled justify-content-start">
+      <ol className="d-flex list-unstyled mb-0">
         <li>
           <Link to={homePath}>Home</Link>
           {paths.length > 0 && <span className="mx-2">/</span>}

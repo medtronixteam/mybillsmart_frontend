@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const UserUserList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -563,6 +564,7 @@ const UserUserList = () => {
         </div>
       ) : (
         <>
+          <Breadcrumbs homePath={"/user/dashboard"} />
           <h1>User List</h1>
 
           {/* Filter Controls */}

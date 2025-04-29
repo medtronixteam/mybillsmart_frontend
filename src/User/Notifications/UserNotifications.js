@@ -3,6 +3,7 @@ import axios from "axios";
 // import "./AgentNotifications.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const UserNotifications = () => {
   const [notificationDetail, setNotificationDetail] = useState(false);
@@ -58,6 +59,7 @@ const UserNotifications = () => {
 
   return (
     <div className="container mt-4">
+      <Breadcrumbs homePath={"/user/dashboard"} />
       <h2 className="text-center">Notifications</h2>
 
       {loading ? (

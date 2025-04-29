@@ -114,7 +114,7 @@ import UserDashboard from "./User/UserDashboard";
 import AminContractForm from "./GroupAdmin/AminContractForm/AminContractForm";
 import UserAddUser from "./User/AddUser/AddUser";
 import UserUserList from "./User/UserList/UserUserList";
-import UserNotifications from "./User/Notifications/AgentNotifications";
+import UserNotifications from "./User/Notifications/UserNotifications";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 

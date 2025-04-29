@@ -16,6 +16,7 @@ import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const UserInvoice = () => {
   const [step, setStep] = useState(1);
@@ -642,7 +643,7 @@ const UserInvoice = () => {
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
-          }, 
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -666,270 +667,273 @@ const UserInvoice = () => {
   };
 
   return (
-    <div className="invoice-container">
-      <ToastContainer />
-
-      {isDragging && (
-        <div className="drag-drop-overlay">
-          <div className="drag-drop-content">
-            <BsCloudUpload className="drag-drop-icon" />
-            <h3>Drop your file here</h3>
-            <p>Supported formats: JPEG, PNG, PDF</p>
-          </div>
-        </div>
-      )}
-
-      <div className="invoice-stepper">
-        <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
-        <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
-        <div className={`step ${step === 2 ? "active" : ""}`}>2</div>
-        <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
-        <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/user/dashboard"} />
       </div>
+      <div className="invoice-container">
+        <ToastContainer />
 
-      {step === 1 && (
-        <>
-          <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
-          <div
-            className={`invoice-file-upload-box ${
-              isDragging ? "dragging" : ""
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              document.getElementById("file-input").click();
-            }}
-          >
-            <label htmlFor="file-input" className="invoice-file-upload-btn">
-              <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
-              {file && (
-                <div className="file-preview">
-                  {/* <p>Selected file: {file.name}</p>  */}
-                  <p>({Math.round(file.size / 1024)} KB)</p>
-                </div>
-              )}
-            </label>
-            <input
-              type="file"
-              id="file-input"
-              className="invoice-file-input"
-              onChange={handleFileChange}
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
+        {isDragging && (
+          <div className="drag-drop-overlay">
+            <div className="drag-drop-content">
+              <BsCloudUpload className="drag-drop-icon" />
+              <h3>Drop your file here</h3>
+              <p>Supported formats: JPEG, PNG, PDF</p>
+            </div>
           </div>
-        </>
-      )}
+        )}
 
-      {step === 2 && responseData && (
-        <div className="invoice-form-container w-100">
-          <h2 className="invoice-form-heading">Verify your Invoice</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-row">
-              {renderFormFields(formData).map((field, index) => (
-                <div key={index} className="form-row-item">
-                  {field}
+        <div className="invoice-stepper">
+          <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
+          <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
+          <div className={`step ${step === 2 ? "active" : ""}`}>2</div>
+          <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
+          <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
+        </div>
+
+        {step === 1 && (
+          <>
+            <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
+            <div
+              className={`invoice-file-upload-box ${
+                isDragging ? "dragging" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                document.getElementById("file-input").click();
+              }}
+            >
+              <label htmlFor="file-input" className="invoice-file-upload-btn">
+                <BsCloudUpload className="invoice-upload-icon" />
+                <p>
+                  {uploading ? "Uploading..." : "Choose / Drop a file here"}
+                </p>
+                {file && (
+                  <div className="file-preview">
+                    {/* <p>Selected file: {file.name}</p>  */}
+                    <p>({Math.round(file.size / 1024)} KB)</p>
+                  </div>
+                )}
+              </label>
+              <input
+                type="file"
+                id="file-input"
+                className="invoice-file-input"
+                onChange={handleFileChange}
+                accept=".jpg,.jpeg,.png,.pdf"
+              />
+            </div>
+          </>
+        )}
+
+        {step === 2 && responseData && (
+          <div className="invoice-form-container w-100">
+            <h2 className="invoice-form-heading">Verify your Invoice</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                {renderFormFields(formData).map((field, index) => (
+                  <div key={index} className="form-row-item">
+                    {field}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <button type="submit" className="invoice-submit-btn mb-3">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {step === 3 && offers.length > 0 && (
+          <>
+            <div className="text-center container">
+              <div className="row">
+                <div className="col-12">
+                  <h1 className="best-offers-heading mb-0">
+                    Here is some best offers for you choose one of them
+                  </h1>
+                </div>
+              </div>
+            </div>
+
+            <div className="justify-content-center row w-100">
+              {offers.map((offer, index) => (
+                <div className="col-xl-4 col-md-6" key={index}>
+                  <div className="invoice-card-responsive invoice-card h-100 w-100">
+                    {Object.keys(offer).map((key) => {
+                      if (
+                        key !== "user_id" &&
+                        key !== "invoice_id" &&
+                        key !== "created_at" &&
+                        key !== "updated_at" &&
+                        key !== "id" &&
+                        key !== "Client_id" &&
+                        offer[key]
+                      ) {
+                        return (
+                          <p key={key}>
+                            <strong>
+                              {key
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}
+                              :
+                            </strong>{" "}
+                            {offer[key]}
+                          </p>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
-            <div>
-              <button type="submit" className="invoice-submit-btn mb-3">
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
-      {step === 3 && offers.length > 0 && (
-        <>
-          <div className="text-center container">
-            <div className="row">
-              <div className="col-12">
-                <h1 className="best-offers-heading mb-0">
-                  Here is some best offers for you choose one of them
-                </h1>
+            <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={generatePDF}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                >
+                  <BsDownload className="me-2" />
+                  Download PDF
+                </button>
               </div>
-            </div>
-          </div>
-
-          <div className="justify-content-center row w-100">
-            {offers.map((offer, index) => (
-              <div className="col-xl-4 col-md-6" key={index}>
-                <div className="invoice-card-responsive invoice-card h-100 w-100">
-                  {Object.keys(offer).map((key) => {
-                    if (
-                      key !== "user_id" &&
-                      key !== "invoice_id" &&
-                      key !== "created_at" &&
-                      key !== "updated_at" &&
-                      key !== "id" &&
-                      key !== "Client_id" &&
-                      offer[key]
-                    ) {
-                      return (
-                        <p key={key}>
-                          <strong>
-                            {key
-                              .replace(/([A-Z])/g, " $1")
-                              .replace(/^./, (str) => str.toUpperCase())}
-                            :
-                          </strong>{" "}
-                          {offer[key]}
-                        </p>
-                      );
-                    }
-                    return null;
-                  })}
-
-                 
-                </div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={downloadCSV}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                  disabled={!submittedData || submittedData.length === 0}
+                >
+                  <FaFileCsv className="me-2" />
+                  Download CSV
+                </button>
               </div>
-            ))}
-          </div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={downloadExcel}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                  disabled={!submittedData || submittedData.length === 0}
+                >
+                  <FaFileExcel className="me-2" />
+                  Export Excel
+                </button>
+              </div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6"></div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6"></div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6"></div>
+            </div>
+          </>
+        )}
 
-          <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={generatePDF}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-              >
-                <BsDownload className="me-2" />
-                Download PDF
-              </button>
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={downloadCSV}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-                disabled={!submittedData || submittedData.length === 0}
-              >
-                <FaFileCsv className="me-2" />
-                Download CSV
-              </button>
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={downloadExcel}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-                disabled={!submittedData || submittedData.length === 0}
-              >
-                <FaFileExcel className="me-2" />
-                Export Excel
-              </button>
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-             
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-             
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              
-            </div>
-          </div>
-        </>
-      )}
-
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content w-100">
-            <div className="modal-header">
-              <h3 className="mb-0">
-                {modalType === "email" ? "Send Email" : "Send to Client Portal"}
-              </h3>
-              <button
-                onClick={handleModalClose}
-                className="modal-close-btn bg-transparent border-0"
-              >
-                <IoClose size={25} />
-              </button>
-            </div>
-            <div className="modal-body">
-              {loadingClients ? (
-                <div className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
+        {showModal && (
+          <div className="modal-overlay">
+            <div className="modal-content w-100">
+              <div className="modal-header">
+                <h3 className="mb-0">
+                  {modalType === "email"
+                    ? "Send Email"
+                    : "Send to Client Portal"}
+                </h3>
+                <button
+                  onClick={handleModalClose}
+                  className="modal-close-btn bg-transparent border-0"
+                >
+                  <IoClose size={25} />
+                </button>
+              </div>
+              <div className="modal-body">
+                {loadingClients ? (
+                  <div className="text-center py-4">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading clients...</p>
                   </div>
-                  <p className="mt-2">Loading clients...</p>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-3">
-                    <label className="form-label text-start d-block pb-1">
-                      Select Client:
-                    </label>
-                    <select
-                      className="form-select"
-                      value={selectedClient}
-                      onChange={handleClientSelect}
-                    >
-                      <option value="">Select a client</option>
-                      {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                          {client.name || `Client ${client.id}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button onClick={handleModalClose} className="btn btn-secondary">
-                Cancel
-              </button>
-              <button
-                onClick={handleModalSubmit}
-                className="btn btn-primary"
-                disabled={!selectedClient || loadingClients}
-              >
-                {modalType === "email" ? (
-                  <>
-                    <BsEnvelope className="me-2" />
-                    Send Email
-                  </>
                 ) : (
                   <>
-                    <IoIosSend className="me-2" />
-                    Send to Portal
+                    <div className="mb-3">
+                      <label className="form-label text-start d-block pb-1">
+                        Select Client:
+                      </label>
+                      <select
+                        className="form-select"
+                        value={selectedClient}
+                        onChange={handleClientSelect}
+                      >
+                        <option value="">Select a client</option>
+                        {clients.map((client) => (
+                          <option key={client.id} value={client.id}>
+                            {client.name || `Client ${client.id}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </>
                 )}
-              </button>
+              </div>
+              <div className="modal-footer">
+                <button
+                  onClick={handleModalClose}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleModalSubmit}
+                  className="btn btn-primary"
+                  disabled={!selectedClient || loadingClients}
+                >
+                  {modalType === "email" ? (
+                    <>
+                      <BsEnvelope className="me-2" />
+                      Send Email
+                    </>
+                  ) : (
+                    <>
+                      <IoIosSend className="me-2" />
+                      Send to Portal
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showWhatsappModal && (
-        <div className="whatsapp-modal-overlay">
-          <div className="whatsapp-modal-content">
-            <div className="whatsapp-modal-header">
-              <h3>Send via WhatsApp</h3>
-              <button
-                onClick={handleWhatsappModalClose}
-                className="whatsapp-modal-close-btn"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="whatsapp-modal-body">
-              <div className="whatsapp-input-group">
-                <label htmlFor="whatsapp-to">Phone Number:</label>
-                <input
-                  type="text"
-                  id="whatsapp-to"
-                  name="to"
-                  value={whatsappData.to}
-                  onChange={handleWhatsappChange}
-                  placeholder="e.g., 923001234567"
-                  required
-                />
-                <small className="whatsapp-input-hint">
-                  Enter phone number with country code but without + sign (e.g.,
-                  923001234567 for Pakistan)
-                </small>
+        {showWhatsappModal && (
+          <div className="whatsapp-modal-overlay">
+            <div className="whatsapp-modal-content">
+              <div className="whatsapp-modal-header">
+                <h3>Send via WhatsApp</h3>
+                <button
+                  onClick={handleWhatsappModalClose}
+                  className="whatsapp-modal-close-btn"
+                >
+                  &times;
+                </button>
               </div>
-              {/* <div className="whatsapp-input-group">
+              <div className="whatsapp-modal-body">
+                <div className="whatsapp-input-group">
+                  <label htmlFor="whatsapp-to">Phone Number:</label>
+                  <input
+                    type="text"
+                    id="whatsapp-to"
+                    name="to"
+                    value={whatsappData.to}
+                    onChange={handleWhatsappChange}
+                    placeholder="e.g., 923001234567"
+                    required
+                  />
+                  <small className="whatsapp-input-hint">
+                    Enter phone number with country code but without + sign
+                    (e.g., 923001234567 for Pakistan)
+                  </small>
+                </div>
+                {/* <div className="whatsapp-input-group">
           <label htmlFor="whatsapp-message">Message (optional):</label>
           <textarea
             id="whatsapp-message"
@@ -940,34 +944,35 @@ const UserInvoice = () => {
             rows={5}
           />
         </div> */}
-              <div className="whatsapp-pdf-preview">
-                <p className="whatsapp-pdf-label">PDF Attachment:</p>
-                <div className="whatsapp-pdf-placeholder">
-                  <BsDownload className="whatsapp-pdf-icon" />
-                  <p>Invoice_{invoiceId}.pdf</p>
+                <div className="whatsapp-pdf-preview">
+                  <p className="whatsapp-pdf-label">PDF Attachment:</p>
+                  <div className="whatsapp-pdf-placeholder">
+                    <BsDownload className="whatsapp-pdf-icon" />
+                    <p>Invoice_{invoiceId}.pdf</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="whatsapp-modal-footer">
-              <button
-                onClick={handleWhatsappModalClose}
-                className="whatsapp-modal-cancel-btn"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleWhatsappSubmit}
-                className="whatsapp-modal-send-btn"
-                disabled={!whatsappData.to}
-              >
-                <BsWhatsapp className="me-2" />
-                Send Message
-              </button>
+              <div className="whatsapp-modal-footer">
+                <button
+                  onClick={handleWhatsappModalClose}
+                  className="whatsapp-modal-cancel-btn"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleWhatsappSubmit}
+                  className="whatsapp-modal-send-btn"
+                  disabled={!whatsappData.to}
+                >
+                  <BsWhatsapp className="me-2" />
+                  Send Message
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 

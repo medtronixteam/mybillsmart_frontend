@@ -3,6 +3,7 @@ import "./UserProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const UserProfileSetting = () => {
   // State for profile data
@@ -111,7 +112,11 @@ const UserProfileSetting = () => {
         );
       }
     } catch (error) {
-      showAlert("error", "Error", "Failed to update profile. Please try again.");
+      showAlert(
+        "error",
+        "Error",
+        "Failed to update profile. Please try again."
+      );
     } finally {
       setLoadingProfile(false);
     }
@@ -121,7 +126,11 @@ const UserProfileSetting = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      showAlert("error", "Error", "New password and confirm password do not match!");
+      showAlert(
+        "error",
+        "Error",
+        "New password and confirm password do not match!"
+      );
       return;
     }
 
@@ -156,7 +165,11 @@ const UserProfileSetting = () => {
         );
       }
     } catch (error) {
-      showAlert("error", "Error", "Failed to update password. Please try again.");
+      showAlert(
+        "error",
+        "Error",
+        "Failed to update password. Please try again."
+      );
     } finally {
       setLoadingPassword(false);
     }
@@ -174,7 +187,11 @@ const UserProfileSetting = () => {
       });
 
       if (response.ok) {
-        showAlert("success", "OTP Sent", "OTP sent to your email. Please check and enter the code.");
+        showAlert(
+          "success",
+          "OTP Sent",
+          "OTP sent to your email. Please check and enter the code."
+        );
         setTwoFA((prev) => ({
           ...prev,
           loading: false,
@@ -274,6 +291,7 @@ const UserProfileSetting = () => {
 
   return (
     <div className="profile-edit-container container mt-3">
+      <Breadcrumbs homePath={"/user/dashboard"} />
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">
@@ -533,4 +551,4 @@ const UserProfileSetting = () => {
   );
 };
 
-export default UserProfileSetting;  
+export default UserProfileSetting;
