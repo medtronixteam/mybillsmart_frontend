@@ -1,12 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
+import config from "../../config";
 
 const UserNavbar = ({ toggleSidebar }) => {
+  const [notifications, setNotifications] = useState([]);
   const [show, setShow] = useState(false);
-  const { name } = useAuth();
+  const { name, token } = useAuth();
+  const api = axios.create({
+    baseURL: `${config.BASE_URL}`,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const fetchNotifications = async () => {
+    try {
+      // setLoading(true);
+      const response = await api.get("/api/notifications");
+      // Access the notifications array from response data
+      setNotifications(response.data.notifications || []);
+      // setError(null);
+    } catch (err) {
+      // setError("Failed to fetch notifications");
+      console.error("Error fetching notifications:", err);
+      setNotifications([]);
+    } finally {
+      // setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
   const getInitials = (name) => {
     if (!name) return "U";
     const names = name.split(" ");
@@ -30,13 +59,21 @@ const UserNavbar = ({ toggleSidebar }) => {
         <h6 className="font-weight-bolder mb-0 d-none d-lg-block">
           User Dashboard
         </h6>
-        <div className="d-flex align-items-center">
-          <Link to="/user/notifications">
+        <div className="d-flex align-items-center gap-2">
+          <Link to="/user/notifications" className="position-relative">
             <IoIosNotificationsOutline
               size={30}
               color="#344767"
-              className="me-2"
+              className="me-1"
             />
+            <span
+              className="badge bg-danger rounded-pill px-2 py-1 position-absolute d-block"
+              width="20"
+              height="20"
+              style={{ top: "-5px", right: "0" }}
+            >
+              {notifications.length > 0 ? notifications.length : 0}
+            </span>
           </Link>
           <div
             className="d-flex align-items-center cursor-pointer drop_menu_responsive"
