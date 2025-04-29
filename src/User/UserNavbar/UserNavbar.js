@@ -31,7 +31,7 @@ const UserNavbar = ({ toggleSidebar }) => {
           User Dashboard
         </h6>
         <div className="d-flex align-items-center">
-          <Link to="/group_admin/notifications">
+          <Link to="/user/notifications">
             <IoIosNotificationsOutline
               size={30}
               color="#344767"
@@ -39,7 +39,7 @@ const UserNavbar = ({ toggleSidebar }) => {
             />
           </Link>
           <div
-            className="d-flex align-items-center cursor-pointer"
+            className="d-flex align-items-center cursor-pointer drop_menu_responsive"
             onClick={toggleDropdown}
           >
             {/* <Link
@@ -66,8 +66,8 @@ const UserNavbar = ({ toggleSidebar }) => {
             {/* </Link> */}
             {show && (
               <div
-                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "195px", marginLeft: "-15px" }}
+                className="position-absolute dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ top: "65px", right: "0px" }}
               >
                 <Link
                   to="/user/profile-edit"
@@ -81,7 +81,6 @@ const UserNavbar = ({ toggleSidebar }) => {
                 >
                   Session History
                 </Link>
-                
               </div>
             )}
           </div>

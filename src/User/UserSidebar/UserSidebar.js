@@ -46,7 +46,7 @@ const UserSidebar = () => {
     localStorage.removeItem("role");
     navigate("/login");
   };
-  
+
   return (
     <div>
       <div className="sidenav-header">
@@ -130,14 +130,64 @@ const UserSidebar = () => {
             </div>
           </li>
 
-          
+          <li className="nav-item">
+            <NavLink
+              className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+              style={{ color: " #67748e" }}
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseClients"
+              aria-expanded="false"
+              aria-controls="collapseInvoices"
+            >
+              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                <MdManageAccounts />
+              </div>
+              <span className="nav-link-text">Manage Users</span>
+              <RiArrowDropDownLine size={30} />
+            </NavLink>
+            <div
+              id="collapseClients"
+              className="accordion-collapse collapse"
+              aria-labelledby="headingInvoices"
+              data-bs-parent="#sidebarAccordion"
+            >
+              <div className="accordion-body py-0">
+                <ul className="list-unstyled">
+                  <li>
+                    <NavLink
+                      to="/user/add-user"
+                      className="nav-link"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <MdPersonAdd />
+                      </div>
+                      <span className="nav-link-text">Add User</span>
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/user/user-list"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <HiOutlineUserGroup />
+                      </div>
+                      <span className="nav-link-text">User List</span>
+                    </NavLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </li>
         </ul>
       </div>
       <div className="sidenav-footer mx-3 ">
         <div id="google_translate_element"></div>
-       
+
         <button
-          className="btn mt-1 w-100"
+          className="btn mt-5 w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"
@@ -150,4 +200,4 @@ const UserSidebar = () => {
   );
 };
 
-export default UserSidebar; 
+export default UserSidebar;

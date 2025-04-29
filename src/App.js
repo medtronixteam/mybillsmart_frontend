@@ -110,8 +110,11 @@ import UserSessionHistory from "./User/UserSessionHistory/UserSessionHistory";
 import UserInvoice from "./User/UserInvoice/UserInvoice";
 import UserNavbar from "./User/UserNavbar/UserNavbar";
 import UserInvoiceList from "./User/UserInvoiceList/UserInvoiceList";
-import UserDashboard from "./Client/ClientDashboard";
+import UserDashboard from "./User/UserDashboard";
 import AminContractForm from "./GroupAdmin/AminContractForm/AminContractForm";
+import UserAddUser from "./User/AddUser/AddUser";
+import UserUserList from "./User/UserList/UserUserList";
+import UserNotifications from "./User/Notifications/AgentNotifications";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -634,7 +637,7 @@ const App = () => {
 
             {/* User Routes */}
             <Route
-              path="/member/*"
+              path="/user/*"
               element={
                 <ProtectedRoute
                   element={
@@ -668,13 +671,19 @@ const App = () => {
                             path="invoice-list"
                             element={<UserInvoiceList />}
                           />
+                          <Route path="add-user" element={<UserAddUser />} />
+                          <Route path="user-list" element={<UserUserList />} />
+                          <Route
+                            path="notifications"
+                            element={<UserNotifications />}
+                          />
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
                     </>
                   }
-                  requiredRole="member"
+                  requiredRole="user"
                 />
               }
             />
