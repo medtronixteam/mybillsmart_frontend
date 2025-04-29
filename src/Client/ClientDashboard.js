@@ -3,7 +3,7 @@ import {
   FaFileAlt,
   FaFileContract,
   FaCheckCircle,
-  FaTimesCircle
+  FaTimesCircle,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -14,16 +14,17 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import config from "../config";
+import Breadcrumbs from "../Breadcrumbs";
 
 const ClientDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     tota_contracts: 0,
     pending_contracts: 0,
     completed_contracts: 0,
-    rejected_contracts: 0
+    rejected_contracts: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,15 +64,18 @@ const ClientDashboard = () => {
     {
       name: "Contracts",
       "Total Contracts": dashboardData?.tota_contracts || 0,
-      "Pending": dashboardData?.pending_contracts || 0,
-      "Completed": dashboardData?.completed_contracts || 0,
-      "Rejected": dashboardData?.rejected_contracts || 0,
-    }
+      Pending: dashboardData?.pending_contracts || 0,
+      Completed: dashboardData?.completed_contracts || 0,
+      Rejected: dashboardData?.rejected_contracts || 0,
+    },
   ];
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "80vh" }}
+      >
         <div className="text-center">
           <div
             className="spinner-border"
@@ -94,6 +98,7 @@ const ClientDashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
+        <Breadcrumbs />
         {/* Total Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -211,11 +216,7 @@ const ClientDashboard = () => {
                     fill="#3498db"
                     radius={[4, 4, 0, 0]}
                   />
-                  <Bar 
-                    dataKey="Pending" 
-                    fill="#f39c12" 
-                    radius={[4, 4, 0, 0]} 
-                  />
+                  <Bar dataKey="Pending" fill="#f39c12" radius={[4, 4, 0, 0]} />
                   <Bar
                     dataKey="Completed"
                     fill="#2ecc71"
