@@ -1,0 +1,100 @@
+.add-Contract-container{
+    max-width: 730px;  
+    width: 100%;
+    padding: 40px;
+    background-image: url('../../assets/img/Formback.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    margin: 20px auto;
+    /* border: 1px solid #ccc; */
+    border-radius: 10px;
+}
+
+.add-Contract-container h2{
+    text-align: center;
+    margin-bottom: 10px;
+}   
+
+.add-Contract-container input,
+.add-Contract-container select{
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.add-Contract-heading{
+    text-align: center;
+    /* margin: 0px 0; */
+}
+.add-Contract-container button{
+    width: 50%;
+    margin: 10px auto;
+    padding: 10px;
+    background-color: white;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    display: block;
+   
+        box-shadow:  inset  4px 4px 10px rgba(128, 128, 128, 0.5);  
+    transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
+}
+.add-Contract-container button:hover{
+    /* color: #3897d8; */
+    box-shadow:  inset  4px 4px 10px rgba(0, 0, 0, 0.5) !important;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+  }
+  
+  .modal-icon {
+    font-size: 3rem;
+    color: #3897d8;
+    margin-bottom: 20px;
+  }
+  
+  .modal-message {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+  
+  .modal-ok-button {
+    padding: 10px 20px;
+    background-color: #3897d8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .modal-ok-button:hover {
+    background-color: #1571ae;
+  }
+/* @media screen and (max-width: 600px) {
+    .add-Contract-container{
+        max-width: 100%;
+        margin: 20px 5px;  
+        padding: 10px;
+    }
+    
+} */

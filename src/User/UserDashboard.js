@@ -3,7 +3,7 @@ import {
   FaFileAlt,
   FaFileContract,
   FaCheckCircle,
-  FaTimesCircle,
+  FaTimesCircle
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -14,12 +14,11 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
+  ResponsiveContainer
 } from "recharts";
 import config from "../config";
-import Breadcrumbs from "../Breadcrumbs";
 
-const ClientDashboard = () => {
+const UserDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     tota_contracts: 0,
     pending_contracts: 0,
@@ -98,7 +97,6 @@ const ClientDashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
-        <Breadcrumbs homePath="/client/dashboard" />
         {/* Total Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -237,4 +235,4 @@ const ClientDashboard = () => {
   );
 };
 
-export default ClientDashboard;
+export default UserDashboard;

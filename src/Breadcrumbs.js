@@ -1,28 +1,38 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const Breadcrumbs = () => {
+const Breadcrumbs = ({ homePath }) => {
   const location = useLocation();
-  const paths = location.pathname.split("/").filter(Boolean);
+
+  // List of folders/directories you want to ignore in breadcrumb
+  const ignoreList = ["client", "groupadmin", "supervisor", "user"];
+
+  // Split path and filter out folders
+  const paths = location.pathname
+    .split("/")
+    .filter((path) => path && !ignoreList.includes(path));
 
   return (
-    <nav>
-      <ol className="d-flex list-unstyled">
+    <nav aria-label="breadcrumb">
+      <ol className="d-flex list-unstyled justify-content-start">
         <li>
-          <Link to="/">Home</Link>
-          {paths.length > 0 && " / "}
+          <Link to={homePath}>Home</Link>
+          {paths.length > 0 && <span className="mx-2">/</span>}
         </li>
         {paths.map((path, index) => {
           const fullPath = "/" + paths.slice(0, index + 1).join("/");
           const isLast = index === paths.length - 1;
+          const formattedPath = path.charAt(0).toUpperCase() + path.slice(1); // Capitalize
+
           return (
             <li key={fullPath}>
               {!isLast ? (
                 <>
-                  <Link to={fullPath}>{path}</Link> /
+                  <Link to={fullPath}>{formattedPath}</Link>
+                  <span className="mx-2">/</span>
                 </>
               ) : (
-                <span>{path}</span>
+                <span>{formattedPath}</span>
               )}
             </li>
           );

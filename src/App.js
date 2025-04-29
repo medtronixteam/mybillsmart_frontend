@@ -104,6 +104,14 @@ import GroupAdminNotifications from "./GroupAdmin/Notifications/GroupAdminNotifi
 import ClientSessionHistory from "./Client/SessionHistory/ClientSessionHistory";
 import Agrement from "./GroupAdmin/Agrement/Agrement";
 import AgrementList from "./GroupAdmin/AgrementList/AgrementList";
+import UserSidebar from "./User/UserSidebar/UserSidebar";
+import UserProfileSetting from "./User/UserProfileSetting/UserProfileSetting";
+import UserSessionHistory from "./User/UserSessionHistory/UserSessionHistory";
+import UserInvoice from "./User/UserInvoice/UserInvoice";
+import UserNavbar from "./User/UserNavbar/UserNavbar";
+import UserInvoiceList from "./User/UserInvoiceList/UserInvoiceList";
+import UserDashboard from "./Client/ClientDashboard";
+import AminContractForm from "./GroupAdmin/AminContractForm/AminContractForm";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -468,6 +476,10 @@ const App = () => {
                             element={<AdminContractForm />}
                           />
                           <Route
+                            path="admin-contract-from"
+                            element={<AminContractForm />}
+                          />
+                          <Route
                             path="whatsapp"
                             element={<GroupAdminWhatsapp />}
                           />
@@ -541,10 +553,7 @@ const App = () => {
                             element={<CompanyDetailsList />}
                           />
 
-                           <Route
-                            path="agrement"
-                            element={<Agrement />}
-                          /> 
+                          <Route path="agrement" element={<Agrement />} />
                           <Route
                             path="agrement-list"
                             element={<AgrementList />}
@@ -619,6 +628,53 @@ const App = () => {
                     </>
                   }
                   requiredRole="client"
+                />
+              }
+            />
+
+            {/* User Routes */}
+            <Route
+              path="/member/*"
+              element={
+                <ProtectedRoute
+                  element={
+                    <>
+                      <div
+                        className={`sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 ${
+                          isSidebarOpen ? "show-sidebar" : ""
+                        }`}
+                        id="sidenav-main"
+                      >
+                        <UserSidebar />
+                      </div>
+                      <main className="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg">
+                        <UserNavbar toggleSidebar={toggleSidebar} />
+                        <Routes>
+                          <Route path="dashboard" element={<UserDashboard />} />
+                          <Route
+                            path="profile-edit"
+                            element={<UserProfileSetting />}
+                          />
+                          <Route
+                            path="session-history"
+                            element={<UserSessionHistory />}
+                          />
+
+                          <Route
+                            path="user-invoice"
+                            element={<UserInvoice />}
+                          />
+                          <Route
+                            path="invoice-list"
+                            element={<UserInvoiceList />}
+                          />
+
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </>
+                  }
+                  requiredRole="member"
                 />
               }
             />

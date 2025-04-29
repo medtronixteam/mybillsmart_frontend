@@ -1,16 +1,23 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { BsCloudUpload, BsDownload } from "react-icons/bs";
-import "./ClientInvoice.css";
+import {
+  BsCloudUpload,
+  BsDownload,
+  BsEnvelope,
+  BsWhatsapp,
+} from "react-icons/bs";
+import "./UserInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
+import { IoIosSend } from "react-icons/io";
 import { FaFileCsv, FaFileExcel } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 import config from "../../config";
-import Swal from "sweetalert2";
-import Breadcrumbs from "../../Breadcrumbs";
 
-const ClientInvoice = () => {
+const UserInvoice = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [file, setFile] = useState(null);
@@ -19,9 +26,29 @@ const ClientInvoice = () => {
   const [submittedData, setSubmittedData] = useState(null);
   const [invoiceId, setInvoiceId] = useState(null);
   const [offers, setOffers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState("");
+  const [clients, setClients] = useState([]);
+  const [modalType, setModalType] = useState("");
+  const [loadingClients, setLoadingClients] = useState(false);
+  const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+  const auth = useAuth();
+
+  const email = auth.email || "";
+
+  const [whatsappData, setWhatsappData] = useState({
+    to: "",
+    message: "",
+  });
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
+
+  useEffect(() => {
+    if (showModal) {
+      fetchClients();
+    }
+  }, [showModal]);
 
   useEffect(() => {
     const preventDefaults = (e) => {
@@ -65,14 +92,39 @@ const ClientInvoice = () => {
     };
   }, []);
 
-  const showAlert = (icon, title, text) => {
-    Swal.fire({
-      icon,
-      title,
-      text,
-      showConfirmButton: true,
-      timer: 3000,
-    });
+  const fetchClients = async () => {
+    setLoadingClients(true);
+    try {
+      const response = await axios.get(
+        `${config.BASE_URL}/api/agent/client/list`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      let clientsData = [];
+      if (Array.isArray(response.data)) {
+        clientsData = response.data;
+      } else if (response.data && Array.isArray(response.data.data)) {
+        clientsData = response.data.data;
+      } else if (response.data && Array.isArray(response.data.clients)) {
+        clientsData = response.data.clients;
+      }
+
+      setClients(clientsData || []);
+
+      if (clientsData.length === 0) {
+        toast.info("No clients found");
+      }
+    } catch (error) {
+      console.error("Error fetching clients", error);
+      toast.error("Failed to fetch clients. Please try again.");
+      setClients([]);
+    } finally {
+      setLoadingClients(false);
+    }
   };
 
   const handleFiles = useCallback(
@@ -82,20 +134,12 @@ const ClientInvoice = () => {
 
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        showAlert(
-          "error",
-          "Error",
-          "Only JPEG, PNG, and PDF files are allowed."
-        );
+        toast.error("Only JPEG, PNG, and PDF files are allowed.");
         return;
       }
 
       if (file) {
-        showAlert(
-          "info",
-          "Info",
-          "A file is already uploaded. Please submit the form."
-        );
+        toast.info("A file is already uploaded. Please submit the form.");
         return;
       }
 
@@ -132,11 +176,11 @@ const ClientInvoice = () => {
         setResponseData(response.data);
         setFormData(response.data);
         setStep(2);
-        showAlert("success", "Success", "File uploaded successfully!");
+        toast.success("File uploaded successfully!");
       }
     } catch (error) {
       console.error("Error uploading file", error);
-      showAlert("error", "Error", "Error uploading file. Please try again.");
+      toast.error("Error uploading file. Please try again.");
       setFile(null);
     } finally {
       setUploading(false);
@@ -167,9 +211,7 @@ const ClientInvoice = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
       setSubmittedData(matchResponse.data);
-      setOffers(matchResponse.data);
 
       const invoiceData = {
         ...formData,
@@ -177,7 +219,7 @@ const ClientInvoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        `${config.BASE_URL}/api/client/invoices`,
+        `${config.BASE_URL}/api/user/invoices`,
         invoiceData,
         {
           headers: {
@@ -190,11 +232,32 @@ const ClientInvoice = () => {
       const invoiceId = invoiceResponse.data.invoice;
       setInvoiceId(invoiceId);
 
+      const offersData = matchResponse.data.map((item) => ({
+        ...item,
+        invoice_id: invoiceId,
+        group_id: groupId,
+      }));
+
+      const offersResponse = await axios.post(
+        `${config.BASE_URL}/api/user/offers`,
+        offersData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (offersResponse.data && offersResponse.data.offers) {
+        setOffers(offersResponse.data.offers);
+      }
+
       setStep(3);
-      showAlert("success", "Success", "Form submitted successfully!");
+      toast.success("Form submitted successfully!");
     } catch (error) {
       console.error("Error submitting data", error);
-      showAlert("error", "Error", "Error submitting form. Please try again.");
+      toast.error("Error submitting form. Please try again.");
     }
   };
 
@@ -286,7 +349,7 @@ const ClientInvoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      showAlert("error", "Error", "No data available to download");
+      toast.error("No data available to download");
       return;
     }
 
@@ -297,10 +360,10 @@ const ClientInvoice = () => {
         `invoice_${invoiceId}_data.csv`,
         "text/csv;charset=utf-8;"
       );
-      showAlert("success", "Success", "CSV downloaded successfully");
+      toast.success("CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
-      showAlert("error", "Error", "Failed to generate CSV file");
+      toast.error("Failed to generate CSV file");
     }
   };
 
@@ -310,7 +373,7 @@ const ClientInvoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      showAlert("error", "Error", "No data available to download");
+      toast.error("No data available to download");
       return;
     }
 
@@ -321,10 +384,10 @@ const ClientInvoice = () => {
         `invoice_${invoiceId}_data.xls`,
         "application/vnd.ms-excel;charset=utf-8;"
       );
-      showAlert("success", "Success", "Excel file downloaded successfully");
+      toast.success("Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
-      showAlert("error", "Error", "Failed to generate Excel file");
+      toast.error("Failed to generate Excel file");
     }
   };
 
@@ -384,6 +447,62 @@ const ClientInvoice = () => {
     pdf.save("invoice_details.pdf");
   };
 
+  const generatePDFBlob = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let yOffset = 20;
+
+    pdf.setFontSize(18);
+    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+
+    pdf.setLineWidth(0.5);
+    pdf.line(10, yOffset, pageWidth - 10, yOffset);
+    yOffset += 10;
+
+    pdf.setFontSize(12);
+
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        const supplierName =
+          supplier["Supplier Name"] ||
+          supplier["supplierName"] ||
+          `Supplier ${index + 1}`;
+
+        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
+        yOffset += 10;
+
+        Object.keys(supplier).forEach((key) => {
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
+            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
+            yOffset += 10;
+          }
+        });
+
+        yOffset += 10;
+      });
+    } else {
+      pdf.text("No supplier data available", 10, yOffset);
+    }
+
+    return pdf.output("blob");
+  };
+
   const handleContractClick = (offer) => {
     navigate("/agent/contract", {
       state: {
@@ -393,9 +512,163 @@ const ClientInvoice = () => {
     });
   };
 
+  const handleSendToClientPortal = () => {
+    setModalType("portal");
+    setShowModal(true);
+  };
+
+  const handleSendEmail = () => {
+    setModalType("email");
+    setShowModal(true);
+  };
+
+  const handleWhatsappClick = () => {
+    setShowWhatsappModal(true);
+  };
+
+  const handleWhatsappModalClose = () => {
+    setShowWhatsappModal(false);
+    setWhatsappData({ to: "", message: "" });
+  };
+
+  const handleWhatsappChange = (e) => {
+    const { name, value } = e.target;
+    setWhatsappData({
+      ...whatsappData,
+      [name]: value,
+    });
+  };
+
+  const handleWhatsappSubmit = async () => {
+    // Validate phone number
+    if (!whatsappData.to.trim()) {
+      toast.error("Phone number is required");
+      return;
+    }
+
+    // Validate phone number format (minimum 11 digits)
+    const phoneRegex = /^\d{11,}$/;
+    const rawPhone = whatsappData.to.replace(/^\+/, "");
+    if (!phoneRegex.test(rawPhone)) {
+      toast.error("Please enter a valid phone number (e.g., 923001234567)");
+      return;
+    }
+
+    try {
+      const pdfBlob = generatePDFBlob();
+      const formattedPhone = `${rawPhone}@c.us`;
+      const filename = `invoice_${invoiceId}.pdf`;
+
+      // Get email from auth context and replace special characters
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const payload = {
+        chatId: formattedPhone,
+        caption: whatsappData.message || "Invoice details",
+        session: sessionEmail, // Using modified email as session
+        file: {
+          data: base64data,
+          filename: filename,
+          mimeType: "application/pdf",
+        },
+      };
+
+      const response = await axios.post(
+        "http://34.142.252.64:3000/api/sendFile",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        toast.success("WhatsApp message sent successfully!");
+        handleWhatsappModalClose();
+      } else {
+        toast.success("WhatsApp message sent successfully!");
+      }
+    } catch (error) {
+      console.error("WhatsApp send error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send WhatsApp message";
+      toast.error(errorMessage);
+    }
+  };
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedClient("");
+  };
+
+  const handleClientSelect = (e) => {
+    setSelectedClient(e.target.value);
+  };
+
+  const handleModalSubmit = async () => {
+    if (!selectedClient) {
+      toast.error("Please select a client!");
+      return;
+    }
+
+    try {
+      if (modalType === "email") {
+        await axios.post(
+          `${config.BASE_URL}/api/agent/send-offers-email`,
+          {
+            client_id: selectedClient,
+            invoice_id: invoiceId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        toast.success("Email sent successfully!");
+      } else if (modalType === "portal") {
+        const response = await axios.post(
+          `${config.BASE_URL}/api/agent/send/client/portal`,
+          {
+            client_id: selectedClient,
+            invoice_id: invoiceId,
+          }, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success("Invoice sent to client portal successfully!");
+        } else {
+          toast.error("Failed to send to client portal");
+        }
+      }
+    } catch (error) {
+      console.error("Error sending data", error);
+      toast.error("Failed to send. Please try again.");
+    }
+
+    handleModalClose();
+  };
+
   return (
     <div className="invoice-container">
-      <Breadcrumbs homePath="/client/dashboard" />
+      <ToastContainer />
+
       {isDragging && (
         <div className="drag-drop-overlay">
           <div className="drag-drop-content">
@@ -428,9 +701,10 @@ const ClientInvoice = () => {
           >
             <label htmlFor="file-input" className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Choose / Drop a File Here"}</p>
+              <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
               {file && (
                 <div className="file-preview">
+                  {/* <p>Selected file: {file.name}</p>  */}
                   <p>({Math.round(file.size / 1024)} KB)</p>
                 </div>
               )}
@@ -506,6 +780,8 @@ const ClientInvoice = () => {
                     }
                     return null;
                   })}
+
+                 
                 </div>
               </div>
             ))}
@@ -541,11 +817,158 @@ const ClientInvoice = () => {
                 Export Excel
               </button>
             </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+             
+            </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+             
+            </div>
+            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+              
+            </div>
           </div>
         </>
+      )}
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content w-100">
+            <div className="modal-header">
+              <h3 className="mb-0">
+                {modalType === "email" ? "Send Email" : "Send to Client Portal"}
+              </h3>
+              <button
+                onClick={handleModalClose}
+                className="modal-close-btn bg-transparent border-0"
+              >
+                <IoClose size={25} />
+              </button>
+            </div>
+            <div className="modal-body">
+              {loadingClients ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <p className="mt-2">Loading clients...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-3">
+                    <label className="form-label text-start d-block pb-1">
+                      Select Client:
+                    </label>
+                    <select
+                      className="form-select"
+                      value={selectedClient}
+                      onChange={handleClientSelect}
+                    >
+                      <option value="">Select a client</option>
+                      {clients.map((client) => (
+                        <option key={client.id} value={client.id}>
+                          {client.name || `Client ${client.id}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button onClick={handleModalClose} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button
+                onClick={handleModalSubmit}
+                className="btn btn-primary"
+                disabled={!selectedClient || loadingClients}
+              >
+                {modalType === "email" ? (
+                  <>
+                    <BsEnvelope className="me-2" />
+                    Send Email
+                  </>
+                ) : (
+                  <>
+                    <IoIosSend className="me-2" />
+                    Send to Portal
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWhatsappModal && (
+        <div className="whatsapp-modal-overlay">
+          <div className="whatsapp-modal-content">
+            <div className="whatsapp-modal-header">
+              <h3>Send via WhatsApp</h3>
+              <button
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="whatsapp-modal-body">
+              <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-to">Phone Number:</label>
+                <input
+                  type="text"
+                  id="whatsapp-to"
+                  name="to"
+                  value={whatsappData.to}
+                  onChange={handleWhatsappChange}
+                  placeholder="e.g., 923001234567"
+                  required
+                />
+                <small className="whatsapp-input-hint">
+                  Enter phone number with country code but without + sign (e.g.,
+                  923001234567 for Pakistan)
+                </small>
+              </div>
+              {/* <div className="whatsapp-input-group">
+          <label htmlFor="whatsapp-message">Message (optional):</label>
+          <textarea
+            id="whatsapp-message"
+            name="message"
+            value={whatsappData.message}
+            onChange={handleWhatsappChange}
+            placeholder="Type your message here..."
+            rows={5}
+          />
+        </div> */}
+              <div className="whatsapp-pdf-preview">
+                <p className="whatsapp-pdf-label">PDF Attachment:</p>
+                <div className="whatsapp-pdf-placeholder">
+                  <BsDownload className="whatsapp-pdf-icon" />
+                  <p>Invoice_{invoiceId}.pdf</p>
+                </div>
+              </div>
+            </div>
+            <div className="whatsapp-modal-footer">
+              <button
+                onClick={handleWhatsappModalClose}
+                className="whatsapp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWhatsappSubmit}
+                className="whatsapp-modal-send-btn"
+                disabled={!whatsappData.to}
+              >
+                <BsWhatsapp className="me-2" />
+                Send Message
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-export default ClientInvoice;
+export default UserInvoice;
