@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import Breadcrumbs from "../../Breadcrumbs";
 import { useAuth } from "../../contexts/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -266,6 +266,7 @@ const ClientProfileSetting = () => {
         draggable
         pauseOnHover
       />
+      <Breadcrumbs homePath={"/client/dashboard"} />
 
       <div className="profile-form row">
         {/* Profile Info Card */}

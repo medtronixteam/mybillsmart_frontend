@@ -98,7 +98,9 @@ const ClientDashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
-        <Breadcrumbs homePath="/client/dashboard" />
+        <div className="col-12 mb-3">
+          <Breadcrumbs homePath={"/client/dashboard"} />
+        </div>
         {/* Total Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">

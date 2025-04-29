@@ -4,6 +4,7 @@ import "./ClientContractList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ClientContractList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -56,7 +57,8 @@ const ClientContractList = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="contract-list-container">
+    <div className="contract-list-container mx-2 my-2">
+      <Breadcrumbs homePath={"/client/dashboard"} />
       <h1>Agreement List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (

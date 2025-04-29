@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ClientInvoiceList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -267,12 +268,13 @@ const ClientInvoiceList = () => {
 
   return (
     <div className="invoice-list-container">
-      <div className="d-flex justify-content-between align-items-center ">
-        <h1 className=" mb-0">Invoice List</h1>
-        {/* <Link to="/agent/contract-list">
+      <Breadcrumbs homePath={"/client/dashboard"} />
+      {/* <div className="d-flex justify-content-between align-items-center "> */}
+      <h1 className=" text-center mb-0">Invoice List</h1>
+      {/* <Link to="/agent/contract-list">
           <button className="btn btn-primary w-100">Agreement List</button>
         </Link> */}
-      </div>
+      {/* </div> */}
 
       {showNewTable ? (
         <>

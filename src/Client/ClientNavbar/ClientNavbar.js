@@ -53,7 +53,7 @@ const ClientNavbar = ({ toggleSidebar }) => {
 
   return (
     <nav
-      className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
+      className="navbar navbar-main navbar-expand-lg px-0 m-3 shadow-none border-radius-xl"
       id="navbarBlur"
       navbar-scroll="true"
     >
@@ -107,8 +107,8 @@ const ClientNavbar = ({ toggleSidebar }) => {
             {/* </Link> */}
             {show && (
               <div
-                className=" dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                style={{ marginTop: "160px", marginLeft: "-5px" }}
+                className="position-absolute dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                style={{ top: "65px", right: "0px" }}
               >
                 <Link
                   to="/client/profile-edit"
