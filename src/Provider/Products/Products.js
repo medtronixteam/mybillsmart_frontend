@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const Products = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -250,6 +251,7 @@ const Products = () => {
 
   return (
     <div className="products-container">
+      <Breadcrumbs homePath={"/supervisor/dashboard"} />
       <div className="products-header">
         <h2 className="mb-0">Products</h2>
         <Link to="/supervisor/add-product">
