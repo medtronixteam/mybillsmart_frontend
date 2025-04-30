@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const GoalList = () => {
   const [goals, setGoals] = useState([]);
@@ -172,6 +173,7 @@ const GoalList = () => {
 
   return (
     <div className="goal-list-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2>Goals List</h2>
 
       {/* Filter Controls */}
@@ -435,7 +437,7 @@ const GoalList = () => {
               )}
 
               {/* Results count */}
-              <div className="text-muted mt-2">
+              <div className="text-muted mt-2 text-end">
                 Showing {indexOfFirstGoal + 1} to{" "}
                 {Math.min(indexOfLastGoal, filteredGoals.length)} of{" "}
                 {filteredGoals.length} goals

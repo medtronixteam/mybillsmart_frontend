@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const MessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -362,6 +363,7 @@ const MessageList = () => {
 
   return (
     <div className="message-list-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Controls */}

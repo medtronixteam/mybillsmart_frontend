@@ -3,7 +3,7 @@ import "./GroupAdminProfileSetting.css";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
 import config from "../../config";
-
+import Breadcrumbs from "../../Breadcrumbs";
 const GroupAdminProfileSetting = () => {
   // State for profile data
   const [profileData, setProfileData] = useState({
@@ -111,7 +111,11 @@ const GroupAdminProfileSetting = () => {
         );
       }
     } catch (error) {
-      showAlert("error", "Error", "Failed to update profile. Please try again.");
+      showAlert(
+        "error",
+        "Error",
+        "Failed to update profile. Please try again."
+      );
     } finally {
       setLoadingProfile(false);
     }
@@ -121,7 +125,11 @@ const GroupAdminProfileSetting = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      showAlert("error", "Error", "New password and confirm password do not match!");
+      showAlert(
+        "error",
+        "Error",
+        "New password and confirm password do not match!"
+      );
       return;
     }
 
@@ -156,7 +164,11 @@ const GroupAdminProfileSetting = () => {
         );
       }
     } catch (error) {
-      showAlert("error", "Error", "Failed to update password. Please try again.");
+      showAlert(
+        "error",
+        "Error",
+        "Failed to update password. Please try again."
+      );
     } finally {
       setLoadingPassword(false);
     }
@@ -174,7 +186,11 @@ const GroupAdminProfileSetting = () => {
       });
 
       if (response.ok) {
-        showAlert("success", "OTP Sent", "OTP sent to your email. Please check and enter the code.");
+        showAlert(
+          "success",
+          "OTP Sent",
+          "OTP sent to your email. Please check and enter the code."
+        );
         setTwoFA((prev) => ({
           ...prev,
           loading: false,
@@ -274,6 +290,7 @@ const GroupAdminProfileSetting = () => {
 
   return (
     <div className="profile-edit-container container mt-3">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">

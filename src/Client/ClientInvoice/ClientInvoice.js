@@ -394,157 +394,163 @@ const ClientInvoice = () => {
   };
 
   return (
-    <div className="invoice-container">
-      <Breadcrumbs homePath="/client/dashboard" />
-      {isDragging && (
-        <div className="drag-drop-overlay">
-          <div className="drag-drop-content">
-            <BsCloudUpload className="drag-drop-icon" />
-            <h3>Drop your file here</h3>
-            <p>Supported formats: JPEG, PNG, PDF</p>
-          </div>
-        </div>
-      )}
-
-      <div className="invoice-stepper">
-        <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
-        <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
-        <div className={`step ${step === 2 ? "active" : ""}`}>2</div>
-        <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
-        <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/client/dashboard"} />
       </div>
-
-      {step === 1 && (
-        <>
-          <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
-          <div
-            className={`invoice-file-upload-box ${
-              isDragging ? "dragging" : ""
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              document.getElementById("file-input").click();
-            }}
-          >
-            <label htmlFor="file-input" className="invoice-file-upload-btn">
-              <BsCloudUpload className="invoice-upload-icon" />
-              <p>{uploading ? "Uploading..." : "Choose / Drop a File Here"}</p>
-              {file && (
-                <div className="file-preview">
-                  <p>({Math.round(file.size / 1024)} KB)</p>
-                </div>
-              )}
-            </label>
-            <input
-              type="file"
-              id="file-input"
-              className="invoice-file-input"
-              onChange={handleFileChange}
-              accept=".jpg,.jpeg,.png,.pdf"
-            />
+      <div className="invoice-container">
+        {isDragging && (
+          <div className="drag-drop-overlay">
+            <div className="drag-drop-content">
+              <BsCloudUpload className="drag-drop-icon" />
+              <h3>Drop your file here</h3>
+              <p>Supported formats: JPEG, PNG, PDF</p>
+            </div>
           </div>
-        </>
-      )}
+        )}
 
-      {step === 2 && responseData && (
-        <div className="invoice-form-container w-100">
-          <h2 className="invoice-form-heading">Verify your Invoice</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-row">
-              {renderFormFields(formData).map((field, index) => (
-                <div key={index} className="form-row-item">
-                  {field}
+        <div className="invoice-stepper">
+          <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
+          <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
+          <div className={`step ${step === 2 ? "active" : ""}`}>2</div>
+          <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
+          <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
+        </div>
+
+        {step === 1 && (
+          <>
+            <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
+            <div
+              className={`invoice-file-upload-box ${
+                isDragging ? "dragging" : ""
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                document.getElementById("file-input").click();
+              }}
+            >
+              <label htmlFor="file-input" className="invoice-file-upload-btn">
+                <BsCloudUpload className="invoice-upload-icon" />
+                <p>
+                  {uploading ? "Uploading..." : "Choose / Drop a File Here"}
+                </p>
+                {file && (
+                  <div className="file-preview">
+                    <p>({Math.round(file.size / 1024)} KB)</p>
+                  </div>
+                )}
+              </label>
+              <input
+                type="file"
+                id="file-input"
+                className="invoice-file-input"
+                onChange={handleFileChange}
+                accept=".jpg,.jpeg,.png,.pdf"
+              />
+            </div>
+          </>
+        )}
+
+        {step === 2 && responseData && (
+          <div className="invoice-form-container w-100">
+            <h2 className="invoice-form-heading">Verify your Invoice</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-row">
+                {renderFormFields(formData).map((field, index) => (
+                  <div key={index} className="form-row-item">
+                    {field}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <button type="submit" className="invoice-submit-btn mb-3">
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {step === 3 && offers.length > 0 && (
+          <>
+            <div className="text-center container">
+              <div className="row">
+                <div className="col-12">
+                  <h1 className="best-offers-heading mb-0">
+                    Here is some best offers for you choose one of them
+                  </h1>
+                </div>
+              </div>
+            </div>
+
+            <div className="justify-content-center row w-100">
+              {offers.map((offer, index) => (
+                <div className="col-xl-4 col-md-6" key={index}>
+                  <div className="invoice-card-responsive invoice-card h-100 w-100">
+                    {Object.keys(offer).map((key) => {
+                      if (
+                        key !== "user_id" &&
+                        key !== "invoice_id" &&
+                        key !== "created_at" &&
+                        key !== "updated_at" &&
+                        key !== "id" &&
+                        key !== "Client_id" &&
+                        offer[key]
+                      ) {
+                        return (
+                          <p key={key}>
+                            <strong>
+                              {key
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}
+                              :
+                            </strong>{" "}
+                            {offer[key]}
+                          </p>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
-            <div>
-              <button type="submit" className="invoice-submit-btn mb-3">
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
-      {step === 3 && offers.length > 0 && (
-        <>
-          <div className="text-center container">
-            <div className="row">
-              <div className="col-12">
-                <h1 className="best-offers-heading mb-0">
-                  Here is some best offers for you choose one of them
-                </h1>
+            <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={generatePDF}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                >
+                  <BsDownload className="me-2" />
+                  Download PDF
+                </button>
+              </div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={downloadCSV}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                  disabled={!submittedData || submittedData.length === 0}
+                >
+                  <FaFileCsv className="me-2" />
+                  Download CSV
+                </button>
+              </div>
+              <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <button
+                  onClick={downloadExcel}
+                  className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                  disabled={!submittedData || submittedData.length === 0}
+                >
+                  <FaFileExcel className="me-2" />
+                  Export Excel
+                </button>
               </div>
             </div>
-          </div>
-
-          <div className="justify-content-center row w-100">
-            {offers.map((offer, index) => (
-              <div className="col-xl-4 col-md-6" key={index}>
-                <div className="invoice-card-responsive invoice-card h-100 w-100">
-                  {Object.keys(offer).map((key) => {
-                    if (
-                      key !== "user_id" &&
-                      key !== "invoice_id" &&
-                      key !== "created_at" &&
-                      key !== "updated_at" &&
-                      key !== "id" &&
-                      key !== "Client_id" &&
-                      offer[key]
-                    ) {
-                      return (
-                        <p key={key}>
-                          <strong>
-                            {key
-                              .replace(/([A-Z])/g, " $1")
-                              .replace(/^./, (str) => str.toUpperCase())}
-                            :
-                          </strong>{" "}
-                          {offer[key]}
-                        </p>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={generatePDF}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-              >
-                <BsDownload className="me-2" />
-                Download PDF
-              </button>
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={downloadCSV}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-                disabled={!submittedData || submittedData.length === 0}
-              >
-                <FaFileCsv className="me-2" />
-                Download CSV
-              </button>
-            </div>
-            <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
-              <button
-                onClick={downloadExcel}
-                className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
-                disabled={!submittedData || submittedData.length === 0}
-              >
-                <FaFileExcel className="me-2" />
-                Export Excel
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

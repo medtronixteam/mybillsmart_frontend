@@ -5,6 +5,7 @@ import "./ClientList.css";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ClientList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -341,289 +342,294 @@ const ClientList = () => {
   };
 
   return (
-    <div className="user-management-container">
-      <div className="header-section">
-        <h1>User Management</h1>
-        <Link to="/supervisor/add-client" className="add-user-btn">
-          Add New User
-        </Link>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/supervisor/dashboard"} />
       </div>
+      <div className="user-management-container">
+        <div className="header-section">
+          <h1>User Management</h1>
+          <Link to="/supervisor/add-client" className="add-user-btn">
+            Add New User
+          </Link>
+        </div>
 
-      {/* Filter Section */}
-      <div className="filters-section mb-4 rounded bg-transparent shadow-none">
-        <div className="row g-3 align-items-end w-100 justify-content-center">
-          <div className="col-12 col-md-4 col-lg-3">
-            <label className="form-label m-0">Role</label>
-            <select
-              className="form-select my-0"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="all">All Roles</option>
-              <option value="agent">Agent</option>
-              <option value="client">Client</option>
-            </select>
-          </div>
+        {/* Filter Section */}
+        <div className="filters-section mb-4 rounded bg-transparent shadow-none">
+          <div className="row g-3 align-items-end w-100 justify-content-center">
+            <div className="col-12 col-md-4 col-lg-3">
+              <label className="form-label m-0">Role</label>
+              <select
+                className="form-select my-0"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">All Roles</option>
+                <option value="agent">Agent</option>
+                <option value="client">Client</option>
+              </select>
+            </div>
 
-          <div className="col-12 col-md-4 col-lg-3">
-            <label className="form-label m-0">Status</label>
-            <select
-              className="form-select my-0"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
+            <div className="col-12 col-md-4 col-lg-3">
+              <label className="form-label m-0">Status</label>
+              <select
+                className="form-select my-0"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
 
-          <div className="col-12 col-md-4 col-lg-3">
-            <label className="form-label m-0">Search</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by name, email or phone"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+            <div className="col-12 col-md-4 col-lg-3">
+              <label className="form-label m-0">Search</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by name, email or phone"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
-          <div className="col-12 col-md-4 col-lg-3 d-flex">
-            <button
-              className="btn btn-primary w-100 my-0"
-              onClick={resetFilters}
-            >
-              Reset Filters
-            </button>
+            <div className="col-12 col-md-4 col-lg-3 d-flex">
+              <button
+                className="btn btn-primary w-100 my-0"
+                onClick={resetFilters}
+              >
+                Reset Filters
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="loading-spinner"></div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="no-users-message">
-          <p>No users found matching your criteria.</p>
-        </div>
-      ) : (
-        <div className="users-table-container">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    <span
-                      className={`role-badge ${getRoleBadgeClass(user.role)}`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`status-badge ${
-                        user.status === 1 ? "active" : "inactive"
-                      }`}
-                    >
-                      {getStatusText(user.status)}
-                    </span>
-                  </td>
-                  <td className="actions-cell">
-                    <HiDotsHorizontal
-                      size={30}
-                      onClick={() => toggleDropdown(index)}
-                      className="cursor-pointer"
-                    />
-                    {activeDropdown === index && (
-                      <div
-                        className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                        style={{ marginTop: "40px", marginLeft: "-140px" }}
-                      >
-                        <a
-                          className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                          onClick={() => {
-                            handleEditClick(user);
-                            setActiveDropdown(false);
-                          }}
-                        >
-                          Edit
-                        </a>
-                        {user.status === 1 ? (
-                          <a
-                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => {
-                              handleDisableClick(user.id);
-                              setActiveDropdown(false);
-                            }}
-                          >
-                            Disable
-                          </a>
-                        ) : (
-                          <a
-                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => {
-                              handleEnableClick(user.id);
-                              setActiveDropdown(false);
-                            }}
-                          >
-                            Enable
-                          </a>
-                        )}
-                        <a
-                          className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                          onClick={() => {
-                            handleDeleteClick(user.id);
-                            setActiveDropdown(false);
-                          }}
-                        >
-                          Delete
-                        </a>
-                      </div>
-                    )}
-                  </td>
+        {loading ? (
+          <div className="loading-spinner"></div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="no-users-message">
+            <p>No users found matching your criteria.</p>
+          </div>
+        ) : (
+          <div className="users-table-container">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {filteredUsers.map((user, index) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <span
+                        className={`role-badge ${getRoleBadgeClass(user.role)}`}
+                      >
+                        {user.role}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          user.status === 1 ? "active" : "inactive"
+                        }`}
+                      >
+                        {getStatusText(user.status)}
+                      </span>
+                    </td>
+                    <td className="actions-cell">
+                      <HiDotsHorizontal
+                        size={30}
+                        onClick={() => toggleDropdown(index)}
+                        className="cursor-pointer"
+                      />
+                      {activeDropdown === index && (
+                        <div
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                          style={{ marginTop: "40px", marginLeft: "-140px" }}
+                        >
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => {
+                              handleEditClick(user);
+                              setActiveDropdown(false);
+                            }}
+                          >
+                            Edit
+                          </a>
+                          {user.status === 1 ? (
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => {
+                                handleDisableClick(user.id);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Disable
+                            </a>
+                          ) : (
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => {
+                                handleEnableClick(user.id);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Enable
+                            </a>
+                          )}
+                          <a
+                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            onClick={() => {
+                              handleDeleteClick(user.id);
+                              setActiveDropdown(false);
+                            }}
+                          >
+                            Delete
+                          </a>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="edit-user-modal">
-            <div className="modal-header">
-              <h2>Edit User</h2>
-              <button
-                className="close-btn"
-                onClick={() => setIsModalOpen(false)}
-              >
-                &times;
-              </button>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="form-group">
-                  <label>Name*</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={editData.name}
-                    onChange={handleEditChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email*</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={editData.email}
-                    onChange={handleEditChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Phone*</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={editData.phone}
-                    onChange={handleEditChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Address</label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={editData.address}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div className="form-row">
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="edit-user-modal">
+              <div className="modal-header">
+                <h2>Edit User</h2>
+                <button
+                  className="close-btn"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="modal-body">
+                <form>
                   <div className="form-group">
-                    <label>Country</label>
+                    <label>Name*</label>
                     <input
                       type="text"
-                      name="country"
-                      value={editData.country}
+                      name="name"
+                      value={editData.name}
                       onChange={handleEditChange}
+                      required
                     />
                   </div>
                   <div className="form-group">
-                    <label>City</label>
+                    <label>Email*</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={editData.email}
+                      onChange={handleEditChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone*</label>
                     <input
                       type="text"
-                      name="city"
-                      value={editData.city}
+                      name="phone"
+                      value={editData.phone}
+                      onChange={handleEditChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={editData.address}
                       onChange={handleEditChange}
                     />
                   </div>
-                </div>
-                <div className="form-group">
-                  <label>Postal Code</label>
-                  <input
-                    type="text"
-                    name="postalCode"
-                    value={editData.postalCode}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Role</label>
-                    <select
-                      name="role"
-                      value={editData.role}
-                      onChange={handleEditChange}
-                    >
-                      <option value="client">Client</option>
-                      <option value="agent">Agent</option>
-                      <option value="supervisor">Supervisor</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Country</label>
+                      <input
+                        type="text"
+                        name="country"
+                        value={editData.country}
+                        onChange={handleEditChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={editData.city}
+                        onChange={handleEditChange}
+                      />
+                    </div>
                   </div>
                   <div className="form-group">
-                    <label>Status</label>
-                    <select
-                      name="status"
-                      value={editData.status}
+                    <label>Postal Code</label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={editData.postalCode}
                       onChange={handleEditChange}
-                    >
-                      <option value={1}>Active</option>
-                      <option value={0}>Inactive</option>
-                    </select>
+                    />
                   </div>
-                </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                className="cancel-btn"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Cancel
-              </button>
-              <button className="save-btn" onClick={handleSaveClick}>
-                Save Changes
-              </button>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Role</label>
+                      <select
+                        name="role"
+                        value={editData.role}
+                        onChange={handleEditChange}
+                      >
+                        <option value="client">Client</option>
+                        <option value="agent">Agent</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Status</label>
+                      <select
+                        name="status"
+                        value={editData.status}
+                        onChange={handleEditChange}
+                      >
+                        <option value={1}>Active</option>
+                        <option value={0}>Inactive</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="cancel-btn"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button className="save-btn" onClick={handleSaveClick}>
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 

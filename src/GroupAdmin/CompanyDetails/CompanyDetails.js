@@ -4,6 +4,7 @@ import "./CompanyDetails.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const CompanyDetails = () => {
   const [formData, setFormData] = useState({
@@ -162,119 +163,124 @@ const CompanyDetails = () => {
   }
 
   return (
-    <div className="company-details-container  p-5 mt-5">
-      <h2>Company Details</h2>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="company-details-container  p-5 mt-5">
+        <h2>Company Details</h2>
 
-      <form onSubmit={handleSubmit} className="company-details-form">
-        <div className="row">
-          <div className="col-md-6 form-group">
-            <label>Company Name</label>
-            <input
-              type="text"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              required
-            />
+        <form onSubmit={handleSubmit} className="company-details-form">
+          <div className="row">
+            <div className="col-md-6 form-group">
+              <label>Company Name</label>
+              <input
+                type="text"
+                name="company_name"
+                value={formData.company_name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>Company Address</label>
+              <input
+                type="text"
+                name="company_address"
+                value={formData.company_address}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="company_email"
+                value={formData.company_email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>City</label>
+              <input
+                type="text"
+                name="company_city"
+                value={formData.company_city}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>State</label>
+              <input
+                type="text"
+                name="company_state"
+                value={formData.company_state}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>ZIP Code</label>
+              <input
+                type="text"
+                name="company_zip"
+                value={formData.company_zip}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>Country</label>
+              <input
+                type="text"
+                name="company_country"
+                value={formData.company_country}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>Phone Number</label>
+              <input
+                type="tel"
+                name="company_phone"
+                value={formData.company_phone}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="col-md-6 form-group">
+              <label>Company Logo</label>
+              <input
+                type="file"
+                name="company_logo"
+                onChange={handleFileChange}
+                accept="image/*"
+              />
+            </div>
           </div>
 
-          <div className="col-md-6 form-group">
-            <label>Company Address</label>
-            <input
-              type="text"
-              name="company_address"
-              value={formData.company_address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="company_email"
-              value={formData.company_email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>City</label>
-            <input
-              type="text"
-              name="company_city"
-              value={formData.company_city}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>State</label>
-            <input
-              type="text"
-              name="company_state"
-              value={formData.company_state}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>ZIP Code</label>
-            <input
-              type="text"
-              name="company_zip"
-              value={formData.company_zip}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>Country</label>
-            <input
-              type="text"
-              name="company_country"
-              value={formData.company_country}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              name="company_phone"
-              value={formData.company_phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 form-group">
-            <label>Company Logo</label>
-            <input
-              type="file"
-              name="company_logo"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="company-details-submit"
-        >
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="company-details-submit"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 

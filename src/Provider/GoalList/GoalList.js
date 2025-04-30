@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ProviderGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -148,6 +149,7 @@ const ProviderGoalList = () => {
 
   return (
     <div className="goal-list-container">
+      <Breadcrumbs homePath={"/supervisor/dashboard"} />
       <h2>Goals List</h2>
 
       {editingGoal ? (

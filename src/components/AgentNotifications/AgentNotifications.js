@@ -3,6 +3,7 @@ import axios from "axios";
 import "./AgentNotifications.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AgentNotifications = () => {
   const [notificationDetail, setNotificationDetail] = useState(false);
@@ -58,6 +59,7 @@ const AgentNotifications = () => {
 
   return (
     <div className="container mt-4">
+      <Breadcrumbs homePath={"/agent/dashboard"} />
       <h2 className="text-center">Notifications</h2>
 
       {loading ? (
@@ -141,7 +143,7 @@ const AgentNotifications = () => {
                       )}
                     </div>
                     <button
-                      className="btn btn-sm btn-outline-primary"
+                      className="btn btn-sm btn-outline-primary d-none"
                       onClick={() => fetchNotificationDetails(notification.id)}
                     >
                       View

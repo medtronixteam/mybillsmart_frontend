@@ -5,6 +5,7 @@ import axios from "axios";
 import "./AdminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AdminContractForm = () => {
   const location = useLocation();
@@ -217,77 +218,82 @@ const AdminContractForm = () => {
   };
 
   return (
-    <div className="add-Contract-container">
-      <h2 className="add-Contract-heading">Client Agreement</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Please Enter Contract Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="add-Contract-container">
+        <h2 className="add-Contract-heading">Client Agreement</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Please Enter Contract Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
 
-        <select
-          name="selectedClient"
-          value={formData.selectedClient}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select a Client</option>
-          {clients.map((client) => (
-            <option key={client.id} value={client.name}>
-              {client.name}
-            </option>
-          ))}
-        </select>
+          <select
+            name="selectedClient"
+            value={formData.selectedClient}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select a Client</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.name}>
+                {client.name}
+              </option>
+            ))}
+          </select>
 
-        {/* New Agreement Selection Field */}
-        <select
-          name="selectedAgreement"
-          value={formData.selectedAgreement}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select an Agreement</option>
-          {agreements.map((agreement) => (
-            <option key={agreement.id} value={agreement.title}>
-              {agreement.title}
-            </option>
-          ))}
-        </select>
+          {/* New Agreement Selection Field */}
+          <select
+            name="selectedAgreement"
+            value={formData.selectedAgreement}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select an Agreement</option>
+            {agreements.map((agreement) => (
+              <option key={agreement.id} value={agreement.title}>
+                {agreement.title}
+              </option>
+            ))}
+          </select>
 
-        <input
-          type="text"
-          name="contracted_provider"
-          placeholder="Please Enter Contracted Provider"
-          value={formData.contracted_provider}
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="text"
+            name="contracted_provider"
+            placeholder="Please Enter Contracted Provider"
+            value={formData.contracted_provider}
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="number"
-          name="contracted_rate"
-          placeholder="Please Enter Contracted Rate"
-          value={formData.contracted_rate}
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="number"
+            name="contracted_rate"
+            placeholder="Please Enter Contracted Rate"
+            value={formData.contracted_rate}
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="date"
-          name="closure_date"
-          placeholder="Please Enter Closure Date"
-          value={formData.closure_date}
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="date"
+            name="closure_date"
+            placeholder="Please Enter Closure Date"
+            value={formData.closure_date}
+            onChange={handleChange}
+            required
+          />
 
-        <button type="submit">Add Contract</button>
-      </form>
-    </div>
+          <button type="submit">Add Contract</button>
+        </form>
+      </div>
+    </>
   );
 };
 

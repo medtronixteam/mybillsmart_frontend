@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ProviderNotifications.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ProviderNotifications = () => {
   const [notificationDetail, setNotificationDetail] = useState(false);
@@ -59,6 +59,7 @@ const ProviderNotifications = () => {
 
   return (
     <div className="container mt-4">
+      <Breadcrumbs homePath={"/supervisor/dashboard"} />
       <h2 className="text-center">Notifications</h2>
 
       {loading ? (
@@ -142,7 +143,7 @@ const ProviderNotifications = () => {
                       )}
                     </div>
                     <button
-                      className="btn btn-sm btn-outline-primary"
+                      className="btn btn-sm btn-outline-primary d-none"
                       onClick={() => fetchNotificationDetails(notification.id)}
                     >
                       View

@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import "./CheckoutForm.css";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const CheckoutForm = () => {
   const stripe = useStripe();
@@ -44,28 +45,28 @@ const CheckoutForm = () => {
 
       if (error) {
         Swal.fire({
-          icon: 'error',
-          title: 'Payment Failed',
+          icon: "error",
+          title: "Payment Failed",
           text: error.message,
-          confirmButtonColor: '#3085d6',
+          confirmButtonColor: "#3085d6",
         });
       } else if (paymentIntent.status === "succeeded") {
         setPaymentSuccess(true);
         Swal.fire({
-          icon: 'success',
-          title: 'Payment Successful!',
-          text: 'Your payment has been processed successfully.',
-          confirmButtonColor: '#3085d6',
+          icon: "success",
+          title: "Payment Successful!",
+          text: "Your payment has been processed successfully.",
+          confirmButtonColor: "#3085d6",
         });
         // await savePaymentRecord(paymentIntent, planDetails);
       }
     } catch (err) {
       console.error("Payment error:", err);
       Swal.fire({
-        icon: 'error',
-        title: 'Payment Processing Failed',
-        text: 'An error occurred while processing your payment.',
-        confirmButtonColor: '#3085d6',
+        icon: "error",
+        title: "Payment Processing Failed",
+        text: "An error occurred while processing your payment.",
+        confirmButtonColor: "#3085d6",
       });
     } finally {
       setIsProcessing(false);
@@ -147,30 +148,35 @@ const CheckoutForm = () => {
   }
 
   return (
-    <div className="payment-form-container">
-      <form onSubmit={handleSubmit} className="payment-form">
-        <h3>Payment Details</h3>
-        {planDetails && (
-          <div className="plan-summary">
-            <h4>{planDetails.name}</h4>
-            <p>
-              ${displayAmount} {displayCurrency} per{" "}
-              {planDetails.period || "month"}
-            </p>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="payment-form-container">
+        <form onSubmit={handleSubmit} className="payment-form">
+          <h3>Payment Details</h3>
+          {planDetails && (
+            <div className="plan-summary">
+              <h4>{planDetails.name}</h4>
+              <p>
+                ${displayAmount} {displayCurrency} per{" "}
+                {planDetails.period || "month"}
+              </p>
+            </div>
+          )}
+          <div className="card-element-container">
+            <CardElement options={cardStyle} />
           </div>
-        )}
-        <div className="card-element-container">
-          <CardElement options={cardStyle} />
-        </div>
-        <button
-          type="submit"
-          disabled={!stripe || isProcessing}
-          className="payment-button"
-        >
-          {isProcessing ? "Processing..." : `Pay $${displayAmount}`}
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            disabled={!stripe || isProcessing}
+            className="payment-button"
+          >
+            {isProcessing ? "Processing..." : `Pay $${displayAmount}`}
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 

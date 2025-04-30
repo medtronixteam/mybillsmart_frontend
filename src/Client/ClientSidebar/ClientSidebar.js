@@ -190,7 +190,7 @@ const ClientSidebar = () => {
             }}
           />
         </div>
-        <Link to="/client/subscription">
+        <Link to="/client/subscription" className="d-none">
           <button className="btn mt-5 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
@@ -198,7 +198,7 @@ const ClientSidebar = () => {
         </Link>
         {/* LogOut Button - On Click, it triggers handleLogout function */}
         <button
-          className="btn mt-1 w-100"
+          className="btn mt-5 w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"

@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import config from "../../config";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ManageGoal = () => {
   const [formData, setFormData] = useState({
@@ -44,9 +45,9 @@ const ManageGoal = () => {
       setLoading(false);
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch users. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch users. Please try again.",
       });
       setLoading(false);
       console.error("Error fetching users:", err);
@@ -86,18 +87,18 @@ const ManageGoal = () => {
       formData.user_ids.length === 0
     ) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Please fill in all fields',
+        icon: "error",
+        title: "Error",
+        text: "Please fill in all fields",
       });
       return;
     }
 
     if (new Date(formData.end_date) < new Date(formData.start_date)) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'End date must be after start date',
+        icon: "error",
+        title: "Error",
+        text: "End date must be after start date",
       });
       return;
     }
@@ -116,11 +117,11 @@ const ManageGoal = () => {
       );
 
       Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Goal created successfully!',
+        icon: "success",
+        title: "Success!",
+        text: "Goal created successfully!",
       });
-      
+
       setFormData({
         task_name: "",
         start_date: "",
@@ -131,121 +132,126 @@ const ManageGoal = () => {
       });
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to create goal. Please try again.',
+        icon: "error",
+        title: "Error",
+        text: "Failed to create goal. Please try again.",
       });
       console.error("Error creating goal:", err);
     } finally {
       setLoading(false);
     }
-  };    
+  };
 
   return (
-    <div className="manage-goal-container p-md-5 p-4 mt-5">
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
-        <h2 className="mb-0">Create New Goal</h2>
-        <Link to="/group_admin/goal-list">
-          <button className="btn bg-white goal-btn px-3 py-2">
-          Goal List
-          </button>
-        </Link>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="task_name">Task Name</label>
-          <input
-            type="text"
-            id="task_name"
-            placeholder="Enter task name"
-            name="task_name"
-            value={formData.task_name}
-            onChange={handleInputChange}
-            className="form-control"
-            required
-          />
+      <div className="manage-goal-container p-md-5 p-4 mt-5">
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
+          <h2 className="mb-0">Create New Goal</h2>
+          <Link to="/group_admin/goal-list">
+            <button className="btn bg-white goal-btn px-3 py-2">
+              Goal List
+            </button>
+          </Link>
         </div>
 
-        <div className="form-row">
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="start_date">Start Date</label>
+            <label htmlFor="task_name">Task Name</label>
             <input
-              type="date"
-              id="start_date"
-              name="start_date"
-              value={formData.start_date}
+              type="text"
+              id="task_name"
+              placeholder="Enter task name"
+              name="task_name"
+              value={formData.task_name}
               onChange={handleInputChange}
               className="form-control"
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="end_date">End Date</label>
-            <input
-              type="date"
-              id="end_date"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleInputChange}
-              className="form-control"
-              required
-              min={formData.start_date}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="start_date">Start Date</label>
+              <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="end_date">End Date</label>
+              <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                min={formData.start_date}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="points">Points</label>
+              <input
+                type="number"
+                id="points"
+                placeholder="Enter points"
+                name="points"
+                value={formData.points}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                min="1"
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="points">Points</label>
-            <input
-              type="number"
-              id="points"
-              placeholder="Enter points"
-              name="points"
-              value={formData.points}
-              onChange={handleInputChange}
-              className="form-control"
-              required
-              min="1"
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Assign to Users</label>
-          <div className="users-checkbox-container">
-            {loading ? (
-              <div>Loading users...</div>
-            ) : (
-              users.map((user) => (
-                <div key={user.id} className="user-checkbox-item">
-                  <input
-                    type="checkbox"
-                    id={`user-${user.id}`}
-                    checked={formData.user_ids.includes(user.id)}
-                    onChange={() => handleUserCheckbox(user.id)}
-                  />
-                  <label htmlFor={`user-${user.id}`}>{user.name}</label>
-                </div>
-              ))
+            <label>Assign to Users</label>
+            <div className="users-checkbox-container">
+              {loading ? (
+                <div>Loading users...</div>
+              ) : (
+                users.map((user) => (
+                  <div key={user.id} className="user-checkbox-item">
+                    <input
+                      type="checkbox"
+                      id={`user-${user.id}`}
+                      checked={formData.user_ids.includes(user.id)}
+                      onChange={() => handleUserCheckbox(user.id)}
+                    />
+                    <label htmlFor={`user-${user.id}`}>{user.name}</label>
+                  </div>
+                ))
+              )}
+            </div>
+            {formData.user_ids.length === 0 && (
+              <small className="text-danger d-none">
+                Please select at least one user
+              </small>
             )}
           </div>
-          {formData.user_ids.length === 0 && (
-            <small className="text-danger d-none">
-              Please select at least one user
-            </small>
-          )}
-        </div>
 
-        <button
-          type="submit"
-          className="btn bg-white  goal-btn p-3 w-50 mx-auto rounded-pill d-block"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Create Goal"}
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            className="btn bg-white  goal-btn p-3 w-50 mx-auto rounded-pill d-block"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Create Goal"}
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 

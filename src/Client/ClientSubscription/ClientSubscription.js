@@ -1,5 +1,6 @@
 import React from 'react';
 import './ClientSubscription.css';
+import Breadcrumbs from '../../Breadcrumbs';
 
 const ClientSubscription = () => {
   const plans = [
@@ -46,14 +47,15 @@ const ClientSubscription = () => {
 
   return (
     <div className="subscription-container">
+      <Breadcrumbs homePath={"/client/dashboard"} />
       <h2 className="section-title">Choose Your Plan</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
-      
+
       <div className="cards-container">
         {plans.map((plan, index) => (
-          <div 
-            key={index} 
-            className={`subscription-card ${plan.featured ? 'featured' : ''}`}
+          <div
+            key={index}
+            className={`subscription-card ${plan.featured ? "featured" : ""}`}
           >
             {plan.featured && <div className="popular-badge">Most Popular</div>}
             <h3 className="plan-name">{plan.name}</h3>
@@ -69,9 +71,7 @@ const ClientSubscription = () => {
                 </li>
               ))}
             </ul>
-            <button className="subscribe-btn">
-              Get Started
-            </button>
+            <button className="subscribe-btn">Get Started</button>
           </div>
         ))}
       </div>

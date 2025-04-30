@@ -18,6 +18,8 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import Breadcrumbs from "../Breadcrumbs";
+
 
 const ProviderDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -91,6 +93,9 @@ const ProviderDashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
+        <div className="col-12 mb-3">
+          <Breadcrumbs homePath={"/supervisor/dashboard"} />
+        </div>
         {/* Total Users Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -135,8 +140,6 @@ const ProviderDashboard = () => {
           </div>
         </div>
 
-       
-
         {/* Referral Points Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -157,8 +160,6 @@ const ProviderDashboard = () => {
           </div>
         </div>
       </div>
-
-      
 
       {/* Bar Chart Section */}
       <div className="row mt-4">

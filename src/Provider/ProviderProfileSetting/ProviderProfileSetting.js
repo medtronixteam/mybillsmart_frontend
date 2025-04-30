@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "../../config";
-
+import Breadcrumbs from "../../Breadcrumbs";
 const ProviderProfileSetting = () => {
   const [profileData, setProfileData] = useState({
     name: "",
@@ -33,8 +33,7 @@ const ProviderProfileSetting = () => {
 
   const { token, is2FAEnabled, update2FAStatus } = useAuth();
 
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -146,13 +145,15 @@ const ProviderProfileSetting = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.ok) {
-        toast.success("OTP sent to your email. Please check and enter the code.");
-        setTwoFA((prev) => ({ 
-          ...prev, 
+        toast.success(
+          "OTP sent to your email. Please check and enter the code."
+        );
+        setTwoFA((prev) => ({
+          ...prev,
           loading: false,
-          showOTPInput: true
+          showOTPInput: true,
         }));
       } else {
         throw new Error("Failed to send OTP");
@@ -250,6 +251,7 @@ const ProviderProfileSetting = () => {
         draggable
         pauseOnHover
       />
+      <Breadcrumbs homePath={"/supervisor/dashboard"} />
 
       <div className="profile-form row">
         {/* Profile Info Card */}

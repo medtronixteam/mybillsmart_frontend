@@ -3,6 +3,7 @@ import "./AdminContractList.css";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AdminContractList = () => {
   const [contracts, setContracts] = useState([]); // Default to an empty array
@@ -51,7 +52,8 @@ const AdminContractList = () => {
   }
 
   return (
-    <div className="contract-list-container">
+    <div className="contract-list-container mx-0">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h1>Agreement List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (

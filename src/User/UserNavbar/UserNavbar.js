@@ -5,6 +5,7 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import config from "../../config";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const UserNavbar = ({ toggleSidebar }) => {
   const [notifications, setNotifications] = useState([]);
@@ -66,7 +67,7 @@ const UserNavbar = ({ toggleSidebar }) => {
 
   return (
     <nav
-      className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
+      className="navbar navbar-main navbar-expand-lg px-0 m-3 shadow-none border-radius-xl"
       id="navbarBlur"
       navbar-scroll="true"
     >
@@ -115,6 +116,7 @@ const UserNavbar = ({ toggleSidebar }) => {
             <span className=" text-sm font-weight-bold text-dark">
               {name || "User"}
             </span>
+            <RiArrowDropDownLine size={30} />
             {/* </Link> */}
             {show && (
               <div

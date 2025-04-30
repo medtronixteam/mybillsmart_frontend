@@ -3,6 +3,7 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ProviderMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -273,6 +274,7 @@ const ProviderMessageList = () => {
 
   return (
     <div className="message-list-container">
+      <Breadcrumbs homePath={"/supervisor/dashboard"} />
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Section */}
@@ -313,7 +315,10 @@ const ProviderMessageList = () => {
           </div>
 
           <div className="col-12 col-md-6 col-lg-3">
-            <button className="btn btn-primary w-100 my-0" onClick={resetFilters}>
+            <button
+              className="btn btn-primary w-100 my-0"
+              onClick={resetFilters}
+            >
               Reset Filters
             </button>
           </div>
