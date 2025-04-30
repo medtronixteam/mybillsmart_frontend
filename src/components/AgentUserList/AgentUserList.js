@@ -5,6 +5,7 @@ import "./AgentUserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AgentUserList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -563,6 +564,7 @@ const AgentUserList = () => {
         </div>
       ) : (
         <>
+          <Breadcrumbs homePath={"/agent/dashboard"} />
           <h1>Client List</h1>
 
           {/* Filter Controls */}
@@ -571,7 +573,10 @@ const AgentUserList = () => {
               {/* Status Filter */}
               <div className="col-12 col-md-4">
                 <div className="form-group mb-0">
-                  <label htmlFor="statusFilter" className="form-label mx-0 mb-0">
+                  <label
+                    htmlFor="statusFilter"
+                    className="form-label mx-0 mb-0"
+                  >
                     Status
                   </label>
                   <select

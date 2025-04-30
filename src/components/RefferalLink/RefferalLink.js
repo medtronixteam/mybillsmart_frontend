@@ -4,6 +4,7 @@ import "./RefferalLink.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import Swal from 'sweetalert2';
+import Breadcrumbs from "../../Breadcrumbs";
 
 const RefferalLink = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -81,69 +82,74 @@ const RefferalLink = () => {
   };
 
   return (
-    <div className="submission-container">
-      {!isSubmitted ? (
-        <div className="submission-card">
-          <div className="card-header">
-            <FaEnvelope className="email-icon" />
-            <h2>Get Referral Link</h2>
-            <p>
-              Click the button below to generate your unique referral link.
-              Share this link with others to invite them to join.
-            </p>
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className="submit-btn text-white"
-          >
-            {isLoading ? (
-              <span className="spinner"></span>
-            ) : (
-              <>
-                <FaPaperPlane className="send-icon" />
-                Generate Link
-              </>
-            )}
-          </button>
-        </div>
-      ) : (
-        <div className="success-card">
-          <div className="success-content">
-            <FaCheckCircle className="success-icon" />
-            <h2>Link Generated Successfully!</h2>
-            <p>Your unique referral link is ready to share:</p>
-
-            <div className="generated-link-container">
-              <div className="link-box">
-                <a
-                  href={generatedLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="generated-link"
-                >
-                  {generatedLink}
-                </a>
-                <button onClick={copyToClipboard} className="copy-btn">
-                  <FaCopy className="copy-icon" />
-                </button>
-              </div>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/agent/dashboard"} />
+      </div>
+      <div className="submission-container">
+        {!isSubmitted ? (
+          <div className="submission-card">
+            <div className="card-header">
+              <FaEnvelope className="email-icon" />
+              <h2>Get Referral Link</h2>
+              <p>
+                Click the button below to generate your unique referral link.
+                Share this link with others to invite them to join.
+              </p>
             </div>
 
             <button
-              onClick={() => {
-                setIsSubmitted(false);
-                setGeneratedLink("");
-              }}
-              className="back-btn mt-3"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="submit-btn text-white"
             >
-              Generate New Link
+              {isLoading ? (
+                <span className="spinner"></span>
+              ) : (
+                <>
+                  <FaPaperPlane className="send-icon" />
+                  Generate Link
+                </>
+              )}
             </button>
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="success-card">
+            <div className="success-content">
+              <FaCheckCircle className="success-icon" />
+              <h2>Link Generated Successfully!</h2>
+              <p>Your unique referral link is ready to share:</p>
+
+              <div className="generated-link-container">
+                <div className="link-box">
+                  <a
+                    href={generatedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="generated-link"
+                  >
+                    {generatedLink}
+                  </a>
+                  <button onClick={copyToClipboard} className="copy-btn">
+                    <FaCopy className="copy-icon" />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setGeneratedLink("");
+                }}
+                className="back-btn mt-3"
+              >
+                Generate New Link
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

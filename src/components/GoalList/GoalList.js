@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import config from "../../config";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AgentGoalList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -270,6 +271,7 @@ const AgentGoalList = () => {
 
   return (
     <div className="goal-list-container">
+      <Breadcrumbs homePath={"/agent/dashboard"} />
       <h2>Goals List</h2>
 
       {/* Filter Section */}

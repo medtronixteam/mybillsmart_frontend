@@ -16,8 +16,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
+import Breadcrumbs from "../Breadcrumbs";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -58,19 +59,22 @@ const Dashboard = () => {
   const chartData = [
     {
       name: "Contracts",
-      "Pending": dashboardData?.pending_contracts || 0,
-      "Completed": dashboardData?.completed_contracts || 0,
-      "Rejected": dashboardData?.rejected_contracts || 0,
+      Pending: dashboardData?.pending_contracts || 0,
+      Completed: dashboardData?.completed_contracts || 0,
+      Rejected: dashboardData?.rejected_contracts || 0,
     },
     {
       name: "Invoices",
       "Total Invoices": dashboardData?.total_invoices || 0,
-    }
+    },
   ];
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "80vh" }}
+      >
         <div className="text-center">
           <div
             className="spinner-border"
@@ -93,6 +97,9 @@ const Dashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
+        <div className="col-12 mb-3">
+          <Breadcrumbs homePath={"/agent/dashboard"} />
+        </div>
         {/* Pending Contracts Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">

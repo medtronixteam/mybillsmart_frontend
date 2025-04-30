@@ -5,7 +5,7 @@ const Breadcrumbs = ({ homePath }) => {
   const location = useLocation();
 
   // List of folders/directories you want to ignore in breadcrumb
-  const ignoreList = ["client", "group_admin", "supervisor", "user"];
+  const ignoreList = ["client", "group_admin", "supervisor", "user", "agent"];
 
   // Split path and filter out folders
   const paths = location.pathname

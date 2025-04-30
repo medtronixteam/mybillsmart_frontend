@@ -3,6 +3,7 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AgentMessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
@@ -267,6 +268,7 @@ const AgentMessageList = () => {
 
   return (
     <div className="message-list-container">
+      <Breadcrumbs homePath={"/agent/dashboard"} />
       <h2 className="page-title">Scheduled Campaigns</h2>
 
       {/* Filter Section */}

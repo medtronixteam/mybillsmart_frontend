@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 import "./ProfileSetting.css";
 const ProfileEdit = () => {
   // State for profile data
@@ -266,7 +267,7 @@ const ProfileEdit = () => {
         draggable
         pauseOnHover
       />
-
+      <Breadcrumbs homePath={"/agent/dashboard"} />
       <div className="profile-form row">
         {/* Profile Info Card */}
         <div className="col-xl-6">

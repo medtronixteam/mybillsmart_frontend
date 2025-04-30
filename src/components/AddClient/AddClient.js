@@ -5,7 +5,7 @@ import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { Link } from "react-router-dom";
-
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AddClients = () => {
   const [formData, setFormData] = useState({
@@ -122,75 +122,80 @@ const AddClients = () => {
   };
 
   return (
-    <div className="add-user-container">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="mb-0">Add Client</h1>
-        <Link to="/agent/user-list">
-          <button className="btn btn-primary w-100 fs-6">Client List</button>
-        </Link>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/agent/dashboard"} />
       </div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="country"
-          placeholder="Country"
-          value={formData.country}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={formData.city}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="postalCode"
-          placeholder="Postal Code"
-          value={formData.postalCode}
-          onChange={handleChange}
-          required
-        />
-      </form>
-      <button type="submit" disabled={isSubmitting} onClick={handleSubmit}>
-        {isSubmitting ? "Adding Client..." : "Add Client"}
-      </button>
-    </div>
+      <div className="add-user-container">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h1 className="mb-0">Add Client</h1>
+          <Link to="/agent/user-list">
+            <button className="btn btn-primary w-100 fs-6">Client List</button>
+          </Link>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="country"
+            placeholder="Country"
+            value={formData.country}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            value={formData.city}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="number"
+            name="postalCode"
+            placeholder="Postal Code"
+            value={formData.postalCode}
+            onChange={handleChange}
+            required
+          />
+        </form>
+        <button type="submit" disabled={isSubmitting} onClick={handleSubmit}>
+          {isSubmitting ? "Adding Client..." : "Add Client"}
+        </button>
+      </div>
+    </>
   );
 };
 

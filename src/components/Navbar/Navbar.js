@@ -1,15 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
+import config from "../../config";
 
 const Navbar = ({ toggleSidebar }) => {
-  const { name } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+
+  const { name, token } = useAuth();
+
   const [show, setShow] = useState(false);
   const toggleDropdown = () => {
     setShow(!show);
   };
+  const api = axios.create({
+    baseURL: `${config.BASE_URL}`,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const fetchNotifications = async () => {
+    try {
+      // setLoading(true);
+      const response = await api.get("/api/notifications");
+      // Access the notifications array from response data
+      setNotifications(response.data.notifications || []);
+      // setError(null);
+    } catch (err) {
+      // setError("Failed to fetch notifications");
+      console.error("Error fetching notifications:", err);
+      setNotifications([]);
+    } finally {
+      // setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   // Function to get user initials
   const getInitials = (name) => {
@@ -24,7 +55,7 @@ const Navbar = ({ toggleSidebar }) => {
 
   return (
     <nav
-      className="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
+      className="navbar navbar-main navbar-expand-lg px-0 m-3 shadow-none border-radius-xl"
       id="navbarBlur"
       navbar-scroll="true"
     >
@@ -33,13 +64,21 @@ const Navbar = ({ toggleSidebar }) => {
           Sale Agent Dashboard
         </h6>
 
-        <div className="d-flex align-items-center">
-          <Link to="/agent/notifications">
+        <div className="d-flex align-items-center gap-2">
+          <Link to="/agent/notifications" className="position-relative">
             <IoIosNotificationsOutline
               size={30}
               color="#344767"
-              className="me-2"
+              className="me-1"
             />
+            <span
+              className="badge bg-danger rounded-pill px-2 py-1 position-absolute d-block"
+              width="20"
+              height="20"
+              style={{ top: "-5px", right: "0" }}
+            >
+              {notifications.length > 0 ? notifications.length : 0}
+            </span>
           </Link>
           {/* <Link
             to="/agent/profile-edit"

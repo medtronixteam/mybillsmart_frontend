@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./ContractList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const ContractList = () => {
   const [contracts, setContracts] = useState([]);
@@ -121,7 +122,8 @@ const ContractList = () => {
 
   // Original contracts list view
   return (
-    <div className="contract-list-container">
+    <div className="contract-list-container mx-0">
+      <Breadcrumbs homePath={"/agent/dashboard"} />
       <h1>Agreement List</h1>
       <div className="table-responsive">
         {contracts.length === 0 ? (
@@ -132,7 +134,6 @@ const ContractList = () => {
           <table className="contract-table">
             <thead>
               <tr>
-           
                 <th className="contract-table-header">Agreemented Provider</th>
                 <th className="contract-table-header">Agreemented Rate</th>
                 <th className="contract-table-header">Closure Date</th>
