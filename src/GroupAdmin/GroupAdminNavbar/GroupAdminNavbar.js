@@ -5,6 +5,7 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import config from "../../config";
+import { RiArrowDropDownLine } from "react-icons/ri";
 const GroupAdminNavbar = ({ toggleSidebar }) => {
   const [show, setShow] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -100,6 +101,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
             <span className=" text-sm font-weight-bold text-dark">
               {name || "User"}
             </span>
+            <RiArrowDropDownLine size={30} />
             {/* </Link> */}
             {show && (
               <div

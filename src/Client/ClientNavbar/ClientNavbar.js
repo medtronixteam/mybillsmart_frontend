@@ -5,6 +5,7 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import axios from "axios";
+import { RiArrowDropDownLine } from "react-icons/ri";
 
 const ClientNavbar = ({ toggleSidebar }) => {
   const [show, setShow] = useState(false);
@@ -104,6 +105,7 @@ const ClientNavbar = ({ toggleSidebar }) => {
             <span className=" text-sm font-weight-bold text-dark">
               {name || "User"}
             </span>
+            <RiArrowDropDownLine size={30} />
             {/* </Link> */}
             {show && (
               <div
