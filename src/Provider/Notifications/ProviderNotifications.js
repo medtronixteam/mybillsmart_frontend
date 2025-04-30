@@ -143,7 +143,7 @@ const ProviderNotifications = () => {
                       )}
                     </div>
                     <button
-                      className="btn btn-sm btn-outline-primary"
+                      className="btn btn-sm btn-outline-primary d-none"
                       onClick={() => fetchNotificationDetails(notification.id)}
                     >
                       View
