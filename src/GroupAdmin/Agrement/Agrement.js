@@ -4,6 +4,8 @@ import axios from 'axios';
 import config from '../../config';
 import { useAuth } from '../../contexts/AuthContext';
 import Swal from 'sweetalert2';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const Agrement = () => {
   const [formData, setFormData] = useState({
@@ -13,11 +15,17 @@ const Agrement = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleTitleChange = (e) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      title: e.target.value
+    }));
+  };
+
+  const handleDescriptionChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      description: value
     }));
   };
 
@@ -41,7 +49,7 @@ const Agrement = () => {
         {
           title: formData.title,
           description: formData.description,
-          status: 'private' // Sending status as private
+          status: 'private'
         },
         {
           headers: {
@@ -59,7 +67,7 @@ const Agrement = () => {
           confirmButtonColor: '#3085d6',
           timer: 2000
         });
-        // Reset form after successful submission
+        // Reset form
         setFormData({
           title: '',
           description: ''
@@ -78,6 +86,30 @@ const Agrement = () => {
     }
   };
 
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['clean'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }]
+    ],
+    clipboard: {
+      matchVisual: false,
+    }
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link', 'image',
+    'color', 'background',
+    'align'
+  ];
+
   return (
     <div className="agreement-container">
       <h2>Create New Agreement</h2>
@@ -89,7 +121,7 @@ const Agrement = () => {
             id="title"
             name="title"
             value={formData.title}
-            onChange={handleChange}
+            onChange={handleTitleChange}
             placeholder="Enter agreement title"
             required
           />
@@ -97,19 +129,24 @@ const Agrement = () => {
         
         <div className="form-group">
           <label htmlFor="description">Description*</label>
-          <textarea
-            id="description"
-            name="description"
+          <ReactQuill
+            theme="snow"
             value={formData.description}
-            onChange={handleChange}
-            placeholder="Enter agreement description"
-            rows="5"
-            required
+            onChange={handleDescriptionChange}
+            modules={modules}
+            formats={formats}
+            placeholder="Enter detailed agreement description..."
+            className="quill-editor"
           />
         </div>
 
         <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? 'Submitting...' : 'Create Agreement'}
+          {loading ? (
+            <>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Submitting...
+            </>
+          ) : 'Create Agreement'}
         </button>
       </form>
     </div>

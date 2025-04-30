@@ -79,7 +79,7 @@ const UserUserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${config.BASE_URL}/api/agent/user`, {
+      const response = await fetch(`${config.BASE_URL}/api/member/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -142,7 +142,7 @@ const UserUserList = () => {
   const fetchUserDetails = async (id) => {
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/agent/user/detail/${id}`,
+        `${config.BASE_URL}/api/member/user/detail/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -217,7 +217,7 @@ const UserUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/agent/user/disable/${id}`,
+          `${config.BASE_URL}/api/member/user/disable/${id}`,
           {
             method: "POST",
             headers: {
@@ -264,7 +264,7 @@ const UserUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/agent/user/enable/${id}`,
+          `${config.BASE_URL}/api/member/user/enable/${id}`,
           {
             method: "POST",
             headers: {
@@ -311,7 +311,7 @@ const UserUserList = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `${config.BASE_URL}/api/agent/user/delete/${id}`,
+          `${config.BASE_URL}/api/member/user/delete/${id}`,
           {
             method: "DELETE",
             headers: {
@@ -380,7 +380,7 @@ const UserUserList = () => {
 
     try {
       const response = await fetch(
-        `${config.BASE_URL}/api/agent/user/edit/${editData.id}`,
+        `${config.BASE_URL}/api/member/user/edit/${editData.id}`,
         {
           method: "POST",
           headers: {

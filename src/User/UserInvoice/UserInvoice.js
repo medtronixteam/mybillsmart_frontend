@@ -220,7 +220,7 @@ const UserInvoice = () => {
       };
 
       const invoiceResponse = await axios.post(
-        `${config.BASE_URL}/api/user/invoices`,
+        `${config.BASE_URL}/api/member/invoices`,
         invoiceData,
         {
           headers: {
@@ -240,7 +240,7 @@ const UserInvoice = () => {
       }));
 
       const offersResponse = await axios.post(
-        `${config.BASE_URL}/api/user/offers`,
+        `${config.BASE_URL}/api/member/offers`,
         offersData,
         {
           headers: {

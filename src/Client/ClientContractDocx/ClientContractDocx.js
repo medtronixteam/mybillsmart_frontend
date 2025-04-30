@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Swal from "sweetalert2";
 import "./ClientContractDocx.css";
 
 const ClientContractDocx = () => {
@@ -28,8 +29,6 @@ const ClientContractDocx = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,25 +46,46 @@ const ClientContractDocx = () => {
     }));
   };
 
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: message,
+      confirmButtonColor: '#3598db',
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  };
+
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      confirmButtonColor: '#3598db',
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    setSuccess(false);
 
     try {
       const formDataObj = new FormData();
       
+      // Append form data
       Object.entries(formData).forEach(([key, value]) => {
         formDataObj.append(key, value);
       });
       
+      // Append files
       Object.entries(files).forEach(([key, file]) => {
         if (file) {
           formDataObj.append(key, file);
         }
       });
       
+      // Append contract ID if exists
       if (contractId) {
         formDataObj.append("contract_id", contractId);
       }
@@ -78,12 +98,16 @@ const ClientContractDocx = () => {
         body: formDataObj
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to submit documents");
+        throw new Error(responseData.message || "Failed to submit documents");
       }
 
-      setSuccess(true);
+      // Show success message
+      showSuccessAlert(responseData.message || 'Documents uploaded successfully!');
+
+      // Reset form
       setFormData({
         name: "",
         phone: "",
@@ -102,7 +126,8 @@ const ClientContractDocx = () => {
       });
       
     } catch (err) {
-      setError(err.message);
+      // Show error message
+      showErrorAlert(err.message);
     } finally {
       setLoading(false);
     }
@@ -110,126 +135,79 @@ const ClientContractDocx = () => {
 
   return (
     <div className="client-contract-docx-container container">
-      <h1>Client Agreement Documents</h1>
+      <h1 className="mb-4">Client Agreement Documents</h1>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && (
-        <div className="alert alert-success">
-          Documents uploaded successfully!
-        </div>
-      )}
-
-      <form className="row" onSubmit={handleSubmit}>
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="name">
-            Name
-          </label>
+      <form className="row g-3" onSubmit={handleSubmit}>
+        <div className="col-md-6">
+          <label htmlFor="name" className="form-label">Full Name</label>
           <input
-            id="name"
-            name="name"
             type="text"
             className="form-control"
-            placeholder="Enter full name"
+            placeholder="Please Enter Full Name"
+            id="name"
+            name="name"
             value={formData.name}
             onChange={handleInputChange}
             required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="phone">
-            Phone
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="phone" className="form-label">Phone Number</label>
           <input
+            type="tel"
+            className="form-control"
+            placeholder="Please Enter Phone Number"
             id="phone"
             name="phone"
-            type="number"
-            className="form-control"
-            placeholder="Enter phone number"
             value={formData.phone}
             onChange={handleInputChange}
             required
           />
         </div>
 
-        <div className="col-12 mb-3">
-          <label className="form-label m-0" htmlFor="address">
-            Address
-          </label>
+        <div className="col-12">
+          <label htmlFor="address" className="form-label">Address</label>
           <input
-            id="address"
-            name="address"
             type="text"
             className="form-control"
-            placeholder="Enter complete address"
+            id="address"
+            placeholder="Please Enter Address"
+            name="address"
             value={formData.address}
             onChange={handleInputChange}
             required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="date_of_birth">
-            Date of Birth
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="date_of_birth" className="form-label">Date of Birth</label>
           <input
-            id="date_of_birth"
-            name="date_of_birth"
             type="date"
             className="form-control"
+            id="date_of_birth"
+            name="date_of_birth"
             value={formData.date_of_birth}
             onChange={handleInputChange}
             required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="expiration_date">
-            Expiration Date
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="expiration_date" className="form-label">Expiration Date</label>
           <input
-            id="expiration_date"
-            name="expiration_date"
             type="date"
             className="form-control"
+            id="expiration_date"
+            name="expiration_date"
             value={formData.expiration_date}
             onChange={handleInputChange}
             required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="cnic_front">
-            ID Card/NIE (Front)
-          </label>
-          <input
-            id="cnic_front"
-            type="file"
-            accept="image/*"
-            className="form-control"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
-
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="cnic_back">
-            ID Card/NIE (Back)
-          </label>
-          <input
-            id="cnic_back"
-            type="file"
-            accept="image/*"
-            className="form-control"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
-
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="differentiation">
-            Individual and Company
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="differentiation" className="form-label">Individual/Company</label>
           <select
             className="form-select"
             id="differentiation"
@@ -243,74 +221,89 @@ const ClientContractDocx = () => {
           </select>
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="bank_receipt">
-            Bank Receipt
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="cnic_front" className="form-label">ID Card Front</label>
           <input
-            id="bank_receipt"
             type="file"
+            className="form-control"
+            id="cnic_front"
             accept="image/*"
-            className="form-control"
             onChange={handleFileChange}
             required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="last_service_invoice">
-            Last Service Invoice
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="cnic_back" className="form-label">ID Card Back</label>
           <input
+            type="file"
+            className="form-control"
+            id="cnic_back"
+            accept="image/*"
+            onChange={handleFileChange}
+            required
+          />
+        </div>
+
+        <div className="col-md-6">
+          <label htmlFor="bank_receipt" className="form-label">Bank Receipt</label>
+          <input
+            type="file"
+            className="form-control"
+            id="bank_receipt"
+            accept="image/*"
+            onChange={handleFileChange}
+            required
+          />
+        </div>
+
+        <div className="col-md-6">
+          <label htmlFor="last_service_invoice" className="form-label">Last Service Invoice</label>
+          <input
+            type="file"
+            className="form-control"
             id="last_service_invoice"
-            type="file"
             accept="image/*,.pdf"
-            className="form-control"
             onChange={handleFileChange}
-            required
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="lease_agreement">
-            Lease Agreement (if applicable)
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="lease_agreement" className="form-label">Lease Agreement (if applicable)</label>
           <input
+            type="file"
+            className="form-control"
             id="lease_agreement"
-            type="file"
             accept=".pdf,.doc,.docx,image/*"
-            className="form-control"
             onChange={handleFileChange}
           />
         </div>
 
-        <div className="col-lg-6 mb-3">
-          <label className="form-label m-0" htmlFor="bank_account_certificate">
-            Bank Account Ownership Certificate
-          </label>
+        <div className="col-md-6">
+          <label htmlFor="bank_account_certificate" className="form-label">Bank Account Certificate</label>
           <input
-            id="bank_account_certificate"
             type="file"
-            accept="image/*,.pdf"
             className="form-control"
+            id="bank_account_certificate"
+            accept="image/*,.pdf"
             onChange={handleFileChange}
             required
           />
         </div>
 
-        <div className="col-12 mt-2 mb-4">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+        <div className="col-12 mt-4">
+          <button 
+            type="submit" 
+            className="btn btn-primary px-4 py-2"
+            disabled={loading}
+          >
             {loading ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                Submitting...
+                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                Processing...
               </>
             ) : (
-              "Submit"
+              'Submit Documents'
             )}
           </button>
         </div>

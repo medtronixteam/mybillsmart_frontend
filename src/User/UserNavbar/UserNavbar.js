@@ -17,7 +17,21 @@ const UserNavbar = ({ toggleSidebar }) => {
       Authorization: `Bearer ${token}`,
     },
   });
-
+  const MarkNotifications = async () => {
+    try {
+      // setLoading(true);
+      const response = await api.get("api/notification/mark/read");
+      // Access the notifications array from response data
+      setNotifications(response.data.notifications || []);
+      // setError(null);
+    } catch (err) {
+      // setError("Failed to fetch notifications");
+      console.error("Error fetching notifications:", err);
+      setNotifications([]);
+    } finally {
+      // setLoading(false);
+    }
+  };
   const fetchNotifications = async () => {
     try {
       // setLoading(true);
@@ -35,6 +49,7 @@ const UserNavbar = ({ toggleSidebar }) => {
   };
   useEffect(() => {
     fetchNotifications();
+    MarkNotifications();
   }, []);
   const getInitials = (name) => {
     if (!name) return "U";

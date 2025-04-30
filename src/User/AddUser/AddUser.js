@@ -86,7 +86,7 @@ const UserAddUser = () => {
       };
 
       const response = await axios.post(
-        `${config.BASE_URL}/api/agent/user`,
+        `${config.BASE_URL}/api/member/user`,
         apiData,
         {
           headers: {

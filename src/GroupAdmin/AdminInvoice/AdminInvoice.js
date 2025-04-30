@@ -4,6 +4,7 @@ import {
   BsDownload,
   BsEnvelope,
   BsWhatsapp,
+  BsExclamationCircle,
 } from "react-icons/bs";
 import "./AdminInvoice.css";
 import axios from "axios";
@@ -36,14 +37,48 @@ const AdminInvoice = () => {
     message: "",
   });
   const [isDragging, setIsDragging] = useState(false);
+  const [planInfo, setPlanInfo] = useState(null);
+  const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
   const navigate = useNavigate();
   const { token, email } = useAuth();
 
+  // Helper function to display API errors
+  const showApiError = (error, defaultMessage = "An error occurred") => {
+    const errorMessage = error.response?.data?.message || 
+                        error.message || 
+                        defaultMessage;
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: errorMessage,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
+
   useEffect(() => {
-    if (showModal) {
-      fetchClients();
-    }
-  }, [showModal]);
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPlanInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+        setPlanInfo(error.response?.data || { 
+          status: "error", 
+          message: "Failed to fetch plan information" 
+        });
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
+
+    fetchPlanInfo();
+  }, [token]);
 
   useEffect(() => {
     const preventDefaults = (e) => {
@@ -87,6 +122,12 @@ const AdminInvoice = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (showModal) {
+      fetchClients();
+    }
+  }, [showModal]);
+
   const fetchGroupId = async () => {
     try {
       const response = await axios.get(`${config.BASE_URL}/api/profile`, {
@@ -97,13 +138,7 @@ const AdminInvoice = () => {
       return response.data.id;
     } catch (error) {
       console.error("Error fetching group ID:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Your Internet connection is unstable. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to fetch profile information");
       throw error;
     }
   };
@@ -142,13 +177,7 @@ const AdminInvoice = () => {
       }
     } catch (error) {
       console.error("Error fetching clients", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to fetch clients. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to fetch clients");
       setClients([]);
     } finally {
       setLoadingClients(false);
@@ -157,6 +186,8 @@ const AdminInvoice = () => {
 
   const handleFiles = useCallback(
     (files) => {
+      if (planInfo?.status === "error") return;
+
       const selectedFile = files[0];
       if (!selectedFile) return;
 
@@ -185,7 +216,7 @@ const AdminInvoice = () => {
 
       uploadFile(selectedFile);
     },
-    [file]
+    [file, planInfo]
   );
 
   const handleFileChange = (e) => {
@@ -226,13 +257,7 @@ const AdminInvoice = () => {
       }
     } catch (error) {
       console.error("Error uploading file", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Your Internet connection is unstable. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to upload file");
       setFile(null);
     } finally {
       setUploading(false);
@@ -316,13 +341,7 @@ const AdminInvoice = () => {
       });
     } catch (error) {
       console.error("Error submitting data", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Your Internet connection is unstable. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to submit form");
     }
   };
 
@@ -440,13 +459,7 @@ const AdminInvoice = () => {
       });
     } catch (error) {
       console.error("Error generating CSV:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Something went wrong downloading the CSV file. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to generate CSV");
     }
   };
 
@@ -482,13 +495,7 @@ const AdminInvoice = () => {
       });
     } catch (error) {
       console.error("Error generating Excel:", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to generate Excel file',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to generate Excel file");
     }
   };
 
@@ -719,18 +726,7 @@ const AdminInvoice = () => {
       }
     } catch (error) {
       console.error("WhatsApp send error:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to send WhatsApp message";
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: errorMessage, 
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error);
     }
   };
 
@@ -778,8 +774,7 @@ const AdminInvoice = () => {
         });
       } else if (modalType === "portal") {
         const response = await axios.post(
-          `${config.BASE_URL}/api/group/send/client/portal
-`,
+          `${config.BASE_URL}/api/group/send/client/portal`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
@@ -801,28 +796,52 @@ const AdminInvoice = () => {
             showConfirmButton: false
           });
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to send to client portal',
-            timer: 3000,
-            showConfirmButton: false
-          });
+          showApiError({ response }, "Failed to send to client portal");
         }
       }
     } catch (error) {
       console.error("Error sending data", error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to send. Please try again.',
-        timer: 3000,
-        showConfirmButton: false
-      });
+      showApiError(error, "Failed to send data");
     }
 
     handleModalClose();
   };
+
+  if (loadingPlanInfo) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (planInfo?.status === "error") {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-8 col-lg-6">
+            <div className="card border-danger">
+              <div className="card-body text-center p-5">
+                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <h2 className="card-title mb-3">Plan Information</h2>
+                <p className="card-text mb-4">
+                  {planInfo.message || "You need to purchase a plan to submit invoices."}
+                </p>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => window.location.href = "/group_admin/subscription"}
+                >
+                  View Plans
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="invoice-container">
