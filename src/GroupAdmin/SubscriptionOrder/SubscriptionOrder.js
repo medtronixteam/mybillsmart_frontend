@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import "./SubscriptionOrder.css";
-import { FaFilePdf } from 'react-icons/fa';
-import Swal from 'sweetalert2';
+import { FaFilePdf } from "react-icons/fa";
+import Swal from "sweetalert2";
 import { HiOutlineDocumentDownload } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const SubscriptionOrder = () => {
-  const [activeTab, setActiveTab] = useState('subscriptions');
+  const [activeTab, setActiveTab] = useState("subscriptions");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [subscriptionData, setSubscriptionData] = useState([]);
@@ -19,12 +20,12 @@ const SubscriptionOrder = () => {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        let endpoint = '';
-        if (activeTab === 'subscriptions') {
+        let endpoint = "";
+        if (activeTab === "subscriptions") {
           endpoint = `${config.BASE_URL}/api/group/subscription/history`;
-        } else if (activeTab === 'orderHistory') {
+        } else if (activeTab === "orderHistory") {
           endpoint = `${config.BASE_URL}/api/group/order/history`;
         }
 
@@ -35,22 +36,22 @@ const SubscriptionOrder = () => {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error("Failed to fetch data");
         }
 
         const result = await response.json();
-        
+
         // Extract data array from response and format it
         const data = result.data || [];
-        const formattedData = data.map(item => {
-          if (activeTab === 'subscriptions') {
+        const formattedData = data.map((item) => {
+          if (activeTab === "subscriptions") {
             return {
               id: item.id,
               planName: item.plan_name,
               amount: parseFloat(item.amount).toFixed(2),
               status: item.status,
               startDate: new Date(item.start_date).toLocaleDateString(),
-              paymentMethod: 'Credit Card' // Default since not in response
+              paymentMethod: "Credit Card", // Default since not in response
             };
           } else {
             return {
@@ -59,20 +60,20 @@ const SubscriptionOrder = () => {
               amount: parseFloat(item.amount).toFixed(2),
               status: item.status,
               date: new Date(item.created_at).toLocaleDateString(),
-              currency: item.currency
+              currency: item.currency,
             };
           }
         });
 
-        if (activeTab === 'subscriptions') {
+        if (activeTab === "subscriptions") {
           setSubscriptionData(formattedData);
         } else {
           setOrderData(formattedData);
         }
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching data:', err);
-        if (activeTab === 'subscriptions') {
+        console.error("Error fetching data:", err);
+        if (activeTab === "subscriptions") {
           setSubscriptionData([]);
         } else {
           setOrderData([]);
@@ -89,42 +90,42 @@ const SubscriptionOrder = () => {
   const downloadReceipt = async (orderId) => {
     try {
       Swal.fire({
-        title: 'Generating Receipt',
-        text: 'Please wait while we generate your receipt...',
+        title: "Generating Receipt",
+        text: "Please wait while we generate your receipt...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
 
       const response = await fetch(`${config.BASE_URL}/api/payment/receipt`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ order_id: orderId })
+        body: JSON.stringify({ order_id: orderId }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate receipt');
+        throw new Error("Failed to generate receipt");
       }
 
       const result = await response.json();
-      
+
       if (result.message) {
         // Open the PDF URL in a new tab
-        window.open(result.message, '_blank');
+        window.open(result.message, "_blank");
         Swal.close();
       } else {
-        throw new Error('Somthing Went Wrong');
+        throw new Error("Somthing Went Wrong");
       }
     } catch (error) {
-      console.error('Error downloading receipt:', error);
+      console.error("Error downloading receipt:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.message || 'Failed to download receipt'
+        icon: "error",
+        title: "Error",
+        text: error.message || "Failed to download receipt",
       });
     }
   };
@@ -132,9 +133,10 @@ const SubscriptionOrder = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
+
   // Get current items based on active tab
-  const currentItems = (activeTab === 'subscriptions' ? subscriptionData : orderData) || [];
+  const currentItems =
+    (activeTab === "subscriptions" ? subscriptionData : orderData) || [];
   const totalPages = Math.ceil(currentItems.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -144,7 +146,7 @@ const SubscriptionOrder = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const renderTableHeaders = () => {
-    if (activeTab === 'subscriptions') {
+    if (activeTab === "subscriptions") {
       return (
         <>
           <th>Plan Name</th>
@@ -172,7 +174,10 @@ const SubscriptionOrder = () => {
     if (isLoading) {
       return (
         <tr>
-          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="loading-cell">
+          <td
+            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            className="loading-cell"
+          >
             Loading...
           </td>
         </tr>
@@ -182,7 +187,10 @@ const SubscriptionOrder = () => {
     if (error) {
       return (
         <tr>
-          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="error-cell">
+          <td
+            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            className="error-cell"
+          >
             Error: {error}
           </td>
         </tr>
@@ -192,7 +200,10 @@ const SubscriptionOrder = () => {
     if (paginatedItems.length === 0) {
       return (
         <tr>
-          <td colSpan={activeTab === 'orderHistory' ? 6 : 5} className="empty-cell">
+          <td
+            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            className="empty-cell"
+          >
             No data available
           </td>
         </tr>
@@ -200,18 +211,22 @@ const SubscriptionOrder = () => {
     }
 
     return paginatedItems.map((item, index) => {
-      if (activeTab === 'subscriptions') {
+      if (activeTab === "subscriptions") {
         return (
           <tr key={index}>
-            <td>{item.planName || 'N/A'}</td>
-            <td>${item.amount || '0.00'}</td>
+            <td>{item.planName || "N/A"}</td>
+            <td>${item.amount || "0.00"}</td>
             <td>
-              <span className={`status-badge ${item.status?.toLowerCase() || 'pending'}`}>
-                {item.status || 'Pending'}
+              <span
+                className={`status-badge ${
+                  item.status?.toLowerCase() || "pending"
+                }`}
+              >
+                {item.status || "Pending"}
               </span>
             </td>
-            <td>{item.startDate || 'N/A'}</td>
-            <td>{item.paymentMethod || 'N/A'}</td>
+            <td>{item.startDate || "N/A"}</td>
+            <td>{item.paymentMethod || "N/A"}</td>
           </tr>
         );
       } else {
@@ -236,7 +251,7 @@ const SubscriptionOrder = () => {
                 className="pdf-icon-btn"
                 title="Download Receipt"
               >
-                <HiOutlineDocumentDownload size={25}/>
+                <HiOutlineDocumentDownload size={25} />
               </button>
             </td>
           </tr>
@@ -247,70 +262,74 @@ const SubscriptionOrder = () => {
 
   return (
     <div className="subscription-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h1>Subscription and Order History</h1>
-        
+
       <div className="tabs">
-        <button 
-          className={`tab ${activeTab === 'subscriptions' ? 'active' : ''}`}
+        <button
+          className={`tab ${activeTab === "subscriptions" ? "active" : ""}`}
           onClick={() => {
-            setActiveTab('subscriptions');
+            setActiveTab("subscriptions");
             setCurrentPage(1);
           }}
         >
           Subscriptions
         </button>
-        <button 
-          className={`tab ${activeTab === 'orderHistory' ? 'active' : ''}`}
+        <button
+          className={`tab ${activeTab === "orderHistory" ? "active" : ""}`}
           onClick={() => {
-            setActiveTab('orderHistory');
+            setActiveTab("orderHistory");
             setCurrentPage(1);
           }}
         >
           Order History
         </button>
       </div>
-      
+
       <div className="results-header">
-        <span>{currentItems.length} {activeTab === 'subscriptions' ? 'subscriptions' : 'orders'}</span>
+        <span>
+          {currentItems.length}{" "}
+          {activeTab === "subscriptions" ? "subscriptions" : "orders"}
+        </span>
       </div>
-      
+
       <div className="table-container">
         <table className="data-table">
           <thead>
-            <tr>
-              {renderTableHeaders()}
-            </tr>
+            <tr>{renderTableHeaders()}</tr>
           </thead>
-          <tbody>
-            {renderTableRows()}
-          </tbody>
+          <tbody>{renderTableRows()}</tbody>
         </table>
       </div>
-      
+
       {totalPages > 1 && (
         <div className="pagination">
-          <button 
-            onClick={() => paginate(currentPage - 1)} 
+          <button
+            onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
             className="pagination-btn"
           >
             &larr; Previous
           </button>
-          
+
           <div className="page-numbers">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-              <button
-                key={number}
-                onClick={() => paginate(number)}
-                className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
-              >
-                {number}
-              </button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (number) => (
+                <button
+                  key={number}
+                  onClick={() => paginate(number)}
+                  className={`pagination-btn ${
+                    currentPage === number ? "active" : ""
+                  }`}
+                >
+                  {number}
+                </button>
+              )
+            )}
           </div>
-          
-          <button 
-            onClick={() => paginate(currentPage + 1)} 
+
+          <button
+            onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="pagination-btn"
           >

@@ -5,6 +5,7 @@ import "./UserList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const UserList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -84,9 +85,10 @@ const UserList = () => {
   };
 
   // Filter users based on selected role
-  const filteredUsers = roleFilter === "all" 
-    ? users 
-    : users.filter(user => user.role === roleFilter);
+  const filteredUsers =
+    roleFilter === "all"
+      ? users
+      : users.filter((user) => user.role === roleFilter);
 
   // Performance view functions
   const fetchPerformanceData = async (userId) => {
@@ -487,6 +489,7 @@ const UserList = () => {
 
   return (
     <div className="user-list-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       {showSessionHistory ? (
         <div className="session-history-container">
           <button

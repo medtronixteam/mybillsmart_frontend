@@ -3,6 +3,7 @@ import axios from "axios";
 import "./GroupAdminNotifications.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const GroupAdminNotifications = () => {
   const [notificationDetail, setNotificationDetail] = useState(false);
@@ -58,6 +59,7 @@ const GroupAdminNotifications = () => {
 
   return (
     <div className="container mt-4">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="text-center">Notifications</h2>
 
       {loading ? (

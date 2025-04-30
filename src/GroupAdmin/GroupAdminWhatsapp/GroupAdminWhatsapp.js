@@ -3,6 +3,7 @@ import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../../contexts/AuthContext";
 import "./GroupAdminWhatsapp.css";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const GroupAdminWhatsapp = () => {
   const auth = useAuth();
@@ -244,212 +245,218 @@ const GroupAdminWhatsapp = () => {
   }
 
   return (
-    <div className="wai-container">
-      <div className="wai-main-panel">
-        {/* Step 1: Initial state */}
-        {step === 1 && (
-          <div className="wai-connect-card">
-            <div className="wai-card-header">
-              <h2>WhatsApp Integration</h2>
-              <div className="wai-whatsapp-icon">💬</div>
-            </div>
-            <p className="wai-card-description">
-              Connect your WhatsApp Business account to get started
-            </p>
-
-            <div className="wai-session-info">
-              <p>Session: {currentSession}</p>
-              <p>Status: {sessionStatus}</p>
-            </div>
-
-            <div className="wai-action-buttons">
-              <button
-                className="wai-primary-btn"
-                onClick={createSession}
-                disabled={isLoading}
-              >
-                {isLoading ? "Initializing..." : "Connect WhatsApp"}
-              </button>
-            </div>
-
-            {error && <div className="wai-error-message">{error}</div>}
-          </div>
-        )}
-
-        {/* Step 2: Create Session */}
-        {step === 2 && (
-          <div className="wai-connect-card">
-            <div className="wai-card-header">
-              <h2 className="mb-0">Create New Session</h2>
-              <div className="wai-whatsapp-icon">➕</div>
-            </div>
-            <p className="wai-card-description">
-              You have not link Whatsapp please click at create session to link
-              the Whatsapp. Scan the QR code then your whatsapp will be link.
-              {/* A new WhatsApp session will be created for: {currentSession} */}
-            </p>
-
-            <div className="wai-action-buttons">
-              <button
-                className="wai-primary-btn"
-                onClick={createSession}
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating..." : "Create Session"}
-              </button>
-              <button
-                className="wai-secondary-btn"
-                onClick={() => setStep(1)}
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-            </div>
-
-            {error && <div className="wai-error-message">{error}</div>}
-          </div>
-        )}
-
-        {/* Step 3: QR Code */}
-        {step === 3 && (
-          <div className="wai-qr-card">
-            <div className="wai-card-header">
-              <h2>Scan QR Code</h2>
-              <div className="wai-qr-icon">📱</div>
-            </div>
-            <p className="wai-card-description">
-              Open WhatsApp on your phone and scan this code
-            </p>
-
-            <div className="wai-qr-code-container">
-              {isLoading ? (
-                <div className="wai-spinner-container">
-                  <div className="wai-spinner"></div>
-                  <p>Generating QR code...</p>
-                </div>
-              ) : error ? (
-                <div className="wai-error-message">
-                  {error}
-                  <button className="wai-retry-btn" onClick={getQRCode}>
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                renderQRCode()
-              )}
-            </div>
-
-            <div className="wai-status-indicator">
-              Status:{" "}
-              {sessionStatus === "connected"
-                ? "✅ Connected"
-                : "⌛ Waiting for scan..."}
-            </div>
-
-            <div className="wai-action-buttons">
-              <button
-                className="wai-secondary-btn"
-                onClick={stopSession}
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                className="wai-secondary-btn"
-                onClick={getQRCode}
-                disabled={isLoading}
-              >
-                Refresh QR Code
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Connected */}
-        {step === 4 && (
-          <div className="wai-success-card">
-            <div className="wai-card-header">
-              <h2>Connected Successfully</h2>
-              <div className="wai-success-icon">✅</div>
-            </div>
-
-            {profileInfo && (
-              <div className="wai-profile-info">
-                <div className="wai-info-row">
-                  <span>Session:</span>
-                  <span>{currentSession}</span>
-                </div>
-                <div className="wai-info-row">
-                  <span>Name:</span>
-                  <span>{profileInfo.pushname || "Not available"}</span>
-                </div>
-                <div className="wai-info-row">
-                  <span>Phone:</span>
-                  <span>{profileInfo?.wid?.user || "Not available"}</span>
-                </div>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="wai-container">
+        <div className="wai-main-panel">
+          {/* Step 1: Initial state */}
+          {step === 1 && (
+            <div className="wai-connect-card">
+              <div className="wai-card-header">
+                <h2>WhatsApp Integration</h2>
+                <div className="wai-whatsapp-icon">💬</div>
               </div>
-            )}
+              <p className="wai-card-description">
+                Connect your WhatsApp Business account to get started
+              </p>
 
-            <div className="wai-status-indicator wai-connected">
-              WhatsApp is connected and ready to use
+              <div className="wai-session-info">
+                <p>Session: {currentSession}</p>
+                <p>Status: {sessionStatus}</p>
+              </div>
+
+              <div className="wai-action-buttons">
+                <button
+                  className="wai-primary-btn"
+                  onClick={createSession}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Initializing..." : "Connect WhatsApp"}
+                </button>
+              </div>
+
+              {error && <div className="wai-error-message">{error}</div>}
             </div>
+          )}
 
-            <div className="wai-action-buttons">
-              <button
-                className="wai-secondary-btn"
-                onClick={stopSession}
-                disabled={isLoading}
-              >
-                Disconnect
-              </button>
-              <button
-                className="wai-danger-btn"
-                onClick={deleteSession}
-                disabled={isLoading}
-              >
-                Delete Session
-              </button>
+          {/* Step 2: Create Session */}
+          {step === 2 && (
+            <div className="wai-connect-card">
+              <div className="wai-card-header">
+                <h2 className="mb-0">Create New Session</h2>
+                <div className="wai-whatsapp-icon">➕</div>
+              </div>
+              <p className="wai-card-description">
+                You have not link Whatsapp please click at create session to
+                link the Whatsapp. Scan the QR code then your whatsapp will be
+                link.
+                {/* A new WhatsApp session will be created for: {currentSession} */}
+              </p>
+
+              <div className="wai-action-buttons">
+                <button
+                  className="wai-primary-btn"
+                  onClick={createSession}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating..." : "Create Session"}
+                </button>
+                <button
+                  className="wai-secondary-btn"
+                  onClick={() => setStep(1)}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {error && <div className="wai-error-message">{error}</div>}
             </div>
+          )}
 
-            {error && <div className="wai-error-message">{error}</div>}
-          </div>
-        )}
+          {/* Step 3: QR Code */}
+          {step === 3 && (
+            <div className="wai-qr-card">
+              <div className="wai-card-header">
+                <h2>Scan QR Code</h2>
+                <div className="wai-qr-icon">📱</div>
+              </div>
+              <p className="wai-card-description">
+                Open WhatsApp on your phone and scan this code
+              </p>
 
-        {/* Step 5: Stopped */}
-        {step === 5 && (
-          <div className="wai-stopped-card">
-            <div className="wai-card-header">
-              <h2>Session Stopped</h2>
-              <div className="wai-stopped-icon">⏹️</div>
+              <div className="wai-qr-code-container">
+                {isLoading ? (
+                  <div className="wai-spinner-container">
+                    <div className="wai-spinner"></div>
+                    <p>Generating QR code...</p>
+                  </div>
+                ) : error ? (
+                  <div className="wai-error-message">
+                    {error}
+                    <button className="wai-retry-btn" onClick={getQRCode}>
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  renderQRCode()
+                )}
+              </div>
+
+              <div className="wai-status-indicator">
+                Status:{" "}
+                {sessionStatus === "connected"
+                  ? "✅ Connected"
+                  : "⌛ Waiting for scan..."}
+              </div>
+
+              <div className="wai-action-buttons">
+                <button
+                  className="wai-secondary-btn"
+                  onClick={stopSession}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="wai-secondary-btn"
+                  onClick={getQRCode}
+                  disabled={isLoading}
+                >
+                  Refresh QR Code
+                </button>
+              </div>
             </div>
+          )}
 
-            <p className="wai-card-description">
-              Your WhatsApp session has been stopped. You can start a new
-              session whenever you're ready.
-            </p>
+          {/* Step 4: Connected */}
+          {step === 4 && (
+            <div className="wai-success-card">
+              <div className="wai-card-header">
+                <h2>Connected Successfully</h2>
+                <div className="wai-success-icon">✅</div>
+              </div>
 
-            <div className="wai-action-buttons">
-              {/* <button 
+              {profileInfo && (
+                <div className="wai-profile-info">
+                  <div className="wai-info-row">
+                    <span>Session:</span>
+                    <span>{currentSession}</span>
+                  </div>
+                  <div className="wai-info-row">
+                    <span>Name:</span>
+                    <span>{profileInfo.pushname || "Not available"}</span>
+                  </div>
+                  <div className="wai-info-row">
+                    <span>Phone:</span>
+                    <span>{profileInfo?.wid?.user || "Not available"}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="wai-status-indicator wai-connected">
+                WhatsApp is connected and ready to use
+              </div>
+
+              <div className="wai-action-buttons">
+                <button
+                  className="wai-secondary-btn"
+                  onClick={stopSession}
+                  disabled={isLoading}
+                >
+                  Disconnect
+                </button>
+                <button
+                  className="wai-danger-btn"
+                  onClick={deleteSession}
+                  disabled={isLoading}
+                >
+                  Delete Session
+                </button>
+              </div>
+
+              {error && <div className="wai-error-message">{error}</div>}
+            </div>
+          )}
+
+          {/* Step 5: Stopped */}
+          {step === 5 && (
+            <div className="wai-stopped-card">
+              <div className="wai-card-header">
+                <h2>Session Stopped</h2>
+                <div className="wai-stopped-icon">⏹️</div>
+              </div>
+
+              <p className="wai-card-description">
+                Your WhatsApp session has been stopped. You can start a new
+                session whenever you're ready.
+              </p>
+
+              <div className="wai-action-buttons">
+                {/* <button 
                 className="wai-primary-btn"
                 onClick={createSession}
                 disabled={isLoading}
               >
                 {isLoading ? 'Starting...' : 'Connect WhatsApp'}
               </button> */}
-              <button
-                className="wai-danger-btn"
-                onClick={deleteSession}
-                disabled={isLoading}
-              >
-                Delete Session
-              </button>
-            </div>
+                <button
+                  className="wai-danger-btn"
+                  onClick={deleteSession}
+                  disabled={isLoading}
+                >
+                  Delete Session
+                </button>
+              </div>
 
-            {error && <div className="wai-error-message">{error}</div>}
-          </div>
-        )}
+              {error && <div className="wai-error-message">{error}</div>}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

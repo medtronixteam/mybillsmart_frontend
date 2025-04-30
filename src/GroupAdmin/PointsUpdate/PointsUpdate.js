@@ -4,6 +4,7 @@ import "./PointsUpdate.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const PointsUpdate = () => {
   const { user, token } = useAuth();
@@ -119,50 +120,55 @@ const PointsUpdate = () => {
   };
 
   return (
-    <div className="PointsUpdate-container">
-      <h2 className="text-center">Referral Points Update's</h2>
-      {isFetching ? (
-        <div className="loading-message">Loading current points...</div>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="number"
-            name="levelOnePoints"
-            placeholder="Level one Points"
-            value={formData.levelOnePoints}
-            onChange={handleChange}
-            required
-            min="0"
-          />
-          <input
-            type="number"
-            name="levelTwoPoints"
-            placeholder="Level Two Points"
-            value={formData.levelTwoPoints}
-            onChange={handleChange}
-            required
-            min="0"
-          />
-          <input
-            type="number"
-            name="levelThreePoints"
-            placeholder="Level Three Points"
-            value={formData.levelThreePoints}
-            onChange={handleChange}
-            required
-            min="0"
-          />
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="PointsUpdate-container">
+        <h2 className="text-center">Referral Points Update's</h2>
+        {isFetching ? (
+          <div className="loading-message">Loading current points...</div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <input
+              type="number"
+              name="levelOnePoints"
+              placeholder="Level one Points"
+              value={formData.levelOnePoints}
+              onChange={handleChange}
+              required
+              min="0"
+            />
+            <input
+              type="number"
+              name="levelTwoPoints"
+              placeholder="Level Two Points"
+              value={formData.levelTwoPoints}
+              onChange={handleChange}
+              required
+              min="0"
+            />
+            <input
+              type="number"
+              name="levelThreePoints"
+              placeholder="Level Three Points"
+              value={formData.levelThreePoints}
+              onChange={handleChange}
+              required
+              min="0"
+            />
 
-          <button
-            type="submit"
-            disabled={isLoading || isFetching}
-            className={isLoading ? "loading" : ""}
-          >
-            {isLoading ? "Updating..." : "Update"}
-          </button>
-        </form>
-      )}
-    </div>
+            <button
+              type="submit"
+              disabled={isLoading || isFetching}
+              className={isLoading ? "loading" : ""}
+            >
+              {isLoading ? "Updating..." : "Update"}
+            </button>
+          </form>
+        )}
+      </div>
+    </>
   );
 };
 

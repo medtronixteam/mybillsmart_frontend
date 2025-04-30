@@ -7,7 +7,7 @@ import {
   FaCoins,
   FaFileInvoiceDollar,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
 } from "react-icons/fa";
 import { useAuth } from "../contexts/AuthContext";
 import config from "../config";
@@ -19,8 +19,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
+import Breadcrumbs from "../Breadcrumbs";
 
 const GroupAdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -71,14 +72,19 @@ const GroupAdminDashboard = () => {
       "Completed Contracts": dashboardData?.completed_contracts || 0,
       "Rejected Contracts": dashboardData?.rejected_contracts || 0,
     },
-   
   ];
 
   // Get current invoices
   const indexOfLastInvoice = currentPage * invoicesPerPage;
   const indexOfFirstInvoice = indexOfLastInvoice - invoicesPerPage;
-  const currentInvoices = dashboardData?.latest_invoices?.slice(indexOfFirstInvoice, indexOfLastInvoice) || [];
-  const totalPages = Math.ceil((dashboardData?.latest_invoices?.length || 0) / invoicesPerPage);
+  const currentInvoices =
+    dashboardData?.latest_invoices?.slice(
+      indexOfFirstInvoice,
+      indexOfLastInvoice
+    ) || [];
+  const totalPages = Math.ceil(
+    (dashboardData?.latest_invoices?.length || 0) / invoicesPerPage
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -106,6 +112,9 @@ const GroupAdminDashboard = () => {
     <div className="container-fluid py-4">
       {/* Stats Cards Row */}
       <div className="row">
+        <div className="col-12 mb-3">
+          <Breadcrumbs homePath={"/group_admin/dashboard"} />
+        </div>
         {/* Total Users Card */}
         <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
           <div className="card bg-white h-100">
@@ -240,7 +249,6 @@ const GroupAdminDashboard = () => {
             </div>
           </div>
         </div> */}
-
 
         {/* Empty Card for Layout */}
         {/* <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">

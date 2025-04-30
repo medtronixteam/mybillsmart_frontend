@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const InvoiceList = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -307,6 +308,7 @@ const InvoiceList = () => {
 
   return (
     <div className="invoice-list-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <div className="d-flex justify-content-between align-items-center">
         <h1 className="invoice-list-title mb-0">Invoice List</h1>
         <Link
@@ -314,7 +316,7 @@ const InvoiceList = () => {
           type="button"
           className="btn btn-primary"
         >
-         Client Agreement List
+          Client Agreement List
         </Link>
       </div>
 

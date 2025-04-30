@@ -5,6 +5,7 @@ import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
+import Breadcrumbs from "../../Breadcrumbs";
 
 const AgreementList = () => {
   const [agreements, setAgreements] = useState([]);
@@ -266,6 +267,7 @@ const AgreementList = () => {
 
   return (
     <div className="agreement-list-container">
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="text-center">Agreements List</h2>
       <div className="filters-section mb-4 p-4 bg-transparent shadow-none">
         <div className="row g-3 align-items-end w-100">
