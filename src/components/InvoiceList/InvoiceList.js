@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import "./InvoiceList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
+import { Link, useNavigate } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
 
 const InvoiceList = () => {
-  const [activeDropdown, setActiveDropdown] = useState(false);
-
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showNewTable, setShowNewTable] = useState(false);
@@ -16,8 +17,9 @@ const InvoiceList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { token } = useAuth();
+  const navigate = useNavigate();
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -26,7 +28,6 @@ const InvoiceList = () => {
     const fetchInvoices = async () => {
       try {
         setLoading(true);
-        setError(null);
         const response = await fetch(`${config.BASE_URL}/api/agent/invoices`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,7 +51,11 @@ const InvoiceList = () => {
         }
       } catch (error) {
         console.error("Error fetching invoices:", error);
-        setError(error.message);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch invoices. Please try again.",
+        });
         setInvoices([]);
       } finally {
         setLoading(false);
@@ -63,8 +68,6 @@ const InvoiceList = () => {
   const fetchInvoiceDetails = async (id) => {
     try {
       setLoading(true);
-      setError(null);
-
       const [invoiceResponse, offersResponse] = await Promise.all([
         fetch(`${config.BASE_URL}/api/agent/invoices/${id}`, {
           headers: {
@@ -99,7 +102,11 @@ const InvoiceList = () => {
       setShowNewTable(true);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setError(error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch invoice details. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -134,21 +141,17 @@ const InvoiceList = () => {
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
 
-    // Exclude all fields containing 'id' (case insensitive)
     const excludedFields = ["created_at", "updated_at"];
-    const excludedPattern = /id$/i; // Regex to match any field ending with 'id'
+    const excludedPattern = /id$/i;
 
-    // Flatten the entire invoice object first
     const flattenedInvoice = flattenObject(invoice);
 
     return flattenedInvoice
       .filter(([key]) => {
-        // Exclude specific fields and any field ending with 'id'
         const baseKey = key.split(".")[0];
-        return !excludedFields.includes(baseKey) && !excludedPattern.test(key); // This will exclude any field ending with 'id'
+        return !excludedFields.includes(baseKey) && !excludedPattern.test(key);
       })
       .filter(([_, value]) => {
-        // Filter out empty values
         return (
           value !== null &&
           value !== undefined &&
@@ -157,13 +160,28 @@ const InvoiceList = () => {
         );
       })
       .map(([key, value]) => {
-        // Format the keys for display
         const displayKey = key
           .split(".")
           .map((part) => formatFieldName(part))
           .join(" → ");
         return [displayKey, value];
       });
+  };
+
+  const handleCreateAgreement = (offerId) => {
+    navigate(`/agent/agents-contract-form?offer_id=${offerId}`);
+  };
+
+  const renderOfferStatus = (status) => {
+    return status === 1 ? (
+      <span className="offer-selected-yes">
+        <FaCheck className="text-success me-1" /> Yes
+      </span>
+    ) : (
+      <span className="offer-selected-no">
+        <FaTimes className="text-danger me-1" /> No
+      </span>
+    );
   };
 
   const renderInvoiceDetails = () => {
@@ -173,7 +191,6 @@ const InvoiceList = () => {
 
     return (
       <div className="invoice-details-container">
-    
         <div className="invoice-details-header">
           <h2>Invoice Details</h2>
           <button
@@ -188,7 +205,11 @@ const InvoiceList = () => {
           {filteredData.map(([key, value]) => (
             <div key={key} className="detail-item">
               <div className="detail-label">{key}:</div>
-              <div className="detail-value">{formatValue(value)}</div>
+              <div className="detail-value">
+                {key.toLowerCase().includes("offer selected") ? 
+                  renderOfferStatus(value) : 
+                  formatValue(value)}
+              </div>
             </div>
           ))}
         </div>
@@ -211,6 +232,9 @@ const InvoiceList = () => {
             <div key={offer.id || index} className="offer-card">
               <div className="offer-card-header">
                 <h3>Offer #{index + 1}</h3>
+                {offer.is_selected && (
+                  <span className="selected-badge">Selected</span>
+                )}
               </div>
 
               <div className="offer-card-body">
@@ -239,6 +263,17 @@ const InvoiceList = () => {
                     {offer.sales_commission || "0"}%
                   </span>
                 </div>
+
+               
+
+                {selectedInvoice?.is_offer_selected === 0 && (
+                  <button
+                    className="create-agreement-btn"
+                    onClick={() => handleCreateAgreement(offer.id)}
+                  >
+                    Create Agreement
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -259,20 +294,24 @@ const InvoiceList = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Error: {error}</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+      </div>
+    );
   }
 
   return (
     <div className="invoice-list-container">
-      <Breadcrumbs homePath={"/agent/dashboard"} />
-      <div className="d-flex justify-content-between align-items-center ">
-        <h1 className=" mb-0">Invoice List</h1>
-        <Link to="/agent/contract-list">
-          <button className="btn btn-primary w-100">Agreement List</button>
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      <div className="d-flex justify-content-between align-items-center">
+        <h1 className="invoice-list-title mb-0">Invoice List</h1>
+        <Link
+          to="/group_admin/client-contract-list"
+          type="button"
+          className="btn btn-primary"
+        >
+          Client Agreement List
         </Link>
       </div>
 
@@ -288,8 +327,10 @@ const InvoiceList = () => {
               <thead>
                 <tr>
                   <th className="invoice-table-header">Bill Type</th>
+                  <th className="invoice-table-header">Agreement</th>
                   <th className="invoice-table-header">Address</th>
                   <th className="invoice-table-header">Billing Period</th>
+                  <th className="invoice-table-header">Offer Selected</th>
                   <th className="invoice-table-header">Action</th>
                 </tr>
               </thead>
@@ -300,9 +341,15 @@ const InvoiceList = () => {
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>
+                      <td className="invoice-table-cell">
+                        {invoice.agreement}
+                      </td>
                       <td className="invoice-table-cell">{invoice.address}</td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
+                      </td>
+                      <td className="invoice-table-cell">
+                        {renderOfferStatus(invoice.is_offer_selected || 0)}
                       </td>
                       <td className="invoice-table-cell">
                         <HiDotsHorizontal
@@ -326,18 +373,12 @@ const InvoiceList = () => {
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-invoice-btn"
-                          onClick={() => fetchInvoiceDetails(invoice.id)}
-                        >
-                          View Details
-                        </button> */}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="no-invoices">
+                    <td colSpan="6" className="no-invoices">
                       No invoices found
                     </td>
                   </tr>

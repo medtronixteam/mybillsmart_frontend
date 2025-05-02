@@ -8,8 +8,7 @@ import {
 import "./Invoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
@@ -44,6 +43,38 @@ const Invoice = () => {
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
+
+  // Helper function to show success alerts
+  const showSuccessAlert = (message) => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: message,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
+
+  // Helper function to show error alerts
+  const showErrorAlert = (message) => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message,
+      timer: 3000
+    });
+  };
+
+  // Helper function to show info alerts
+  const showInfoAlert = (message) => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Info',
+      text: message,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
 
   useEffect(() => {
     if (showModal) {
@@ -117,11 +148,11 @@ const Invoice = () => {
       setClients(clientsData || []);
 
       if (clientsData.length === 0) {
-        toast.info("No clients found");
+        showInfoAlert("No clients found");
       }
     } catch (error) {
       console.error("Error fetching clients", error);
-      toast.error("Failed to fetch clients. Please try again.");
+      showErrorAlert("Failed to fetch clients. Please try again.");
       setClients([]);
     } finally {
       setLoadingClients(false);
@@ -135,12 +166,12 @@ const Invoice = () => {
 
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        toast.error("Only JPEG, PNG, and PDF files are allowed.");
+        showErrorAlert("Only JPEG, PNG, and PDF files are allowed.");
         return;
       }
 
       if (file) {
-        toast.info("A file is already uploaded. Please submit the form.");
+        showInfoAlert("A file is already uploaded. Please submit the form.");
         return;
       }
 
@@ -177,11 +208,11 @@ const Invoice = () => {
         setResponseData(response.data);
         setFormData(response.data);
         setStep(2);
-        toast.success("File uploaded successfully!");
+        showSuccessAlert(`Please Verify the ${selectedFile.name} file data before submitting`);
       }
     } catch (error) {
       console.error("Error uploading file", error);
-      toast.error("Error uploading file. Please try again.");
+      showErrorAlert(`${error}`);
       setFile(null);
     } finally {
       setUploading(false);
@@ -255,10 +286,9 @@ const Invoice = () => {
       }
 
       setStep(3);
-      toast.success("Form submitted successfully!");
+      showSuccessAlert(`${invoiceResponse.data.message}` );
     } catch (error) {
-      console.error("Error submitting data", error);
-      toast.error("Error submitting form. Please try again.");
+      showErrorAlert(`${error.response.data.message}`);
     }
   };
 
@@ -350,7 +380,7 @@ const Invoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      toast.error("No data available to download");
+      showErrorAlert("No data available to download");
       return;
     }
 
@@ -361,10 +391,10 @@ const Invoice = () => {
         `invoice_${invoiceId}_data.csv`,
         "text/csv;charset=utf-8;"
       );
-      toast.success("CSV downloaded successfully");
+      showSuccessAlert("CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
-      toast.error("Failed to generate CSV file");
+      showErrorAlert("Failed to generate CSV file");
     }
   };
 
@@ -374,7 +404,7 @@ const Invoice = () => {
       !Array.isArray(submittedData) ||
       submittedData.length === 0
     ) {
-      toast.error("No data available to download");
+      showErrorAlert("No data available to download");
       return;
     }
 
@@ -385,10 +415,10 @@ const Invoice = () => {
         `invoice_${invoiceId}_data.xls`,
         "application/vnd.ms-excel;charset=utf-8;"
       );
-      toast.success("Excel file downloaded successfully");
+      showSuccessAlert("Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
-      toast.error("Failed to generate Excel file");
+      showErrorAlert("Failed to generate Excel file");
     }
   };
 
@@ -541,17 +571,15 @@ const Invoice = () => {
   };
 
   const handleWhatsappSubmit = async () => {
-    // Validate phone number
     if (!whatsappData.to.trim()) {
-      toast.error("Phone number is required");
+      showErrorAlert("Phone number is required");
       return;
     }
 
-    // Validate phone number format (minimum 11 digits)
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "");
     if (!phoneRegex.test(rawPhone)) {
-      toast.error("Please enter a valid phone number (e.g., 923001234567)");
+      showErrorAlert("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
 
@@ -560,7 +588,6 @@ const Invoice = () => {
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `invoice_${invoiceId}.pdf`;
 
-      // Get email from auth context and replace special characters
       const sessionEmail = email.replace(/[@.]/g, "_");
 
       const base64data = await new Promise((resolve, reject) => {
@@ -573,7 +600,7 @@ const Invoice = () => {
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message || "Invoice details",
-        session: sessionEmail, // Using modified email as session
+        session: sessionEmail,
         file: {
           data: base64data,
           filename: filename,
@@ -592,10 +619,10 @@ const Invoice = () => {
       );
 
       if (response.status === 201) {
-        toast.success("WhatsApp message sent successfully!");
+        showSuccessAlert("WhatsApp message sent successfully!");
         handleWhatsappModalClose();
       } else {
-        toast.success("WhatsApp message sent successfully!");
+        showSuccessAlert("WhatsApp message sent successfully!");
       }
     } catch (error) {
       console.error("WhatsApp send error:", error);
@@ -604,9 +631,10 @@ const Invoice = () => {
         error.response?.data?.message ||
         error.message ||
         "Failed to send WhatsApp message";
-      toast.error(errorMessage);
+      showErrorAlert(errorMessage);
     }
   };
+
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");
@@ -618,7 +646,7 @@ const Invoice = () => {
 
   const handleModalSubmit = async () => {
     if (!selectedClient) {
-      toast.error("Please select a client!");
+      showErrorAlert("Please select a client!");
       return;
     }
 
@@ -636,7 +664,7 @@ const Invoice = () => {
             },
           }
         );
-        toast.success("Email sent successfully!");
+        showSuccessAlert("Email sent successfully!");
       } else if (modalType === "portal") {
         const response = await axios.post(
           `${config.BASE_URL}/api/agent/send/client/portal`,
@@ -653,14 +681,14 @@ const Invoice = () => {
         );
 
         if (response.status === 200) {
-          toast.success("Invoice sent to client portal successfully!");
+          showSuccessAlert("Invoice sent to client portal successfully!");
         } else {
-          toast.error("Failed to send to client portal");
+          showErrorAlert("Failed to send to client portal");
         }
       }
     } catch (error) {
       console.error("Error sending data", error);
-      toast.error("Failed to send. Please try again.");
+      showErrorAlert("Failed to send. Please try again.");
     }
 
     handleModalClose();
@@ -672,8 +700,6 @@ const Invoice = () => {
         <Breadcrumbs homePath={"/agent/dashboard"} />
       </div>
       <div className="invoice-container">
-        <ToastContainer />
-
         {isDragging && (
           <div className="drag-drop-overlay">
             <div className="drag-drop-content">
@@ -711,7 +737,6 @@ const Invoice = () => {
                 </p>
                 {file && (
                   <div className="file-preview">
-                    {/* <p>Selected file: {file.name}</p>  */}
                     <p>({Math.round(file.size / 1024)} KB)</p>
                   </div>
                 )}
@@ -964,17 +989,6 @@ const Invoice = () => {
                     (e.g., 923001234567 for Pakistan)
                   </small>
                 </div>
-                {/* <div className="whatsapp-input-group">
-          <label htmlFor="whatsapp-message">Message (optional):</label>
-          <textarea
-            id="whatsapp-message"
-            name="message"
-            value={whatsappData.message}
-            onChange={handleWhatsappChange}
-            placeholder="Type your message here..."
-            rows={5}
-          />
-        </div> */}
                 <div className="whatsapp-pdf-preview">
                   <p className="whatsapp-pdf-label">PDF Attachment:</p>
                   <div className="whatsapp-pdf-placeholder">

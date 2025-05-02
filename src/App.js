@@ -115,6 +115,7 @@ import AminContractForm from "./GroupAdmin/AminContractForm/AminContractForm";
 import UserAddUser from "./User/AddUser/AddUser";
 import UserUserList from "./User/UserList/UserUserList";
 import UserNotifications from "./User/Notifications/UserNotifications";
+import AgentsContractForm from "./components/AgentsContractForm/AgentsContractForm";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -344,6 +345,10 @@ const App = () => {
                             path="session-history"
                             element={<AgentSessionHistory />}
                           />
+                          <Route
+                            path="agents-contract-form"
+                            element={<AgentsContractForm />}
+                          />
                           <Route path="user-list" element={<AgentUserList />} />
                           <Route path="goal" element={<AgentGoalList />} />
 
@@ -420,6 +425,7 @@ const App = () => {
                             path="session-history"
                             element={<SupervisorSessionHistory />}
                           />
+                          
                           <Route path="goal" element={<ProviderGoalList />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

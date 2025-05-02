@@ -195,7 +195,7 @@ const Signup = () => {
             </div>
             <div className="mb-3 col-md-6">
               <input
-                type="text"
+                type="number"
                 className="form-control"
                 id="postalCode"
                 value={postalCode}
