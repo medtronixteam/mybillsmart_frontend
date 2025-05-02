@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
-import Swal from "sweetalert2";
 import config from "../../config";
-import Breadcrumbs from "../../Breadcrumbs";
+
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -14,11 +14,12 @@ const Subscription = () => {
     starter: false,
     pro: false,
     enterprise: false,
-    growth_pack: false,
-    scale_pack: false,
-    max_pack: false,
+    growth: false,
+    scale: false,
+    max: false
   });
   const [planPrices, setPlanPrices] = useState({});
+  const [apiError, setApiError] = useState(null);
 
   // Static plan data with all details except price
   const staticPlans = [
@@ -76,21 +77,21 @@ const Subscription = () => {
 
   const expansionPacks = [
     {
-      id: "growth",
+      id: "growth_pack",
       name: "Growth Pack",
       extraAgents: "+5 agents",
       monthlyPrice: "420",
       pricePerAgent: "84",
     },
     {
-      id: "scale",
+      id: "scale_pack",
       name: "Scale Pack",
       extraAgents: "+10 agents",
       monthlyPrice: "790",
       pricePerAgent: "79",
     },
     {
-      id: "max",
+      id: "max_pack",
       name: "Max Pack",
       extraAgents: "+25 agents",
       monthlyPrice: "1700",
@@ -102,11 +103,14 @@ const Subscription = () => {
   useEffect(() => {
     const fetchPlanPrices = async () => {
       try {
-        const response = await axios.get(`${config.BASE_URL}/api/group/plans`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${config.BASE_URL}/api/group/plans`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.data && response.data.status === "success") {
           const prices = {};
@@ -117,11 +121,7 @@ const Subscription = () => {
         }
       } catch (error) {
         console.error("Error fetching plan prices:", error);
-        Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Failed to load current prices. Using default pricing.",
-        });
+        setApiError("Failed to load current prices. Using default pricing.");
         // Fallback to default prices
         setPlanPrices({
           starter: "99.00",
@@ -144,7 +144,7 @@ const Subscription = () => {
   };
 
   const handleSubscription = async (selectedPlan) => {
-    setLoading((prev) => ({ ...prev, [selectedPlan.id]: true }));
+    setLoading(prev => ({ ...prev, [selectedPlan.id]: true }));
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
       const response = await axios.post(
@@ -175,18 +175,14 @@ const Subscription = () => {
       }
     } catch (error) {
       console.error("Subscription error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Payment Error",
-        text: error.response?.data?.message || "Payment processing failed",
-      });
+      alert(error.response?.data?.message || "Payment processing failed");
     } finally {
-      setLoading((prev) => ({ ...prev, [selectedPlan.id]: false }));
+      setLoading(prev => ({ ...prev, [selectedPlan.id]: false }));
     }
   };
 
   const handleExpansionPack = async (pack) => {
-    setLoading((prev) => ({ ...prev, [pack.id]: true }));
+    setLoading(prev => ({ ...prev, [pack.id]: true }));
     try {
       const amountInCents = parseFloat(pack.monthlyPrice) * 100;
       const response = await axios.post(
@@ -195,7 +191,7 @@ const Subscription = () => {
           plan_id: pack.id,
           amount: amountInCents,
           currency: "eur",
-          is_expansion: true,
+          is_expansion: true
         },
         {
           headers: {
@@ -213,19 +209,15 @@ const Subscription = () => {
             paymentIntentId: response.data.id,
             amount: amountInCents,
             currency: "eur",
-            isExpansion: true,
+            isExpansion: true
           },
         });
       }
     } catch (error) {
       console.error("Expansion pack error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Payment Error",
-        text: error.response?.data?.message || "Payment processing failed",
-      });
+      alert(error.response?.data?.message || "Payment processing failed");
     } finally {
-      setLoading((prev) => ({ ...prev, [pack.id]: false }));
+      setLoading(prev => ({ ...prev, [pack.id]: false }));
     }
   };
 
@@ -233,9 +225,10 @@ const Subscription = () => {
 
   return (
     <div className="subscription-container">
-      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
+
+      {apiError && <div className="alert alert-warning">{apiError}</div>}
 
       <div className="cards-container">
         {plans.map((plan) => (
@@ -265,17 +258,13 @@ const Subscription = () => {
               </ul>
             </div>
             <button
-              className={`subscribe-btn ${plan.isCurrent ? "current-btn" : ""}`}
+              className={`subscribe-btn ${
+                plan.isCurrent ? "current-btn" : ""
+              }`}
               onClick={() => handleSubscription(plan)}
-              disabled={
-                loading[plan.id] || plan.price === "N/A" || plan.isCurrent
-              }
+              disabled={loading[plan.id] || plan.price === "N/A" || plan.isCurrent}
             >
-              {loading[plan.id]
-                ? "Processing..."
-                : plan.isCurrent
-                ? "Current Plan"
-                : "Get Started"}
+              {loading[plan.id] ? "Processing..." : plan.isCurrent ? "Current Plan" : "Get Started"}
             </button>
           </div>
         ))}
