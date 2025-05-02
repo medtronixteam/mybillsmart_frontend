@@ -1,23 +1,22 @@
-FROM node:18-alpine
-
-# Working directory set karna
+# Step 1: Build React App
+FROM node:18-alpine AS build
 WORKDIR /app
-
-# Dependencies copy karna
-COPY package.json package-lock.json ./
-
-# ✅ Fix: Use --legacy-peer-deps to resolve dependency issues
+COPY package*.json ./
 RUN npm install --legacy-peer-deps
-
-# Baaki files copy karna
 COPY . .
-
-# Build command
 RUN npm run build
 
-# Production server start karna
-CMD ["npm", "start"]
+# Step 2: Serve with Nginx
+FROM nginx:alpine
 
-# Port expose karna
-EXPOSE 3000
+# Remove default config
+RUN rm /etc/nginx/conf.d/default.conf
 
+# Add custom config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy build
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
