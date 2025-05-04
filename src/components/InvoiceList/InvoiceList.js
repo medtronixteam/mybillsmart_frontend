@@ -307,7 +307,7 @@ const InvoiceList = () => {
       <div className="d-flex justify-content-between align-items-center">
         <h1 className="invoice-list-title mb-0">Invoice List</h1>
         <Link
-          to="/group_admin/client-contract-list"
+          to="/agent/contract-list"
           type="button"
           className="btn btn-primary"
         >
@@ -327,10 +327,10 @@ const InvoiceList = () => {
               <thead>
                 <tr>
                   <th className="invoice-table-header">Bill Type</th>
-                  <th className="invoice-table-header">Agreement</th>
+                  {/* <th className="invoice-table-header">Agreement</th> */}
                   <th className="invoice-table-header">Address</th>
                   <th className="invoice-table-header">Billing Period</th>
-                  <th className="invoice-table-header">Offer Selected</th>
+                  <th className="invoice-table-header">Agreement</th>
                   <th className="invoice-table-header">Action</th>
                 </tr>
               </thead>
@@ -341,9 +341,9 @@ const InvoiceList = () => {
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>
-                      <td className="invoice-table-cell">
+                      {/* <td className="invoice-table-cell">
                         {invoice.agreement}
-                      </td>
+                      </td> */}
                       <td className="invoice-table-cell">{invoice.address}</td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
