@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../../contexts/AuthContext";
 import "./GroupAdminWhatsapp.css";
 import Breadcrumbs from "../../Breadcrumbs";
-
+import config from "../../config";
 const GroupAdminWhatsapp = () => {
   const auth = useAuth();
   const email = auth.email || "";
@@ -17,13 +17,15 @@ const GroupAdminWhatsapp = () => {
         .substring(0, 32)
     : "default";
 
-  const [step, setStep] = useState(1); // 1: Initial, 2: Create Session, 3: QR Code, 4: Connected, 5: Stopped
+  const [step, setStep] = useState(1); 
   const [qrCode, setQrCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [profileInfo, setProfileInfo] = useState(null);
   const [sessionStatus, setSessionStatus] = useState("disconnected");
   const [currentSession, setCurrentSession] = useState(DEFAULT_SESSION_NAME);
+    const { token } = useAuth();
+  
 
   // Refs
   const statusCheckInterval = useRef(null);
@@ -32,6 +34,36 @@ const GroupAdminWhatsapp = () => {
   const sanitizeSessionName = (name) => {
     return name.replace(/[^a-zA-Z0-9-_]/g, "").substring(0, 32);
   };
+
+const callWhatsappLink = async () => {
+  try {
+    await axios.post(`${config.BASE_URL}/api/whatsapp/link`, {
+      session_name: sanitizeSessionName(currentSession),
+    }, {
+      headers: {
+        Authorization: `Bearer ${auth.token}` 
+      }
+    });
+    console.log("WhatsApp link API called successfully");
+  } catch (err) {
+    console.error("Error calling whatsapp/link API:", err);
+  }
+};
+
+const callWhatsappUnlink = async () => {
+  try {
+    await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, {
+     
+      headers: {
+        Authorization: `Bearer ${auth.token}` 
+      }
+    });
+    console.log("WhatsApp unlink API called successfully");
+  } catch (err) {
+    console.error("Error calling whatsapp/unlink API:", err);
+    // You can choose to show this error to user or just log it
+  }
+};
 
   // API: Create new session
   const createSession = async () => {
@@ -105,6 +137,8 @@ const GroupAdminWhatsapp = () => {
       setStep(5); // Show stopped state
       setSessionStatus("stopped");
       clearInterval(statusCheckInterval.current);
+      // Call unlink API when session is stopped
+      await callWhatsappUnlink();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to stop session");
     } finally {
@@ -123,6 +157,8 @@ const GroupAdminWhatsapp = () => {
       setStep(1); // Reset to initial state
       setSessionStatus("disconnected");
       clearInterval(statusCheckInterval.current);
+      // Call unlink API when session is deleted
+      await callWhatsappUnlink();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete session");
     } finally {
@@ -158,6 +194,8 @@ const GroupAdminWhatsapp = () => {
         `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/me`
       );
       setProfileInfo(response.data);
+      // Call link API when profile info is successfully fetched (meaning WhatsApp is connected)
+      await callWhatsappLink();
     } catch (err) {
       console.error("Profile fetch error:", err);
     }
@@ -183,6 +221,8 @@ const GroupAdminWhatsapp = () => {
       case "FAILED":
         setSessionStatus("stopped");
         setStep(5);
+        // Call unlink API when session is stopped or failed
+        callWhatsappUnlink();
         break;
       case "NOT_FOUND":
         setSessionStatus("not_found");
@@ -230,6 +270,7 @@ const GroupAdminWhatsapp = () => {
       </div>
     );
   };
+
   // Loading state for auth
   if (!auth.initialized) {
     return <div className="wai-loading">Loading authentication...</div>;
@@ -292,7 +333,6 @@ const GroupAdminWhatsapp = () => {
                 You have not link Whatsapp please click at create session to
                 link the Whatsapp. Scan the QR code then your whatsapp will be
                 link.
-                {/* A new WhatsApp session will be created for: {currentSession} */}
               </p>
 
               <div className="wai-action-buttons">
@@ -435,13 +475,6 @@ const GroupAdminWhatsapp = () => {
               </p>
 
               <div className="wai-action-buttons">
-                {/* <button 
-                className="wai-primary-btn"
-                onClick={createSession}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Starting...' : 'Connect WhatsApp'}
-              </button> */}
                 <button
                   className="wai-danger-btn"
                   onClick={deleteSession}

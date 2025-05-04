@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Subscription.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-
+import Swal from "sweetalert2";
 
 const Subscription = () => {
   const navigate = useNavigate();
@@ -19,9 +18,7 @@ const Subscription = () => {
     max: false
   });
   const [planPrices, setPlanPrices] = useState({});
-  const [apiError, setApiError] = useState(null);
 
-  // Static plan data with all details except price
   const staticPlans = [
     {
       id: "starter",
@@ -121,7 +118,13 @@ const Subscription = () => {
         }
       } catch (error) {
         console.error("Error fetching plan prices:", error);
-        setApiError("Failed to load current prices. Using default pricing.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Price Loading Failed',
+          text: 'Failed to load current prices. Using default pricing.',
+          timer: 3000,
+          showConfirmButton: false
+        });
         // Fallback to default prices
         setPlanPrices({
           starter: "99.00",
@@ -144,6 +147,15 @@ const Subscription = () => {
   };
 
   const handleSubscription = async (selectedPlan) => {
+    if (selectedPlan.price === "N/A") {
+      Swal.fire({
+        icon: 'error',
+        title: 'Price Not Available',
+        text: 'This plan is currently unavailable. Please try again later.',
+      });
+      return;
+    }
+
     setLoading(prev => ({ ...prev, [selectedPlan.id]: true }));
     try {
       const amountInCents = parseFloat(selectedPlan.price) * 100;
@@ -175,7 +187,11 @@ const Subscription = () => {
       }
     } catch (error) {
       console.error("Subscription error:", error);
-      alert(error.response?.data?.message || "Payment processing failed");
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: error.response?.data?.message || "Payment processing failed. Please try again.",
+      });
     } finally {
       setLoading(prev => ({ ...prev, [selectedPlan.id]: false }));
     }
@@ -215,7 +231,11 @@ const Subscription = () => {
       }
     } catch (error) {
       console.error("Expansion pack error:", error);
-      alert(error.response?.data?.message || "Payment processing failed");
+      Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: error.response?.data?.message || "Payment processing failed. Please try again.",
+      });
     } finally {
       setLoading(prev => ({ ...prev, [pack.id]: false }));
     }
@@ -228,11 +248,9 @@ const Subscription = () => {
       <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
 
-      {apiError && <div className="alert alert-warning">{apiError}</div>}
-
       <div className="cards-container">
         {plans.map((plan) => (
-          <div
+          <div 
             key={plan.id}
             className={`subscription-card ${plan.featured ? "featured" : ""} ${
               plan.isCurrent ? "current-plan" : ""
@@ -242,9 +260,10 @@ const Subscription = () => {
             {plan.isCurrent && <div className="current-badge">Your Plan</div>}
             <h3 className="plan-name">{plan.name}</h3>
             <div className="price-container">
-              <span className="price">€{plan.price}</span>
-              <span className="period">/{plan.period}</span>
+              <span className="price">€{plan.price}</span>   
+              <span className="period">/{plan.period}</span> 
             </div>
+
             <p className="plan-description">{plan.description}</p>
             <div className="features-container">
               <h4 className="features-title">Includes:</h4>
@@ -262,7 +281,7 @@ const Subscription = () => {
                 plan.isCurrent ? "current-btn" : ""
               }`}
               onClick={() => handleSubscription(plan)}
-              disabled={loading[plan.id] || plan.price === "N/A" || plan.isCurrent}
+              disabled={loading[plan.id] || plan.isCurrent}
             >
               {loading[plan.id] ? "Processing..." : plan.isCurrent ? "Current Plan" : "Get Started"}
             </button>

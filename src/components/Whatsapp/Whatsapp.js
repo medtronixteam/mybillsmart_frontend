@@ -1,34 +1,69 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { QRCodeSVG } from 'qrcode.react';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../../contexts/AuthContext";
-import './Whatsapp.css';
+import "./Whatsapp.css";
 import Breadcrumbs from "../../Breadcrumbs";
-
+import config from "../../config";
 const WhatsappIntegration = () => {
   const auth = useAuth();
-  const email = auth.email || '';
+  const email = auth.email || "";
 
-  // Constants
-  const API_BASE_URL = 'http://34.142.252.64:3000';
-  const DEFAULT_SESSION_NAME = email ? email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().substring(0, 32) : 'default';
-  
-  // State
-  const [step, setStep] = useState(1); // 1: Initial, 2: Create Session, 3: QR Code, 4: Connected, 5: Stopped
-  const [qrCode, setQrCode] = useState('');
+  const API_BASE_URL = "http://34.142.252.64:3000";
+  const DEFAULT_SESSION_NAME = email
+    ? email
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .toLowerCase()
+        .substring(0, 32)
+    : "default";
+
+  const [step, setStep] = useState(1); 
+  const [qrCode, setQrCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [profileInfo, setProfileInfo] = useState(null);
-  const [sessionStatus, setSessionStatus] = useState('disconnected');
+  const [sessionStatus, setSessionStatus] = useState("disconnected");
   const [currentSession, setCurrentSession] = useState(DEFAULT_SESSION_NAME);
+    const { token } = useAuth();
   
+
   // Refs
   const statusCheckInterval = useRef(null);
 
   // Helper function to sanitize session name
   const sanitizeSessionName = (name) => {
-    return name.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 32);
+    return name.replace(/[^a-zA-Z0-9-_]/g, "").substring(0, 32);
   };
+
+const callWhatsappLink = async () => {
+  try {
+    await axios.post(`${config.BASE_URL}/api/whatsapp/link`, {
+      session_name: sanitizeSessionName(currentSession),
+    }, {
+      headers: {
+        Authorization: `Bearer ${auth.token}` 
+      }
+    });
+    console.log("WhatsApp link API called successfully");
+  } catch (err) {
+    console.error("Error calling whatsapp/link API:", err);
+  }
+};
+
+const callWhatsappUnlink = async () => {
+  try {
+    await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, {
+     
+      headers: {
+        Authorization: `Bearer ${auth.token}` 
+      }
+    });
+    console.log("WhatsApp unlink API called successfully");
+  } catch (err) {
+    console.error("Error calling whatsapp/unlink API:", err);
+    // You can choose to show this error to user or just log it
+  }
+};
 
   // API: Create new session
   const createSession = async () => {
@@ -36,7 +71,7 @@ const WhatsappIntegration = () => {
     setError(null);
     try {
       await axios.post(`${API_BASE_URL}/api/sessions`, {
-        name: sanitizeSessionName(currentSession)
+        name: sanitizeSessionName(currentSession),
       });
       await startSession();
     } catch (err) {
@@ -44,7 +79,7 @@ const WhatsappIntegration = () => {
         // Session already exists, just start it
         await startSession();
       } else {
-        setError(err.response?.data?.message || 'Failed to create session');
+        setError(err.response?.data?.message || "Failed to create session");
       }
     } finally {
       setIsLoading(false);
@@ -57,18 +92,19 @@ const WhatsappIntegration = () => {
     setError(null);
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/start`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(
+          currentSession
+        )}/start`
       );
-      
+
       // Check initial status
       const status = await getSessionInfo();
       handleStatusResponse(status);
-      
+
       // Start polling for status changes
       startStatusPolling();
-      
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to start session');
+      setError(err.response?.data?.message || "Failed to start session");
       setIsLoading(false);
     }
   };
@@ -82,7 +118,7 @@ const WhatsappIntegration = () => {
       return response.data;
     } catch (err) {
       if (err.response?.status === 404) {
-        return { status: 'NOT_FOUND' };
+        return { status: "NOT_FOUND" };
       }
       throw err;
     }
@@ -94,13 +130,17 @@ const WhatsappIntegration = () => {
     setError(null);
     try {
       await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/stop`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(
+          currentSession
+        )}/stop`
       );
       setStep(5); // Show stopped state
-      setSessionStatus('stopped');
+      setSessionStatus("stopped");
       clearInterval(statusCheckInterval.current);
+      // Call unlink API when session is stopped
+      await callWhatsappUnlink();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to stop session');
+      setError(err.response?.data?.message || "Failed to stop session");
     } finally {
       setIsLoading(false);
     }
@@ -115,10 +155,12 @@ const WhatsappIntegration = () => {
         `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`
       );
       setStep(1); // Reset to initial state
-      setSessionStatus('disconnected');
+      setSessionStatus("disconnected");
       clearInterval(statusCheckInterval.current);
+      // Call unlink API when session is deleted
+      await callWhatsappUnlink();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete session');
+      setError(err.response?.data?.message || "Failed to delete session");
     } finally {
       setIsLoading(false);
     }
@@ -131,15 +173,15 @@ const WhatsappIntegration = () => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/${sanitizeSessionName(currentSession)}/auth/qr`,
-        { params: { ts: Date.now() }, responseType: 'blob' } // Important for image data
+        { params: { ts: Date.now() }, responseType: "blob" } // Important for image data
       );
-      
+
       // Create a URL for the blob image
       const imageUrl = URL.createObjectURL(response.data);
       setQrCode(imageUrl);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to get QR code');
-      setQrCode('');
+      setError(err.response?.data?.message || "Failed to get QR code");
+      setQrCode("");
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +194,10 @@ const WhatsappIntegration = () => {
         `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/me`
       );
       setProfileInfo(response.data);
+      // Call link API when profile info is successfully fetched (meaning WhatsApp is connected)
+      await callWhatsappLink();
     } catch (err) {
-      console.error('Profile fetch error:', err);
+      console.error("Profile fetch error:", err);
     }
   };
 
@@ -162,24 +206,26 @@ const WhatsappIntegration = () => {
     if (!status) return;
 
     switch (status.status) {
-      case 'WORKING':
+      case "WORKING":
         getProfileInfo();
-        setSessionStatus('connected');
+        setSessionStatus("connected");
         setStep(4);
         clearInterval(statusCheckInterval.current);
         break;
-      case 'SCAN_QR_CODE':
+      case "SCAN_QR_CODE":
         getQRCode();
-        setSessionStatus('scanning');
+        setSessionStatus("scanning");
         setStep(3);
         break;
-      case 'STOPPED':
-      case 'FAILED':
-        setSessionStatus('stopped');
+      case "STOPPED":
+      case "FAILED":
+        setSessionStatus("stopped");
         setStep(5);
+        // Call unlink API when session is stopped or failed
+        callWhatsappUnlink();
         break;
-      case 'NOT_FOUND':
-        setSessionStatus('not_found');
+      case "NOT_FOUND":
+        setSessionStatus("not_found");
         setStep(2); // Need to create session
         break;
       default:
@@ -195,7 +241,7 @@ const WhatsappIntegration = () => {
         const status = await getSessionInfo();
         handleStatusResponse(status);
       } catch (err) {
-        console.error('Status polling error:', err);
+        console.error("Status polling error:", err);
       }
     }, 5000); // Check every 5 seconds
   };
@@ -216,18 +262,15 @@ const WhatsappIntegration = () => {
 
   const renderQRCode = () => {
     if (!qrCode) return null;
-  
+
     return (
       <div className="wai-qr-wrapper">
-        <img 
-          src={qrCode} 
-          alt="WhatsApp QR Code"
-          className="wai-qr-image"
-        />
+        <img src={qrCode} alt="WhatsApp QR Code" className="wai-qr-image" />
         <p className="wai-scan-instruction">Scan this code with WhatsApp</p>
       </div>
     );
   };
+
   // Loading state for auth
   if (!auth.initialized) {
     return <div className="wai-loading">Loading authentication...</div>;
@@ -235,13 +278,17 @@ const WhatsappIntegration = () => {
 
   // Auth check
   if (!auth.isAuthenticated) {
-    return <div className="wai-auth-required">Please login to access WhatsApp integration</div>;
+    return (
+      <div className="wai-auth-required">
+        Please login to access WhatsApp integration
+      </div>
+    );
   }
 
   return (
     <>
       <div className="mt-4 container">
-        <Breadcrumbs homePath={"/agent/dashboard"} />
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
       <div className="wai-container">
         <div className="wai-main-panel">
@@ -286,7 +333,6 @@ const WhatsappIntegration = () => {
                 You have not link Whatsapp please click at create session to
                 link the Whatsapp. Scan the QR code then your whatsapp will be
                 link.
-                {/* A new WhatsApp session will be created for: {currentSession} */}
               </p>
 
               <div className="wai-action-buttons">
@@ -429,13 +475,6 @@ const WhatsappIntegration = () => {
               </p>
 
               <div className="wai-action-buttons">
-                {/* <button 
-                className="wai-primary-btn"
-                onClick={createSession}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Starting...' : 'Connect WhatsApp'}
-              </button> */}
                 <button
                   className="wai-danger-btn"
                   onClick={deleteSession}
