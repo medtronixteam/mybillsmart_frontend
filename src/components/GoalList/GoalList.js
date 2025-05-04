@@ -270,14 +270,14 @@ const AgentGoalList = () => {
   };
 
   return (
-    <div className="goal-list-container">
+    <div className="goal-list-container ">
       <Breadcrumbs homePath={"/agent/dashboard"} />
       <h2>Goals List</h2>
 
       {/* Filter Section */}
-      <div className="filters-section mb-4 p-4 rounded bg-transparent shadow-none justify-content-center">
-        <div className="row g-3 align-items-end w-100">
-          <div className="col-12 col-md-6 col-lg-3">
+      <div className="filters-section mb-4 rounded bg-transparent shadow-none justify-content-center px-0">
+        <div className="row g-3 align-items-end w-100 justify-content-center">
+          <div className="col-12 col-md-6 col-xl-3">
             <label className="form-label m-0">Status</label>
             <select
               className="form-select my-0"
@@ -290,7 +290,7 @@ const AgentGoalList = () => {
             </select>
           </div>
 
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-md-6 col-xl-2">
             <label className="form-label m-0">Start Date From</label>
             <input
               type="date"
@@ -300,7 +300,7 @@ const AgentGoalList = () => {
             />
           </div>
 
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-md-6 col-xl-2">
             <label className="form-label m-0">End Date To</label>
             <input
               type="date"
@@ -311,7 +311,7 @@ const AgentGoalList = () => {
             />
           </div>
 
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-md-6 col-xl-3">
             <label className="form-label m-0">Search</label>
             <input
               type="text"
@@ -322,8 +322,8 @@ const AgentGoalList = () => {
             />
           </div>
 
-          <div className="col-12 text-center">
-            <button className="btn btn-primary mt-3" onClick={resetFilters}>
+          <div className="col-12 col-xl-2 text-xl-start  text-center">
+            <button className="btn btn-primary my-0" onClick={resetFilters}>
               Reset Filters
             </button>
           </div>
