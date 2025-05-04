@@ -227,6 +227,20 @@ const Sidebar = () => {
                       </div>
                       <span className="nav-link-text">Client List</span>
                     </NavLink>
+                    
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/agent/reffred-user"
+                      className="nav-link "
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <HiOutlineUserGroup />
+                      </div>
+                      <span className="nav-link-text">Reffred User List</span>
+                    </NavLink>
+                    
                   </li>
                 </ul>
               </div>

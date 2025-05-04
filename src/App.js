@@ -116,6 +116,7 @@ import UserAddUser from "./User/AddUser/AddUser";
 import UserUserList from "./User/UserList/UserUserList";
 import UserNotifications from "./User/Notifications/UserNotifications";
 import AgentsContractForm from "./components/AgentsContractForm/AgentsContractForm";
+import ReffredUserList from "./components/ReffredUserList/ReffredUserList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -348,6 +349,10 @@ const App = () => {
                           <Route
                             path="agents-contract-form"
                             element={<AgentsContractForm />}
+                          />
+                          <Route
+                            path="reffred-user"
+                            element={<ReffredUserList />}
                           />
                           <Route path="user-list" element={<AgentUserList />} />
                           <Route path="goal" element={<AgentGoalList />} />

@@ -265,7 +265,7 @@ const AdminInvoice = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "File uploaded successfully!",
+          text: `Please Verify the ${selectedFile.name} file data before submitting`,
           timer: 3000,
           showConfirmButton: false,
         });
