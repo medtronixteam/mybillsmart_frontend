@@ -9,7 +9,7 @@ import Breadcrumbs from "../../Breadcrumbs";
 const AdminAddProduct = () => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("electricity");
-  
+
   // Form states for each product type
   const [electricityForm, setElectricityForm] = useState({
     provider_name: "",
@@ -106,7 +106,7 @@ const AdminAddProduct = () => {
 
   const submitElectricityForm = async (e) => {
     e.preventDefault();
-    
+
     try {
       const formData = new FormData();
       Object.entries(electricityForm).forEach(([key, value]) => {
@@ -115,23 +115,26 @@ const AdminAddProduct = () => {
         }
       });
 
-      const response = await fetch(`${config.BASE_URL}/api/supervisor/electricity-products`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/electricity-products`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to add electricity product");
-      
+
       Swal.fire({
         icon: "success",
         title: "Success!",
         text: "Electricity product added successfully!",
         confirmButtonText: "OK",
       });
-      
+
       // Reset form
       setElectricityForm({
         provider_name: "",
@@ -164,7 +167,7 @@ const AdminAddProduct = () => {
 
   const submitGasForm = async (e) => {
     e.preventDefault();
-    
+
     try {
       const formData = new FormData();
       Object.entries(gasForm).forEach(([key, value]) => {
@@ -173,23 +176,26 @@ const AdminAddProduct = () => {
         }
       });
 
-      const response = await fetch(`${config.BASE_URL}/api/supervisor/gas-products`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/gas-products`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to add gas product");
-      
+
       Swal.fire({
         icon: "success",
         title: "Success!",
         text: "Gas product added successfully!",
         confirmButtonText: "OK",
       });
-      
+
       // Reset form
       setGasForm({
         provider_name: "",
@@ -217,7 +223,7 @@ const AdminAddProduct = () => {
 
   const submitCombinedForm = async (e) => {
     e.preventDefault();
-    
+
     try {
       const formData = new FormData();
       Object.entries(combinedForm).forEach(([key, value]) => {
@@ -226,23 +232,26 @@ const AdminAddProduct = () => {
         }
       });
 
-      const response = await fetch(`${config.BASE_URL}/api/supervisor/combined-products`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/combined-products`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to add combined product");
-      
+
       Swal.fire({
         icon: "success",
         title: "Success!",
         text: "Combined product added successfully!",
         confirmButtonText: "OK",
       });
-      
+
       // Reset form
       setCombinedForm({
         provider_name: "",
@@ -282,45 +291,55 @@ const AdminAddProduct = () => {
     <>
       <div className="mt-4 container">
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
+
+        <div className="row justify-content-center text-center">
+          {/* Tabs Navigation */}
+          <div className="col-md-2 col-4">
+            <button
+              className={`tab-btn ${
+                activeTab === "electricity" ? "active" : ""
+              }`}
+              onClick={() => handleTabChange("electricity")}
+            >
+              Electricity
+            </button>
+          </div>
+          <div className="col-md-2 col-4">
+            <button
+              className={`tab-btn ${activeTab === "gas" ? "active" : ""}`}
+              onClick={() => handleTabChange("gas")}
+            >
+              Gas
+            </button>
+          </div>
+          <div className="col-md-2 col-4">
+            <button
+              className={`tab-btn ${activeTab === "combined" ? "active" : ""}`}
+              onClick={() => handleTabChange("combined")}
+            >
+              Combined
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="add-product-container mx-auto">
-        <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
           <h1 className="mb-0">Add Agreement</h1>
           <Link to="/group_admin/products">
-            <button className="btn btn-outline-primary">View Products</button>
+            <button className="btn btn-primary w-100 fs-6">View Products</button>
           </Link>
-        </div>
-
-        {/* Tabs Navigation */}
-        <div className="product-tabs mb-4">
-          <button
-            className={`tab-btn ${activeTab === "electricity" ? "active" : ""}`}
-            onClick={() => handleTabChange("electricity")}
-          >
-            Electricity
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "gas" ? "active" : ""}`}
-            onClick={() => handleTabChange("gas")}
-          >
-            Gas
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "combined" ? "active" : ""}`}
-            onClick={() => handleTabChange("combined")}
-          >
-            Combined
-          </button>
         </div>
 
         {/* Electricity Form */}
         {activeTab === "electricity" && (
-          <form onSubmit={submitElectricityForm} className="product-form">
-            <h3>Electricity Product</h3>
-            
+          <form onSubmit={submitElectricityForm} className="container">
             <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h3>Electricity Product</h3>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Provider Name</label>
                 <input
                   type="text"
@@ -329,10 +348,11 @@ const AdminAddProduct = () => {
                   value={electricityForm.provider_name}
                   onChange={handleElectricityChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Product Name</label>
                 <input
                   type="text"
@@ -341,26 +361,25 @@ const AdminAddProduct = () => {
                   value={electricityForm.product_name}
                   onChange={handleElectricityChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Customer Type</label>
                 <select
                   name="customer_type"
                   value={electricityForm.customer_type}
                   onChange={handleElectricityChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 >
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Light Category</label>
                 <input
                   type="text"
@@ -368,14 +387,15 @@ const AdminAddProduct = () => {
                   placeholder="Light Category"
                   value={electricityForm.light_category}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h4 className="mt-4">Power Terms (€/kW/month)</h4>
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h4 className="mt-4">Power Terms (€/kW/month)</h4>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Peak Power Term</label>
                 <input
                   type="number"
@@ -383,10 +403,11 @@ const AdminAddProduct = () => {
                   placeholder="Peak Power Term"
                   value={electricityForm.power_term_peak}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Off-Peak Power Term</label>
                 <input
                   type="number"
@@ -394,15 +415,16 @@ const AdminAddProduct = () => {
                   placeholder="Off-Peak Power Term"
                   value={electricityForm.power_term_off_peak}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h4 className="mt-4">Energy Terms (€/kWh)</h4>
-            <div className="row">
+              <div className="col-12">
+                <h4 className="mt-4">Energy Terms (€/kWh)</h4>
+              </div>
+
               {[1, 2, 3, 4, 5, 6].map((num) => (
-                <div className="col-md-4 mb-3" key={`p${num}`}>
+                <div className="col-12 col-sm-6 col-md-4 mb-3" key={`p${num}`}>
                   <label>{`P${num}`}</label>
                   <input
                     type="number"
@@ -410,14 +432,12 @@ const AdminAddProduct = () => {
                     placeholder={`P${num}`}
                     value={electricityForm[`p${num}`]}
                     onChange={handleElectricityChange}
-                    className="form-control"
+                    className="form-control w-100"
                   />
                 </div>
               ))}
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Contract Duration (months)</label>
                 <input
                   type="text"
@@ -425,10 +445,11 @@ const AdminAddProduct = () => {
                   placeholder="Contract Duration"
                   value={electricityForm.contract_duration}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Sales Commission</label>
                 <input
                   type="number"
@@ -436,59 +457,63 @@ const AdminAddProduct = () => {
                   placeholder="Sales Commission"
                   value={electricityForm.sales_commission}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement Start Date</label>
                 <input
                   type="date"
                   name="agreement_start"
                   value={electricityForm.agreement_start}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement End Date</label>
                 <input
                   type="date"
                   name="agreement_end"
                   value={electricityForm.agreement_end}
                   onChange={handleElectricityChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-12 mb-3">
+              <div className="col-12 mb-3">
                 <label>Contract Terms (PDF)</label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => handleFileUpload(e, "electricity")}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <button type="submit" className="btn btn-primary mt-3">
-              Add Electricity Product
-            </button>
+              <div className="col-12">
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-3 w-100 w-md-50"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
           </form>
         )}
 
         {/* Gas Form */}
         {activeTab === "gas" && (
-          <form onSubmit={submitGasForm} className="product-form">
-            <h3>Gas Product</h3>
-            
+          <form onSubmit={submitGasForm} className="container">
             <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h3>Gas Product</h3>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Provider Name</label>
                 <input
                   type="text"
@@ -497,10 +522,11 @@ const AdminAddProduct = () => {
                   value={gasForm.provider_name}
                   onChange={handleGasChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Product Name</label>
                 <input
                   type="text"
@@ -509,26 +535,25 @@ const AdminAddProduct = () => {
                   value={gasForm.product_name}
                   onChange={handleGasChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Customer Type</label>
                 <select
                   name="customer_type"
                   value={gasForm.customer_type}
                   onChange={handleGasChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 >
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Fixed Term (€/month)</label>
                 <input
                   type="number"
@@ -536,15 +561,16 @@ const AdminAddProduct = () => {
                   placeholder="Fixed Term"
                   value={gasForm.fixed_term}
                   onChange={handleGasChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h4 className="mt-4">Variable Terms (€/kWh)</h4>
-            <div className="row">
+              <div className="col-12">
+                <h4 className="mt-4">Variable Terms (€/kWh)</h4>
+              </div>
+
               {[1, 2, 3].map((num) => (
-                <div className="col-md-4 mb-3" key={`rl${num}`}>
+                <div className="col-12 col-sm-6 col-md-4 mb-3" key={`rl${num}`}>
                   <label>{`RL${num}`}</label>
                   <input
                     type="number"
@@ -552,14 +578,12 @@ const AdminAddProduct = () => {
                     placeholder={`RL${num}`}
                     value={gasForm[`rl${num}`]}
                     onChange={handleGasChange}
-                    className="form-control"
+                    className="form-control w-100"
                   />
                 </div>
               ))}
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Contract Duration (months)</label>
                 <input
                   type="text"
@@ -567,10 +591,11 @@ const AdminAddProduct = () => {
                   placeholder="Contract Duration"
                   value={gasForm.contract_duration}
                   onChange={handleGasChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Sales Commission</label>
                 <input
                   type="number"
@@ -578,59 +603,63 @@ const AdminAddProduct = () => {
                   placeholder="Sales Commission"
                   value={gasForm.sales_commission}
                   onChange={handleGasChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement Start Date</label>
                 <input
                   type="date"
                   name="agreement_start"
                   value={gasForm.agreement_start}
                   onChange={handleGasChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement End Date</label>
                 <input
                   type="date"
                   name="agreement_end"
                   value={gasForm.agreement_end}
                   onChange={handleGasChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-12 mb-3">
+              <div className="col-12 mb-3">
                 <label>Contract Terms (PDF)</label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => handleFileUpload(e, "gas")}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <button type="submit" className="btn btn-primary mt-3">
-              Add Gas Product
-            </button>
+              <div className="col-12">
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-3 w-100 w-md-50"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
           </form>
         )}
 
         {/* Combined Form */}
         {activeTab === "combined" && (
-          <form onSubmit={submitCombinedForm} className="product-form">
-            <h3>Combined Electricity + Gas Product</h3>
-            
+          <form onSubmit={submitCombinedForm} className="container">
             <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h3>Combined Electricity + Gas Product</h3>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Provider Name</label>
                 <input
                   type="text"
@@ -639,10 +668,11 @@ const AdminAddProduct = () => {
                   value={combinedForm.provider_name}
                   onChange={handleCombinedChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Product Name</label>
                 <input
                   type="text"
@@ -651,26 +681,25 @@ const AdminAddProduct = () => {
                   value={combinedForm.product_name}
                   onChange={handleCombinedChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Customer Type</label>
                 <select
                   name="customer_type"
                   value={combinedForm.customer_type}
                   onChange={handleCombinedChange}
                   required
-                  className="form-control"
+                  className="form-control w-100"
                 >
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Dual Contract Discount (%)</label>
                 <input
                   type="number"
@@ -678,14 +707,15 @@ const AdminAddProduct = () => {
                   placeholder="Dual Discount"
                   value={combinedForm.dual_discount}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h4 className="mt-4">Electricity Terms</h4>
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h4 className="mt-4">Electricity Terms</h4>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Light Category</label>
                 <input
                   type="text"
@@ -693,14 +723,15 @@ const AdminAddProduct = () => {
                   placeholder="Light Category"
                   value={combinedForm.light_category}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h5 className="mt-3">Power Terms (€/kW/month)</h5>
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h5 className="mt-3">Power Terms (€/kW/month)</h5>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Peak Power Term</label>
                 <input
                   type="number"
@@ -708,10 +739,11 @@ const AdminAddProduct = () => {
                   placeholder="Peak Power Term"
                   value={combinedForm.power_term_peak}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Off-Peak Power Term</label>
                 <input
                   type="number"
@@ -719,15 +751,16 @@ const AdminAddProduct = () => {
                   placeholder="Off-Peak Power Term"
                   value={combinedForm.power_term_off_peak}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h5 className="mt-3">Energy Terms (€/kWh)</h5>
-            <div className="row">
+              <div className="col-12">
+                <h5 className="mt-3">Energy Terms (€/kWh)</h5>
+              </div>
+
               {[1, 2, 3, 4, 5, 6].map((num) => (
-                <div className="col-md-4 mb-3" key={`p${num}`}>
+                <div className="col-12 col-sm-6 col-md-4 mb-3" key={`p${num}`}>
                   <label>{`P${num}`}</label>
                   <input
                     type="number"
@@ -735,15 +768,16 @@ const AdminAddProduct = () => {
                     placeholder={`P${num}`}
                     value={combinedForm[`p${num}`]}
                     onChange={handleCombinedChange}
-                    className="form-control"
+                    className="form-control w-100"
                   />
                 </div>
               ))}
-            </div>
 
-            <h4 className="mt-4">Gas Terms</h4>
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h4 className="mt-4">Gas Terms</h4>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Fixed Term (€/month)</label>
                 <input
                   type="number"
@@ -751,15 +785,16 @@ const AdminAddProduct = () => {
                   placeholder="Fixed Term"
                   value={combinedForm.fixed_term}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <h5 className="mt-3">Variable Terms (€/kWh)</h5>
-            <div className="row">
+              <div className="col-12">
+                <h5 className="mt-3">Variable Terms (€/kWh)</h5>
+              </div>
+
               {[1, 2, 3].map((num) => (
-                <div className="col-md-4 mb-3" key={`rl${num}`}>
+                <div className="col-12 col-sm-6 col-md-4 mb-3" key={`rl${num}`}>
                   <label>{`RL${num}`}</label>
                   <input
                     type="number"
@@ -767,15 +802,16 @@ const AdminAddProduct = () => {
                     placeholder={`RL${num}`}
                     value={combinedForm[`rl${num}`]}
                     onChange={handleCombinedChange}
-                    className="form-control"
+                    className="form-control w-100"
                   />
                 </div>
               ))}
-            </div>
 
-            <h4 className="mt-4">Common Terms</h4>
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12">
+                <h4 className="mt-4">Common Terms</h4>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Contract Duration (months)</label>
                 <input
                   type="text"
@@ -783,10 +819,11 @@ const AdminAddProduct = () => {
                   placeholder="Contract Duration"
                   value={combinedForm.contract_duration}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Sales Commission</label>
                 <input
                   type="number"
@@ -794,49 +831,51 @@ const AdminAddProduct = () => {
                   placeholder="Sales Commission"
                   value={combinedForm.sales_commission}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-6 mb-3">
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement Start Date</label>
                 <input
                   type="date"
                   name="agreement_start"
                   value={combinedForm.agreement_start}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-              <div className="col-md-6 mb-3">
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Agreement End Date</label>
                 <input
                   type="date"
                   name="agreement_end"
                   value={combinedForm.agreement_end}
                   onChange={handleCombinedChange}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <div className="row">
-              <div className="col-md-12 mb-3">
+              <div className="col-12 mb-3">
                 <label>Contract Terms (PDF)</label>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => handleFileUpload(e, "combined")}
-                  className="form-control"
+                  className="form-control w-100"
                 />
               </div>
-            </div>
 
-            <button type="submit" className="btn btn-primary mt-3">
-              Add Combined Product
-            </button>
+              <div className="col-12">
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-3 w-100 w-md-50"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
           </form>
         )}
       </div>
