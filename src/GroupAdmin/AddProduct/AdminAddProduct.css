@@ -118,3 +118,45 @@
     width: 100%;
   }
 }
+
+.product-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+}
+
+.tab-btn.active {
+  border-bottom: 3px solid #007bff;
+  color: #007bff;
+  font-weight: 600;
+}
+
+form h3, form h4, form h5 {
+  margin: 20px 0 15px;
+  color: #333;
+}
+
+form h3 {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.row {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
