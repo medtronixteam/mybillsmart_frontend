@@ -44,7 +44,7 @@ const ChatBoard = () => {
       const url = `http://34.93.86.68:8000/query?query=${encodedQuery}`;
   
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },

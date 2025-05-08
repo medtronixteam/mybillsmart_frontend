@@ -4,7 +4,9 @@
   max-width: 1200px;
   margin: 0 auto;
 }
-
+.dropdown-menu:before{
+  display: none;
+}
 /* Table Styles */
 .user-list-table {
   width: 100%;

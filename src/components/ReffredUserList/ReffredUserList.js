@@ -22,7 +22,8 @@ const ReffredUserList = () => {
 
   // Commission modal state
   const [showCommissionModal, setShowCommissionModal] = useState(false);
-  const [selectedUserForCommission, setSelectedUserForCommission] = useState(null);
+  const [selectedUserForCommission, setSelectedUserForCommission] =
+    useState(null);
   const [commissionAmount, setCommissionAmount] = useState("");
   const [commissionLoading, setCommissionLoading] = useState(false);
   const [notifyUser, setNotifyUser] = useState("yes");
@@ -60,18 +61,21 @@ const ReffredUserList = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${config.BASE_URL}/api/agent/referral/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch(
+        `${config.BASE_URL}/api/agent/referral/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.status === "success" && Array.isArray(result.refferedUsers)) {
         setUsers(result.refferedUsers);
         setFilteredUsers(result.refferedUsers);
@@ -100,7 +104,11 @@ const ReffredUserList = () => {
   };
 
   const handleCommissionSubmit = async () => {
-    if (!commissionAmount || isNaN(commissionAmount) || parseFloat(commissionAmount) <= 0) {
+    if (
+      !commissionAmount ||
+      isNaN(commissionAmount) ||
+      parseFloat(commissionAmount) <= 0
+    ) {
       Swal.fire({
         icon: "error",
         title: "Invalid Amount",
@@ -111,18 +119,21 @@ const ReffredUserList = () => {
 
     setCommissionLoading(true);
     try {
-      const response = await fetch(`${config.BASE_URL}/api/agent/commission/user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          user_id: selectedUserForCommission.id,
-          commission : parseFloat(commissionAmount),
-          notify_user: notifyUser,
-        }),
-      });
+      const response = await fetch(
+        `${config.BASE_URL}/api/agent/commission/user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            user_id: selectedUserForCommission.id,
+            commission: parseFloat(commissionAmount),
+            notify_user: notifyUser,
+          }),
+        }
+      );
 
       const result = await response.json();
       if (result.status === "success") {
@@ -177,13 +188,13 @@ const ReffredUserList = () => {
             },
           }
         );
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.status === "success") {
           Swal.fire({
             icon: "success",
@@ -227,13 +238,13 @@ const ReffredUserList = () => {
             },
           }
         );
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.status === "success") {
           Swal.fire({
             icon: "success",
@@ -271,12 +282,14 @@ const ReffredUserList = () => {
   // Calculate pagination data safely
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers?.slice(indexOfFirstUser, indexOfLastUser) || [];
+  const currentUsers =
+    filteredUsers?.slice(indexOfFirstUser, indexOfLastUser) || [];
   const totalPages = Math.ceil((filteredUsers?.length || 0) / usersPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
-  const nextPage = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
+  const nextPage = () =>
+    currentPage < totalPages && setCurrentPage(currentPage + 1);
 
   return (
     <div className="user-list-container">
@@ -289,10 +302,11 @@ const ReffredUserList = () => {
               Current commission: {selectedUserForCommission.commission || 0}%
             </p>
             <p className="commission-description">
-              Please enter the commission percentage you want to assign to this referred user.
-              This percentage will be applied to all transactions made by this user.
+              Please enter the commission percentage you want to assign to this
+              referred user. This percentage will be applied to all transactions
+              made by this user.
             </p>
-            
+
             <div className="form-group">
               <label>Commission Percentage</label>
               <div className="input-with-symbol">
@@ -300,7 +314,9 @@ const ReffredUserList = () => {
                   type="number"
                   value={commissionAmount}
                   onChange={(e) => setCommissionAmount(e.target.value)}
-                  placeholder={`Current: ${selectedUserForCommission.commission || 0}%`}
+                  placeholder={`Current: ${
+                    selectedUserForCommission.commission || 0
+                  }%`}
                   min="0"
                   max="100"
                   step="0.1"
@@ -319,7 +335,7 @@ const ReffredUserList = () => {
                 <option value="no">No</option>
               </select>
             </div>
-            
+
             <div className="modal-actions">
               <button
                 onClick={handleCommissionSubmit}
@@ -399,12 +415,15 @@ const ReffredUserList = () => {
         </div>
       ) : filteredUsers.length === 0 ? (
         <div className="alert alert-info text-center">
-          No users found. <Link to="/agent/add-client" className="alert-link">Add New User</Link>
+          No users found.{" "}
+          <Link to="/agent/add-client" className="alert-link">
+            Add New User
+          </Link>
         </div>
       ) : (
         <>
           <div className="table-responsive">
-            <table className="user-list-table table table-hover">
+            <table className="user-list-table table table-hover table-bordered">
               <thead className="table-light">
                 <tr>
                   <th>Name</th>
@@ -418,49 +437,64 @@ const ReffredUserList = () => {
               <tbody>
                 {currentUsers.map((user, index) => (
                   <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                    <td>{user.commission || 0}%</td>
-                    <td>
-                      <span className={`status-badge ${getStatusClass(user.status)}`}>
+                    <td className="border">{user.name}</td>
+                    <td className="border">{user.email}</td>
+                    <td className="border">{user.role}</td>
+                    <td className="border">{user.commission || 0}%</td>
+                    <td className="border">
+                      <span
+                        className={`status-badge ${getStatusClass(
+                          user.status
+                        )}`}
+                      >
                         {getStatusText(user.status)}
                       </span>
                     </td>
-                    <td className="text-end">
-                      <div className="dropdown">
-                        <button
+                    <td className="border">
+                      {/* <div className="dropdown"> */}
+                      {/* <button
                           className="btn btn-sm btn-outline-secondary dropdown-toggle"
                           onClick={() => toggleDropdown(index)}
+                        > */}
+                      <HiDotsHorizontal
+                        onClick={() => toggleDropdown(index)}
+                        size={30}
+                        className="cursor-pointer"
+                      />
+                      {/* </button> */}
+                      {activeDropdown === index && (
+                        <div
+                          className="dropdown-menu show"
+                          style={{ right: "20px" }}
                         >
-                          <HiDotsHorizontal />
-                        </button>
-                        {activeDropdown === index && (
-                          <div className="dropdown-menu show">
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleCommissionClick(user)}
+                          >
+                            Set Commission
+                          </button>
+                          {user.status === 1 ? (
                             <button
                               className="dropdown-item"
-                              onClick={() => handleCommissionClick(user)}
+                              onClick={() =>
+                                handleDisableClick(user.id, user.name)
+                              }
                             >
-                              Set Commission
+                              Disable
                             </button>
-                            {user.status === 1 ? (
-                              <button
-                                className="dropdown-item text-danger"
-                                onClick={() => handleDisableClick(user.id, user.name)}
-                              >
-                                Disable
-                              </button>
-                            ) : (
-                              <button
-                                className="dropdown-item text-success"
-                                onClick={() => handleEnableClick(user.id, user.name)}
-                              >
-                                Enable
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                          ) : (
+                            <button
+                              className="dropdown-item"
+                              onClick={() =>
+                                handleEnableClick(user.id, user.name)
+                              }
+                            >
+                              Enable
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {/* </div> */}
                     </td>
                   </tr>
                 ))}
@@ -472,19 +506,33 @@ const ReffredUserList = () => {
           {totalPages > 1 && (
             <nav className="d-flex justify-content-center mt-4">
               <ul className="pagination">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
                   <button className="page-link" onClick={prevPage}>
                     Previous
                   </button>
                 </li>
                 {Array.from({ length: totalPages }).map((_, index) => (
-                  <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => paginate(index + 1)}>
+                  <li
+                    key={index}
+                    className={`page-item ${
+                      currentPage === index + 1 ? "active" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => paginate(index + 1)}
+                    >
                       {index + 1}
                     </button>
                   </li>
                 ))}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${
+                    currentPage === totalPages ? "disabled" : ""
+                  }`}
+                >
                   <button className="page-link" onClick={nextPage}>
                     Next
                   </button>

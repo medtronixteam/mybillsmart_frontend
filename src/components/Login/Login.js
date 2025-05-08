@@ -157,7 +157,13 @@ const Login = () => {
   return (
     <div className="container-login">
       <div className="sign-up">
-        <img src="./assets/img/logo.jpg" className="img-fluid mb-3" alt="logo" width={200} height={200}/>
+        <img
+          src="./assets/img/logo.jpg"
+          className="img-fluid mb-3"
+          alt="logo"
+          width={200}
+          height={200}
+        />
         {/* <h1 className="heading">Login</h1> */}
 
         {error && (
@@ -238,7 +244,7 @@ const Login = () => {
               </span>
             </div>
 
-            <div className="remember-me-container">
+            <div className="remember-me-container d-flex align-items-center ps-2 mb-2">
               <input
                 type="checkbox"
                 checked={rememberMe}
@@ -246,7 +252,9 @@ const Login = () => {
                 id="rememberMe"
                 disabled={loading}
               />
-              <label htmlFor="rememberMe">Remember Me</label>
+              <label htmlFor="rememberMe" className="ms-2 mb-0">
+                Remember Me
+              </label>
             </div>
 
             <button

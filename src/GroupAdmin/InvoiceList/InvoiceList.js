@@ -332,10 +332,10 @@ const InvoiceList = () => {
               <thead>
                 <tr>
                   <th className="invoice-table-header">Bill Type</th>
-                  <th className="invoice-table-header">Agreement</th>
+                  {/* <th className="invoice-table-header">Agreement</th> */}
                   <th className="invoice-table-header">Address</th>
                   <th className="invoice-table-header">Billing Period</th>
-                  <th className="invoice-table-header">Offer Selected</th>
+                  <th className="invoice-table-header">Agreement</th>
                   <th className="invoice-table-header">Action</th>
                 </tr>
               </thead>
@@ -346,9 +346,9 @@ const InvoiceList = () => {
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>
-                      <td className="invoice-table-cell">
+                      {/* <td className="invoice-table-cell">
                         {invoice.agreement}
-                      </td>
+                      </td> */}
                       <td className="invoice-table-cell">{invoice.address}</td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
