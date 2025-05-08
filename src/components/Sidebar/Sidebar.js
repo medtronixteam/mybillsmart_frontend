@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
 import {
   FaHome,
@@ -57,7 +56,11 @@ const Sidebar = () => {
           id="iconSidenav"
         />
         <NavLink className="navbar-brand m-0" to="/agent/dashboard">
-          <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
+          <img
+            src="/assets/img/logo.jpg"
+            className="navbar-brand-img w-100"
+            alt="main_logo"
+          />
         </NavLink>
       </div>
       <hr className="horizontal dark mt-0" />
@@ -227,7 +230,6 @@ const Sidebar = () => {
                       </div>
                       <span className="nav-link-text">Client List</span>
                     </NavLink>
-                    
                   </li>
                   <li>
                     <NavLink
@@ -240,7 +242,6 @@ const Sidebar = () => {
                       </div>
                       <span className="nav-link-text">Reffred User List</span>
                     </NavLink>
-                    
                   </li>
                 </ul>
               </div>

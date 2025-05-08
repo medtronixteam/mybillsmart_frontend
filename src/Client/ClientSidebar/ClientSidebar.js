@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../assets/img/logo2.png";
 import whiteCurvedImage from "../../assets/img/curved-images/white-curved.jpeg";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -40,7 +39,11 @@ const ClientSidebar = () => {
           id="iconSidenav"
         />
         <NavLink className="navbar-brand m-0" to="/client/dashboard">
-          <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
+          <img
+            src="/assets/img/logo.jpg"
+            className="navbar-brand-img w-100"
+            alt="main_logo"
+          />
           {/* <span className="ms-1 font-weight-bold">MyBillSmart</span> */}
         </NavLink>
       </div>

@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../assets/img/logo2.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -56,7 +55,11 @@ const UserSidebar = () => {
           id="iconSidenav"
         />
         <NavLink className="navbar-brand m-0" to="/group_admin/dashboard">
-          <img src={logo} className="navbar-brand-img w-100" alt="main_logo" />
+          <img
+            src="/assets/img/logo.jpg"
+            className="navbar-brand-img w-100"
+            alt="main_logo"
+          />
         </NavLink>
       </div>
       <hr className="horizontal dark mt-0" />
