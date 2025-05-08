@@ -4,6 +4,7 @@ import {
   BsDownload,
   BsEnvelope,
   BsWhatsapp,
+  BsExclamationCircle,
 } from "react-icons/bs";
 import "./Invoice.css";
 import axios from "axios";
@@ -33,18 +34,18 @@ const Invoice = () => {
   const [loadingClients, setLoadingClients] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
   const auth = useAuth();
-
   const email = auth.email || "";
-
   const [whatsappData, setWhatsappData] = useState({
     to: "",
     message: "",
   });
   const [isDragging, setIsDragging] = useState(false);
+  const [planInfo, setPlanInfo] = useState(null);
+  const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
 
-  // Helper function to show success alerts
+  // Alert functions
   const showSuccessAlert = (message) => {
     Swal.fire({
       icon: 'success',
@@ -55,7 +56,6 @@ const Invoice = () => {
     });
   };
 
-  // Helper function to show error alerts
   const showErrorAlert = (message) => {
     Swal.fire({
       icon: 'error',
@@ -65,7 +65,6 @@ const Invoice = () => {
     });
   };
 
-  // Helper function to show info alerts
   const showInfoAlert = (message) => {
     Swal.fire({
       icon: 'info',
@@ -76,18 +75,35 @@ const Invoice = () => {
     });
   };
 
+  // Fetch plan info
   useEffect(() => {
-    if (showModal) {
-      fetchClients();
-    }
-  }, [showModal]);
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPlanInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+        setPlanInfo(error.response?.data || { 
+          status: "error", 
+          message: "Failed to fetch plan information" 
+        });
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
+    fetchPlanInfo();
+  }, [token]);
 
+  // Drag & Drop File Upload Listeners
   useEffect(() => {
     const preventDefaults = (e) => {
       e.preventDefault();
       e.stopPropagation();
     };
-
     const handleDrop = (e) => {
       preventDefaults(e);
       setIsDragging(false);
@@ -95,27 +111,22 @@ const Invoice = () => {
         handleFiles(e.dataTransfer.files);
       }
     };
-
     const handleDragEnter = (e) => {
       preventDefaults(e);
       setIsDragging(true);
     };
-
     const handleDragLeave = (e) => {
       preventDefaults(e);
       setIsDragging(false);
     };
-
     const handleDragOver = (e) => {
       preventDefaults(e);
       setIsDragging(true);
     };
-
     window.addEventListener("dragenter", handleDragEnter);
     window.addEventListener("dragleave", handleDragLeave);
     window.addEventListener("dragover", handleDragOver);
     window.addEventListener("drop", handleDrop);
-
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
       window.removeEventListener("dragleave", handleDragLeave);
@@ -124,6 +135,14 @@ const Invoice = () => {
     };
   }, []);
 
+  // Fetch clients when modal opens
+  useEffect(() => {
+    if (showModal) {
+      fetchClients();
+    }
+  }, [showModal]);
+
+  // Fetch Clients
   const fetchClients = async () => {
     setLoadingClients(true);
     try {
@@ -135,7 +154,6 @@ const Invoice = () => {
           },
         }
       );
-
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -144,9 +162,7 @@ const Invoice = () => {
       } else if (response.data && Array.isArray(response.data.clients)) {
         clientsData = response.data.clients;
       }
-
       setClients(clientsData || []);
-
       if (clientsData.length === 0) {
         showInfoAlert("No clients found");
       }
@@ -159,25 +175,69 @@ const Invoice = () => {
     }
   };
 
+   const showApiError = (error, defaultMessage = "An error occurred") => {
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          defaultMessage;
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        timer: 3000,
+        showConfirmButton: false
+      });
+    };
+   const handleSelectOffer = async (offerId) => {
+      try {
+        const response = await axios.post(
+          `${config.BASE_URL}/api/agent/offer/selected`,
+          { offer_id: offerId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: response.data.message || "Offer selected successfully!",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("Error selecting offer:", error);
+        showApiError(error, "Failed to select offer");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to select offer. Please try again.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      }
+    };
+  // Handle Files
   const handleFiles = useCallback(
     (files) => {
+      if (planInfo?.status === "error") return;
       const selectedFile = files[0];
       if (!selectedFile) return;
-
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
         showErrorAlert("Only JPEG, PNG, and PDF files are allowed.");
         return;
       }
-
       if (file) {
         showInfoAlert("A file is already uploaded. Please submit the form.");
         return;
       }
-
       uploadFile(selectedFile);
     },
-    [file]
+    [file, planInfo]
   );
 
   const handleFileChange = (e) => {
@@ -188,13 +248,13 @@ const Invoice = () => {
     e.target.value = "";
   };
 
+  // Upload File
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
     setUploading(true);
     setFile(selectedFile);
     const formData = new FormData();
     formData.append("file", selectedFile);
-
     try {
       const response = await axios.post(
         "http://34.142.252.64:7000/api/file/",
@@ -203,7 +263,6 @@ const Invoice = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
       if (response.data) {
         setResponseData(response.data);
         setFormData(response.data);
@@ -219,6 +278,7 @@ const Invoice = () => {
     }
   };
 
+  // Form Change Handler
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -227,15 +287,14 @@ const Invoice = () => {
     });
   };
 
+  // Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const matchData = {
         ...formData,
         group_id: groupId,
       };
-
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
         matchData,
@@ -244,12 +303,10 @@ const Invoice = () => {
         }
       );
       setSubmittedData(matchResponse.data);
-
       const invoiceData = {
         ...formData,
         group_id: groupId,
       };
-
       const invoiceResponse = await axios.post(
         `${config.BASE_URL}/api/agent/invoices`,
         invoiceData,
@@ -260,16 +317,13 @@ const Invoice = () => {
           },
         }
       );
-
       const invoiceId = invoiceResponse.data.invoice;
       setInvoiceId(invoiceId);
-
       const offersData = matchResponse.data.map((item) => ({
         ...item,
         invoice_id: invoiceId,
         group_id: groupId,
       }));
-
       const offersResponse = await axios.post(
         `${config.BASE_URL}/api/agent/offers`,
         offersData,
@@ -280,11 +334,9 @@ const Invoice = () => {
           },
         }
       );
-
       if (offersResponse.data && offersResponse.data.offers) {
         setOffers(offersResponse.data.offers);
       }
-
       setStep(3);
       showSuccessAlert(`${invoiceResponse.data.message}` );
     } catch (error) {
@@ -292,6 +344,7 @@ const Invoice = () => {
     }
   };
 
+  // Render Fields
   const renderFormFields = (data) => {
     return Object.keys(data)
       .filter((key) => data[key] !== null && typeof data[key] !== "object")
@@ -317,9 +370,9 @@ const Invoice = () => {
       });
   };
 
+  // CSV Conversion
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
-
     const allKeys = data.reduce((keys, item) => {
       Object.keys(item).forEach((key) => {
         if (
@@ -338,7 +391,6 @@ const Invoice = () => {
       });
       return keys;
     }, []);
-
     const headers = allKeys
       .map(
         (key) =>
@@ -347,7 +399,6 @@ const Invoice = () => {
             .replace(/^./, (str) => str.toUpperCase())}"`
       )
       .join(",");
-
     const rows = data
       .map((item) => {
         return allKeys
@@ -358,10 +409,10 @@ const Invoice = () => {
           .join(",");
       })
       .join("\n");
-
     return `${headers}\n${rows}`;
   };
 
+  // Download Functions
   const downloadFile = (content, fileName, mimeType) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -383,7 +434,6 @@ const Invoice = () => {
       showErrorAlert("No data available to download");
       return;
     }
-
     try {
       const csvContent = convertToCSV(submittedData);
       downloadFile(
@@ -407,7 +457,6 @@ const Invoice = () => {
       showErrorAlert("No data available to download");
       return;
     }
-
     try {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
       downloadFile(
@@ -422,31 +471,26 @@ const Invoice = () => {
     }
   };
 
+  // Generate PDF
   const generatePDF = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
     pdf.setFontSize(12);
-
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
         const supplierName =
           supplier["Supplier Name"] ||
           supplier["supplierName"] ||
           `Supplier ${index + 1}`;
-
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-
         Object.keys(supplier).forEach((key) => {
           if (
             ![
@@ -463,18 +507,15 @@ const Invoice = () => {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-
     pdf.save("invoice_details.pdf");
   };
 
@@ -482,27 +523,21 @@ const Invoice = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
     pdf.setFontSize(12);
-
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
         const supplierName =
           supplier["Supplier Name"] ||
           supplier["supplierName"] ||
           `Supplier ${index + 1}`;
-
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-
         Object.keys(supplier).forEach((key) => {
           if (
             ![
@@ -519,21 +554,19 @@ const Invoice = () => {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-
     return pdf.output("blob");
   };
 
+  // Navigate to contract page
   const handleContractClick = (offer) => {
     navigate("/agent/contract", {
       state: {
@@ -543,6 +576,9 @@ const Invoice = () => {
     });
   };
 
+  // New Function: Select Offer
+
+  // Send Actions
   const handleSendToClientPortal = () => {
     setModalType("portal");
     setShowModal(true);
@@ -557,6 +593,7 @@ const Invoice = () => {
     setShowWhatsappModal(true);
   };
 
+  // WhatsApp Modal Handlers
   const handleWhatsappModalClose = () => {
     setShowWhatsappModal(false);
     setWhatsappData({ to: "", message: "" });
@@ -575,28 +612,23 @@ const Invoice = () => {
       showErrorAlert("Phone number is required");
       return;
     }
-
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "");
     if (!phoneRegex.test(rawPhone)) {
       showErrorAlert("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
-
     try {
       const pdfBlob = generatePDFBlob();
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `invoice_${invoiceId}.pdf`;
-
       const sessionEmail = email.replace(/[@.]/g, "_");
-
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message || "Invoice details",
@@ -607,7 +639,6 @@ const Invoice = () => {
           mimeType: "application/pdf",
         },
       };
-
       const response = await axios.post(
         "http://34.142.252.64:3000/api/sendFile",
         payload,
@@ -617,7 +648,6 @@ const Invoice = () => {
           },
         }
       );
-
       if (response.status === 201) {
         showSuccessAlert("WhatsApp message sent successfully!");
         handleWhatsappModalClose();
@@ -635,6 +665,7 @@ const Invoice = () => {
     }
   };
 
+  // Modal Handlers
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");
@@ -649,7 +680,6 @@ const Invoice = () => {
       showErrorAlert("Please select a client!");
       return;
     }
-
     try {
       if (modalType === "email") {
         await axios.post(
@@ -679,7 +709,6 @@ const Invoice = () => {
             },
           }
         );
-
         if (response.status === 200) {
           showSuccessAlert("Invoice sent to client portal successfully!");
         } else {
@@ -690,9 +719,39 @@ const Invoice = () => {
       console.error("Error sending data", error);
       showErrorAlert("Failed to send. Please try again.");
     }
-
     handleModalClose();
   };
+
+  // Loading State
+  if (loadingPlanInfo) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (planInfo?.status === "error") {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-8 col-lg-6">
+            <div className="card border-danger">
+              <div className="card-body text-center p-5">
+                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <h2 className="card-title mb-3">Plan Information</h2>
+                <p className="card-text mb-4">
+                  {planInfo.message || "Your admin need to purchase a plan to submit invoices."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -709,7 +768,6 @@ const Invoice = () => {
             </div>
           </div>
         )}
-
         <div className="invoice-stepper">
           <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
           <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -718,6 +776,7 @@ const Invoice = () => {
           <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
         </div>
 
+        {/* Step 1 */}
         {step === 1 && (
           <>
             <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
@@ -732,9 +791,7 @@ const Invoice = () => {
             >
               <label htmlFor="file-input" className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
-                <p>
-                  {uploading ? "Uploading..." : "Choose / Drop a file here"}
-                </p>
+                <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
                 {file && (
                   <div className="file-preview">
                     <p>({Math.round(file.size / 1024)} KB)</p>
@@ -752,6 +809,7 @@ const Invoice = () => {
           </>
         )}
 
+        {/* Step 2 */}
         {step === 2 && responseData && (
           <div className="invoice-form-container w-100">
             <h2 className="invoice-form-heading">Verify your Invoice</h2>
@@ -772,58 +830,66 @@ const Invoice = () => {
           </div>
         )}
 
+        {/* Step 3 */}
         {step === 3 && offers.length > 0 && (
-          <>
-            <div className="text-center container">
-              <div className="row">
-                <div className="col-12">
-                  <h1 className="best-offers-heading mb-0">
-                    Here is some best offers for you choose one of them
-                  </h1>
-                </div>
+    <>
+      <div className="text-center container">
+        <div className="row">
+          <div className="col-12">
+            <h1 className="best-offers-heading mb-0">
+              Here is some best offers for you choose one of them
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="justify-content-center row w-100">
+        {offers.map((offer, index) => (
+          <div className="col-xl-4 col-md-6" key={index}>
+            <div className="invoice-card-responsive invoice-card h-100 w-100">
+              {Object.keys(offer).map((key) => {
+                if (
+                  key !== "user_id" &&
+                  key !== "invoice_id" &&
+                  key !== "created_at" &&
+                  key !== "updated_at" &&
+                  key !== "id" &&
+                  key !== "Client_id" &&
+                  offer[key]
+                ) {
+                  return (
+                    <p key={key}>
+                      <strong>
+                        {key
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        :
+                      </strong>{" "}
+                      {offer[key]}
+                    </p>
+                  );
+                }
+                return null;
+              })}
+
+              <div className="d-flex flex-column gap-2">
+                <button
+                  className="invoice-confirmation-btn"
+                  onClick={() => handleContractClick(offer)}
+                >
+                  Manage Agreement
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleSelectOffer(offer.id)}
+                >
+                  Select Offer
+                </button>
               </div>
             </div>
-
-            <div className="justify-content-center row w-100">
-              {offers.map((offer, index) => (
-                <div className="col-xl-4 col-md-6" key={index}>
-                  <div className="invoice-card-responsive invoice-card h-100 w-100">
-                    {Object.keys(offer).map((key) => {
-                      if (
-                        key !== "user_id" &&
-                        key !== "invoice_id" &&
-                        key !== "created_at" &&
-                        key !== "updated_at" &&
-                        key !== "id" &&
-                        key !== "Client_id" &&
-                        offer[key]
-                      ) {
-                        return (
-                          <p key={key}>
-                            <strong>
-                              {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </strong>{" "}
-                            {offer[key]}
-                          </p>
-                        );
-                      }
-                      return null;
-                    })}
-
-                    <button
-                      className="invoice-confirmation-btn"
-                      onClick={() => handleContractClick(offer)}
-                    >
-                      Manage Agreement
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
+          </div>
+        ))}
+      </div>
             <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
               <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
                 <button
@@ -885,6 +951,7 @@ const Invoice = () => {
           </>
         )}
 
+        {/* Modals */}
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content w-100">
@@ -912,7 +979,7 @@ const Invoice = () => {
                 ) : (
                   <>
                     <div className="mb-3">
-                      <label className="form-label text-start d-block pb-1">
+                      <label className="form-label d-block pb-1 text-start">
                         Select Client:
                       </label>
                       <select

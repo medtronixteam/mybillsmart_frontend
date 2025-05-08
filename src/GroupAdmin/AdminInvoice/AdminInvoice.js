@@ -58,6 +58,40 @@ const AdminInvoice = () => {
     });
   };
 
+
+  const handleSelectOffer = async (offerId) => {
+    try {
+      const response = await axios.post(
+        `${config.BASE_URL}/api/group/offer/selected`,
+        { offer_id: offerId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: response.data.message || "Offer selected successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error selecting offer:", error);
+      showApiError(error, "Failed to select offer");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to select offer. Please try again.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchPlanInfo = async () => {
       try {
@@ -143,7 +177,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Your Internet connection is unstable. Please try again.",
+        text: "Failed to fetch file information. Please try again.",
         timer: 3000,
         showConfirmButton: false,
       });
@@ -276,7 +310,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Your Internet connection is unstable. Please try again.",
+        text: "Failed to upload file. Please try again.",
         timer: 3000,
         showConfirmButton: false,
       });
@@ -988,57 +1022,65 @@ const AdminInvoice = () => {
           </div>
         )}
 
-        {step === 3 && offers.length > 0 && (
-          <>
-            <div className="text-center container">
-              <div className="row">
-                <div className="col-12">
-                  <h1 className="best-offers-heading mb-0">
-                    Here is some best offers for you choose one of them
-                  </h1>
-                </div>
+{step === 3 && offers.length > 0 && (
+    <>
+      <div className="text-center container">
+        <div className="row">
+          <div className="col-12">
+            <h1 className="best-offers-heading mb-0">
+              Here is some best offers for you choose one of them
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="justify-content-center row w-100">
+        {offers.map((offer, index) => (
+          <div className="col-xl-4 col-md-6" key={index}>
+            <div className="invoice-card-responsive invoice-card h-100 w-100">
+              {Object.keys(offer).map((key) => {
+                if (
+                  key !== "user_id" &&
+                  key !== "invoice_id" &&
+                  key !== "created_at" &&
+                  key !== "updated_at" &&
+                  key !== "id" &&
+                  key !== "Client_id" &&
+                  offer[key]
+                ) {
+                  return (
+                    <p key={key}>
+                      <strong>
+                        {key
+                          .replace(/([A-Z])/g, " $1")
+                          .replace(/^./, (str) => str.toUpperCase())}
+                        :
+                      </strong>{" "}
+                      {offer[key]}
+                    </p>
+                  );
+                }
+                return null;
+              })}
+
+              <div className="d-flex flex-column gap-2">
+                <button
+                  className="invoice-confirmation-btn"
+                  onClick={() => handleContractClick(offer)}
+                >
+                  Manage Agreement
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={() => handleSelectOffer(offer.id)}
+                >
+                  Select Offer
+                </button>
               </div>
             </div>
-
-            <div className="justify-content-center row w-100">
-              {offers.map((offer, index) => (
-                <div className="col-xl-4 col-md-6" key={index}>
-                  <div className="invoice-card-responsive invoice-card h-100 w-100">
-                    {Object.keys(offer).map((key) => {
-                      if (
-                        key !== "user_id" &&
-                        key !== "invoice_id" &&
-                        key !== "created_at" &&
-                        key !== "updated_at" &&
-                        key !== "id" &&
-                        key !== "Client_id" &&
-                        offer[key]
-                      ) {
-                        return (
-                          <p key={key}>
-                            <strong>
-                              {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </strong>{" "}
-                            {offer[key]}
-                          </p>
-                        );
-                      }
-                      return null;
-                    })}
-
-                    <button
-                      className="invoice-confirmation-btn"
-                      onClick={() => handleContractClick(offer)}
-                    >
-                      Manage Agreement
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          </div>
+        ))}
+      </div>
 
             <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
               <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
