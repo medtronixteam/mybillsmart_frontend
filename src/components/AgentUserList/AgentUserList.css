@@ -35,9 +35,9 @@
   font-weight: bold;
 }
 
-.user-list-container tr:nth-child(even) {
+/* .user-list-container tr:nth-child(even) {
   background-color: #f2f2f2;
-}
+} */
 
 .user-list-container input,
 .user-list-container select {
@@ -62,16 +62,16 @@
   opacity: 0.9;
 }
 
-.user-list-container button:nth-child(1) {
+/* .user-list-container button:nth-child(1) {
   background-color: #28a745;
   color: white;
-}
+} */
 
 /* Delete Button */
-.user-list-container button:nth-child(2) {
+/* .user-list-container button:nth-child(2) {
   background-color: #dc3545;
   color: white;
-}
+} */
 
 .user-list-container button[onClick*="handleSaveClick"] {
   background-color: #3598db;
