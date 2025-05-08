@@ -15,35 +15,48 @@ const AdminAddProduct = () => {
     provider_name: "",
     product_name: "",
     light_category: "",
+    fixed_rate: "",
     p1: "",
     p2: "",
     p3: "",
     p4: "",
     p5: "",
     p6: "",
-    power_term_peak: "",
-    power_term_off_peak: "",
+    power_term: "",
+    peak: "",
+    off_peak: "",
+    energy_term_by_time: "",
+    variable_term_by_tariff: "",
     contract_duration: "",
     customer_type: "residential",
     sales_commission: "",
-    agreement_start: "",
-    agreement_end: "",
-    contract_terms: null,
+    points_per_deal: "",
+    meter_rental: "",
+    validity_period_from: "",
+    validity_period_to: "",
+    discount_period_start: "",
+    discount_period_end: "",
+    contact_terms: null,
   });
 
   const [gasForm, setGasForm] = useState({
     provider_name: "",
     product_name: "",
-    fixed_term: "",
+    light_category: "",
+    fixed_rate: "",
     rl1: "",
     rl2: "",
     rl3: "",
     contract_duration: "",
     customer_type: "residential",
     sales_commission: "",
-    agreement_start: "",
-    agreement_end: "",
-    contract_terms: null,
+    points_per_deal: "",
+    meter_rental: "",
+    validity_period_from: "",
+    validity_period_to: "",
+    discount_period_start: "",
+    discount_period_end: "",
+    contact_terms: null,
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -51,16 +64,19 @@ const AdminAddProduct = () => {
     product_name: "",
     // Electricity fields
     light_category: "",
+    fixed_rate: "",
     p1: "",
     p2: "",
     p3: "",
     p4: "",
     p5: "",
     p6: "",
-    power_term_peak: "",
-    power_term_off_peak: "",
+    power_term: "",
+    peak: "",
+    off_peak: "",
+    energy_term_by_time: "",
+    variable_term_by_tariff: "",
     // Gas fields
-    fixed_term: "",
     rl1: "",
     rl2: "",
     rl3: "",
@@ -68,9 +84,13 @@ const AdminAddProduct = () => {
     contract_duration: "",
     customer_type: "residential",
     sales_commission: "",
-    agreement_start: "",
-    agreement_end: "",
-    contract_terms: null,
+    points_per_deal: "",
+    meter_rental: "",
+    validity_period_from: "",
+    validity_period_to: "",
+    discount_period_start: "",
+    discount_period_end: "",
+    contact_terms: null,
     dual_discount: "",
   });
 
@@ -96,11 +116,11 @@ const AdminAddProduct = () => {
   const handleFileUpload = (e, formType) => {
     const file = e.target.files[0];
     if (formType === "electricity") {
-      setElectricityForm({ ...electricityForm, contract_terms: file });
+      setElectricityForm({ ...electricityForm, contact_terms: file });
     } else if (formType === "gas") {
-      setGasForm({ ...gasForm, contract_terms: file });
+      setGasForm({ ...gasForm, contact_terms: file });
     } else {
-      setCombinedForm({ ...combinedForm, contract_terms: file });
+      setCombinedForm({ ...combinedForm, contact_terms: file });
     }
   };
 
@@ -116,7 +136,7 @@ const AdminAddProduct = () => {
       });
 
       const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/electricity-products`,
+        `${config.BASE_URL}/api/electricity/products`,
         {
           method: "POST",
           headers: {
@@ -140,20 +160,28 @@ const AdminAddProduct = () => {
         provider_name: "",
         product_name: "",
         light_category: "",
+        fixed_rate: "",
         p1: "",
         p2: "",
         p3: "",
         p4: "",
         p5: "",
         p6: "",
-        power_term_peak: "",
-        power_term_off_peak: "",
+        power_term: "",
+        peak: "",
+        off_peak: "",
+        energy_term_by_time: "",
+        variable_term_by_tariff: "",
         contract_duration: "",
         customer_type: "residential",
         sales_commission: "",
-        agreement_start: "",
-        agreement_end: "",
-        contract_terms: null,
+        points_per_deal: "",
+        meter_rental: "",
+        validity_period_from: "",
+        validity_period_to: "",
+        discount_period_start: "",
+        discount_period_end: "",
+        contact_terms: null,
       });
     } catch (error) {
       Swal.fire({
@@ -177,7 +205,7 @@ const AdminAddProduct = () => {
       });
 
       const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/gas-products`,
+        `${config.BASE_URL}/api/gas/products`,
         {
           method: "POST",
           headers: {
@@ -200,16 +228,21 @@ const AdminAddProduct = () => {
       setGasForm({
         provider_name: "",
         product_name: "",
-        fixed_term: "",
+        light_category: "",
+        fixed_rate: "",
         rl1: "",
         rl2: "",
         rl3: "",
         contract_duration: "",
         customer_type: "residential",
         sales_commission: "",
-        agreement_start: "",
-        agreement_end: "",
-        contract_terms: null,
+        points_per_deal: "",
+        meter_rental: "",
+        validity_period_from: "",
+        validity_period_to: "",
+        discount_period_start: "",
+        discount_period_end: "",
+        contact_terms: null,
       });
     } catch (error) {
       Swal.fire({
@@ -233,7 +266,7 @@ const AdminAddProduct = () => {
       });
 
       const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/combined-products`,
+        `${config.BASE_URL}/api/both/products`,
         {
           method: "POST",
           headers: {
@@ -257,24 +290,31 @@ const AdminAddProduct = () => {
         provider_name: "",
         product_name: "",
         light_category: "",
+        fixed_rate: "",
         p1: "",
         p2: "",
         p3: "",
         p4: "",
         p5: "",
         p6: "",
-        power_term_peak: "",
-        power_term_off_peak: "",
-        fixed_term: "",
+        power_term: "",
+        peak: "",
+        off_peak: "",
+        energy_term_by_time: "",
+        variable_term_by_tariff: "",
         rl1: "",
         rl2: "",
         rl3: "",
         contract_duration: "",
         customer_type: "residential",
         sales_commission: "",
-        agreement_start: "",
-        agreement_end: "",
-        contract_terms: null,
+        points_per_deal: "",
+        meter_rental: "",
+        validity_period_from: "",
+        validity_period_to: "",
+        discount_period_start: "",
+        discount_period_end: "",
+        contact_terms: null,
         dual_discount: "",
       });
     } catch (error) {
@@ -336,11 +376,11 @@ const AdminAddProduct = () => {
           <form onSubmit={submitElectricityForm} className="container">
             <div className="row">
               <div className="col-12">
-                <h3>Electricity Product</h3>
+                <h3>Electricity Agreement</h3>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Provider Name</label>
+                <label>Provider Name*</label>
                 <input
                   type="text"
                   name="provider_name"
@@ -353,7 +393,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name</label>
+                <label>Product Name*</label>
                 <input
                   type="text"
                   name="product_name"
@@ -366,7 +406,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Customer Type</label>
+                <label>Customer Type*</label>
                 <select
                   name="customer_type"
                   value={electricityForm.customer_type}
@@ -380,41 +420,112 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Light Category</label>
+                <label>Light Category*</label>
                 <input
                   type="text"
                   name="light_category"
                   placeholder="Light Category"
                   value={electricityForm.light_category}
                   onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Fixed Rate*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="fixed_rate"
+                  placeholder="Fixed Rate"
+                  value={electricityForm.fixed_rate}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Meter Rental*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="meter_rental"
+                  placeholder="Meter Rental"
+                  value={electricityForm.meter_rental}
+                  onChange={handleElectricityChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12">
-                <h4 className="mt-4">Power Terms (€/kW/month)</h4>
+                <h4 className="mt-4">Power Terms</h4>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Peak Power Term</label>
+                <label>Power Term*</label>
                 <input
                   type="number"
-                  name="power_term_peak"
-                  placeholder="Peak Power Term"
-                  value={electricityForm.power_term_peak}
+                  step="0.01"
+                  name="power_term"
+                  placeholder="Power Term"
+                  value={electricityForm.power_term}
                   onChange={handleElectricityChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Off-Peak Power Term</label>
+                <label>Peak*</label>
                 <input
-                  type="number"
-                  name="power_term_off_peak"
-                  placeholder="Off-Peak Power Term"
-                  value={electricityForm.power_term_off_peak}
+                  type="text"
+                  name="peak"
+                  placeholder="Peak"
+                  value={electricityForm.peak}
                   onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Off Peak*</label>
+                <input
+                  type="text"
+                  name="off_peak"
+                  placeholder="Off Peak"
+                  value={electricityForm.off_peak}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Energy Term By Time*</label>
+                <input
+                  type="text"
+                  name="energy_term_by_time"
+                  placeholder="Energy Term By Time"
+                  value={electricityForm.energy_term_by_time}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Variable Term By Tariff*</label>
+                <input
+                  type="text"
+                  name="variable_term_by_tariff"
+                  placeholder="Variable Term By Tariff"
+                  value={electricityForm.variable_term_by_tariff}
+                  onChange={handleElectricityChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -428,6 +539,7 @@ const AdminAddProduct = () => {
                   <label>{`P${num}`}</label>
                   <input
                     type="number"
+                    step="0.0001"
                     name={`p${num}`}
                     placeholder={`P${num}`}
                     value={electricityForm[`p${num}`]}
@@ -438,57 +550,98 @@ const AdminAddProduct = () => {
               ))}
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Contract Duration (months)</label>
+                <label>Contract Duration*</label>
                 <input
                   type="text"
                   name="contract_duration"
                   placeholder="Contract Duration"
                   value={electricityForm.contract_duration}
                   onChange={handleElectricityChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission</label>
+                <label>Sales Commission*</label>
                 <input
                   type="number"
+                  step="0.01"
                   name="sales_commission"
                   placeholder="Sales Commission"
                   value={electricityForm.sales_commission}
                   onChange={handleElectricityChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement Start Date</label>
+                <label>Points Per Deal*</label>
+                <input
+                  type="number"
+                  name="points_per_deal"
+                  placeholder="Points Per Deal"
+                  value={electricityForm.points_per_deal}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period From*</label>
                 <input
                   type="date"
-                  name="agreement_start"
-                  value={electricityForm.agreement_start}
+                  name="validity_period_from"
+                  value={electricityForm.validity_period_from}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period To*</label>
+                <input
+                  type="date"
+                  name="validity_period_to"
+                  value={electricityForm.validity_period_to}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Discount Period Start</label>
+                <input
+                  type="date"
+                  name="discount_period_start"
+                  value={electricityForm.discount_period_start}
                   onChange={handleElectricityChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement End Date</label>
+                <label>Discount Period End</label>
                 <input
                   type="date"
-                  name="agreement_end"
-                  value={electricityForm.agreement_end}
+                  name="discount_period_end"
+                  value={electricityForm.discount_period_end}
                   onChange={handleElectricityChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 mb-3">
-                <label>Contract Terms (PDF)</label>
+                <label>Contract Terms*</label>
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileUpload(e, "electricity")}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -510,11 +663,11 @@ const AdminAddProduct = () => {
           <form onSubmit={submitGasForm} className="container">
             <div className="row">
               <div className="col-12">
-                <h3>Gas Product</h3>
+                <h3>Gas Agreement</h3>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Provider Name</label>
+                <label>Provider Name*</label>
                 <input
                   type="text"
                   name="provider_name"
@@ -527,7 +680,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name</label>
+                <label>Product Name*</label>
                 <input
                   type="text"
                   name="product_name"
@@ -540,7 +693,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Customer Type</label>
+                <label>Customer Type*</label>
                 <select
                   name="customer_type"
                   value={gasForm.customer_type}
@@ -554,13 +707,42 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Fixed Term (€/month)</label>
+                <label>Light Category*</label>
+                <input
+                  type="text"
+                  name="light_category"
+                  placeholder="Light Category"
+                  value={gasForm.light_category}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Fixed Rate*</label>
                 <input
                   type="number"
-                  name="fixed_term"
-                  placeholder="Fixed Term"
-                  value={gasForm.fixed_term}
+                  step="0.01"
+                  name="fixed_rate"
+                  placeholder="Fixed Rate"
+                  value={gasForm.fixed_rate}
                   onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Meter Rental*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="meter_rental"
+                  placeholder="Meter Rental"
+                  value={gasForm.meter_rental}
+                  onChange={handleGasChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -574,6 +756,7 @@ const AdminAddProduct = () => {
                   <label>{`RL${num}`}</label>
                   <input
                     type="number"
+                    step="0.0001"
                     name={`rl${num}`}
                     placeholder={`RL${num}`}
                     value={gasForm[`rl${num}`]}
@@ -584,57 +767,98 @@ const AdminAddProduct = () => {
               ))}
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Contract Duration (months)</label>
+                <label>Contract Duration*</label>
                 <input
                   type="text"
                   name="contract_duration"
                   placeholder="Contract Duration"
                   value={gasForm.contract_duration}
                   onChange={handleGasChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission</label>
+                <label>Sales Commission*</label>
                 <input
                   type="number"
+                  step="0.01"
                   name="sales_commission"
                   placeholder="Sales Commission"
                   value={gasForm.sales_commission}
                   onChange={handleGasChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement Start Date</label>
+                <label>Points Per Deal*</label>
+                <input
+                  type="number"
+                  name="points_per_deal"
+                  placeholder="Points Per Deal"
+                  value={gasForm.points_per_deal}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period From*</label>
                 <input
                   type="date"
-                  name="agreement_start"
-                  value={gasForm.agreement_start}
+                  name="validity_period_from"
+                  value={gasForm.validity_period_from}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period To*</label>
+                <input
+                  type="date"
+                  name="validity_period_to"
+                  value={gasForm.validity_period_to}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Discount Period Start</label>
+                <input
+                  type="date"
+                  name="discount_period_start"
+                  value={gasForm.discount_period_start}
                   onChange={handleGasChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement End Date</label>
+                <label>Discount Period End</label>
                 <input
                   type="date"
-                  name="agreement_end"
-                  value={gasForm.agreement_end}
+                  name="discount_period_end"
+                  value={gasForm.discount_period_end}
                   onChange={handleGasChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 mb-3">
-                <label>Contract Terms (PDF)</label>
+                <label>Contract Terms*</label>
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileUpload(e, "gas")}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -656,11 +880,11 @@ const AdminAddProduct = () => {
           <form onSubmit={submitCombinedForm} className="container">
             <div className="row">
               <div className="col-12">
-                <h3>Combined Electricity + Gas Product</h3>
+                <h3>Combined Agreement + Gas Agreement</h3>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Provider Name</label>
+                <label>Provider Name*</label>
                 <input
                   type="text"
                   name="provider_name"
@@ -673,7 +897,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name</label>
+                <label>Product Name*</label>
                 <input
                   type="text"
                   name="product_name"
@@ -686,7 +910,7 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Customer Type</label>
+                <label>Customer Type*</label>
                 <select
                   name="customer_type"
                   value={combinedForm.customer_type}
@@ -703,6 +927,7 @@ const AdminAddProduct = () => {
                 <label>Dual Contract Discount (%)</label>
                 <input
                   type="number"
+                  step="0.01"
                   name="dual_discount"
                   placeholder="Dual Discount"
                   value={combinedForm.dual_discount}
@@ -716,41 +941,98 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Light Category</label>
+                <label>Light Category*</label>
                 <input
                   type="text"
                   name="light_category"
                   placeholder="Light Category"
                   value={combinedForm.light_category}
                   onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Fixed Rate*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="fixed_rate"
+                  placeholder="Fixed Rate"
+                  value={combinedForm.fixed_rate}
+                  onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12">
-                <h5 className="mt-3">Power Terms (€/kW/month)</h5>
+                <h5 className="mt-3">Power Terms</h5>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Peak Power Term</label>
+                <label>Power Term*</label>
                 <input
                   type="number"
-                  name="power_term_peak"
-                  placeholder="Peak Power Term"
-                  value={combinedForm.power_term_peak}
+                  step="0.01"
+                  name="power_term"
+                  placeholder="Power Term"
+                  value={combinedForm.power_term}
                   onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Off-Peak Power Term</label>
+                <label>Peak*</label>
                 <input
-                  type="number"
-                  name="power_term_off_peak"
-                  placeholder="Off-Peak Power Term"
-                  value={combinedForm.power_term_off_peak}
+                  type="text"
+                  name="peak"
+                  placeholder="Peak"
+                  value={combinedForm.peak}
                   onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Off Peak*</label>
+                <input
+                  type="text"
+                  name="off_peak"
+                  placeholder="Off Peak"
+                  value={combinedForm.off_peak}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Energy Term By Time*</label>
+                <input
+                  type="text"
+                  name="energy_term_by_time"
+                  placeholder="Energy Term By Time"
+                  value={combinedForm.energy_term_by_time}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Variable Term By Tariff*</label>
+                <input
+                  type="text"
+                  name="variable_term_by_tariff"
+                  placeholder="Variable Term By Tariff"
+                  value={combinedForm.variable_term_by_tariff}
+                  onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -764,6 +1046,7 @@ const AdminAddProduct = () => {
                   <label>{`P${num}`}</label>
                   <input
                     type="number"
+                    step="0.0001"
                     name={`p${num}`}
                     placeholder={`P${num}`}
                     value={combinedForm[`p${num}`]}
@@ -778,13 +1061,29 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Fixed Term (€/month)</label>
+                <label>Fixed Rate*</label>
                 <input
                   type="number"
-                  name="fixed_term"
-                  placeholder="Fixed Term"
-                  value={combinedForm.fixed_term}
+                  step="0.01"
+                  name="fixed_rate"
+                  placeholder="Fixed Rate"
+                  value={combinedForm.fixed_rate}
                   onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Meter Rental*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="meter_rental"
+                  placeholder="Meter Rental"
+                  value={combinedForm.meter_rental}
+                  onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
@@ -798,6 +1097,7 @@ const AdminAddProduct = () => {
                   <label>{`RL${num}`}</label>
                   <input
                     type="number"
+                    step="0.0001"
                     name={`rl${num}`}
                     placeholder={`RL${num}`}
                     value={combinedForm[`rl${num}`]}
@@ -812,57 +1112,98 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Contract Duration (months)</label>
+                <label>Contract Duration*</label>
                 <input
                   type="text"
                   name="contract_duration"
                   placeholder="Contract Duration"
                   value={combinedForm.contract_duration}
                   onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission</label>
+                <label>Sales Commission*</label>
                 <input
                   type="number"
+                  step="0.01"
                   name="sales_commission"
                   placeholder="Sales Commission"
                   value={combinedForm.sales_commission}
                   onChange={handleCombinedChange}
+                  required
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement Start Date</label>
+                <label>Points Per Deal*</label>
+                <input
+                  type="number"
+                  name="points_per_deal"
+                  placeholder="Points Per Deal"
+                  value={combinedForm.points_per_deal}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period From*</label>
                 <input
                   type="date"
-                  name="agreement_start"
-                  value={combinedForm.agreement_start}
+                  name="validity_period_from"
+                  value={combinedForm.validity_period_from}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Validity Period To*</label>
+                <input
+                  type="date"
+                  name="validity_period_to"
+                  value={combinedForm.validity_period_to}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Discount Period Start</label>
+                <input
+                  type="date"
+                  name="discount_period_start"
+                  value={combinedForm.discount_period_start}
                   onChange={handleCombinedChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Agreement End Date</label>
+                <label>Discount Period End</label>
                 <input
                   type="date"
-                  name="agreement_end"
-                  value={combinedForm.agreement_end}
+                  name="discount_period_end"
+                  value={combinedForm.discount_period_end}
                   onChange={handleCombinedChange}
                   className="form-control w-100"
                 />
               </div>
 
               <div className="col-12 mb-3">
-                <label>Contract Terms (PDF)</label>
+                <label>Contract Terms*</label>
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileUpload(e, "combined")}
+                  required
                   className="form-control w-100"
                 />
               </div>

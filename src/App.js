@@ -117,6 +117,7 @@ import UserUserList from "./User/UserList/UserUserList";
 import UserNotifications from "./User/Notifications/UserNotifications";
 import AgentsContractForm from "./components/AgentsContractForm/AgentsContractForm";
 import ReffredUserList from "./components/ReffredUserList/ReffredUserList";
+import ChatBoard from "./GroupAdmin/ChatBoard/ChatBoard";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -269,6 +270,7 @@ const App = () => {
       <Elements stripe={stripePromise}>
         <Router>
           <ToastContainer />
+          <ChatBoard />
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
@@ -571,6 +573,11 @@ const App = () => {
                           <Route
                             path="agrement-list"
                             element={<AgrementList />}
+                          />
+                          
+                          <Route
+                            path="chat"
+                            element={<ChatBoard />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

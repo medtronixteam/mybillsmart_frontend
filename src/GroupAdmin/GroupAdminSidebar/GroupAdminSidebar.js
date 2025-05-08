@@ -338,7 +338,7 @@ const GroupAdminSidebar = () => {
             </div>
           </li>
 
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
               style={{ color: " #67748e" }}
@@ -388,7 +388,7 @@ const GroupAdminSidebar = () => {
                 </ul>
               </div>
             </div>
-          </li>
+          </li> */}
 
           <li className="nav-item">
             <NavLink
