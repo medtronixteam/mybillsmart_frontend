@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { BsCloudUpload, BsDownload } from "react-icons/bs";
+import { BsCloudUpload, BsDownload, BsExclamationCircle } from "react-icons/bs";
 import "./ClientInvoice.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -20,50 +20,10 @@ const ClientInvoice = () => {
   const [invoiceId, setInvoiceId] = useState(null);
   const [offers, setOffers] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [planInfo, setPlanInfo] = useState(null);
+  const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
   const navigate = useNavigate();
   const { token, groupId } = useAuth();
-
-  useEffect(() => {
-    const preventDefaults = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    const handleDrop = (e) => {
-      preventDefaults(e);
-      setIsDragging(false);
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleFiles(e.dataTransfer.files);
-      }
-    };
-
-    const handleDragEnter = (e) => {
-      preventDefaults(e);
-      setIsDragging(true);
-    };
-
-    const handleDragLeave = (e) => {
-      preventDefaults(e);
-      setIsDragging(false);
-    };
-
-    const handleDragOver = (e) => {
-      preventDefaults(e);
-      setIsDragging(true);
-    };
-
-    window.addEventListener("dragenter", handleDragEnter);
-    window.addEventListener("dragleave", handleDragLeave);
-    window.addEventListener("dragover", handleDragOver);
-    window.addEventListener("drop", handleDrop);
-
-    return () => {
-      window.removeEventListener("dragenter", handleDragEnter);
-      window.removeEventListener("dragleave", handleDragLeave);
-      window.removeEventListener("dragover", handleDragOver);
-      window.removeEventListener("drop", handleDrop);
-    };
-  }, []);
 
   const showAlert = (icon, title, text) => {
     Swal.fire({
@@ -75,33 +35,81 @@ const ClientInvoice = () => {
     });
   };
 
+  useEffect(() => {
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPlanInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+        setPlanInfo(error.response?.data || {
+          status: "error",
+          message: "Failed to fetch plan information",
+        });
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
+    fetchPlanInfo();
+  }, [token]);
+
+  useEffect(() => {
+    const preventDefaults = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    const handleDrop = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    };
+    const handleDragEnter = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+    const handleDragLeave = (e) => {
+      preventDefaults(e);
+      setIsDragging(false);
+    };
+    const handleDragOver = (e) => {
+      preventDefaults(e);
+      setIsDragging(true);
+    };
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("drop", handleDrop);
+    return () => {
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("drop", handleDrop);
+    };
+  }, []);
+
   const handleFiles = useCallback(
     (files) => {
+      if (planInfo?.status === "error") return;
       const selectedFile = files[0];
       if (!selectedFile) return;
-
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        showAlert(
-          "error",
-          "Error",
-          "Only JPEG, PNG, and PDF files are allowed."
-        );
+        showAlert("error", "Error", "Only JPEG, PNG, and PDF files are allowed.");
         return;
       }
-
       if (file) {
-        showAlert(
-          "info",
-          "Info",
-          "A file is already uploaded. Please submit the form."
-        );
+        showAlert("info", "Info", "A file is already uploaded. Please submit the form.");
         return;
       }
-
       uploadFile(selectedFile);
     },
-    [file]
+    [file, planInfo]
   );
 
   const handleFileChange = (e) => {
@@ -118,7 +126,6 @@ const ClientInvoice = () => {
     setFile(selectedFile);
     const formData = new FormData();
     formData.append("file", selectedFile);
-
     try {
       const response = await axios.post(
         "http://34.142.252.64:7000/api/file/",
@@ -127,7 +134,6 @@ const ClientInvoice = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
       if (response.data) {
         setResponseData(response.data);
         setFormData(response.data);
@@ -153,13 +159,11 @@ const ClientInvoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const matchData = {
         ...formData,
         group_id: groupId,
       };
-
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
         matchData,
@@ -167,15 +171,12 @@ const ClientInvoice = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
       setSubmittedData(matchResponse.data);
       setOffers(matchResponse.data);
-
       const invoiceData = {
         ...formData,
         group_id: groupId,
       };
-
       const invoiceResponse = await axios.post(
         `${config.BASE_URL}/api/client/invoices`,
         invoiceData,
@@ -186,10 +187,8 @@ const ClientInvoice = () => {
           },
         }
       );
-
       const invoiceId = invoiceResponse.data.invoice;
       setInvoiceId(invoiceId);
-
       setStep(3);
       showAlert("success", "Success", "Form submitted successfully!");
     } catch (error) {
@@ -225,7 +224,6 @@ const ClientInvoice = () => {
 
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
-
     const allKeys = data.reduce((keys, item) => {
       Object.keys(item).forEach((key) => {
         if (
@@ -244,7 +242,6 @@ const ClientInvoice = () => {
       });
       return keys;
     }, []);
-
     const headers = allKeys
       .map(
         (key) =>
@@ -253,7 +250,6 @@ const ClientInvoice = () => {
             .replace(/^./, (str) => str.toUpperCase())}"`
       )
       .join(",");
-
     const rows = data
       .map((item) => {
         return allKeys
@@ -264,7 +260,6 @@ const ClientInvoice = () => {
           .join(",");
       })
       .join("\n");
-
     return `${headers}\n${rows}`;
   };
 
@@ -281,22 +276,13 @@ const ClientInvoice = () => {
   };
 
   const downloadCSV = () => {
-    if (
-      !submittedData ||
-      !Array.isArray(submittedData) ||
-      submittedData.length === 0
-    ) {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
       showAlert("error", "Error", "No data available to download");
       return;
     }
-
     try {
       const csvContent = convertToCSV(submittedData);
-      downloadFile(
-        csvContent,
-        `invoice_${invoiceId}_data.csv`,
-        "text/csv;charset=utf-8;"
-      );
+      downloadFile(`invoice_${invoiceId}_data.csv`, csvContent, "text/csv;charset=utf-8;");
       showAlert("success", "Success", "CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
@@ -305,22 +291,13 @@ const ClientInvoice = () => {
   };
 
   const downloadExcel = () => {
-    if (
-      !submittedData ||
-      !Array.isArray(submittedData) ||
-      submittedData.length === 0
-    ) {
+    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
       showAlert("error", "Error", "No data available to download");
       return;
     }
-
     try {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
-      downloadFile(
-        csvContent,
-        `invoice_${invoiceId}_data.xls`,
-        "application/vnd.ms-excel;charset=utf-8;"
-      );
+      downloadFile(`invoice_${invoiceId}_data.xls`, csvContent, "application/vnd.ms-excel;charset=utf-8;");
       showAlert("success", "Success", "Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
@@ -332,27 +309,21 @@ const ClientInvoice = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yOffset = 20;
-
     pdf.setFontSize(18);
     pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
     yOffset += 10;
-
     pdf.setLineWidth(0.5);
     pdf.line(10, yOffset, pageWidth - 10, yOffset);
     yOffset += 10;
-
     pdf.setFontSize(12);
-
     if (submittedData && Array.isArray(submittedData)) {
       submittedData.forEach((supplier, index) => {
         const supplierName =
           supplier["Supplier Name"] ||
           supplier["supplierName"] ||
           `Supplier ${index + 1}`;
-
         pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
         yOffset += 10;
-
         Object.keys(supplier).forEach((key) => {
           if (
             ![
@@ -369,18 +340,15 @@ const ClientInvoice = () => {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
-
             pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
             yOffset += 10;
           }
         });
-
         yOffset += 10;
       });
     } else {
       pdf.text("No supplier data available", 10, yOffset);
     }
-
     pdf.save("invoice_details.pdf");
   };
 
@@ -392,6 +360,42 @@ const ClientInvoice = () => {
       },
     });
   };
+
+  if (loadingPlanInfo) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (planInfo?.status === "error") {
+    return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-8 col-lg-6">
+            <div className="card border-danger">
+              <div className="card-body text-center p-5">
+                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <h2 className="card-title mb-3">Plan Information</h2>
+                <p className="card-text mb-4">
+                  {planInfo.message || "You need to purchase a plan to submit invoices."}
+                </p>
+                {/* <button
+                  className="btn btn-primary"
+                  onClick={() => (window.location.href = "/client/subscription")}
+                >
+                  View Plans
+                </button> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -408,7 +412,6 @@ const ClientInvoice = () => {
             </div>
           </div>
         )}
-
         <div className="invoice-stepper">
           <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
           <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -416,14 +419,11 @@ const ClientInvoice = () => {
           <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
           <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
         </div>
-
         {step === 1 && (
           <>
             <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
             <div
-              className={`invoice-file-upload-box ${
-                isDragging ? "dragging" : ""
-              }`}
+              className={`invoice-file-upload-box ${isDragging ? "dragging" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 document.getElementById("file-input").click();
@@ -431,9 +431,7 @@ const ClientInvoice = () => {
             >
               <label htmlFor="file-input" className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
-                <p>
-                  {uploading ? "Uploading..." : "Choose / Drop a File Here"}
-                </p>
+                <p>{uploading ? "Uploading..." : "Choose / Drop a File Here"}</p>
                 {file && (
                   <div className="file-preview">
                     <p>({Math.round(file.size / 1024)} KB)</p>
@@ -450,7 +448,6 @@ const ClientInvoice = () => {
             </div>
           </>
         )}
-
         {step === 2 && responseData && (
           <div className="invoice-form-container w-100">
             <h2 className="invoice-form-heading">Verify your Invoice</h2>
@@ -470,7 +467,6 @@ const ClientInvoice = () => {
             </form>
           </div>
         )}
-
         {step === 3 && offers.length > 0 && (
           <>
             <div className="text-center container">
@@ -482,7 +478,6 @@ const ClientInvoice = () => {
                 </div>
               </div>
             </div>
-
             <div className="justify-content-center row w-100">
               {offers.map((offer, index) => (
                 <div className="col-xl-4 col-md-6" key={index}>
@@ -515,7 +510,6 @@ const ClientInvoice = () => {
                 </div>
               ))}
             </div>
-
             <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
               <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
                 <button

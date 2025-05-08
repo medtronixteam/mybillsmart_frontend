@@ -98,3 +98,12 @@
     }
     
 } */
+
+.warning-message{
+  background-color: rgba(232, 71, 71, 0.79);
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 10px;
+}
