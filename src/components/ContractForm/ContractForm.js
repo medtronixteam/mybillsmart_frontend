@@ -18,7 +18,6 @@ const ContractForm = () => {
     name: "",
     selectedClient: "",
     client_id: "",
-    selectedAgreement: "",
     agreement_id: "",
     contracted_provider: "",
     contracted_rate: "",
@@ -74,32 +73,32 @@ const ContractForm = () => {
     };
 
     const fetchAgreements = async () => {
-      try {
-        const response = await axios.get(
-          `${config.BASE_URL}/api/agent/agreements`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      // try {
+      //   const response = await axios.get(
+      //     `${config.BASE_URL}/api/agent/agreements`,
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         Authorization: `Bearer ${token}`,
+      //       },
+      //     }
+      //   );
 
-        if (isMounted && response.data && Array.isArray(response.data.data)) {
-          setAgreements(response.data.data);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("Error fetching agreements:", error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to fetch agreements.',
-            showConfirmButton: true,
-            confirmButtonColor: '#3085d6'
-          });
-        }
-      }
+      //   if (isMounted && response.data && Array.isArray(response.data.data)) {
+      //     setAgreements(response.data.data);
+      //   }
+      // } catch (error) {
+      //   if (isMounted) {
+      //     console.error("Error fetching agreements:", error);
+      //     Swal.fire({
+      //       icon: 'error',
+      //       title: 'Error',
+      //       text: 'Failed to fetch agreements.',
+      //       showConfirmButton: true,
+      //       confirmButtonColor: '#3085d6'
+      //     });
+      //   }
+      // }
     };
 
     fetchClients();
@@ -218,7 +217,6 @@ const ContractForm = () => {
         name: "",
         selectedClient: "",
         client_id: "",
-        selectedAgreement: "",
         agreement_id: "",
         contracted_provider: "",
         contracted_rate: "",

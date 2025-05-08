@@ -36,7 +36,7 @@ const AdminAddProduct = () => {
     validity_period_to: "",
     discount_period_start: "",
     discount_period_end: "",
-    contact_terms: null,
+    contact_terms: "",
   });
 
   const [gasForm, setGasForm] = useState({
@@ -56,7 +56,13 @@ const AdminAddProduct = () => {
     validity_period_to: "",
     discount_period_start: "",
     discount_period_end: "",
-    contact_terms: null,
+    contact_terms: "",
+    power_term : "",
+    peak: "",
+    off_peak: "",
+    energy_term_by_time: "",  
+    variable_term_by_tariff: "",
+
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -90,7 +96,7 @@ const AdminAddProduct = () => {
     validity_period_to: "",
     discount_period_start: "",
     discount_period_end: "",
-    contact_terms: null,
+    contact_terms: "",
     dual_discount: "",
   });
 
@@ -181,7 +187,7 @@ const AdminAddProduct = () => {
         validity_period_to: "",
         discount_period_start: "",
         discount_period_end: "",
-        contact_terms: null,
+        contact_terms: "",
       });
     } catch (error) {
       Swal.fire({
@@ -242,7 +248,7 @@ const AdminAddProduct = () => {
         validity_period_to: "",
         discount_period_start: "",
         discount_period_end: "",
-        contact_terms: null,
+        contact_terms: "",
       });
     } catch (error) {
       Swal.fire({
@@ -314,7 +320,7 @@ const AdminAddProduct = () => {
         validity_period_to: "",
         discount_period_start: "",
         discount_period_end: "",
-        contact_terms: null,
+        contact_terms: "",
         dual_discount: "",
       });
     } catch (error) {
@@ -637,13 +643,15 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleFileUpload(e, "electricity")}
-                  required
-                  className="form-control w-100"
-                />
+                <textarea 
+  name="contact_terms"
+  placeholder="Contract Terms"
+  value={electricityForm.contact_terms}
+  onChange={handleElectricityChange}
+  required
+  className="form-control w-100"
+/>
+                
               </div>
 
               <div className="col-12">
@@ -734,6 +742,20 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
+                <label>Power Term*</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="power_term"
+                  placeholder="Power Term"
+                  value={gasForm.power_term}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Meter Rental*</label>
                 <input
                   type="number"
@@ -746,10 +768,61 @@ const AdminAddProduct = () => {
                   className="form-control w-100"
                 />
               </div>
+              <div className="col-12 col-md-6 mb-3">
+                <label>Peak*</label>
+                <input
+                  type="text"
+                  name="peak"
+                  placeholder="Peak"
+                  value={gasForm.peak}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
 
+              <div className="col-12 col-md-6 mb-3">
+                <label>Off Peak*</label>
+                <input
+                  type="text"
+                  name="off_peak"
+                  placeholder="Off Peak"
+                  value={gasForm.off_peak}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Energy Term By Time*</label>
+                <input
+                  type="text"
+                  name="energy_term_by_time"
+                  placeholder="Energy Term By Time"
+                  value={gasForm.energy_term_by_time}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Variable Term By Tariff*</label>
+                <input
+                  type="text"
+                  name="variable_term_by_tariff"
+                  placeholder="Variable Term By Tariff"
+                  value={gasForm.variable_term_by_tariff}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100"
+                />
+              </div>
               <div className="col-12">
                 <h4 className="mt-4">Variable Terms (€/kWh)</h4>
               </div>
+              
 
               {[1, 2, 3].map((num) => (
                 <div className="col-12 col-sm-6 col-md-4 mb-3" key={`rl${num}`}>
@@ -854,13 +927,15 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleFileUpload(e, "gas")}
-                  required
-                  className="form-control w-100"
-                />
+                <textarea 
+  name="contact_terms"
+  placeholder="Contract Terms"
+  value={gasForm.contact_terms}
+  onChange={handleGasChange}
+  required
+  className="form-control w-100"
+/>
+                
               </div>
 
               <div className="col-12">
@@ -1199,13 +1274,15 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleFileUpload(e, "combined")}
-                  required
-                  className="form-control w-100"
-                />
+                <textarea 
+  name="contact_terms"
+  placeholder="Contract Terms"
+  value={combinedForm.contact_terms}
+  onChange={handleCombinedChange}
+  required
+  className="form-control w-100"
+/>
+                
               </div>
 
               <div className="col-12">
