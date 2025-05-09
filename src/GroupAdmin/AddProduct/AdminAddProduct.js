@@ -616,7 +616,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period Start</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_start"
                   value={electricityForm.discount_period_start}
                   onChange={handleElectricityChange}
@@ -627,7 +627,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period End</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_end"
                   value={electricityForm.discount_period_end}
                   onChange={handleElectricityChange}
@@ -898,7 +898,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period Start</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_start"
                   value={gasForm.discount_period_start}
                   onChange={handleGasChange}
@@ -909,7 +909,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period End</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_end"
                   value={gasForm.discount_period_end}
                   onChange={handleGasChange}
@@ -1244,7 +1244,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period Start</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_start"
                   value={combinedForm.discount_period_start}
                   onChange={handleCombinedChange}
@@ -1255,7 +1255,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Discount Period End</label>
                 <input
-                  type="date"
+                  type="number"
                   name="discount_period_end"
                   value={combinedForm.discount_period_end}
                   onChange={handleCombinedChange}
