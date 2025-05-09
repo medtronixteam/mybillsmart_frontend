@@ -5,7 +5,7 @@ import axios from "axios";
 import "./AminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-
+import Breadcrumbs from "../../Breadcrumbs";
 const AminContractForm = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -166,11 +166,6 @@ const AminContractForm = () => {
     }
 
     if (
-      !formData.name ||
-      !formData.selectedClient ||
-      !formData.selectedAgreement ||
-      !formData.contracted_provider ||
-      !formData.contracted_rate ||
       !formData.closure_date
     ) {
       await Swal.fire({
@@ -183,14 +178,17 @@ const AminContractForm = () => {
     }
 
     const payload = {
-      name: formData.name,
+      // name: formData.name,
       client_id: formData.client_id,
       offer_id: offerId,
-      agreement_id: formData.agreement_id,
-      contracted_provider: formData.contracted_provider,
-      contracted_rate: formData.contracted_rate,
+      // agreement_id: formData.agreement_id,
+      // contracted_provider: formData.contracted_provider,
+      // contracted_rate: formData.contracted_rate,
       status: formData.status,
+      start_date: formData.start_date,
       closure_date: formData.closure_date,
+      requires_document: formData.requires_document === "yes",
+      note: formData.note
     };
 
     try {
@@ -225,82 +223,121 @@ const AminContractForm = () => {
         title: "Error",
         text: error.response?.data?.message || "Failed to submit Contract.",
         confirmButtonColor: "#3085d6"
-      });
+      }); 
     }
   };
 
   return (
-    <div className="add-Contract-container">
-      <h2 className="add-Contract-heading">Client Agreement</h2>
-     
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Please Enter Contract Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+<>
 
-        <select
-          name="selectedClient"
-          value={formData.selectedClient}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select a Client</option>
-          {clients.map((client) => (
-            <option key={client.id} value={client.name}>
-              {client.name}
-            </option>
-          ))}
-        </select>
+<div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="add-Contract-container">
+        <h2 className="add-Contract-heading">Agreement With Client</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="document-requirement-section">
+   <label>Please Enter Note for the Contract</label>
+          <textarea  name="note" value={formData.note} onChange={handleChange} placeholder="Please Enter a note"></textarea>
+          </div>
+   <div className="document-requirement-section">
+   <label>Start Date</label>
+          <select
+            name="selectedClient"
+            value={formData.selectedClient}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select a Client</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.name}>
+                {client.name}
+              </option>
+            ))}
+          </select>
 
-        <select
-          name="selectedAgreement"
-          value={formData.selectedAgreement}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select an Agreement</option>
-          {agreements.map((agreement) => (
-            <option key={agreement.id} value={agreement.title}>
-              {agreement.title}
-            </option>
-          ))}
-        </select>
 
-        <input
-          type="text"
-          name="contracted_provider"
-          placeholder="Please Enter Contracted Provider"
-          value={formData.contracted_provider}
-          onChange={handleChange}
-          required
-        />
+        </div>
 
-        <input
-          type="number"
-          name="contracted_rate"
-          placeholder="Please Enter Contracted Rate"
-          value={formData.contracted_rate}
-          onChange={handleChange}
-          required
-        />
+          {/* <select
+            name="selectedAgreement"
+            value={formData.selectedAgreement}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select an Agreement</option>
+            {agreements.map((agreement) => (
+              <option key={agreement.id} value={agreement.title}>
+                {agreement.title}
+              </option>
+            ))}
+          </select> */}
 
-        <input
-          type="date"
-          name="closure_date"
-          placeholder="Please Enter Closure Date"
-          value={formData.closure_date}
-          onChange={handleChange}
-          required
-        />
+          {/* <input
+            type="text"
+            name="contracted_provider"
+            placeholder="Please Enter Contracted Provider"
+            value={formData.contracted_provider}
+            onChange={handleChange}
+            required
+          /> */}
 
-        <button type="submit">Add Contract</button>
-      </form>
-    </div>
+          {/* <input
+            type="number"
+            name="contracted_rate"
+            placeholder="Please Enter Contracted Rate"
+            value={formData.contracted_rate}
+            onChange={handleChange}
+            required
+          /> */}
+
+<div className="document-requirement-section">
+<label>Start Date</label>
+          <input
+            type="date"
+            name="start_date"
+            placeholder="Please Enter Start Date"
+            value={formData.start_date}
+            onChange={handleChange}
+            required
+          />
+          </div>
+          <div className="document-requirement-section">
+          <label style={{fontSize: "12px", fontWeight: "bold"}}>Close Date</label>
+          <input
+            type="date"
+            name="closure_date"
+            placeholder="Please Enter Closure Date"
+            value={formData.closure_date}
+            onChange={handleChange}
+            required
+          />
+          </div>
+
+          <div className="document-requirement-section">
+            <label>Does this agreement require a document from the client?</label>
+            <select
+              name="requires_document"
+              value={formData.requires_document}
+              onChange={handleChange}
+              required
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+         
+            <div className="warning-message">
+              <strong>Warning:</strong> If you select "Yes", the client will NOT be able to upload documents for this agreement. 
+              The agreement will be marked as "active" immediately.
+            </div>
+        
+
+          <button type="submit">Add Contract</button>
+        </form>
+      </div>
+</>
   );
 };
 

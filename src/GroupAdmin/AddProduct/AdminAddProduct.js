@@ -348,8 +348,8 @@ const AdminAddProduct = () => {
               onClick={() => handleTabChange("gas")}
             >
               Gas
-            </button>
-          </div>
+            </button> 
+          </div> 
           <div className="col-md-2 col-4">
             <button
               className={`tab-btn ${activeTab === "combined" ? "active" : ""}`}
