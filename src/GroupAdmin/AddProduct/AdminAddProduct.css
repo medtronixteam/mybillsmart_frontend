@@ -1,7 +1,7 @@
 .add-product-container {
   max-width: 800px;
   /* margin: 20px auto; */
-  padding: 60px;
+  padding: 60px 60px 130px;
   /* padding: 30px 30px 40px 50px; */
   border-radius: 10px;
   background-image: url("../../assets/img/Formback.png");

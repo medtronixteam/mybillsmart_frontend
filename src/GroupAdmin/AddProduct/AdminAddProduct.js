@@ -57,12 +57,11 @@ const AdminAddProduct = () => {
     discount_period_start: "",
     discount_period_end: "",
     contact_terms: "",
-    power_term : "",
+    power_term: "",
     peak: "",
     off_peak: "",
-    energy_term_by_time: "",  
+    energy_term_by_time: "",
     variable_term_by_tariff: "",
-
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -210,16 +209,13 @@ const AdminAddProduct = () => {
         }
       });
 
-      const response = await fetch(
-        `${config.BASE_URL}/api/gas/products`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/gas/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) throw new Error("Failed to add gas product");
 
@@ -271,16 +267,13 @@ const AdminAddProduct = () => {
         }
       });
 
-      const response = await fetch(
-        `${config.BASE_URL}/api/both/products`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/both/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) throw new Error("Failed to add combined product");
 
@@ -370,9 +363,11 @@ const AdminAddProduct = () => {
 
       <div className="add-product-container mx-auto">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
-          <h1 className="mb-0">Add Agreement</h1>
+          <h1 className="mb-0">Add Product</h1>
           <Link to="/group_admin/products">
-            <button className="btn btn-primary w-100 fs-6">View Products</button>
+            <button className="btn btn-primary w-100 fs-6">
+              View Products
+            </button>
           </Link>
         </div>
 
@@ -568,12 +563,12 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={electricityForm.sales_commission}
                   onChange={handleElectricityChange}
                   required
@@ -642,21 +637,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={electricityForm.contact_terms}
-  onChange={handleElectricityChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={electricityForm.contact_terms}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
@@ -821,7 +815,6 @@ const AdminAddProduct = () => {
               <div className="col-12">
                 <h4 className="mt-4">Variable Terms (€/kWh)</h4>
               </div>
-              
 
               {[1, 2, 3].map((num) => (
                 <div className="col-12 col-sm-6 col-md-4 mb-3" key={`rl${num}`}>
@@ -852,12 +845,12 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={gasForm.sales_commission}
                   onChange={handleGasChange}
                   required
@@ -926,21 +919,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={gasForm.contact_terms}
-  onChange={handleGasChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={gasForm.contact_terms}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
@@ -1199,12 +1191,12 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={combinedForm.sales_commission}
                   onChange={handleCombinedChange}
                   required
@@ -1273,21 +1265,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={combinedForm.contact_terms}
-  onChange={handleCombinedChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={combinedForm.contact_terms}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
