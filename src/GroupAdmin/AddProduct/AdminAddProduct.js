@@ -339,7 +339,6 @@ const AdminAddProduct = () => {
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
 
         <div className="row justify-content-center text-center">
-          {/* Tabs Navigation */}
           <div className="col-md-2 col-4">
             <button
               className={`tab-btn ${
@@ -775,7 +774,7 @@ const AdminAddProduct = () => {
                   name="peak"
                   placeholder="Peak"
                   value={gasForm.peak}
-                  onChange={handleGasChange}
+                  onChange={handleGasChange}  
                   required
                   className="form-control w-100"
                 />

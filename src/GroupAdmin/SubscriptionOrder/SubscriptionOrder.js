@@ -41,26 +41,26 @@ const SubscriptionOrder = () => {
 
         const result = await response.json();
 
-        // Extract data array from response and format it
         const data = result.data || [];
         const formattedData = data.map((item) => {
           if (activeTab === "subscriptions") {
             return {
               id: item.id,
               planName: item.plan_name,
-              amount: parseFloat(item.amount).toFixed(2),
+              amount: (parseFloat(item.amount) / 100).toFixed(2),
               status: item.status,
               startDate: new Date(item.start_date).toLocaleDateString(),
-              paymentMethod: "Credit Card", // Default since not in response
+              paymentMethod: "Credit Card",
+              currency: "EUR"
             };
           } else {
             return {
               id: item.id,
               planName: item.plan_name,
-              amount: parseFloat(item.amount).toFixed(2),
+              amount: (parseFloat(item.amount) / 100).toFixed(2),
               status: item.status,
               date: new Date(item.created_at).toLocaleDateString(),
-              currency: item.currency,
+              currency: "EUR"
             };
           }
         });
@@ -86,8 +86,7 @@ const SubscriptionOrder = () => {
     fetchData();
   }, [activeTab, token]);
 
-  // Function to download receipt PDF
-  const downloadReceipt = async (orderId) => {
+    const downloadReceipt = async (orderId) => {
     try {
       Swal.fire({
         title: "Generating Receipt",
@@ -118,7 +117,7 @@ const SubscriptionOrder = () => {
         window.open(result.message, "_blank");
         Swal.close();
       } else {
-        throw new Error("Somthing Went Wrong");
+        throw new Error("Something Went Wrong");
       }
     } catch (error) {
       console.error("Error downloading receipt:", error);
@@ -161,7 +160,6 @@ const SubscriptionOrder = () => {
         <>
           <th>Plan Name</th>
           <th>Amount</th>
-          <th>Currency</th>
           <th>Status</th>
           <th>Date</th>
           <th>Receipt</th>
@@ -175,7 +173,7 @@ const SubscriptionOrder = () => {
       return (
         <tr>
           <td
-            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            colSpan={activeTab === "orderHistory" ? 5 : 5}
             className="loading-cell"
           >
             Loading...
@@ -188,7 +186,7 @@ const SubscriptionOrder = () => {
       return (
         <tr>
           <td
-            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            colSpan={activeTab === "orderHistory" ? 5 : 5}
             className="error-cell"
           >
             Error: {error}
@@ -201,7 +199,7 @@ const SubscriptionOrder = () => {
       return (
         <tr>
           <td
-            colSpan={activeTab === "orderHistory" ? 6 : 5}
+            colSpan={activeTab === "orderHistory" ? 5 : 5}
             className="empty-cell"
           >
             No data available
@@ -215,7 +213,7 @@ const SubscriptionOrder = () => {
         return (
           <tr key={index}>
             <td>{item.planName || "N/A"}</td>
-            <td>${item.amount || "0.00"}</td>
+            <td>€{item.amount || "0.00"}</td>
             <td>
               <span
                 className={`status-badge ${
@@ -233,8 +231,7 @@ const SubscriptionOrder = () => {
         return (
           <tr key={index}>
             <td>{item.planName || "N/A"}</td>
-            <td>{item.amount || "0.00"}</td>
-            <td>{item.currency?.toUpperCase() || "N/A"}</td>
+            <td>€{item.amount || "0.00"}</td>
             <td>
               <span
                 className={`status-badge ${
@@ -313,8 +310,27 @@ const SubscriptionOrder = () => {
           </button>
 
           <div className="page-numbers">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (number) => (
+            {/* Always show first page */}
+            <button
+              onClick={() => paginate(1)}
+              className={`pagination-btn ${
+                currentPage === 1 ? "active" : ""
+              }`}
+            >
+              1
+            </button>
+
+            {/* Show ellipsis if current page is far from start */}
+            {currentPage > 3 && <span className="ellipsis">...</span>}
+
+            {/* Show current page and neighbors */}
+            {[
+              currentPage - 1,
+              currentPage,
+              currentPage + 1
+            ]
+              .filter(page => page > 1 && page < totalPages)
+              .map((number) => (
                 <button
                   key={number}
                   onClick={() => paginate(number)}
@@ -324,7 +340,21 @@ const SubscriptionOrder = () => {
                 >
                   {number}
                 </button>
-              )
+              ))}
+
+            {/* Show ellipsis if current page is far from end */}
+            {currentPage < totalPages - 2 && <span className="ellipsis">...</span>}
+
+            {/* Always show last page if there's more than 1 page */}
+            {totalPages > 1 && (
+              <button
+                onClick={() => paginate(totalPages)}
+                className={`pagination-btn ${
+                  currentPage === totalPages ? "active" : ""
+                }`}
+              >
+                {totalPages}
+              </button>
             )}
           </div>
 
