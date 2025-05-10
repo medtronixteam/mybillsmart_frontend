@@ -238,7 +238,8 @@ const MessageList = () => {
           body: JSON.stringify({
             to_number: editForm.to_number,
             message: editForm.message,
-            time_send: datetimeString,
+            time_send: editForm.time_send,
+            date_send: editForm.date_send,
             status: editForm.status,
           }),
         }

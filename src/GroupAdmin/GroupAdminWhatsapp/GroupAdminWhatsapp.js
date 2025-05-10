@@ -9,7 +9,7 @@ const GroupAdminWhatsapp = () => {
   const auth = useAuth();
   const email = auth.email || "";
 
-  const API_BASE_URL = "http://34.142.252.64:3000";
+  const API_BASE_URL = "https://waha.ai3dscanning.com";
   const DEFAULT_SESSION_NAME = email
     ? email
         .replace(/[^a-zA-Z0-9]/g, "_")
