@@ -203,6 +203,7 @@ const UserInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
+        app_mode: '0',
       };
 
       const matchResponse = await axios.post(

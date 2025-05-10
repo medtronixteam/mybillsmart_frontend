@@ -163,6 +163,7 @@ const ClientInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
+        app_mode: '0',
       };
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",

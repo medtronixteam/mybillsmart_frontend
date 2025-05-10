@@ -10,7 +10,6 @@ const AdminAddProduct = () => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("electricity");
 
-  // Form states for each product type
   const [electricityForm, setElectricityForm] = useState({
     provider_name: "",
     product_name: "",
@@ -37,6 +36,8 @@ const AdminAddProduct = () => {
     discount_period_start: "",
     discount_period_end: "",
     contact_terms: "",
+    commission_type: "",
+
   });
 
   const [gasForm, setGasForm] = useState({
@@ -62,6 +63,7 @@ const AdminAddProduct = () => {
     off_peak: "",
     energy_term_by_time: "",
     variable_term_by_tariff: "",
+    commission_type: "",
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -187,6 +189,7 @@ const AdminAddProduct = () => {
         discount_period_start: "",
         discount_period_end: "",
         contact_terms: "",
+        commission_type : "",
       });
     } catch (error) {
       Swal.fire({
@@ -574,6 +577,15 @@ const AdminAddProduct = () => {
                   required
                   className="form-control w-100"
                 />
+              </div>
+
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commission_type" value={electricityForm.commission_type} onChange={handleElectricityChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
