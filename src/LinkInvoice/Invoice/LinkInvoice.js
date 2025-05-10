@@ -202,7 +202,7 @@ const LinkInvoice = () => {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
-      ...formData,
+      ...formData, 
       [name]: value,
     });
   };
@@ -216,6 +216,7 @@ const LinkInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
+        app_mode: '0',
       };
 
       const matchResponse = await axios.post(
@@ -722,7 +723,7 @@ const LinkInvoice = () => {
               document.getElementById("file-input").click();
             }}
           >
-            <label htmlFor="file-input" className="invoice-file-upload-btn">
+            <label className="invoice-file-upload-btn">
               <BsCloudUpload className="invoice-upload-icon" />
               <p>{uploading ? "Uploading..." : "Upload File Here"}</p>
               {file && (

@@ -336,7 +336,8 @@ const AdminInvoice = () => {
 
       const matchData = {
         ...formData,
-        group_id: groupId,
+        group_id: groupId ,
+        app_mode: '0',
       };
 
       const matchResponse = await axios.post(
@@ -401,7 +402,7 @@ const AdminInvoice = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Your Internet connection is unstable. Please try again.",
+        text: "Failed to submit form. Please try again.",
         timer: 3000,
         showConfirmButton: false,
       });
@@ -982,7 +983,14 @@ const AdminInvoice = () => {
                 document.getElementById("file-input").click();
               }}
             >
-              <label htmlFor="file-input" className="invoice-file-upload-btn">
+              <input
+                type="file"
+                id="file-input"
+                className="invoice-file-input"
+                onChange={handleFileChange}
+                accept=".jpg,.jpeg,.png,.pdf"
+              />
+              <label className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
                 <p>{uploading ? "Uploading..." : "Choose / Drop File here "}</p>
                 {file && (
@@ -991,13 +999,7 @@ const AdminInvoice = () => {
                   </div>
                 )}
               </label>
-              <input
-                type="file"
-                id="file-input"
-                className="invoice-file-input"
-                onChange={handleFileChange}
-                accept=".jpg,.jpeg,.png,.pdf"
-              />
+              
             </div>
           </>
         )}

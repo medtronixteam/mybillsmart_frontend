@@ -705,7 +705,7 @@ const UserInvoice = () => {
                 document.getElementById("file-input").click();
               }}
             >
-              <label htmlFor="file-input" className="invoice-file-upload-btn">
+              <label  className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
                 <p>
                   {uploading ? "Uploading..." : "Choose / Drop a file here"}

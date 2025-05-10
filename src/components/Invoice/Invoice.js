@@ -294,6 +294,7 @@ const Invoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
+        app_mode: '0',
       };
       const matchResponse = await axios.post(
         "http://34.142.252.64:7000/api/match/",
@@ -789,7 +790,7 @@ const Invoice = () => {
                 document.getElementById("file-input").click();
               }}
             >
-              <label htmlFor="file-input" className="invoice-file-upload-btn">
+              <label className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
                 <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
                 {file && (
