@@ -6,11 +6,10 @@ import config from "../../config";
 import { Link } from "react-router-dom";
 import Breadcrumbs from "../../Breadcrumbs";
 
-const AdminAddProduct = () => {
+const AddProduct = () => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("electricity");
 
-  // Form states for each product type
   const [electricityForm, setElectricityForm] = useState({
     provider_name: "",
     product_name: "",
@@ -28,7 +27,7 @@ const AdminAddProduct = () => {
     energy_term_by_time: "",
     variable_term_by_tariff: "",
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -37,6 +36,8 @@ const AdminAddProduct = () => {
     discount_period_start: "",
     discount_period_end: "",
     contact_terms: "",
+    commision_type: "",
+
   });
 
   const [gasForm, setGasForm] = useState({
@@ -48,7 +49,7 @@ const AdminAddProduct = () => {
     rl2: "",
     rl3: "",
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -57,12 +58,12 @@ const AdminAddProduct = () => {
     discount_period_start: "",
     discount_period_end: "",
     contact_terms: "",
-    power_term : "",
+    power_term: "",
     peak: "",
     off_peak: "",
-    energy_term_by_time: "",  
+    energy_term_by_time: "",
     variable_term_by_tariff: "",
-
+    commision_type: "",
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -88,7 +89,7 @@ const AdminAddProduct = () => {
     rl3: "",
     // Common fields
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -135,6 +136,14 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(electricityForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(electricityForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -188,6 +197,7 @@ const AdminAddProduct = () => {
         discount_period_start: "",
         discount_period_end: "",
         contact_terms: "",
+        commision_type : "",
       });
     } catch (error) {
       Swal.fire({
@@ -204,22 +214,27 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(gasForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(gasForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
         }
       });
 
-      const response = await fetch(
-        `${config.BASE_URL}/api/gas/products`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/gas/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) throw new Error("Failed to add gas product");
 
@@ -265,22 +280,27 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(combinedForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(combinedForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
         }
       });
 
-      const response = await fetch(
-        `${config.BASE_URL}/api/both/products`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${config.BASE_URL}/api/both/products`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) throw new Error("Failed to add combined product");
 
@@ -355,8 +375,8 @@ const AdminAddProduct = () => {
               onClick={() => handleTabChange("gas")}
             >
               Gas
-            </button>
-          </div>
+            </button> 
+          </div> 
           <div className="col-md-2 col-4">
             <button
               className={`tab-btn ${activeTab === "combined" ? "active" : ""}`}
@@ -370,9 +390,11 @@ const AdminAddProduct = () => {
 
       <div className="add-product-container mx-auto">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
-          <h1 className="mb-0">Add Agreement</h1>
+          <h1 className="mb-0">Add Product</h1>
           <Link to="/group_admin/products">
-            <button className="btn btn-primary w-100 fs-6">View Products</button>
+            <button className="btn btn-primary w-100 fs-6">
+              View Products
+            </button>
           </Link>
         </div>
 
@@ -568,17 +590,26 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={electricityForm.sales_commission}
                   onChange={handleElectricityChange}
                   required
                   className="form-control w-100"
                 />
+              </div>
+
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commision_type" value={electricityForm.commision_type} onChange={handleElectricityChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
@@ -589,7 +620,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={electricityForm.points_per_deal}
                   onChange={handleElectricityChange}
-                  required
+                 
                   className="form-control w-100"
                 />
               </div>
@@ -642,21 +673,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={electricityForm.contact_terms}
-  onChange={handleElectricityChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={electricityForm.contact_terms}
+                  onChange={handleElectricityChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
@@ -821,7 +851,6 @@ const AdminAddProduct = () => {
               <div className="col-12">
                 <h4 className="mt-4">Variable Terms (€/kWh)</h4>
               </div>
-              
 
               {[1, 2, 3].map((num) => (
                 <div className="col-12 col-sm-6 col-md-4 mb-3" key={`rl${num}`}>
@@ -852,17 +881,24 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={gasForm.sales_commission}
                   onChange={handleGasChange}
                   required
                   className="form-control w-100"
                 />
+              </div>
+              <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commision_type" value={gasForm.commision_type} onChange={handleGasChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
@@ -873,7 +909,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={gasForm.points_per_deal}
                   onChange={handleGasChange}
-                  required
+                
                   className="form-control w-100"
                 />
               </div>
@@ -926,21 +962,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={gasForm.contact_terms}
-  onChange={handleGasChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={gasForm.contact_terms}
+                  onChange={handleGasChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
@@ -1199,17 +1234,25 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Sales Commission*</label>
+                <label>Agent Commission*</label>
                 <input
                   type="number"
                   step="0.01"
                   name="sales_commission"
-                  placeholder="Sales Commission"
+                  placeholder="Agent Commission"
                   value={combinedForm.sales_commission}
                   onChange={handleCombinedChange}
                   required
                   className="form-control w-100"
                 />
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commision_type" value={combinedForm.commision_type} onChange={handleCombinedChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
               </div>
 
               <div className="col-12 col-md-6 mb-3">
@@ -1220,7 +1263,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={combinedForm.points_per_deal}
                   onChange={handleCombinedChange}
-                  required
+                 
                   className="form-control w-100"
                 />
               </div>
@@ -1273,21 +1316,20 @@ const AdminAddProduct = () => {
 
               <div className="col-12 mb-3">
                 <label>Contract Terms*</label>
-                <textarea 
-  name="contact_terms"
-  placeholder="Contract Terms"
-  value={combinedForm.contact_terms}
-  onChange={handleCombinedChange}
-  required
-  className="form-control w-100"
-/>
-                
+                <textarea
+                  name="contact_terms"
+                  placeholder="Contract Terms"
+                  value={combinedForm.contact_terms}
+                  onChange={handleCombinedChange}
+                  required
+                  className="form-control w-100 h-100"
+                />
               </div>
 
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-3 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50"
                 >
                   Submit
                 </button>
@@ -1300,4 +1342,4 @@ const AdminAddProduct = () => {
   );
 };
 
-export default AdminAddProduct;
+export default AddProduct;

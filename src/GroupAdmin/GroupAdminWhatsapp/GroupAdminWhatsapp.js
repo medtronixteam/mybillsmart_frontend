@@ -27,10 +27,8 @@ const GroupAdminWhatsapp = () => {
     const { token } = useAuth();
   
 
-  // Refs
   const statusCheckInterval = useRef(null);
 
-  // Helper function to sanitize session name
   const sanitizeSessionName = (name) => {
     return name.replace(/[^a-zA-Z0-9-_]/g, "").substring(0, 32);
   };

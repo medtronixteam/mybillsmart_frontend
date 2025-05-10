@@ -1054,8 +1054,8 @@ const UserList = () => {
                     >
                       <option value="client">Client</option>
                       <option value="supervisor">Supervisor</option>
-                      <option value="provider">Provider</option>
-                      <option value="admin">Admin</option>
+                      <option value="agent">Sale Agent</option>
+                      {/* <option value="admin">Admin</option> */}
                     </select>
                   </div>
                   <div className="form-group">

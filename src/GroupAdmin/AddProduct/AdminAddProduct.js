@@ -27,7 +27,7 @@ const AdminAddProduct = () => {
     energy_term_by_time: "",
     variable_term_by_tariff: "",
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -36,7 +36,7 @@ const AdminAddProduct = () => {
     discount_period_start: "",
     discount_period_end: "",
     contact_terms: "",
-    commission_type: "",
+    commision_type: "",
 
   });
 
@@ -49,7 +49,7 @@ const AdminAddProduct = () => {
     rl2: "",
     rl3: "",
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -63,7 +63,7 @@ const AdminAddProduct = () => {
     off_peak: "",
     energy_term_by_time: "",
     variable_term_by_tariff: "",
-    commission_type: "",
+    commision_type: "",
   });
 
   const [combinedForm, setCombinedForm] = useState({
@@ -89,7 +89,7 @@ const AdminAddProduct = () => {
     rl3: "",
     // Common fields
     contract_duration: "",
-    customer_type: "residential",
+    customer_type: "",
     sales_commission: "",
     points_per_deal: "",
     meter_rental: "",
@@ -136,6 +136,14 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(electricityForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(electricityForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -189,7 +197,7 @@ const AdminAddProduct = () => {
         discount_period_start: "",
         discount_period_end: "",
         contact_terms: "",
-        commission_type : "",
+        commision_type : "",
       });
     } catch (error) {
       Swal.fire({
@@ -206,6 +214,14 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(gasForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(gasForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -264,6 +280,14 @@ const AdminAddProduct = () => {
 
     try {
       const formData = new FormData();
+    Object.entries(combinedForm).forEach(([key, value]) => {
+      // Handle points_per_deal specifically
+      if (key === 'points_per_deal') {
+        formData.append(key, value === '' ? '0' : value);
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
       Object.entries(combinedForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -582,7 +606,7 @@ const AdminAddProduct = () => {
 
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
-               <select name="commission_type" value={electricityForm.commission_type} onChange={handleElectricityChange} className="form-control w-100">
+               <select name="commision_type" value={electricityForm.commision_type} onChange={handleElectricityChange} className="form-control w-100">
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -596,7 +620,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={electricityForm.points_per_deal}
                   onChange={handleElectricityChange}
-                  required
+                 
                   className="form-control w-100"
                 />
               </div>
@@ -869,6 +893,13 @@ const AdminAddProduct = () => {
                   className="form-control w-100"
                 />
               </div>
+              <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commision_type" value={gasForm.commision_type} onChange={handleGasChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
+              </div>
 
               <div className="col-12 col-md-6 mb-3">
                 <label>Points Per Deal*</label>
@@ -878,7 +909,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={gasForm.points_per_deal}
                   onChange={handleGasChange}
-                  required
+                
                   className="form-control w-100"
                 />
               </div>
@@ -1217,6 +1248,14 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
+                <label>Commission Type</label>
+               <select name="commision_type" value={combinedForm.commision_type} onChange={handleCombinedChange} className="form-control w-100">
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed">Fixed</option>
+                </select>
+              </div>
+
+              <div className="col-12 col-md-6 mb-3">
                 <label>Points Per Deal*</label>
                 <input
                   type="number"
@@ -1224,7 +1263,7 @@ const AdminAddProduct = () => {
                   placeholder="Points Per Deal"
                   value={combinedForm.points_per_deal}
                   onChange={handleCombinedChange}
-                  required
+                 
                   className="form-control w-100"
                 />
               </div>
