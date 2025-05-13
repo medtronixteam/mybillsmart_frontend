@@ -255,3 +255,16 @@
 .create-agreement-btn:hover {
   background-color: #2672a4;
 }
+.export-buttons{
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+}
+.export-buttons button{
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

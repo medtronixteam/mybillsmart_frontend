@@ -166,7 +166,7 @@ const UserInvoice = () => {
 
     try {
       const response = await axios.post(
-        "http://34.142.252.64:7000/api/file/",
+        "https://ocr.ai3dscanning.com/api/file/",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -207,7 +207,7 @@ const UserInvoice = () => {
       };
 
       const matchResponse = await axios.post(
-        "http://34.142.252.64:7000/api/match/",
+        "https://ocr.ai3dscanning.com/api/match/",
         matchData,
         {
           headers: { "Content-Type": "application/json" },

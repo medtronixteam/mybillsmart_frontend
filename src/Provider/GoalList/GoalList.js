@@ -242,7 +242,7 @@ const ProviderGoalList = () => {
                 <th>End Date</th>
                 <th>Points</th>
                 <th>Status</th>
-                <th>Actions</th>
+                {/* <th>Actions</th> */}
               </tr>
             </thead>
             <tbody>
@@ -259,7 +259,7 @@ const ProviderGoalList = () => {
                     <td>{formatDate(goal.start_date)}</td>
                     <td>{formatDate(goal.end_date)}</td>
                     <td>{goal.points}</td>
-                    <td>
+                    {/* <td>
                       {goal.status.charAt(0).toUpperCase() +
                         goal.status.slice(1).replace("_", " ")}
                     </td>
@@ -294,7 +294,7 @@ const ProviderGoalList = () => {
                           </a>
                         </div>
                       )}
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               )}

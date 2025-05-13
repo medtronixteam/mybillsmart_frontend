@@ -177,10 +177,9 @@ const MessageList = () => {
 
         if (messageData.time_send) {
           if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
+            time = messageData.time_send;
             const today = new Date();
-            const [hours, minutes, seconds] = messageData.time_send.split(":");
             date = today.toISOString().split("T")[0];
-            time = `${hours}:${minutes}:${seconds}`;
           } else if (!isNaN(new Date(messageData.time_send).getTime())) {
             datetime = new Date(messageData.time_send);
             date = datetime.toISOString().split("T")[0];
@@ -191,13 +190,17 @@ const MessageList = () => {
           }
         }
 
-        if (!date || !time) {
+        if (!time) {
           datetime = new Date();
-          date = datetime.toISOString().split("T")[0];
           const hours = datetime.getHours().toString().padStart(2, "0");
           const minutes = datetime.getMinutes().toString().padStart(2, "0");
           const seconds = datetime.getSeconds().toString().padStart(2, "0");
           time = `${hours}:${minutes}:${seconds}`;
+        }
+
+        if (!date) {
+          datetime = new Date();
+          date = datetime.toISOString().split("T")[0];
         }
 
         setEditForm({
@@ -224,8 +227,17 @@ const MessageList = () => {
     try {
       setLoading(true);
 
-      // Combine date and time into a single datetime string
-      const datetimeString = `${editForm.date_send}T${editForm.time_send}`;
+      // Format time to H:i:s
+      let formattedTime = editForm.time_send;
+      if (!/^\d{2}:\d{2}:\d{2}$/.test(formattedTime)) {
+        // If time is not in HH:MM:SS format, convert it
+        const timeParts = formattedTime.split(":");
+        if (timeParts.length === 2) {
+          formattedTime = `${timeParts[0]}:${timeParts[1]}:00`;
+        } else {
+          formattedTime = "00:00:00";
+        }
+      }
 
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
@@ -238,7 +250,7 @@ const MessageList = () => {
           body: JSON.stringify({
             to_number: editForm.to_number,
             message: editForm.message,
-            time_send: editForm.time_send,
+            time_send: formattedTime,
             date_send: editForm.date_send,
             status: editForm.status,
           }),
@@ -504,12 +516,12 @@ const MessageList = () => {
             </div>
 
             <div className="detail-content">
-              <div className="detail-row">
+              {/* <div className="detail-row">
                 <span className="detail-label">ID:</span>
                 <span className="detail-value">
                   {selectedMessage.id || "N/A"}
                 </span>
-              </div>
+              </div> */}
               <div className="detail-row">
                 <span className="detail-label">To:</span>
                 <span className="detail-value">
@@ -540,18 +552,6 @@ const MessageList = () => {
                   </span>
                 </span>
               </div>
-            </div>
-
-            <div className="action-buttons">
-              <button className="edit-btn" onClick={() => setEditMode(true)}>
-                Edit
-              </button>
-              <button
-                className="delete-btn"
-                onClick={() => deleteMessage(selectedMessage.id)}
-              >
-                Delete
-              </button>
             </div>
           </div>
         )
@@ -599,17 +599,36 @@ const MessageList = () => {
                         {activeDropdown === index && (
                           <div
                             className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                            style={{ marginLeft: "-140px" }}
+                            style={{ minWidth: "150px" }}
                           >
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
                               onClick={() => {
                                 fetchMessageDetails(message.id);
                                 setActiveDropdown(false);
                               }}
                             >
-                              View
-                            </a>
+                              View Details
+                            </button>
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
+                              onClick={() => {
+                                fetchMessageDetails(message.id);
+                                setEditMode(true);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
+                              onClick={() => {
+                                deleteMessage(message.id);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
                         )}
                       </td>

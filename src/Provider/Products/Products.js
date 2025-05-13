@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Products.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
@@ -9,8 +8,8 @@ import { Link } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Breadcrumbs from "../../Breadcrumbs";
 
-const Products = () => {
-  const [activeDropdown, setActiveDropdown] = useState(false);
+const AdminProducts = () => {
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,19 +19,81 @@ const Products = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editProductData, setEditProductData] = useState({});
+  const [filterType, setFilterType] = useState("all");
   const { token } = useAuth();
-
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [rateRange, setRateRange] = useState({
-    min: "",
-    max: "",
-  });
 
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
+
+  // Fields to exclude from modal display
+  const excludedFields = [
+    "group_id",
+    "addedby_id",
+    "updated_at",
+    "created_at",
+    "id",
+  ];
+
+  // Field groups for edit form based on agreement type
+  const commonFields = [
+    "provider_name",
+    "product_name",
+    "light_category",
+    "fixed_rate",
+    "contract_duration",
+    "customer_type",
+    "sales_commission",
+    "points_per_deal",
+    "meter_rental",
+    "validity_period_from",
+    "validity_period_to",
+    "discount_period_start",
+    "discount_period_end",
+    "contact_terms",
+    "commision_type"
+  ];
+
+  const electricityFields = [
+    ...commonFields,
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+    "power_term",
+    "peak",
+    "off_peak",
+    "energy_term_by_time",
+    "variable_term_by_tariff"
+  ];
+
+  const gasFields = [
+    ...commonFields,
+    "rl1",
+    "rl2",
+    "rl3",
+    "power_term",
+    "peak",
+    "off_peak",
+    "energy_term_by_time",
+    "variable_term_by_tariff"
+  ];
+
+  const combinedFields = [
+    ...commonFields,
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+    "rl1",
+    "rl2",
+    "rl3",
+    "dual_discount"
+  ];
 
   const fetchProducts = () => {
     setLoading(true);
@@ -43,67 +104,35 @@ const Products = () => {
         },
       })
       .then((response) => {
-        console.log("API Response:", response.data);
-        setProducts(response.data || []);
-        setFilteredProducts(response.data || []);
+        const productsData = response.data || [];
+        setProducts(productsData);
+        setFilteredProducts(productsData);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setLoading(false);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to fetch products",
-        });
       });
   };
-
-  // Apply filters whenever products or filter criteria change
-  useEffect(() => {
-    let result = [...products];
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        (product) =>
-          (product.product_name &&
-            product.product_name.toLowerCase().includes(term)) ||
-          (product.light_category &&
-            product.light_category.toLowerCase().includes(term))
-      );
-    }
-
-    // Apply category filter
-    if (categoryFilter !== "all") {
-      result = result.filter(
-        (product) =>
-          product.light_category &&
-          product.light_category.toLowerCase() === categoryFilter.toLowerCase()
-      );
-    }
-
-    // Apply rate range filter
-    if (rateRange.min || rateRange.max) {
-      const minRate = rateRange.min ? parseFloat(rateRange.min) : -Infinity;
-      const maxRate = rateRange.max ? parseFloat(rateRange.max) : Infinity;
-
-      result = result.filter((product) => {
-        const productRate = parseFloat(product.fixed_rate);
-        return productRate >= minRate && productRate <= maxRate;
-      });
-    }
-
-    setFilteredProducts(result);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [products, searchTerm, categoryFilter, rateRange]);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Get current products for pagination
+  // Apply filter when filterType changes
+  useEffect(() => {
+    if (filterType === "all") {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(
+        (product) => product.agreement_type === filterType
+      );
+      setFilteredProducts(filtered);
+    }
+    setCurrentPage(1); // Reset to first page when filter changes
+  }, [filterType, products]);
+
+  // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(
@@ -123,53 +152,66 @@ const Products = () => {
     setIsModalOpen(false);
   };
 
-  const deleteProduct = (id) => {
+  // Delete confirmation using SweetAlert
+  const confirmDelete = (product) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: `You are about to delete "${product.product_name}"`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        axios
-          .delete(`${config.BASE_URL}/api/supervisor/products/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then(() => {
-            fetchProducts();
-            Swal.fire("Deleted!", "Product has been deleted.", "success");
-          })
-          .catch((error) => {
-            console.error("Error deleting product:", error);
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Failed to delete product",
-            });
-          });
+        executeDelete(product);
       }
     });
   };
 
+  const executeDelete = (product) => {
+    axios
+      .delete(`${config.BASE_URL}/api/supervisor/products/${product.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        fetchProducts();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Product has been deleted.",
+          icon: "success",
+        });
+      })
+      .catch((error) => {
+        console.error("Error deleting product:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to delete product.",
+          icon: "error",
+        });
+      });
+  };
+
   const enterEditMode = (product) => {
-    console.log("Product Data:", product);
-    setEditProductData(product);
+    // Convert null values to empty strings for form inputs
+    const processedProduct = {};
+    Object.keys(product).forEach(key => {
+      processedProduct[key] = product[key] === null ? '' : product[key];
+    });
+    setEditProductData(processedProduct);
     setIsEditMode(true);
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "fixed_rate" && isNaN(value)) {
+    if ((name === "fixed_rate" || name.includes("_rate") || name.includes("_charge") || name.startsWith("p") || name.startsWith("rl") || name === "dual_discount") && isNaN(value)) {
       Swal.fire({
         icon: "error",
         title: "Invalid Input",
-        text: "Fixed rate must be a valid number.",
+        text: "Please enter a valid number.",
       });
       return;
     }
@@ -189,42 +231,55 @@ const Products = () => {
       return;
     }
 
-    const fixedRate = parseFloat(editProductData.fixed_rate);
-    if (isNaN(fixedRate)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Input",
-        text: "Fixed rate must be a valid number.",
-      });
-      return;
+    // Validate numeric fields
+    const numericFields = [
+      "fixed_rate",
+      "p1", "p2", "p3", "p4", "p5", "p6",
+      "rl1", "rl2", "rl3",
+      "sales_commission",
+      "points_per_deal",
+      "meter_rental",
+      "dual_discount"
+    ];
+
+    for (const field of numericFields) {
+      if (editProductData[field] !== '' && isNaN(editProductData[field])) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: `${field.replace(/_/g, " ")} must be a valid number.`,
+        });
+        return;
+      }
     }
 
-    const apiUrl = `${config.BASE_URL}/api/supervisor/products/${id}`;
-    console.log("API URL:", apiUrl);
-
-    const requestBody = { ...editProductData, fixed_rate: fixedRate };
+    // Convert empty strings back to null for the API
+    const dataToSend = {};
+    Object.keys(editProductData).forEach(key => {
+      dataToSend[key] = editProductData[key] === '' ? null : editProductData[key];
+    });
 
     axios
-      .put(apiUrl, requestBody, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        console.log("API Response:", response.data);
+      .put(
+        `${config.BASE_URL}/api/supervisor/products/${id}`,
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(() => {
         fetchProducts();
         setIsEditMode(false);
         Swal.fire({
           icon: "success",
-          title: "Success",
+          title: "Success!",
           text: "Product updated successfully!",
         });
       })
       .catch((error) => {
         console.error("Error updating product:", error);
-        if (error.response) {
-          console.error("API Error Response:", error.response.data);
-        }
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -238,119 +293,257 @@ const Products = () => {
     setEditProductData({});
   };
 
-  const resetFilters = () => {
-    setSearchTerm("");
-    setCategoryFilter("all");
-    setRateRange({ min: "", max: "" });
+  const renderEditFormField = (field) => {
+    const isElectricityRate = field.startsWith("p");
+    const isGasRate = field.startsWith("rl");
+    const isNumeric = [
+      "fixed_rate",
+      "sales_commission",
+      "points_per_deal",
+      "meter_rental",
+      "dual_discount"
+    ].includes(field) || isElectricityRate || isGasRate;
+
+    return (
+      <div className="form-group mb-3" key={field}>
+        <label className="form-label">
+          {field.replace(/_/g, " ")}:
+          {field === "customer_type" ? (
+            <select
+              name={field}
+              value={editProductData[field] || ""}
+              onChange={handleEditChange}
+              className="form-control"
+            >
+              <option value="residential">Residential</option>
+              <option value="business">Business</option>
+            </select>
+          ) : field === "commision_type" ? (
+            <select
+              name={field}
+              value={editProductData[field] || ""}
+              onChange={handleEditChange}
+              className="form-control"
+            >
+              <option value="percentage">Percentage</option>
+              <option value="fixed">Fixed</option>
+            </select>
+          ) : field.includes("period") || field.includes("date") ? (
+            <input
+              type="date"
+              name={field}
+              value={editProductData[field] || ""}
+              onChange={handleEditChange}
+              className="form-control"
+            />
+          ) : isNumeric ? (
+            <input
+              type="number"
+              step={isElectricityRate || isGasRate ? "0.0001" : "0.01"}
+              name={field}
+              value={editProductData[field] || ""}
+              onChange={handleEditChange}
+              className="form-control"
+            />
+          ) : (
+            <input
+              type="text"
+              name={field}
+              value={editProductData[field] || ""}
+              onChange={handleEditChange}
+              className="form-control"
+            />
+          )}
+        </label>
+      </div>
+    );
   };
 
-  // Extract unique categories for filter dropdown
-  const categories = [
-    ...new Set(products.map((product) => product.light_category)),
-  ];
+  const renderEditFormSection = (fields, title = null) => (
+    <div className="edit-form-section mb-4">
+      {title && <h4 className="mb-3">{title}</h4>}
+      <div className="row">
+        {fields.map((field) => (
+          <div className="col-md-6" key={field}>
+            {renderEditFormField(field)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderEditForm = () => {
+    if (!editProductData.agreement_type) return null;
+
+    switch (editProductData.agreement_type) {
+      case "electricity":
+        return (
+          <div className="edit-product-form">
+            <h3 className="mb-4">Edit Electricity Product</h3>
+            {renderEditFormSection(
+              ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
+              "Basic Information"
+            )}
+            {renderEditFormSection(
+              ["p1", "p2", "p3", "p4", "p5", "p6"],
+              "Energy Terms (€/kWh)"
+            )}
+            {renderEditFormSection(
+              ["power_term", "peak", "off_peak", "energy_term_by_time", "variable_term_by_tariff"],
+              "Power Terms"
+            )}
+            {renderEditFormSection(
+              ["contract_duration", "sales_commission", "points_per_deal", "meter_rental"],
+              "Contract Details"
+            )}
+            {renderEditFormSection(
+              ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
+              "Validity Period"
+            )}
+            {renderEditFormSection(
+              ["contact_terms"],
+              "Contract Terms"
+            )}
+          </div>
+        );
+      case "gas":
+        return (
+          <div className="edit-product-form">
+            <h3 className="mb-4">Edit Gas Product</h3>
+            {renderEditFormSection(
+              ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
+              "Basic Information"
+            )}
+            {renderEditFormSection(
+              ["rl1", "rl2", "rl3"],
+              "Variable Terms (€/kWh)"
+            )}
+            {renderEditFormSection(
+              ["power_term", "peak", "off_peak", "energy_term_by_time", "variable_term_by_tariff"],
+              "Power Terms"
+            )}
+            {renderEditFormSection(
+              ["contract_duration", "sales_commission", "points_per_deal", "meter_rental"],
+              "Contract Details"
+            )}
+            {renderEditFormSection(
+              ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
+              "Validity Period"
+            )}
+            {renderEditFormSection(
+              ["contact_terms"],
+              "Contract Terms"
+            )}
+          </div>
+        );
+      case "combined":
+      case "both":
+        return (
+          <div className="edit-product-form">
+            <h3 className="mb-4">Edit Combined Product</h3>
+            {renderEditFormSection(
+              ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "dual_discount", "commision_type"],
+              "Basic Information"
+            )}
+            
+            <div className="electricity-section mb-4">
+              <h5 className="mb-3">Electricity Terms</h5>
+              {renderEditFormSection(
+                ["p1", "p2", "p3", "p4", "p5", "p6"],
+                "Energy Terms (€/kWh)"
+              )}
+            </div>
+
+            <div className="gas-section mb-4">
+              <h5 className="mb-3">Gas Terms</h5>
+              {renderEditFormSection(
+                ["rl1", "rl2", "rl3"],
+                "Variable Terms (€/kWh)"
+              )}
+            </div>
+
+            {renderEditFormSection(
+              ["contract_duration", "sales_commission", "points_per_deal", "meter_rental"],
+              "Contract Details"
+            )}
+            {renderEditFormSection(
+              ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
+              "Validity Period"
+            )}
+            {renderEditFormSection(
+              ["contact_terms"],
+              "Contract Terms"
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="products-container">
-      <Breadcrumbs homePath={"/supervisor/dashboard"} />
+      <div className="mb-3">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
       <div className="products-header">
         <h2 className="mb-0">Products</h2>
-        <Link to="/supervisor/add-product">
-          <button className="btn btn-primary mb-0">Add Product</button>
+        <Link to="/group_admin/add-product">
+          <button className="btn btn-primary mb-0">Add New Product</button>
         </Link>
       </div>
 
       {/* Filter Controls */}
-      <div className="container my-3">
-        <div className="row g-3 align-items-end">
-          {/* Search Input */}
-          <div className="col-12 col-md-4">
-            <div className="form-group mb-0">
-              <label htmlFor="searchTerm" className="form-label mx-0">
-                Search
-              </label>
-              <input
-                type="text"
-                className="form-control my-0"
-                id="searchTerm"
-                placeholder="Search by name or category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="col-12 col-md-4">
-            <div className="form-group mb-0">
-              <label htmlFor="categoryFilter" className="form-label mx-0">
-                Category
-              </label>
-              <select
-                className="form-select my-0"
-                id="categoryFilter"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="all">All Categories</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Reset Button */}
-          <div className="col-12 col-md-4">
-            <button
-              className="btn btn-primary my-0 w-100"
-              onClick={resetFilters}
-            >
-              Reset Filters
-            </button>
-          </div>
+      <div className="filter-controls mb-3">
+        <div className="btn-group">
+          <button
+            className={`btn ${filterType === "all" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilterType("all")}
+          >
+            All Products
+          </button>
+          <button
+            className={`btn ${filterType === "electricity" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilterType("electricity")}
+          >
+            Electricity
+          </button>
+          <button
+            className={`btn ${filterType === "gas" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilterType("gas")}
+          >
+            Gas
+          </button>
+          <button
+            className={`btn ${filterType === "combined" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilterType("combined")}
+          >
+            Combined
+          </button>
         </div>
       </div>
 
       {loading ? (
         <p>Loading products...</p>
       ) : isEditMode ? (
-        <div className="edit-product-card shadow-none">
-          <h3>Edit Product</h3>
-          <form>
-            <div className="edit-form-grid custom-form-fields-gap">
-              {Object.entries(editProductData).map(
-                ([key, value]) =>
-                  key !== "id" &&
-                  key !== "updated_at" &&
-                  key !== "group_id" &&
-                  key !== "addedby_id" &&
-                  key !== "created_at" && (
-                    <div className="form-group mb-0" key={key}>
-                      <label>
-                        {key.replace(/_/g, " ")}:
-                        <input
-                          type={key.includes("date") ? "date" : "text"}
-                          name={key}
-                          value={value || ""}
-                          onChange={handleEditChange}
-                          className="form-control"
-                        />
-                      </label>
-                    </div>
-                  )
-              )}
-            </div>
-            <div className="form-actions">
-              <button type="button" onClick={saveEditedProduct}>
-                Save
-              </button>
-              <button type="button" onClick={exitEditMode}>
-                Back
-              </button>
-            </div>
-          </form>
+        <div className="edit-product-card bg-white p-4 rounded shadow">
+          {renderEditForm()}
+          <div className="form-actions mt-4">
+            <button
+              type="button"
+              className="btn btn-secondary me-2"
+              onClick={exitEditMode}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={saveEditedProduct}
+            >
+              Save Changes
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -358,6 +551,8 @@ const Products = () => {
             <thead>
               <tr>
                 <th>Product Name</th>
+                <th>Provider Name</th>
+                <th>Agreement Type</th>
                 <th>Light Category</th>
                 <th>Fixed Rate</th>
                 <th>Action</th>
@@ -368,6 +563,8 @@ const Products = () => {
                 currentProducts.map((product, index) => (
                   <tr key={product.id}>
                     <td>{product.product_name}</td>
+                    <td>{product.provider_name}</td>
+                    <td>{product.agreement_type}</td>
                     <td>{product.light_category}</td>
                     <td>{product.fixed_rate}</td>
                     <td>
@@ -378,8 +575,8 @@ const Products = () => {
                       />
                       {activeDropdown === index && (
                         <div
-                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                          style={{ marginLeft: "-140px" }}
+                          className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0 mt-2"
+                          style={{ marginLeft: "-130px" }}
                         >
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
@@ -402,7 +599,7 @@ const Products = () => {
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                             onClick={() => {
-                              deleteProduct(product.id);
+                              confirmDelete(product);
                               setActiveDropdown(false);
                             }}
                           >
@@ -415,7 +612,7 @@ const Products = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">No products found matching your filters</td>
+                  <td colSpan="6">No products available</td>
                 </tr>
               )}
             </tbody>
@@ -428,10 +625,7 @@ const Products = () => {
             >
               Prev
             </button>
-            <span>
-              Page {currentPage} of{" "}
-              {Math.ceil(filteredProducts.length / productsPerPage)}
-            </span>
+            <span>Page {currentPage}</span>
             <button
               onClick={() => paginate(currentPage + 1)}
               disabled={indexOfLastProduct >= filteredProducts.length}
@@ -442,6 +636,7 @@ const Products = () => {
         </>
       )}
 
+      {/* Product Details Modal */}
       {isModalOpen && selectedProduct && (
         <div className="product-modal-overlay">
           <div className="product-modal-content">
@@ -451,19 +646,10 @@ const Products = () => {
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
               {Object.entries(selectedProduct)
-                .filter(
-                  ([key]) =>
-                    ![
-                      "id",
-                      "group_id",
-                      "addedby_id",
-                      "created_at",
-                      "updated_at",
-                    ].includes(key)
-                )
+                .filter(([key]) => !excludedFields.includes(key))
                 .map(([key, value]) => (
                   <p key={key}>
-                    <strong>{key.replace(/_/g, " ")}:</strong> {value}
+                    <strong>{key.replace(/_/g, " ")}:</strong> {value !== null ? value : 'N/A'}
                   </p>
                 ))}
             </div>
@@ -474,4 +660,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default AdminProducts;

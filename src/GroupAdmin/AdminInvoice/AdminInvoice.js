@@ -35,7 +35,7 @@ const AdminInvoice = () => {
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: "",
+    message: "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
   });
   const [isDragging, setIsDragging] = useState(false);
   const [planInfo, setPlanInfo] = useState(null);
@@ -57,7 +57,6 @@ const AdminInvoice = () => {
       showConfirmButton: false
     });
   };
-
 
   const handleSelectOffer = async (offerId) => {
     try {
@@ -82,13 +81,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error selecting offer:", error);
       showApiError(error, "Failed to select offer");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to select offer. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
   };
 
@@ -174,13 +166,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error fetching group ID:", error);
       showApiError(error, "Failed to fetch profile information");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch file information. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
       throw error;
     }
   };
@@ -220,13 +205,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error fetching clients", error);
       showApiError(error, "Failed to fetch clients");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch clients. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
       setClients([]);
     } finally {
       setLoadingClients(false);
@@ -285,7 +263,7 @@ const AdminInvoice = () => {
 
     try {
       const response = await axios.post(
-        "http://34.142.252.64:7000/api/file/",
+        "https://ocr.ai3dscanning.com/api/file/",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -307,13 +285,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error uploading file", error);
       showApiError(error, "Failed to upload file");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to upload file. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
       setFile(null);
     } finally {
       setUploading(false);
@@ -336,12 +307,12 @@ const AdminInvoice = () => {
 
       const matchData = {
         ...formData,
-        group_id: groupId ,
+        group_id: groupId,
         app_mode: '0',
       };
 
       const matchResponse = await axios.post(
-        "http://34.142.252.64:7000/api/match/",
+        "https://ocr.ai3dscanning.com/api/match/",
         matchData,
         {
           headers: { "Content-Type": "application/json" },
@@ -399,13 +370,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error submitting data", error);
       showApiError(error, "Failed to submit form");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to submit form. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
   };
 
@@ -511,7 +475,7 @@ const AdminInvoice = () => {
       const csvContent = convertToCSV(submittedData);
       downloadFile(
         csvContent,
-        `invoice_${invoiceId}_data.csv`,
+        `MyBillSmart_Offers_${invoiceId}.csv`,
         "text/csv;charset=utf-8;"
       );
       Swal.fire({
@@ -524,13 +488,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error generating CSV:", error);
       showApiError(error, "Failed to generate CSV");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Something went wrong downloading the CSV file. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
   };
 
@@ -554,7 +511,7 @@ const AdminInvoice = () => {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
       downloadFile(
         csvContent,
-        `invoice_${invoiceId}_data.xls`,
+        `MyBillSmart_Offers_${invoiceId}.xls`,
         "application/vnd.ms-excel;charset=utf-8;"
       );
       Swal.fire({
@@ -567,127 +524,284 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error generating Excel:", error);
       showApiError(error, "Failed to generate Excel file");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to generate Excel file",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
   };
 
-  const generatePDF = () => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    let yOffset = 20;
+ const generatePDF = () => {
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
 
-    pdf.setFontSize(18);
-    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
+  // Add header function for consistent headers on each page
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175);
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 15;
+
+    // Add contact info
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
     yOffset += 10;
 
-    pdf.setLineWidth(0.5);
-    pdf.line(10, yOffset, pageWidth - 10, yOffset);
-    yOffset += 10;
+    // Add divider
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
+  };
 
-    pdf.setFontSize(12);
+  // Initial header
+  addHeader();
 
-    if (submittedData && Array.isArray(submittedData)) {
-      submittedData.forEach((supplier, index) => {
-        const supplierName =
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`;
+  if (submittedData && Array.isArray(submittedData)) {
+    submittedData.forEach((supplier, index) => {
+      // Check if we need a new page (leave 40mm at bottom for footer)
+      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
 
-        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
-        yOffset += 10;
+      // Supplier card header
+      pdf.setFillColor(74, 107, 175);
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+      pdf.setFontSize(14);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
+               margin + 5, yOffset + 7);
+      yOffset += 15;
 
-        Object.keys(supplier).forEach((key) => {
-          if (
-            ![
-              "Supplier Name",
-              "supplierName",
-              "user_id",
-              "invoice_id",
-              "created_at",
-              "updated_at",
-            ].includes(key) &&
-            supplier[key] &&
-            typeof supplier[key] !== "object"
-          ) {
-            const displayKey = key
-              .replace(/([A-Z])/g, " $1")
-              .replace(/^./, (str) => str.toUpperCase());
+      // Supplier details
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
 
-            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
-            yOffset += 10;
+      // Create two columns for details
+      const column1X = margin + 5;
+      const column2X = pageWidth / 2 + 10;
+      let column1Y = yOffset;
+      let column2Y = yOffset;
+
+      Object.keys(supplier).forEach((key, i) => {
+        if (![
+          "Supplier Name", 
+          "supplierName",
+          "user_id",
+          "invoice_id",
+          "created_at",
+          "updated_at",
+          "id"
+        ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+          const displayKey = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
+
+          // Check if we need a new page before adding content
+          if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yOffset = margin;
+            pageNumber++;
+            addHeader();
+            column1Y = yOffset;
+            column2Y = yOffset;
           }
-        });
 
-        yOffset += 10;
-      });
-    } else {
-      pdf.text("No supplier data available", 10, yOffset);
-    }
-
-    pdf.save("invoice_details.pdf");
-  };
-
-  const generatePDFBlob = () => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    let yOffset = 20;
-
-    pdf.setFontSize(18);
-    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
-    yOffset += 10;
-
-    pdf.setLineWidth(0.5);
-    pdf.line(10, yOffset, pageWidth - 10, yOffset);
-    yOffset += 10;
-
-    pdf.setFontSize(12);
-
-    if (submittedData && Array.isArray(submittedData)) {
-      submittedData.forEach((supplier, index) => {
-        const supplierName =
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`;
-
-        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
-        yOffset += 10;
-
-        Object.keys(supplier).forEach((key) => {
-          if (
-            ![
-              "Supplier Name",
-              "supplierName",
-              "user_id",
-              "invoice_id",
-              "created_at",
-              "updated_at",
-            ].includes(key) &&
-            supplier[key] &&
-            typeof supplier[key] !== "object"
-          ) {
-            const displayKey = key
-              .replace(/([A-Z])/g, " $1")
-              .replace(/^./, (str) => str.toUpperCase());
-
-            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
-            yOffset += 10;
+          // Alternate between columns
+          if (i % 2 === 0) {
+            pdf.text(`${displayKey}:`, column1X, column1Y);
+            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+            column1Y += 7;
+          } else {
+            pdf.text(`${displayKey}:`, column2X, column2Y);
+            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+            column2Y += 7;
           }
-        });
-
-        yOffset += 10;
+        }
       });
-    } else {
-      pdf.text("No supplier data available", 10, yOffset);
-    }
 
-    return pdf.output("blob");
+      // Move yOffset to the max of both columns
+      yOffset = Math.max(column1Y, column2Y) + 10;
+
+      // Highlight savings if available
+      if (supplier["Saving %"] || supplier["savingPercentage"]) {
+        const savings = supplier["Saving %"] || supplier["savingPercentage"];
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 128, 0);
+        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+        yOffset += 10;
+      }
+
+      // Add divider between suppliers
+      if (index < submittedData.length - 1) {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+        yOffset += 15;
+      }
+    });
+  } else {
+    pdf.setFontSize(12);
+    pdf.text("No offer data available", margin, yOffset);
+    yOffset += 10;
+  }
+
+  // Add footer to each page
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const footerY = pdf.internal.pageSize.getHeight() - 10;
+    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+  }
+
+  pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
+};
+
+ const generatePDFBlob = () => {
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
+
+  // Add header function for consistent headers on each page
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175);
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 15;
+
+    // Add contact info
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+    yOffset += 10;
+
+    // Add divider
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
   };
+
+  // Initial header
+  addHeader();
+
+  if (submittedData && Array.isArray(submittedData)) {
+    submittedData.forEach((supplier, index) => {
+      // Check if we need a new page (leave 40mm at bottom for footer)
+      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+
+      // Supplier card header
+      pdf.setFillColor(74, 107, 175);
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+      pdf.setFontSize(14);
+      pdf.setTextColor(255, 255, 255);
+     pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
+
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+
+      const column1X = margin + 5;
+      const column2X = pageWidth / 2 + 10;
+      let column1Y = yOffset;
+      let column2Y = yOffset;
+
+      Object.keys(supplier).forEach((key, i) => {
+        if (![
+          "Supplier Name", 
+          "supplierName",
+          "user_id",
+          "invoice_id",
+          "created_at",
+          "updated_at",
+          "id"
+        ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+          const displayKey = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
+
+          // Check if we need a new page before adding content
+          if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yOffset = margin;
+            pageNumber++;
+            addHeader();
+            column1Y = yOffset;
+            column2Y = yOffset;
+          }
+
+          // Alternate between columns
+          if (i % 2 === 0) {
+            pdf.text(`${displayKey}:`, column1X, column1Y);
+            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+            column1Y += 7;
+          } else {
+            pdf.text(`${displayKey}:`, column2X, column2Y);
+            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+            column2Y += 7;
+          }
+        }
+      });
+
+      // Move yOffset to the max of both columns
+      yOffset = Math.max(column1Y, column2Y) + 10;
+
+      // Highlight savings if available
+      if (supplier["Saving %"] || supplier["savingPercentage"]) {
+        const savings = supplier["Saving %"] || supplier["savingPercentage"];
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 128, 0);
+        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+        yOffset += 10;
+      }
+
+      // Add divider between suppliers
+      if (index < submittedData.length - 1) {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+        yOffset += 15;
+      }
+    });
+  } else {
+    pdf.setFontSize(12);
+    pdf.text("No offer data available", margin, yOffset);
+    yOffset += 10;
+  }
+
+  // Add footer to each page
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const footerY = pdf.internal.pageSize.getHeight() - 10;
+    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+  }
+
+  return pdf.output("blob");
+};
 
   const handleContractClick = (offer) => {
     navigate("/group_admin/admin-contract", {
@@ -714,7 +828,10 @@ const AdminInvoice = () => {
 
   const handleWhatsappModalClose = () => {
     setShowWhatsappModal(false);
-    setWhatsappData({ to: "", message: "" });
+    setWhatsappData({
+      to: "",
+      message: "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
+    });
   };
 
   const handleWhatsappChange = (e) => {
@@ -725,101 +842,129 @@ const AdminInvoice = () => {
     });
   };
 
-  const handleWhatsappSubmit = async () => {
-    if (!whatsappData.to.trim()) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Phone number is required",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-      return;
-    }
+ const handleWhatsappSubmit = async () => {
+  if (!whatsappData.to.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Phone number is required",
+      timer: 3000,
+      showConfirmButton: false,
+    });
+    return;
+  }
 
-    const phoneRegex = /^\d{11,}$/;
-    const rawPhone = whatsappData.to.replace(/^\+/, "");
-    if (!phoneRegex.test(rawPhone)) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Please enter a valid phone number (e.g., 923001234567)",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-      return;
-    }
+  const phoneRegex = /^\d{11,}$/;
+  const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
+  
+  if (!phoneRegex.test(rawPhone)) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Please enter a valid phone number (e.g., 923001234567)",
+      timer: 3000,
+      showConfirmButton: false,
+    });
+    return;
+  }
 
-    try {
-      const pdfBlob = generatePDFBlob();
-      const formattedPhone = `${rawPhone}@c.us`;
-      const filename = `invoice_${invoiceId}.pdf`;
-      const sessionEmail = email.replace(/[@.]/g, "_");
-
-      const base64data = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(pdfBlob);
-        reader.onload = () => resolve(reader.result.split(",")[1]);
-        reader.onerror = (error) => reject(error);
-      });
-
-      const payload = {
-        chatId: formattedPhone,
-        caption: whatsappData.message || "Invoice details",
-        session: sessionEmail,
-        file: {
-          data: base64data,
-          filename: filename,
-          mimeType: "application/pdf",
-        },
-      };
-
-      const response = await axios.post(
-        "http://34.142.252.64:3000/api/sendFile",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 201) {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "WhatsApp message sent successfully!",
-          timer: 3000,
-          showConfirmButton: false,
-        });
-        handleWhatsappModalClose();
-      } else {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "WhatsApp message sent successfully!",
-          timer: 3000,
-          showConfirmButton: false,
-        });
+  try {
+    // Show loading indicator
+    const loadingSwal = Swal.fire({
+      title: 'Preparing PDF',
+      html: 'Please wait while we generate and send your document...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       }
-    } catch (error) {
-      console.error("WhatsApp send error:", error);
-      showApiError(error);
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to send WhatsApp message";
+    });
+
+    // Generate PDF blob
+    const pdfBlob = generatePDFBlob();
+    const formattedPhone = `${rawPhone}@c.us`;
+    const filename = `MyBillSmart_Offers_${invoiceId}.pdf`;
+    const sessionEmail = email.replace(/[@.]/g, "_");
+
+    // Convert to base64
+    const base64data = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(pdfBlob);
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+    });
+
+    // Check file size (WhatsApp has limits)
+    const fileSizeMB = pdfBlob.size / (1024 * 1024);
+    if (fileSizeMB > 5) { // 5MB limit
+      throw new Error("PDF file is too large for WhatsApp (max 5MB)");
+    }
+
+    const payload = {
+      chatId: formattedPhone,
+      caption: whatsappData.message,
+      session: sessionEmail,
+      file: {
+        data: base64data,
+        filename: filename,
+        mimeType: "application/pdf",
+      },
+    };
+
+    const response = await axios.post(
+      "https://waha.ai3dscanning.com/api/sendFile",
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 30000 // 30 seconds timeout
+      }
+    );
+
+    await loadingSwal.close();
+    
+    if (response.status === 201) {
       Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: errorMessage,
+        icon: "success",
+        title: "Success",
+        text: "WhatsApp message sent successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      handleWhatsappModalClose();
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "WhatsApp message sent successfully!",
         timer: 3000,
         showConfirmButton: false,
       });
     }
-  };
+  } catch (error) {
+    console.error("WhatsApp send error:", error);
+    let errorMessage = "Failed to send WhatsApp message";
+    
+    if (error.message.includes("timeout")) {
+      errorMessage = "Request timed out. Please try again.";
+    } else if (error.message.includes("too large")) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = error.response?.data?.error ||
+                   error.response?.data?.message ||
+                   error.message ||
+                   errorMessage;
+    }
 
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: errorMessage,
+      timer: 5000,
+      showConfirmButton: true,
+    });
+  }
+};
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");
@@ -887,25 +1032,11 @@ const AdminInvoice = () => {
           });
         } else {
           showApiError({ response }, "Failed to send to client portal");
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to send to client portal",
-            timer: 3000,
-            showConfirmButton: false,
-          });
         }
       }
     } catch (error) {
       console.error("Error sending data", error);
       showApiError(error, "Failed to send data");
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to send. Please try again.",
-        timer: 3000,
-        showConfirmButton: false,
-      });
     }
 
     handleModalClose();
@@ -999,7 +1130,6 @@ const AdminInvoice = () => {
                   </div>
                 )}
               </label>
-              
             </div>
           </>
         )}
@@ -1024,65 +1154,66 @@ const AdminInvoice = () => {
           </div>
         )}
 
-{step === 3 && offers.length > 0 && (
-    <>
-      <div className="text-center container">
-        <div className="row">
-          <div className="col-12">
-            <h1 className="best-offers-heading mb-0">
-              Here is some best offers for you choose one of them
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="justify-content-center row w-100">
-        {offers.map((offer, index) => (
-          <div className="col-xl-4 col-md-6" key={index}>
-            <div className="invoice-card-responsive invoice-card h-100 w-100">
-              {Object.keys(offer).map((key) => {
-                if (
-                  key !== "user_id" &&
-                  key !== "invoice_id" &&
-                  key !== "created_at" &&
-                  key !== "updated_at" &&
-                  key !== "id" &&
-                  key !== "Client_id" &&
-                  offer[key]
-                ) {
-                  return (
-                    <p key={key}>
-                      <strong>
-                        {key
-                          .replace(/([A-Z])/g, " $1")
-                          .replace(/^./, (str) => str.toUpperCase())}
-                        :
-                      </strong>{" "}
-                      {offer[key]}
-                    </p>
-                  );
-                }
-                return null;
-              })}
-
-              <div className="d-flex flex-column gap-2">
-                <button
-                  className="invoice-confirmation-btn"
-                  onClick={() => handleContractClick(offer)}
-                >
-                  Manage Agreement
-                </button>
-                <button
-                  className="btn btn-success"
-                  onClick={() => handleSelectOffer(offer.id)}
-                >
-                  Select Offer
-                </button>
+        {step === 3 && offers.length > 0 && (
+          <>
+            <div className="text-center container">
+              <div className="row">
+                <div className="col-12">
+                  <h1 className="best-offers-heading mb-0">
+                    Here are the best offers for you
+                  </h1>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+
+            <div className="justify-content-center row w-100">
+              {offers.map((offer, index) => (
+                <div className="col-xl-4 col-md-6" key={index}>
+                  <div className="invoice-card-responsive invoice-card h-100 w-100">
+                    {Object.keys(offer).map((key) => {
+                      if (
+                        key !== "user_id" &&
+                        key !== "invoice_id" &&
+                        key !== "created_at" &&
+                        key !== "updated_at" &&
+                        key !== "id" &&
+                        key !== "Client_id" &&
+                        key !== "product_id" &&
+                        offer[key]
+                      ) {
+                        return (
+                          <p key={key}>
+                            <strong>
+                              {key
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}
+                              :
+                            </strong>{" "}
+                            {offer[key]}
+                          </p>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    <div className="d-flex flex-column gap-2">
+                      <button
+                        className="invoice-confirmation-btn"
+                        onClick={() => handleContractClick(offer)}
+                      >
+                        Manage Agreement
+                      </button>
+                      <button
+                        className="btn btn-success"
+                        onClick={() => handleSelectOffer(offer.id)}
+                      >
+                        Select Offer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
               <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">

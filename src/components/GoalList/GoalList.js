@@ -433,7 +433,7 @@ const AgentGoalList = () => {
                       <th>End Date</th>
                       <th>Points</th>
                       <th>Status</th>
-                      <th>Action</th>
+                      {/* <th>Action</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -450,10 +450,10 @@ const AgentGoalList = () => {
                           <td>{formatDate(goal.start_date)}</td>
                           <td>{formatDate(goal.end_date)}</td>
                           <td>{goal.points}</td>
-                          <td>
+                          {/* <td>
                             {goal.status.charAt(0).toUpperCase() +
                               goal.status.slice(1).replace("_", " ")}
-                          </td>
+                          </td> */}
 
                           <td className="actions">
                             <HiDotsHorizontal

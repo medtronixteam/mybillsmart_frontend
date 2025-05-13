@@ -80,6 +80,11 @@ const AddClient = ({ onAddUser }) => {
         email: formData.email,
         password: formData.password,
         role: formData.role,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        postal_code: formData.postalCode,
+        status: formData.status,
       };
 
       const response = await axios.post(

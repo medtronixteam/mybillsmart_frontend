@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
 
 const ClientList = () => {
-  const [activeDropdown, setActiveDropdown] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [editData, setEditData] = useState({
@@ -47,29 +47,22 @@ const ClientList = () => {
 
   const applyFilters = () => {
     let result = [...users];
-
-    // Apply role filter
     if (roleFilter !== "all") {
       result = result.filter((user) => user.role === roleFilter);
     }
-
-    // Apply status filter
     if (statusFilter !== "all") {
       const filterStatus = statusFilter === "active" ? 1 : 0;
       result = result.filter((user) => user.status === filterStatus);
     }
-
-    // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
         (user) =>
-          user.name.toLowerCase().includes(term) ||
-          user.email.toLowerCase().includes(term) ||
+          user.name?.toLowerCase().includes(term) ||
+          user.email?.toLowerCase().includes(term) ||
           user.phone?.toLowerCase().includes(term)
       );
     }
-
     setFilteredUsers(result);
   };
 
@@ -108,7 +101,6 @@ const ClientList = () => {
         },
       });
       const result = await response.json();
-
       if (result.status === "success") {
         setUsers(result.data);
       } else {
@@ -134,7 +126,7 @@ const ClientList = () => {
       );
       const result = await response.json();
       if (result.status === "success") {
-        return result.data;
+        return result.data.user; // Now accessing .user inside .data
       } else {
         showErrorAlert(result.message || "Failed to fetch user details!");
         return null;
@@ -145,6 +137,121 @@ const ClientList = () => {
       return null;
     }
   };
+
+  const handleEditClick = async (user) => {
+    const userDetails = await fetchUserDetails(user.id);
+    if (userDetails) {
+      setEditData({
+        id: userDetails.id,
+        name: userDetails.name || "",
+        email: userDetails.email || "",
+        password: "",
+        phone: userDetails.phone || "",
+        address: userDetails.address || "",
+        country: userDetails.country || "",
+        city: userDetails.city || "",
+        postalCode: userDetails.postal_code || "",
+        role: userDetails.role || "client",
+        status: userDetails.status || 1,
+      });
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSaveClick = async () => {
+    if (!editData.name || !editData.email || !editData.phone) {
+      showErrorAlert("Name, email and phone are required!");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/user/edit/${editData.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editData),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        showSuccessAlert("User updated successfully!");
+        fetchUsers();
+        setIsModalOpen(false);
+      } else {
+        showErrorAlert(result.message || "Failed to update user!");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      showErrorAlert("An unexpected error occurred!");
+    }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleDeleteClick = async (id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const response = await fetch(
+      `${config.BASE_URL}/api/supervisor/user/delete/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const resultData = await response.json();
+
+    if (response.ok && resultData.status === "success") {
+      
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "User has been deleted successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      fetchUsers();
+    } else {
+      // Show error alert if API returns failure
+      Swal.fire({
+        icon: "success",
+        title: "success",
+        text: resultData.message || "Failed to delete user.",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "An unexpected error occurred. Please try again.",
+      confirmButtonColor: "#3085d6",
+    });
+  }
+};
 
   const handleDisableClick = async (id) => {
     const result = await Swal.fire({
@@ -169,7 +276,9 @@ const ClientList = () => {
           },
         }
       );
+
       const result = await response.json();
+
       if (response.ok && result.status === "success") {
         showSuccessAlert("User disabled successfully!");
         fetchUsers();
@@ -205,7 +314,9 @@ const ClientList = () => {
           },
         }
       );
+
       const result = await response.json();
+
       if (response.ok && result.status === "success") {
         showSuccessAlert("User enabled successfully!");
         fetchUsers();
@@ -216,110 +327,6 @@ const ClientList = () => {
       console.error("Error enabling user:", error);
       showErrorAlert("Failed to enable user!");
     }
-  };
-
-  const handleDeleteClick = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/user/delete/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const result = await response.json();
-      if (response.ok && result.status === "success") {
-        showSuccessAlert("User deleted successfully!");
-        fetchUsers();
-      } else {
-        showErrorAlert(result.message || "Failed to delete user!");
-      }
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      showErrorAlert("Failed to delete user!");
-    }
-  };
-
-  const handleEditClick = async (user) => {
-    const userDetails = await fetchUserDetails(user.id);
-    if (userDetails) {
-      setEditData({
-        id: userDetails.id,
-        name: userDetails.name,
-        email: userDetails.email,
-        password: "",
-        phone: userDetails.phone || "",
-        address: userDetails.address || "",
-        country: userDetails.country || "",
-        city: userDetails.city || "",
-        postalCode: userDetails.postal_code || "",
-        role: userDetails.role,
-        status: userDetails.status,
-      });
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleSaveClick = async () => {
-    if (!editData.name || !editData.email || !editData.phone) {
-      showErrorAlert("Name, email and phone are required!");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/user/edit/${editData.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: editData.name,
-            email: editData.email,
-            phone: editData.phone,
-            address: editData.address,
-            country: editData.country,
-            city: editData.city,
-            postal_code: editData.postalCode,
-            role: editData.role,
-            status: editData.status,
-          }),
-        }
-      );
-      const result = await response.json();
-
-      if (response.ok && result.status === "success") {
-        showSuccessAlert("User updated successfully!");
-        fetchUsers();
-        setIsModalOpen(false);
-      } else {
-        showErrorAlert(result.message || "Failed to update user!");
-      }
-    } catch (error) {
-      console.error("Error updating user:", error);
-      showErrorAlert("Failed to update user!");
-    }
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
   };
 
   const getStatusText = (status) => {
@@ -354,7 +361,7 @@ const ClientList = () => {
           </Link>
         </div>
 
-        {/* Filter Section */}
+        {/* Filters Section */}
         <div className="filters-section mb-4 rounded bg-transparent shadow-none">
           <div className="row g-3 align-items-end w-100 justify-content-center">
             <div className="col-12 col-md-4 col-lg-3">
@@ -369,7 +376,6 @@ const ClientList = () => {
                 <option value="client">Client</option>
               </select>
             </div>
-
             <div className="col-12 col-md-4 col-lg-3">
               <label className="form-label m-0">Status</label>
               <select
@@ -382,7 +388,6 @@ const ClientList = () => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
-
             <div className="col-12 col-md-4 col-lg-3">
               <label className="form-label m-0">Search</label>
               <input
@@ -393,7 +398,6 @@ const ClientList = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
             <div className="col-12 col-md-4 col-lg-3 d-flex">
               <button
                 className="btn btn-primary w-100 my-0"
@@ -405,6 +409,7 @@ const ClientList = () => {
           </div>
         </div>
 
+        {/* Users Table */}
         {loading ? (
           <div className="loading-spinner"></div>
         ) : filteredUsers.length === 0 ? (
@@ -504,6 +509,7 @@ const ClientList = () => {
           </div>
         )}
 
+        {/* Edit Modal */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="edit-user-modal">
@@ -548,7 +554,7 @@ const ClientList = () => {
                       required
                     />
                   </div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label>Address</label>
                     <input
                       type="text"
@@ -556,7 +562,7 @@ const ClientList = () => {
                       value={editData.address}
                       onChange={handleEditChange}
                     />
-                  </div>
+                  </div> */}
                   <div className="form-row">
                     <div className="form-group">
                       <label>Country</label>
@@ -596,8 +602,6 @@ const ClientList = () => {
                       >
                         <option value="client">Client</option>
                         <option value="agent">Agent</option>
-                        <option value="supervisor">Supervisor</option>
-                        <option value="admin">Admin</option>
                       </select>
                     </div>
                     <div className="form-group">

@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import "./GroupAdminWhatsapp.css";
 import Breadcrumbs from "../../Breadcrumbs";
 import config from "../../config";
+
 const GroupAdminWhatsapp = () => {
   const auth = useAuth();
   const email = auth.email || "";
@@ -24,44 +25,62 @@ const GroupAdminWhatsapp = () => {
   const [profileInfo, setProfileInfo] = useState(null);
   const [sessionStatus, setSessionStatus] = useState("disconnected");
   const [currentSession, setCurrentSession] = useState(DEFAULT_SESSION_NAME);
-    const { token } = useAuth();
+  const { token } = useAuth();
   
-
   const statusCheckInterval = useRef(null);
 
   const sanitizeSessionName = (name) => {
     return name.replace(/[^a-zA-Z0-9-_]/g, "").substring(0, 32);
   };
 
-const callWhatsappLink = async () => {
-  try {
-    await axios.post(`${config.BASE_URL}/api/whatsapp/link`, {
-      session_name: sanitizeSessionName(currentSession),
-    }, {
-      headers: {
-        Authorization: `Bearer ${auth.token}` 
+  const prepareWebhookConfig = () => {
+    const webhookConfig = {
+      name: currentSession,
+      config: {
+        proxy: null,
+        webhooks: [
+          {
+            url: "https://ocr.ai3dscanning.com/webhook",
+            events: ["message"],
+            hmac: null,
+            retries: null,
+            customHeaders: null
+          }
+        ]
       }
-    });
-    console.log("WhatsApp link API called successfully");
-  } catch (err) {
-    console.error("Error calling whatsapp/link API:", err);
-  }
-};
+    };
+    console.log("Webhook configuration prepared:", webhookConfig);
+    return webhookConfig;
+  };
 
-const callWhatsappUnlink = async () => {
-  try {
-    await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, {
-     
-      headers: {
-        Authorization: `Bearer ${auth.token}` 
-      }
-    });
-    console.log("WhatsApp unlink API called successfully");
-  } catch (err) {
-    console.error("Error calling whatsapp/unlink API:", err);
-    // You can choose to show this error to user or just log it
-  }
-};
+  const callWhatsappLink = async () => {
+    try {
+      await axios.post(`${config.BASE_URL}/api/whatsapp/link`, {
+        session_name: sanitizeSessionName(currentSession),
+      }, {
+        headers: {
+          Authorization: `Bearer ${auth.token}` 
+        }
+      });
+      console.log("WhatsApp link API called successfully");
+      
+    } catch (err) {
+      console.error("Error calling whatsapp/link API:", err);
+    }
+  };
+
+  const callWhatsappUnlink = async () => {
+    try {
+      await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}` 
+        }
+      });
+      console.log("WhatsApp unlink API called successfully");
+    } catch (err) {
+      console.error("Error calling whatsapp/unlink API:", err);
+    }
+  };
 
   // API: Create new session
   const createSession = async () => {
@@ -69,12 +88,24 @@ const callWhatsappUnlink = async () => {
     setError(null);
     try {
       await axios.post(`${API_BASE_URL}/api/sessions`, {
-        name: sanitizeSessionName(currentSession),
+        
+          name:  sanitizeSessionName(currentSession),
+      config: {
+        proxy: null,
+        webhooks: [
+          {
+            url: "https://ocr.ai3dscanning.com/webhook",
+            events: ["message"],
+            hmac: null,
+            retries: null,
+            customHeaders: null
+          }
+        ]
+      }
       });
       await startSession();
     } catch (err) {
       if (err.response?.status === 409) {
-        // Session already exists, just start it
         await startSession();
       } else {
         setError(err.response?.data?.message || "Failed to create session");
@@ -90,16 +121,11 @@ const callWhatsappUnlink = async () => {
     setError(null);
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(
-          currentSession
-        )}/start`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/start`
       );
 
-      // Check initial status
       const status = await getSessionInfo();
       handleStatusResponse(status);
-
-      // Start polling for status changes
       startStatusPolling();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to start session");
@@ -128,14 +154,11 @@ const callWhatsappUnlink = async () => {
     setError(null);
     try {
       await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(
-          currentSession
-        )}/stop`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/stop`
       );
-      setStep(5); // Show stopped state
+      setStep(5);
       setSessionStatus("stopped");
       clearInterval(statusCheckInterval.current);
-      // Call unlink API when session is stopped
       await callWhatsappUnlink();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to stop session");
@@ -152,10 +175,9 @@ const callWhatsappUnlink = async () => {
       await axios.delete(
         `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`
       );
-      setStep(1); // Reset to initial state
+      setStep(1);
       setSessionStatus("disconnected");
       clearInterval(statusCheckInterval.current);
-      // Call unlink API when session is deleted
       await callWhatsappUnlink();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete session");
@@ -164,17 +186,15 @@ const callWhatsappUnlink = async () => {
     }
   };
 
-  // API: Get QR code
   const getQRCode = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/${sanitizeSessionName(currentSession)}/auth/qr`,
-        { params: { ts: Date.now() }, responseType: "blob" } // Important for image data
+        { params: { ts: Date.now() }, responseType: "blob" }
       );
 
-      // Create a URL for the blob image
       const imageUrl = URL.createObjectURL(response.data);
       setQrCode(imageUrl);
     } catch (err) {
@@ -185,15 +205,14 @@ const callWhatsappUnlink = async () => {
     }
   };
 
-  // API: Get profile info
   const getProfileInfo = async () => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/me`
       );
       setProfileInfo(response.data);
-      // Call link API when profile info is successfully fetched (meaning WhatsApp is connected)
       await callWhatsappLink();
+      prepareWebhookConfig(); 
     } catch (err) {
       console.error("Profile fetch error:", err);
     }
@@ -219,12 +238,11 @@ const callWhatsappUnlink = async () => {
       case "FAILED":
         setSessionStatus("stopped");
         setStep(5);
-        // Call unlink API when session is stopped or failed
         callWhatsappUnlink();
         break;
       case "NOT_FOUND":
         setSessionStatus("not_found");
-        setStep(2); // Need to create session
+        setStep(2);
         break;
       default:
         break;
@@ -241,7 +259,7 @@ const callWhatsappUnlink = async () => {
       } catch (err) {
         console.error("Status polling error:", err);
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
   };
 
   // Initial load - check session status
@@ -427,10 +445,10 @@ const callWhatsappUnlink = async () => {
                     <span>Name:</span>
                     <span>{profileInfo.pushname || "Not available"}</span>
                   </div>
-                  <div className="wai-info-row">
+                  { /* <div className="wai-info-row">
                     <span>Phone:</span>
                     <span>{profileInfo?.wid?.user || "Not available"}</span>
-                  </div>
+                  </div> */}
                 </div>
               )}
 

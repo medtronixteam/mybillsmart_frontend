@@ -129,7 +129,10 @@
   display: block;
   box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
 }
-
+.invoice-submit-btn:hover{
+  background-color: #3598db;
+  color: white;
+}
 .invoice-upload-heading {
   margin-bottom: 20px;
 }
@@ -264,7 +267,7 @@
 }
 
 .invoice-card button {
-  margin: 20px auto !important;
+  margin: 0px auto !important;
   padding: 8px 0px;
   background-color: white;
   color: rgb(0, 0, 0);

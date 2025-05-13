@@ -525,3 +525,46 @@
   background-color: #a0a0a0;
   cursor: not-allowed;
 }
+
+
+
+.invoice-pdf-header {
+  background-color: #4a6baf;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+.invoice-pdf-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+.invoice-pdf-title {
+  color: #4a6baf;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 5px;
+}
+.invoice-pdf-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.invoice-pdf-label {
+  font-weight: bold;
+  color: #555;
+}
+.invoice-pdf-value {
+  color: #333;
+}
+.invoice-pdf-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+}
