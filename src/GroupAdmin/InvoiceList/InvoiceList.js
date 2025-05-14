@@ -348,8 +348,101 @@ const InvoiceList = () => {
   };
 
   const generatePDFBlob = () => {
-    const pdf = new jsPDF();
-    // ... [same implementation as downloadPDF but return blob]
+    if (!selectedInvoice || !offers) return null;
+    
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
+
+    // Add header function for consistent headers on each page
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 15;
+
+      // Add contact info
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      yOffset += 10;
+
+      // Add divider
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
+
+    // Initial header
+    addHeader();
+
+    // Add offers section
+    if (offers.length > 0) {
+      pdf.setFontSize(14);
+      pdf.text("Available Offers", margin, yOffset);
+      yOffset += 15;
+
+      offers.forEach((offer, index) => {
+        if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+        }
+
+        // Offer header
+        pdf.setFillColor(74, 107, 175);
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.setFontSize(14);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
+        yOffset += 15;
+
+        // Offer details
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        const offerDetails = [
+          `Provider: ${offer.provider_name || "N/A"}`,
+          `Product: ${offer.product_name || "N/A"}`,
+          `Savings: ${offer.saving || "0"}%`,
+          `Commission: ${offer.sales_commission || "0"}%`,
+          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+        ];
+
+        offerDetails.forEach(detail => {
+          if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yOffset = margin;
+            pageNumber++;
+            addHeader();
+          }
+          pdf.text(detail, margin, yOffset);
+          yOffset += 10;
+        });
+
+        yOffset += 10; // Space between offers
+      });
+    }
+
+    // Add footer to each page
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
+
     return pdf.output("blob");
   };
 
@@ -405,20 +498,28 @@ const InvoiceList = () => {
           Swal.showLoading();
         }
       });
+      
       const pdfBlob = generatePDFBlob();
+      if (!pdfBlob) {
+        throw new Error("Failed to generate PDF");
+      }
+      
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `Invoice_${selectedInvoice.id}_Offers.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
+      
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
+      
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
+      
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -429,8 +530,9 @@ const InvoiceList = () => {
           mimeType: "application/pdf",
         },
       };
+      
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile",
         payload,
         {
           headers: {
@@ -439,6 +541,7 @@ const InvoiceList = () => {
           timeout: 30000
         }
       );
+      
       await loadingSwal.close();
       Swal.fire({
         icon: "success",

@@ -524,7 +524,7 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error generating Excel:", error);
       showApiError(error, "Failed to generate Excel file");
-    }
+    } 
   };
 
  const generatePDF = () => {
@@ -534,7 +534,6 @@ const AdminInvoice = () => {
   let yOffset = margin;
   let pageNumber = 1;
 
-  // Add header function for consistent headers on each page
   const addHeader = () => {
     pdf.setFontSize(20);
     pdf.setTextColor(74, 107, 175);

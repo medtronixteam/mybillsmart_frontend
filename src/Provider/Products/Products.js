@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./Products.css";
 import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
@@ -92,6 +93,17 @@ const AdminProducts = () => {
     "rl1",
     "rl2",
     "rl3",
+    "dual_discount"
+  ];
+
+  // Explicit list of numeric fields for validation
+  const numericFields = [
+    "fixed_rate",
+    "p1", "p2", "p3", "p4", "p5", "p6",
+    "rl1", "rl2", "rl3",
+    "sales_commission",
+    "points_per_deal",
+    "meter_rental",
     "dual_discount"
   ];
 
@@ -195,9 +207,9 @@ const AdminProducts = () => {
   };
 
   const enterEditMode = (product) => {
-    // Convert null values to empty strings for form inputs
     const processedProduct = {};
     Object.keys(product).forEach(key => {
+      // Initialize all fields to prevent disappearing
       processedProduct[key] = product[key] === null ? '' : product[key];
     });
     setEditProductData(processedProduct);
@@ -207,13 +219,16 @@ const AdminProducts = () => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    if ((name === "fixed_rate" || name.includes("_rate") || name.includes("_charge") || name.startsWith("p") || name.startsWith("rl") || name === "dual_discount") && isNaN(value)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Input",
-        text: "Please enter a valid number.",
-      });
-      return;
+    // Only validate numeric fields
+    if (numericFields.includes(name)) {
+      if (value !== '' && isNaN(value)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Input",
+          text: "Please enter a valid number.",
+        });
+        return;
+      }
     }
 
     setEditProductData({ ...editProductData, [name]: value });
@@ -231,29 +246,17 @@ const AdminProducts = () => {
       return;
     }
 
-    // Validate numeric fields
-    const numericFields = [
-      "fixed_rate",
-      "p1", "p2", "p3", "p4", "p5", "p6",
-      "rl1", "rl2", "rl3",
-      "sales_commission",
-      "points_per_deal",
-      "meter_rental",
-      "dual_discount"
-    ];
+    // for (const field of numericFields) {
+    //   if (editProductData[field] !== '' && editProductData[field] !== null && isNaN(editProductData[field])) {
+    //     Swal.fire({
+    //       icon: "error",
+    //       title: "Error",
+    //       text: `${field.replace(/_/g, " ")} must be a valid number.`,
+    //     });
+    //     return;
+    //   }
+    // }
 
-    for (const field of numericFields) {
-      if (editProductData[field] !== '' && isNaN(editProductData[field])) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `${field.replace(/_/g, " ")} must be a valid number.`,
-        });
-        return;
-      }
-    }
-
-    // Convert empty strings back to null for the API
     const dataToSend = {};
     Object.keys(editProductData).forEach(key => {
       dataToSend[key] = editProductData[key] === '' ? null : editProductData[key];
@@ -296,13 +299,12 @@ const AdminProducts = () => {
   const renderEditFormField = (field) => {
     const isElectricityRate = field.startsWith("p");
     const isGasRate = field.startsWith("rl");
-    const isNumeric = [
-      "fixed_rate",
-      "sales_commission",
-      "points_per_deal",
-      "meter_rental",
-      "dual_discount"
-    ].includes(field) || isElectricityRate || isGasRate;
+    const isNumeric = numericFields.includes(field);
+
+    // Always render the field if it exists in editProductData, even if empty
+    if (editProductData[field] === undefined) {
+      return null;
+    }
 
     return (
       <div className="form-group mb-3" key={field}>
@@ -359,18 +361,30 @@ const AdminProducts = () => {
     );
   };
 
-  const renderEditFormSection = (fields, title = null) => (
-    <div className="edit-form-section mb-4">
-      {title && <h4 className="mb-3">{title}</h4>}
-      <div className="row">
-        {fields.map((field) => (
-          <div className="col-md-6" key={field}>
-            {renderEditFormField(field)}
-          </div>
-        ))}
+  const renderEditFormSection = (fields, title = null) => {
+    // Always render all fields in the section, even if empty
+    const fieldsToRender = fields.filter(field => 
+      editProductData[field] !== undefined
+    );
+
+    // Don't render the section if no fields exist
+    if (fieldsToRender.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="edit-form-section mb-4">
+        {title && <h4 className="mb-3">{title}</h4>}
+        <div className="row">
+          {fieldsToRender.map((field) => (
+            <div className="col-md-6" key={field}>
+              {renderEditFormField(field)}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderEditForm = () => {
     if (!editProductData.agreement_type) return null;
@@ -646,10 +660,15 @@ const AdminProducts = () => {
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
               {Object.entries(selectedProduct)
-                .filter(([key]) => !excludedFields.includes(key))
+                .filter(([key, value]) => 
+                  !excludedFields.includes(key) && 
+                  value !== null && 
+                  value !== undefined && 
+                  value !== ''
+                )
                 .map(([key, value]) => (
                   <p key={key}>
-                    <strong>{key.replace(/_/g, " ")}:</strong> {value !== null ? value : 'N/A'}
+                    <strong>{key.replace(/_/g, " ")}:</strong> {value}
                   </p>
                 ))}
             </div>

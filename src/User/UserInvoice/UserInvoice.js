@@ -393,62 +393,144 @@ const UserInvoice = () => {
     }
   };
 
-  const generatePDF = () => {
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    let yOffset = 20;
+ const generatePDF = () => {
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
 
-    pdf.setFontSize(18);
-    pdf.text("Invoice Details", pageWidth / 2, yOffset, { align: "center" });
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175);
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 15;
+
+    // Add contact info
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
     yOffset += 10;
 
-    pdf.setLineWidth(0.5);
-    pdf.line(10, yOffset, pageWidth - 10, yOffset);
-    yOffset += 10;
-
-    pdf.setFontSize(12);
-
-    if (submittedData && Array.isArray(submittedData)) {
-      submittedData.forEach((supplier, index) => {
-        const supplierName =
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`;
-
-        pdf.text(`Supplier ${index + 1}: ${supplierName}`, 10, yOffset);
-        yOffset += 10;
-
-        Object.keys(supplier).forEach((key) => {
-          if (
-            ![
-              "Supplier Name",
-              "supplierName",
-              "user_id",
-              "invoice_id",
-              "created_at",
-              "updated_at",
-            ].includes(key) &&
-            supplier[key] &&
-            typeof supplier[key] !== "object"
-          ) {
-            const displayKey = key
-              .replace(/([A-Z])/g, " $1")
-              .replace(/^./, (str) => str.toUpperCase());
-
-            pdf.text(`${displayKey}: ${supplier[key]}`, 15, yOffset);
-            yOffset += 10;
-          }
-        });
-
-        yOffset += 10;
-      });
-    } else {
-      pdf.text("No supplier data available", 10, yOffset);
-    }
-
-    pdf.save("invoice_details.pdf");
+    // Add divider
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
   };
 
+  // Initial header
+  addHeader();
+
+  if (submittedData && Array.isArray(submittedData)) {
+    submittedData.forEach((supplier, index) => {
+      // Check if we need a new page (leave 40mm at bottom for footer)
+      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+
+      // Supplier card header
+      pdf.setFillColor(74, 107, 175);
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+      pdf.setFontSize(14);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
+               margin + 5, yOffset + 7);
+      yOffset += 15;
+
+      // Supplier details
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+
+      // Create two columns for details
+      const column1X = margin + 5;
+      const column2X = pageWidth / 2 + 10;
+      let column1Y = yOffset;
+      let column2Y = yOffset;
+
+      Object.keys(supplier).forEach((key, i) => {
+        if (![
+          "Supplier Name", 
+          "supplierName",
+          "user_id",
+          "invoice_id",
+          "created_at",
+          "updated_at",
+          "id"
+        ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+          const displayKey = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
+
+          // Check if we need a new page before adding content
+          if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yOffset = margin;
+            pageNumber++;
+            addHeader();
+            column1Y = yOffset;
+            column2Y = yOffset;
+          }
+
+          // Alternate between columns
+          if (i % 2 === 0) {
+            pdf.text(`${displayKey}:`, column1X, column1Y);
+            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+            column1Y += 7;
+          } else {
+            pdf.text(`${displayKey}:`, column2X, column2Y);
+            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+            column2Y += 7;
+          }
+        }
+      });
+
+      // Move yOffset to the max of both columns
+      yOffset = Math.max(column1Y, column2Y) + 10;
+
+      // Highlight savings if available
+      if (supplier["Saving %"] || supplier["savingPercentage"]) {
+        const savings = supplier["Saving %"] || supplier["savingPercentage"];
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 128, 0);
+        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+        yOffset += 10;
+      }
+
+      // Add divider between suppliers
+      if (index < submittedData.length - 1) {
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+        yOffset += 15;
+      }
+    });
+  } else {
+    pdf.setFontSize(12);
+    pdf.text("No offer data available", margin, yOffset);
+    yOffset += 10;
+  }
+
+  // Add footer to each page
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const footerY = pdf.internal.pageSize.getHeight() - 10;
+    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+  }
+
+  pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
+};
   const generatePDFBlob = () => {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();

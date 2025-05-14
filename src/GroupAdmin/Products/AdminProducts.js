@@ -96,10 +96,21 @@ const AdminProducts = () => {
     "dual_discount"
   ];
 
+  // Explicit list of numeric fields for validation
+  const numericFields = [
+    "fixed_rate",
+    "p1", "p2", "p3", "p4", "p5", "p6",
+    "rl1", "rl2", "rl3",
+    "sales_commission",
+    "points_per_deal",
+    "meter_rental",
+    "dual_discount"
+  ];
+
   const fetchProducts = () => {
     setLoading(true);
     axios
-      .get(`${config.BASE_URL}/api/supervisor/list/products`, {
+      .get(`${config.BASE_URL}/api/group/list/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -172,7 +183,7 @@ const AdminProducts = () => {
 
   const executeDelete = (product) => {
     axios
-      .delete(`${config.BASE_URL}/api/supervisor/products/${product.id}`, {
+      .delete(`${config.BASE_URL}/api/group/products/${product.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -196,9 +207,9 @@ const AdminProducts = () => {
   };
 
   const enterEditMode = (product) => {
- 
     const processedProduct = {};
     Object.keys(product).forEach(key => {
+      // Initialize all fields to prevent disappearing
       processedProduct[key] = product[key] === null ? '' : product[key];
     });
     setEditProductData(processedProduct);
@@ -208,13 +219,16 @@ const AdminProducts = () => {
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    if ((name === "fixed_rate" || name.includes("_rate") || name.includes("_charge") || name.startsWith("p") || name.startsWith("rl") || name === "dual_discount") && isNaN(value)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Input",
-        text: "Please enter a valid number.",
-      });
-      return;
+    // Only validate numeric fields
+    if (numericFields.includes(name)) {
+      if (value !== '' && isNaN(value)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Input",
+          text: "Please enter a valid number.",
+        });
+        return;
+      }
     }
 
     setEditProductData({ ...editProductData, [name]: value });
@@ -232,29 +246,17 @@ const AdminProducts = () => {
       return;
     }
 
-    // Validate numeric fields
-    const numericFields = [
-      "fixed_rate",
-      "p1", "p2", "p3", "p4", "p5", "p6",
-      "rl1", "rl2", "rl3",
-      "sales_commission",
-      "points_per_deal",
-      "meter_rental",
-      "dual_discount"
-    ];
+    // for (const field of numericFields) {
+    //   if (editProductData[field] !== '' && editProductData[field] !== null && isNaN(editProductData[field])) {
+    //     Swal.fire({
+    //       icon: "error",
+    //       title: "Error",
+    //       text: `${field.replace(/_/g, " ")} must be a valid number.`,
+    //     });
+    //     return;
+    //   }
+    // }
 
-    for (const field of numericFields) {
-      if (editProductData[field] !== '' && isNaN(editProductData[field])) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: `${field.replace(/_/g, " ")} must be a valid number.`,
-        });
-        return;
-      }
-    }
-
-    // Convert empty strings back to null for the API
     const dataToSend = {};
     Object.keys(editProductData).forEach(key => {
       dataToSend[key] = editProductData[key] === '' ? null : editProductData[key];
@@ -262,7 +264,7 @@ const AdminProducts = () => {
 
     axios
       .put(
-        `${config.BASE_URL}/api/supervisor/products/${id}`,
+        `${config.BASE_URL}/api/group/products/${id}`,
         dataToSend,
         {
           headers: {
@@ -297,16 +299,10 @@ const AdminProducts = () => {
   const renderEditFormField = (field) => {
     const isElectricityRate = field.startsWith("p");
     const isGasRate = field.startsWith("rl");
-    const isNumeric = [
-      "fixed_rate",
-      "sales_commission",
-      "points_per_deal",
-      "meter_rental",
-      "dual_discount"
-    ].includes(field) || isElectricityRate || isGasRate;
+    const isNumeric = numericFields.includes(field);
 
-    // Only render field if it has a value in editProductData
-    if (editProductData[field] === null || editProductData[field] === undefined || editProductData[field] === '') {
+    // Always render the field if it exists in editProductData, even if empty
+    if (editProductData[field] === undefined) {
       return null;
     }
 
@@ -366,15 +362,13 @@ const AdminProducts = () => {
   };
 
   const renderEditFormSection = (fields, title = null) => {
-    // Filter fields to only include those with values
-    const fieldsWithValues = fields.filter(field => 
-      editProductData[field] !== null && 
-      editProductData[field] !== undefined && 
-      editProductData[field] !== ''
+    // Always render all fields in the section, even if empty
+    const fieldsToRender = fields.filter(field => 
+      editProductData[field] !== undefined
     );
 
-    // Don't render the section if no fields have values
-    if (fieldsWithValues.length === 0) {
+    // Don't render the section if no fields exist
+    if (fieldsToRender.length === 0) {
       return null;
     }
 
@@ -382,7 +376,7 @@ const AdminProducts = () => {
       <div className="edit-form-section mb-4">
         {title && <h4 className="mb-3">{title}</h4>}
         <div className="row">
-          {fieldsWithValues.map((field) => (
+          {fieldsToRender.map((field) => (
             <div className="col-md-6" key={field}>
               {renderEditFormField(field)}
             </div>
@@ -466,26 +460,21 @@ const AdminProducts = () => {
               "Basic Information"
             )}
             
-            {editProductData.p1 || editProductData.p2 || editProductData.p3 || 
-             editProductData.p4 || editProductData.p5 || editProductData.p6 ? (
-              <div className="electricity-section mb-4">
-                <h5 className="mb-3">Electricity Terms</h5>
-                {renderEditFormSection(
-                  ["p1", "p2", "p3", "p4", "p5", "p6"],
-                  "Energy Terms (€/kWh)"
-                )}
-              </div>
-            ) : null}
+            <div className="electricity-section mb-4">
+              <h5 className="mb-3">Electricity Terms</h5>
+              {renderEditFormSection(
+                ["p1", "p2", "p3", "p4", "p5", "p6"],
+                "Energy Terms (€/kWh)"
+              )}
+            </div>
 
-            {editProductData.rl1 || editProductData.rl2 || editProductData.rl3 ? (
-              <div className="gas-section mb-4">
-                <h5 className="mb-3">Gas Terms</h5>
-                {renderEditFormSection(
-                  ["rl1", "rl2", "rl3"],
-                  "Variable Terms (€/kWh)"
-                )}
-              </div>
-            ) : null}
+            <div className="gas-section mb-4">
+              <h5 className="mb-3">Gas Terms</h5>
+              {renderEditFormSection(
+                ["rl1", "rl2", "rl3"],
+                "Variable Terms (€/kWh)"
+              )}
+            </div>
 
             {renderEditFormSection(
               ["contract_duration", "sales_commission", "points_per_deal", "meter_rental"],
@@ -540,8 +529,8 @@ const AdminProducts = () => {
             Gas
           </button>
           <button
-            className={`btn ${filterType === "combined" ? "btn-primary" : "btn-outline-primary"}`}
-            onClick={() => setFilterType("combined")}
+            className={`btn ${filterType === "Combined" ? "btn-primary" : "btn-outline-primary"}`}
+            onClick={() => setFilterType("both")}
           >
             Combined
           </button>

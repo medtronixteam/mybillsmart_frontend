@@ -41,7 +41,7 @@ const ChatBoard = () => {
   
     try {
       const encodedQuery = encodeURIComponent(trimmedMessage);
-      const url = `http://34.93.86.68:8000/query?query=${encodedQuery}`;
+      const url = `https://bot.ai3dscanning.com/query?query=${encodedQuery}`;
   
       const response = await fetch(url, {
         method: 'GET',
