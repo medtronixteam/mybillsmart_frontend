@@ -126,8 +126,12 @@ const ClientSessionHistory = () => {
         <div className="card-body">
           {loading ? (
             <div className="text-center py-1">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+              <div
+                class="spinner-border"
+                role="status"
+                style={{ color: "#3598db" }}
+              >
+                <span class="visually-hidden">Loading...</span>
               </div>
             </div>
           ) : error ? (
@@ -170,11 +174,11 @@ const ClientSessionHistory = () => {
                     }`}
                   >
                     <button
-                      className="page-link"
+                      className="page-link text-white"
                       onClick={() => paginate(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
-                      Previous
+                      &lt;
                     </button>
                   </li>
                   {Array.from({
@@ -187,7 +191,7 @@ const ClientSessionHistory = () => {
                       }`}
                     >
                       <button
-                        className="page-link"
+                        className="page-link text-white"
                         onClick={() => paginate(index + 1)}
                       >
                         {index + 1}
@@ -203,14 +207,14 @@ const ClientSessionHistory = () => {
                     }`}
                   >
                     <button
-                      className="page-link"
+                      className="page-link text-white"
                       onClick={() => paginate(currentPage + 1)}
                       disabled={
                         currentPage ===
                         Math.ceil(sessionHistory.length / sessionsPerPage)
                       }
                     >
-                      Next
+                      &gt;
                     </button>
                   </li>
                 </ul>

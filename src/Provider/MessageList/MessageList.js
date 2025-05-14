@@ -254,7 +254,11 @@ const ProviderMessageList = () => {
   }, []);
 
   if (loading && messages.length === 0)
-    return <div className="loading-spinner"></div>;
+    return (
+      <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    );
   if (error) return <div className="error-message">Error: {error}</div>;
 
   // Get current messages for pagination
@@ -462,7 +466,7 @@ const ProviderMessageList = () => {
                   <th>Campaign</th>
                   <th>Scheduled Time</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  {/* <th>Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -493,7 +497,7 @@ const ProviderMessageList = () => {
                           {getStatusText(message.status)}
                         </span>
                       </td>
-                      <td>
+                      {/* <td>
                         <HiDotsHorizontal
                           size={30}
                           onClick={() => toggleDropdown(index)}
@@ -515,7 +519,7 @@ const ProviderMessageList = () => {
                             </a>
                           </div>
                         )}
-                      </td>
+                      </td> */}
                     </tr>
                   ))
                 ) : (

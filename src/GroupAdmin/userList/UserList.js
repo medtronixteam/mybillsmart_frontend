@@ -858,7 +858,13 @@ const UserList = () => {
           </div>
 
           {loading ? (
-            <p>Loading users...</p>
+            <div
+              class="spinner-border d-block mx-auto"
+              role="status"
+              style={{ color: "#3598db" }}
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
           ) : filteredUsers.length === 0 ? (
             <p>
               No users found. <Link to="/group_admin/add-user">Add User</Link>

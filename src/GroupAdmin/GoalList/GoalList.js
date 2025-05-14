@@ -212,7 +212,9 @@ const GoalList = () => {
       </div>
 
       {loading && !editingGoal ? (
-        <div className="loading">Loading goals...</div>
+        <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
       ) : (
         <>
           {editingGoal ? (
@@ -267,7 +269,7 @@ const GoalList = () => {
                     min="1"
                   />
                 </div>
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>Status</label>
                   <select
                     name="status"
@@ -280,7 +282,7 @@ const GoalList = () => {
                     <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
                   </select>
-                </div>
+                </div> */}
                 <div className="form-actions">
                   <button
                     type="submit"

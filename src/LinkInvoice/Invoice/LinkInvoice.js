@@ -202,7 +202,7 @@ const LinkInvoice = () => {
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
-      ...formData, 
+      ...formData,
       [name]: value,
     });
   };
@@ -216,7 +216,7 @@ const LinkInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
-        app_mode: '0',
+        app_mode: "0",
       };
 
       const matchResponse = await axios.post(
@@ -459,6 +459,7 @@ const LinkInvoice = () => {
     }
 
     pdf.save("invoice_details.pdf");
+    toast.success("PDF downloaded successfully");
   };
 
   const generatePDFBlob = () => {

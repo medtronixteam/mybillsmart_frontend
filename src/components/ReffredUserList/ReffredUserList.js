@@ -409,8 +409,12 @@ const ReffredUserList = () => {
 
       {loading ? (
         <div className="text-center my-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+          <div
+            class="spinner-border"
+            role="status"
+            style={{ color: "#3598db" }}
+          >
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
       ) : filteredUsers.length === 0 ? (

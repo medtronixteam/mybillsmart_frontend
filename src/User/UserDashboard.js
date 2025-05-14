@@ -79,13 +79,12 @@ const UserDashboard = () => {
       >
         <div className="text-center">
           <div
-            className="spinner-border"
-            style={{ width: "3rem", height: "3rem", color: "#3598db" }}
+            class="spinner-border"
             role="status"
+            style={{ color: "#3598db" }}
           >
-            <span className="visually-hidden">Loading...</span>
+            <span class="visually-hidden">Loading...</span>
           </div>
-          <p className="mt-3">Loading dashboard data...</p>
         </div>
       </div>
     );

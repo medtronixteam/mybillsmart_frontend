@@ -172,11 +172,11 @@ const InvoiceList = () => {
   const renderOfferStatus = (status) => {
     return status === 1 ? (
       <span className="offer-selected-yes">
-        <FaCheck className="text-success me-1" /> Yes
+        <span class="badge bg-info text-dark">Yes</span>
       </span>
     ) : (
       <span className="offer-selected-no">
-        <FaTimes className="text-danger me-1" /> No
+        <span class="badge bg-warning text-dark">No</span>
       </span>
     );
   };
@@ -593,9 +593,9 @@ const InvoiceList = () => {
             <div key={key} className="detail-item">
               <div className="detail-label">{key}:</div>
               <div className="detail-value">
-                {key.toLowerCase().includes("offer selected") ? 
-                  renderOfferStatus(value) : 
-                  formatValue(value)}
+                {key.toLowerCase().includes("offer selected")
+                  ? renderOfferStatus(value)
+                  : formatValue(value)}
               </div>
             </div>
           ))}
@@ -695,7 +695,9 @@ const InvoiceList = () => {
   if (loading) {
     return (
       <div className="loading-container">
-        <div className="loading-spinner"></div>
+        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 import "./SessionHistory.css";
 import config from "../../config";
 
@@ -9,7 +9,7 @@ const SessionHistory = () => {
   const [allSessions, setAllSessions] = useState([]);
   const [displayedSessions, setDisplayedSessions] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedUserName, setSelectedUserName] = useState('');
+  const [selectedUserName, setSelectedUserName] = useState("");
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [currentUserPage, setCurrentUserPage] = useState(1);
@@ -23,21 +23,24 @@ const SessionHistory = () => {
   const fetchUsers = async (page = 1) => {
     try {
       setLoadingUsers(true);
-      const response = await fetch(`${config.BASE_URL}/api/group/users/list?page=${page}&limit=${pageSize}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch(
+        `${config.BASE_URL}/api/group/users/list?page=${page}&limit=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const data = await response.json();
       if (response.ok) {
         setUsers(data.data || []);
         setTotalUsers(data.data?.length || 0);
       } else {
-        alert(data.message || 'Failed to fetch users');
+        alert(data.message || "Failed to fetch users");
       }
     } catch (error) {
-      alert('Error fetching users');
+      alert("Error fetching users");
     } finally {
       setLoadingUsers(false);
     }
@@ -49,21 +52,21 @@ const SessionHistory = () => {
       setLoadingSessions(true);
       setSelectedUserId(userId);
       setSelectedUserName(userName);
-      
+
       const response = await fetch(
         `${config.BASE_URL}/api/group/session/history`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            user_id: userId
-          })
+            user_id: userId,
+          }),
         }
       );
-      
+
       const data = await response.json();
       if (response.ok) {
         setAllSessions(data.sessions || []);
@@ -71,10 +74,10 @@ const SessionHistory = () => {
         updateDisplayedSessions(1, data.sessions || []);
         setShowSessions(true); // Switch to sessions view
       } else {
-        alert(data.message || 'Failed to fetch session history');
+        alert(data.message || "Failed to fetch session history");
       }
     } catch (error) {
-      alert('Error fetching session history');
+      alert("Error fetching session history");
     } finally {
       setLoadingSessions(false);
     }
@@ -103,12 +106,18 @@ const SessionHistory = () => {
   return (
     <div className="session-history-container">
       <h2>User Session History</h2>
-      
+
       {!showSessions ? (
         <div className="users-section">
           <h3>Users List</h3>
           {loadingUsers ? (
-            <div className="loading">Loading users...</div>
+            <div
+              class="spinner-border"
+              role="status"
+              style={{ color: "#3598db" }}
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
           ) : (
             <>
               <table className="custom-table">
@@ -124,18 +133,20 @@ const SessionHistory = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
+                  {users.map((user) => (
                     <tr key={user.id}>
                       <td>{user.id}</td>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
                       <td>{user.role}</td>
-                      <td>{user.status === 1 ? 'Active' : 'Inactive'}</td>
+                      <td>{user.status === 1 ? "Active" : "Inactive"}</td>
                       <td>{user.country}</td>
                       <td>
-                        <button 
+                        <button
                           className="view-sessions-btn"
-                          onClick={() => fetchSessionHistory(user.id, user.name)}
+                          onClick={() =>
+                            fetchSessionHistory(user.id, user.name)
+                          }
                         >
                           View Sessions
                         </button>
@@ -145,24 +156,26 @@ const SessionHistory = () => {
                 </tbody>
               </table>
               <div className="pagination">
-                <button 
+                <button
                   disabled={currentUserPage === 1}
                   onClick={() => {
                     const newPage = currentUserPage - 1;
                     setCurrentUserPage(newPage);
                   }}
                 >
-                  Previous
+                  &lt;
                 </button>
-                <span>Page {currentUserPage} of {Math.ceil(totalUsers/pageSize)}</span>
-                <button 
+                <span>
+                  Page {currentUserPage} of {Math.ceil(totalUsers / pageSize)}
+                </span>
+                <button
                   disabled={currentUserPage * pageSize >= totalUsers}
                   onClick={() => {
                     const newPage = currentUserPage + 1;
                     setCurrentUserPage(newPage);
                   }}
                 >
-                  Next
+                  &gt;
                 </button>
               </div>
             </>
@@ -176,9 +189,15 @@ const SessionHistory = () => {
             </button>
             <h3>Session History for: {selectedUserName}</h3>
           </div>
-          
+
           {loadingSessions ? (
-            <div className="loading">Loading sessions...</div>
+            <div
+              class="spinner-border"
+              role="status"
+              style={{ color: "#3598db" }}
+            >
+              <span class="visually-hidden">Loading...</span>
+            </div>
           ) : (
             <>
               {allSessions.length > 0 ? (
@@ -194,11 +213,17 @@ const SessionHistory = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {displayedSessions.map(session => (
+                      {displayedSessions.map((session) => (
                         <tr key={session.session_id}>
                           <td>{session.session_id}</td>
-                          <td>{new Date(session.login_time).toLocaleString()}</td>
-                          <td>{session.logout_time ? new Date(session.logout_time).toLocaleString() : 'Still active'}</td>
+                          <td>
+                            {new Date(session.login_time).toLocaleString()}
+                          </td>
+                          <td>
+                            {session.logout_time
+                              ? new Date(session.logout_time).toLocaleString()
+                              : "Still active"}
+                          </td>
                           <td>{session.ip_address}</td>
                           <td>{session.device_info}</td>
                         </tr>
@@ -206,26 +231,38 @@ const SessionHistory = () => {
                     </tbody>
                   </table>
                   <div className="pagination">
-                    <button 
+                    <button
                       disabled={currentSessionPage === 1}
-                      onClick={() => updateDisplayedSessions(currentSessionPage - 1)}
+                      onClick={() =>
+                        updateDisplayedSessions(currentSessionPage - 1)
+                      }
                     >
-                      Previous
+                      &lt;
                     </button>
-                    <span>Page {currentSessionPage} of {Math.ceil(allSessions.length/pageSize)}</span>
-                    <button 
-                      disabled={currentSessionPage * pageSize >= allSessions.length}
-                      onClick={() => updateDisplayedSessions(currentSessionPage + 1)}
+                    <span>
+                      Page {currentSessionPage} of{" "}
+                      {Math.ceil(allSessions.length / pageSize)}
+                    </span>
+                    <button
+                      disabled={
+                        currentSessionPage * pageSize >= allSessions.length
+                      }
+                      onClick={() =>
+                        updateDisplayedSessions(currentSessionPage + 1)
+                      }
                     >
-                      Next
+                      &gt;
                     </button>
                   </div>
                   <div className="session-count">
-                    Showing {displayedSessions.length} of {allSessions.length} sessions
+                    Showing {displayedSessions.length} of {allSessions.length}{" "}
+                    sessions
                   </div>
                 </>
               ) : (
-                <div className="no-sessions">No session history found for this user</div>
+                <div className="no-sessions">
+                  No session history found for this user
+                </div>
               )}
             </>
           )}

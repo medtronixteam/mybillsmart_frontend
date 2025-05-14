@@ -308,7 +308,7 @@ const AdminInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
-        app_mode: '0',
+        app_mode: '1',
       };
 
       const matchResponse = await axios.post(
@@ -527,280 +527,257 @@ const AdminInvoice = () => {
     } 
   };
 
- const generatePDF = () => {
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const margin = 15;
-  let yOffset = margin;
-  let pageNumber = 1;
+  const generatePDF = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
 
-  const addHeader = () => {
-    pdf.setFontSize(20);
-    pdf.setTextColor(74, 107, 175);
-    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-    yOffset += 10;
-    
-    pdf.setFontSize(16);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
-    yOffset += 15;
-
-    // Add contact info
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
-    yOffset += 10;
-
-    // Add divider
-    pdf.setDrawColor(200, 200, 200);
-    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-    yOffset += 15;
-  };
-
-  // Initial header
-  addHeader();
-
-  if (submittedData && Array.isArray(submittedData)) {
-    submittedData.forEach((supplier, index) => {
-      // Check if we need a new page (leave 40mm at bottom for footer)
-      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
-        pdf.addPage();
-        yOffset = margin;
-        pageNumber++;
-        addHeader();
-      }
-
-      // Supplier card header
-      pdf.setFillColor(74, 107, 175);
-      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
-      pdf.setFontSize(14);
-      pdf.setTextColor(255, 255, 255);
-      pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
-               margin + 5, yOffset + 7);
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 15;
 
-      // Supplier details
-      pdf.setFontSize(11);
-      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      yOffset += 10;
 
-      // Create two columns for details
-      const column1X = margin + 5;
-      const column2X = pageWidth / 2 + 10;
-      let column1Y = yOffset;
-      let column2Y = yOffset;
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
 
-      Object.keys(supplier).forEach((key, i) => {
-        if (![
-          "Supplier Name", 
-          "supplierName",
-          "user_id",
-          "invoice_id",
-          "created_at",
-          "updated_at",
-          "id"
-        ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
-          const displayKey = key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase());
+    addHeader();
 
-          // Check if we need a new page before adding content
-          if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
-            pdf.addPage();
-            yOffset = margin;
-            pageNumber++;
-            addHeader();
-            column1Y = yOffset;
-            column2Y = yOffset;
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+        }
+
+        pdf.setFillColor(74, 107, 175);
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.setFontSize(14);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
+                 margin + 5, yOffset + 7);
+        yOffset += 15;
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 0, 0);
+
+        const column1X = margin + 5;
+        const column2X = pageWidth / 2 + 10;
+        let column1Y = yOffset;
+        let column2Y = yOffset;
+
+        Object.keys(supplier).forEach((key, i) => {
+          if (![
+            "Supplier Name", 
+            "supplierName",
+            "user_id",
+            "invoice_id",
+            "created_at",
+            "updated_at",
+            "id"
+          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
+            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+              pdf.addPage();
+              yOffset = margin;
+              pageNumber++;
+              addHeader();
+              column1Y = yOffset;
+              column2Y = yOffset;
+            }
+
+            if (i % 2 === 0) {
+              pdf.text(`${displayKey}:`, column1X, column1Y);
+              pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+              column1Y += 7;
+            } else {
+              pdf.text(`${displayKey}:`, column2X, column2Y);
+              pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+              column2Y += 7;
+            }
           }
+        });
 
-          // Alternate between columns
-          if (i % 2 === 0) {
-            pdf.text(`${displayKey}:`, column1X, column1Y);
-            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
-            column1Y += 7;
-          } else {
-            pdf.text(`${displayKey}:`, column2X, column2Y);
-            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
-            column2Y += 7;
-          }
+        yOffset = Math.max(column1Y, column2Y) + 10;
+
+        if (supplier["Saving %"] || supplier["savingPercentage"]) {
+          const savings = supplier["Saving %"] || supplier["savingPercentage"];
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 128, 0);
+          pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+          yOffset += 10;
+        }
+
+        if (index < submittedData.length - 1) {
+          pdf.setDrawColor(200, 200, 200);
+          pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+          yOffset += 15;
         }
       });
+    } else {
+      pdf.setFontSize(12);
+      pdf.text("No offer data available", margin, yOffset);
+      yOffset += 10;
+    }
 
-      // Move yOffset to the max of both columns
-      yOffset = Math.max(column1Y, column2Y) + 10;
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
 
-      // Highlight savings if available
-      if (supplier["Saving %"] || supplier["savingPercentage"]) {
-        const savings = supplier["Saving %"] || supplier["savingPercentage"];
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 128, 0);
-        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
-        yOffset += 10;
-      }
-
-      // Add divider between suppliers
-      if (index < submittedData.length - 1) {
-        pdf.setDrawColor(200, 200, 200);
-        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-        yOffset += 15;
-      }
-    });
-  } else {
-    pdf.setFontSize(12);
-    pdf.text("No offer data available", margin, yOffset);
-    yOffset += 10;
-  }
-
-  // Add footer to each page
-  const pageCount = pdf.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    pdf.setPage(i);
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    const footerY = pdf.internal.pageSize.getHeight() - 10;
-    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
-  }
-
-  pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
-};
-
- const generatePDFBlob = () => {
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const margin = 15;
-  let yOffset = margin;
-  let pageNumber = 1;
-
-  // Add header function for consistent headers on each page
-  const addHeader = () => {
-    pdf.setFontSize(20);
-    pdf.setTextColor(74, 107, 175);
-    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-    yOffset += 10;
-    
-    pdf.setFontSize(16);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
-    yOffset += 15;
-
-    // Add contact info
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
-    yOffset += 10;
-
-    // Add divider
-    pdf.setDrawColor(200, 200, 200);
-    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-    yOffset += 15;
+    pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
   };
 
-  // Initial header
-  addHeader();
+  const generatePDFBlob = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
 
-  if (submittedData && Array.isArray(submittedData)) {
-    submittedData.forEach((supplier, index) => {
-      // Check if we need a new page (leave 40mm at bottom for footer)
-      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
-        pdf.addPage();
-        yOffset = margin;
-        pageNumber++;
-        addHeader();
-      }
-
-      // Supplier card header
-      pdf.setFillColor(74, 107, 175);
-      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
-      pdf.setFontSize(14);
-      pdf.setTextColor(255, 255, 255);
-     pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
-
-      pdf.setFontSize(11);
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+      
+      pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 15;
 
-      const column1X = margin + 5;
-      const column2X = pageWidth / 2 + 10;
-      let column1Y = yOffset;
-      let column2Y = yOffset;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      yOffset += 10;
 
-      Object.keys(supplier).forEach((key, i) => {
-        if (![
-          "Supplier Name", 
-          "supplierName",
-          "user_id",
-          "invoice_id",
-          "created_at",
-          "updated_at",
-          "id"
-        ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
-          const displayKey = key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase());
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
 
-          // Check if we need a new page before adding content
-          if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
-            pdf.addPage();
-            yOffset = margin;
-            pageNumber++;
-            addHeader();
-            column1Y = yOffset;
-            column2Y = yOffset;
+    addHeader();
+
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+        }
+
+        pdf.setFillColor(74, 107, 175);
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.setFontSize(14);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
+                 margin + 5, yOffset + 7);
+        yOffset += 15;
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 0, 0);
+
+        const column1X = margin + 5;
+        const column2X = pageWidth / 2 + 10;
+        let column1Y = yOffset;
+        let column2Y = yOffset;
+
+        Object.keys(supplier).forEach((key, i) => {
+          if (![
+            "Supplier Name", 
+            "supplierName",
+            "user_id",
+            "invoice_id",
+            "created_at",
+            "updated_at",
+            "id"
+          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
+            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+              pdf.addPage();
+              yOffset = margin;
+              pageNumber++;
+              addHeader();
+              column1Y = yOffset;
+              column2Y = yOffset;
+            }
+
+            if (i % 2 === 0) {
+              pdf.text(`${displayKey}:`, column1X, column1Y);
+              pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+              column1Y += 7;
+            } else {
+              pdf.text(`${displayKey}:`, column2X, column2Y);
+              pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+              column2Y += 7;
+            }
           }
+        });
 
-          // Alternate between columns
-          if (i % 2 === 0) {
-            pdf.text(`${displayKey}:`, column1X, column1Y);
-            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
-            column1Y += 7;
-          } else {
-            pdf.text(`${displayKey}:`, column2X, column2Y);
-            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
-            column2Y += 7;
-          }
+        yOffset = Math.max(column1Y, column2Y) + 10;
+
+        if (supplier["Saving %"] || supplier["savingPercentage"]) {
+          const savings = supplier["Saving %"] || supplier["savingPercentage"];
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 128, 0);
+          pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+          yOffset += 10;
+        }
+
+        if (index < submittedData.length - 1) {
+          pdf.setDrawColor(200, 200, 200);
+          pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+          yOffset += 15;
         }
       });
+    } else {
+      pdf.setFontSize(12);
+      pdf.text("No offer data available", margin, yOffset);
+      yOffset += 10;
+    }
 
-      // Move yOffset to the max of both columns
-      yOffset = Math.max(column1Y, column2Y) + 10;
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
 
-      // Highlight savings if available
-      if (supplier["Saving %"] || supplier["savingPercentage"]) {
-        const savings = supplier["Saving %"] || supplier["savingPercentage"];
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 128, 0);
-        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
-        yOffset += 10;
-      }
-
-      // Add divider between suppliers
-      if (index < submittedData.length - 1) {
-        pdf.setDrawColor(200, 200, 200);
-        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-        yOffset += 15;
-      }
-    });
-  } else {
-    pdf.setFontSize(12);
-    pdf.text("No offer data available", margin, yOffset);
-    yOffset += 10;
-  }
-
-  // Add footer to each page
-  const pageCount = pdf.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    pdf.setPage(i);
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    const footerY = pdf.internal.pageSize.getHeight() - 10;
-    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
-  }
-
-  return pdf.output("blob");
-};
+    return pdf.output("blob");
+  };
 
   const handleContractClick = (offer) => {
     navigate("/group_admin/admin-contract", {
@@ -841,129 +818,126 @@ const AdminInvoice = () => {
     });
   };
 
- const handleWhatsappSubmit = async () => {
-  if (!whatsappData.to.trim()) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Phone number is required",
-      timer: 3000,
-      showConfirmButton: false,
-    });
-    return;
-  }
-
-  const phoneRegex = /^\d{11,}$/;
-  const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-  
-  if (!phoneRegex.test(rawPhone)) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Please enter a valid phone number (e.g., 923001234567)",
-      timer: 3000,
-      showConfirmButton: false,
-    });
-    return;
-  }
-
-  try {
-    // Show loading indicator
-    const loadingSwal = Swal.fire({
-      title: 'Preparing PDF',
-      html: 'Please wait while we generate and send your document...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    // Generate PDF blob
-    const pdfBlob = generatePDFBlob();
-    const formattedPhone = `${rawPhone}@c.us`;
-    const filename = `MyBillSmart_Offers_${invoiceId}.pdf`;
-    const sessionEmail = email.replace(/[@.]/g, "_");
-
-    // Convert to base64
-    const base64data = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(pdfBlob);
-      reader.onload = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = (error) => reject(error);
-    });
-
-    // Check file size (WhatsApp has limits)
-    const fileSizeMB = pdfBlob.size / (1024 * 1024);
-    if (fileSizeMB > 5) { // 5MB limit
-      throw new Error("PDF file is too large for WhatsApp (max 5MB)");
+  const handleWhatsappSubmit = async () => {
+    if (!whatsappData.to.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Phone number is required",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
     }
 
-    const payload = {
-      chatId: formattedPhone,
-      caption: whatsappData.message,
-      session: sessionEmail,
-      file: {
-        data: base64data,
-        filename: filename,
-        mimeType: "application/pdf",
-      },
-    };
+    const phoneRegex = /^\d{11,}$/;
+    const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
+    
+    if (!phoneRegex.test(rawPhone)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please enter a valid phone number (e.g., 923001234567)",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
 
-    const response = await axios.post(
-      "https://waha.ai3dscanning.com/api/sendFile",
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const loadingSwal = Swal.fire({
+        title: 'Preparing PDF',
+        html: 'Please wait while we generate and send your document...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const pdfBlob = generatePDFBlob();
+      const formattedPhone = `${rawPhone}@c.us`;
+      const filename = `MyBillSmart_Offers_${invoiceId}.pdf`;
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const fileSizeMB = pdfBlob.size / (1024 * 1024);
+      if (fileSizeMB > 5) {
+        throw new Error("PDF file is too large for WhatsApp (max 5MB)");
+      }
+
+      const payload = {
+        chatId: formattedPhone,
+        caption: whatsappData.message,
+        session: sessionEmail,
+        file: {
+          data: base64data,
+          filename: filename,
+          mimeType: "application/pdf",
         },
-        timeout: 30000 // 30 seconds timeout
+      };
+
+      const response = await axios.post(
+        "https://waha.ai3dscanning.com/api/sendFile",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000
+        }
+      );
+
+      await loadingSwal.close();
+      
+      if (response.status === 201) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "WhatsApp message sent successfully!",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+        handleWhatsappModalClose();
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "WhatsApp message sent successfully!",
+          timer: 3000,
+          showConfirmButton: false,
+        });
       }
-    );
+    } catch (error) {
+      console.error("WhatsApp send error:", error);
+      let errorMessage = "Failed to send WhatsApp message";
+      
+      if (error.message.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (error.message.includes("too large")) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = error.response?.data?.error ||
+                     error.response?.data?.message ||
+                     error.message ||
+                     errorMessage;
+      }
 
-    await loadingSwal.close();
-    
-    if (response.status === 201) {
       Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "WhatsApp message sent successfully!",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-      handleWhatsappModalClose();
-    } else {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "WhatsApp message sent successfully!",
-        timer: 3000,
-        showConfirmButton: false,
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        timer: 5000,
+        showConfirmButton: true,
       });
     }
-  } catch (error) {
-    console.error("WhatsApp send error:", error);
-    let errorMessage = "Failed to send WhatsApp message";
-    
-    if (error.message.includes("timeout")) {
-      errorMessage = "Request timed out. Please try again.";
-    } else if (error.message.includes("too large")) {
-      errorMessage = error.message;
-    } else {
-      errorMessage = error.response?.data?.error ||
-                   error.response?.data?.message ||
-                   error.message ||
-                   errorMessage;
-    }
+  };
 
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: errorMessage,
-      timer: 5000,
-      showConfirmButton: true,
-    });
-  }
-};
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedClient("");

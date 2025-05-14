@@ -68,8 +68,8 @@ const ContractList = () => {
 
   if (loading)
     return (
-      <div className="loader-container">
-        <div className="custom-loader"></div>
+      <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
+        <span class="visually-hidden">Loading...</span>
       </div>
     );
 
@@ -85,8 +85,12 @@ const ContractList = () => {
         <h2>Documents for Agreement #{selectedContractId}</h2>
 
         {documentsLoading ? (
-          <div className="loader-container">
-            <div className="custom-loader"></div>
+          <div
+            class="spinner-border"
+            role="status"
+            style={{ color: "#3598db" }}
+          >
+            <span class="visually-hidden">Loading...</span>
           </div>
         ) : documents.length === 0 ? (
           <div className="no-data-message">

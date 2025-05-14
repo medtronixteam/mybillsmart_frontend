@@ -363,7 +363,11 @@ const MessageList = () => {
   }, []);
 
   if (loading && messages.length === 0) {
-    return <div className="loading-spinner"></div>;
+    return (
+      <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    );
   }
 
   // Get current messages for pagination (client-side)
@@ -476,7 +480,7 @@ const MessageList = () => {
               </div>
             </div>
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label>Status</label>
               <select
                 name="status"
@@ -488,7 +492,7 @@ const MessageList = () => {
                 <option value={0}>Pending</option>
                 <option value={1}>Completed</option>
               </select>
-            </div>
+            </div> */}
 
             <div className="form-actions">
               <button className="cancel-btn" onClick={() => setEditMode(false)}>

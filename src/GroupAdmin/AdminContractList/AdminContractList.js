@@ -44,7 +44,14 @@ const AdminContractList = () => {
   }, [token]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center">
+        {" "}
+        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   if (error) {

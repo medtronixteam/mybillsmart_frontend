@@ -10,7 +10,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  overflow-x: auto; 
+  overflow-x: auto;
 }
 
 .invoice-table-header {
@@ -108,10 +108,6 @@
     font-size: 14px;
   }
 }
-
-
-
-
 
 /* Offer Cards Styling */
 .offers-container {
@@ -232,7 +228,7 @@
   .offers-container {
     grid-template-columns: 1fr;
   }
-  
+
   .offer-card {
     padding: 15px;
   }

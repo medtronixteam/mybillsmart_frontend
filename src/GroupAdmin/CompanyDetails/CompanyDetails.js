@@ -156,8 +156,9 @@ const CompanyDetails = () => {
   if (isLoading) {
     return (
       <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading company details...</p>
+        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }

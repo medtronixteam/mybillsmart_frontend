@@ -340,7 +340,7 @@ const AdminContractForm = () => {
           </div>
 
          
-            <div className="warning-message">
+            <div className="warning-message bg-warning">
               <strong>Warning:</strong> If you select "Yes", the client will NOT be able to upload documents for this agreement. 
               The agreement will be marked as "active" immediately.
             </div>

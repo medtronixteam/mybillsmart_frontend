@@ -246,17 +246,6 @@ const AdminProducts = () => {
       return;
     }
 
-    // for (const field of numericFields) {
-    //   if (editProductData[field] !== '' && editProductData[field] !== null && isNaN(editProductData[field])) {
-    //     Swal.fire({
-    //       icon: "error",
-    //       title: "Error",
-    //       text: `${field.replace(/_/g, " ")} must be a valid number.`,
-    //     });
-    //     return;
-    //   }
-    // }
-
     const dataToSend = {};
     Object.keys(editProductData).forEach(key => {
       dataToSend[key] = editProductData[key] === '' ? null : editProductData[key];
@@ -538,7 +527,13 @@ const AdminProducts = () => {
       </div>
 
       {loading ? (
-        <p>Loading products...</p>
+        <div
+          className="spinner-border d-block mx-auto"
+          role="status"
+          style={{ color: "#3598db" }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
       ) : isEditMode ? (
         <div className="edit-product-card bg-white p-4 rounded shadow">
           {renderEditForm()}

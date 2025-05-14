@@ -259,7 +259,15 @@ const UserInvoiceList = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div
+        class="spinner-border d-block mx-auto"
+        role="status"
+        style={{ color: "#3598db" }}
+      >
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    );
   }
 
   if (error) {
@@ -271,8 +279,8 @@ const UserInvoiceList = () => {
       <Breadcrumbs homePath={"/user/dashboard"} />
 
       {/* <div className="d-flex justify-content-between align-items-center "> */}
-        <h1 className="text-center mb-0">Invoice List</h1>
-        {/* <Link to="/agent/contract-list">
+      <h1 className="text-center mb-0">Invoice List</h1>
+      {/* <Link to="/agent/contract-list">
           <button className="btn btn-primary w-100">Agreement List</button>
         </Link> */}
       {/* </div> */}

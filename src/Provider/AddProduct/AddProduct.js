@@ -37,7 +37,6 @@ const AddProduct = () => {
     discount_period_end: "",
     contact_terms: "",
     commision_type: "",
-
   });
 
   const [gasForm, setGasForm] = useState({
@@ -136,14 +135,14 @@ const AddProduct = () => {
 
     try {
       const formData = new FormData();
-    Object.entries(electricityForm).forEach(([key, value]) => {
-      // Handle points_per_deal specifically
-      if (key === 'points_per_deal') {
-        formData.append(key, value === '' ? '0' : value);
-      } else if (value !== null) {
-        formData.append(key, value);
-      }
-    });
+      Object.entries(electricityForm).forEach(([key, value]) => {
+        // Handle points_per_deal specifically
+        if (key === "points_per_deal") {
+          formData.append(key, value === "" ? "0" : value);
+        } else if (value !== null) {
+          formData.append(key, value);
+        }
+      });
       Object.entries(electricityForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -197,7 +196,7 @@ const AddProduct = () => {
         discount_period_start: "",
         discount_period_end: "",
         contact_terms: "",
-        commision_type : "",
+        commision_type: "",
       });
     } catch (error) {
       Swal.fire({
@@ -214,14 +213,14 @@ const AddProduct = () => {
 
     try {
       const formData = new FormData();
-    Object.entries(gasForm).forEach(([key, value]) => {
-      // Handle points_per_deal specifically
-      if (key === 'points_per_deal') {
-        formData.append(key, value === '' ? '0' : value);
-      } else if (value !== null) {
-        formData.append(key, value);
-      }
-    });
+      Object.entries(gasForm).forEach(([key, value]) => {
+        // Handle points_per_deal specifically
+        if (key === "points_per_deal") {
+          formData.append(key, value === "" ? "0" : value);
+        } else if (value !== null) {
+          formData.append(key, value);
+        }
+      });
       Object.entries(gasForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -280,14 +279,14 @@ const AddProduct = () => {
 
     try {
       const formData = new FormData();
-    Object.entries(combinedForm).forEach(([key, value]) => {
-      // Handle points_per_deal specifically
-      if (key === 'points_per_deal') {
-        formData.append(key, value === '' ? '0' : value);
-      } else if (value !== null) {
-        formData.append(key, value);
-      }
-    });
+      Object.entries(combinedForm).forEach(([key, value]) => {
+        // Handle points_per_deal specifically
+        if (key === "points_per_deal") {
+          formData.append(key, value === "" ? "0" : value);
+        } else if (value !== null) {
+          formData.append(key, value);
+        }
+      });
       Object.entries(combinedForm).forEach(([key, value]) => {
         if (value !== null) {
           formData.append(key, value);
@@ -375,8 +374,8 @@ const AddProduct = () => {
               onClick={() => handleTabChange("gas")}
             >
               Gas
-            </button> 
-          </div> 
+            </button>
+          </div>
           <div className="col-md-2 col-4">
             <button
               className={`tab-btn ${activeTab === "combined" ? "active" : ""}`}
@@ -391,7 +390,7 @@ const AddProduct = () => {
       <div className="add-product-container mx-auto">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
           <h1 className="mb-0">Add Product</h1>
-          <Link to="/group_admin/products">
+          <Link to="/supervisor/product-list">
             <button className="btn btn-primary w-100 fs-6">
               View Products
             </button>
@@ -603,10 +602,14 @@ const AddProduct = () => {
                 />
               </div>
 
-
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
-               <select name="commision_type" value={electricityForm.commision_type} onChange={handleElectricityChange} className="form-control w-100">
+                <select
+                  name="commision_type"
+                  value={electricityForm.commision_type}
+                  onChange={handleElectricityChange}
+                  className="form-control w-100"
+                >
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -620,7 +623,6 @@ const AddProduct = () => {
                   placeholder="Points Per Deal"
                   value={electricityForm.points_per_deal}
                   onChange={handleElectricityChange}
-                 
                   className="form-control w-100"
                 />
               </div>
@@ -804,7 +806,7 @@ const AddProduct = () => {
                   name="peak"
                   placeholder="Peak"
                   value={gasForm.peak}
-                  onChange={handleGasChange}  
+                  onChange={handleGasChange}
                   required
                   className="form-control w-100"
                 />
@@ -895,7 +897,12 @@ const AddProduct = () => {
               </div>
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
-               <select name="commision_type" value={gasForm.commision_type} onChange={handleGasChange} className="form-control w-100">
+                <select
+                  name="commision_type"
+                  value={gasForm.commision_type}
+                  onChange={handleGasChange}
+                  className="form-control w-100"
+                >
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -909,7 +916,6 @@ const AddProduct = () => {
                   placeholder="Points Per Deal"
                   value={gasForm.points_per_deal}
                   onChange={handleGasChange}
-                
                   className="form-control w-100"
                 />
               </div>
@@ -1249,7 +1255,12 @@ const AddProduct = () => {
 
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
-               <select name="commision_type" value={combinedForm.commision_type} onChange={handleCombinedChange} className="form-control w-100">
+                <select
+                  name="commision_type"
+                  value={combinedForm.commision_type}
+                  onChange={handleCombinedChange}
+                  className="form-control w-100"
+                >
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -1263,7 +1274,6 @@ const AddProduct = () => {
                   placeholder="Points Per Deal"
                   value={combinedForm.points_per_deal}
                   onChange={handleCombinedChange}
-                 
                   className="form-control w-100"
                 />
               </div>

@@ -259,7 +259,14 @@ const ClientInvoiceList = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading">
+        {" "}
+        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
   }
 
   if (error) {

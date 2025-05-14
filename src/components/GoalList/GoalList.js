@@ -331,8 +331,12 @@ const AgentGoalList = () => {
       </div>
 
       {loading && !editingGoal ? (
-        <div className="loading-spinner-container">
-          <div className="loading-spinner"></div>
+        <div
+          class="spinner-border d-block mx-auto"
+          role="status"
+          style={{ color: "#3598db" }}
+        >
+          <span class="visually-hidden">Loading...</span>
         </div>
       ) : (
         <>

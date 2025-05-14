@@ -411,7 +411,13 @@ const ClientList = () => {
 
         {/* Users Table */}
         {loading ? (
-          <div className="loading-spinner"></div>
+          <div
+            class="spinner-border d-block mx-auto"
+            role="status"
+            style={{ color: "#3598db" }}
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
         ) : filteredUsers.length === 0 ? (
           <div className="no-users-message">
             <p>No users found matching your criteria.</p>

@@ -212,7 +212,9 @@ const ClientContractList = () => {
   if (loading)
     return (
       <div className="loader-container">
-        <div className="custom-loader"></div>
+        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   if (error) return <div>Error: {error}</div>;
