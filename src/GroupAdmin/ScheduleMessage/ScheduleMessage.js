@@ -107,7 +107,7 @@ const ScheduleMessage = () => {
               value={formData.phone_number}
               onChange={handleChange}
               placeholder="Enter recipient's phone number with country code"
-              pattern="^\+[1-9]\d{1,14}$"
+              pattern="^\[1-9]\d{1,14}$"
               className="form-control"
               required
             />

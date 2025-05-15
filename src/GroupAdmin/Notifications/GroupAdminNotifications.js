@@ -25,7 +25,6 @@ const GroupAdminNotifications = () => {
     try {
       setLoading(true);
       const response = await api.get("/api/notifications");
-      // Access the notifications array from response data
       setNotifications(response.data.notifications || []);
       setError(null);
     } catch (err) {
@@ -94,7 +93,7 @@ const GroupAdminNotifications = () => {
             </button>
             <h3>{selectedNotification?.title || "Notification Details"}</h3>
             <div className="card-text">
-              <p>{selectedNotification?.message || "No details available"}</p>
+              <p>{selectedNotification?.message}</p>
               {selectedNotification?.timestamp && (
                 <small className="text-muted">
                   {new Date(selectedNotification.timestamp).toLocaleString()}
