@@ -21,6 +21,10 @@ const InvoiceList = () => {
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+  const [showSingleOfferWhatsappModal, setShowSingleOfferWhatsappModal] = useState(false);
+  const [showMultiOfferWhatsappModal, setShowMultiOfferWhatsappModal] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [selectedOffers, setSelectedOffers] = useState([]);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
     message: "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
@@ -172,11 +176,11 @@ const InvoiceList = () => {
   const renderOfferStatus = (status) => {
     return status === 1 ? (
       <span className="offer-selected-yes">
-        <span class="badge bg-info text-dark">Yes</span>
+        <span className="badge bg-info text-dark">Yes</span>
       </span>
     ) : (
       <span className="offer-selected-no">
-        <span class="badge bg-warning text-dark">No</span>
+        <span className="badge bg-warning text-dark">No</span>
       </span>
     );
   };
@@ -189,7 +193,6 @@ const InvoiceList = () => {
     let yOffset = margin;
     let pageNumber = 1;
 
-    // Add header function for consistent headers on each page
     const addHeader = () => {
       pdf.setFontSize(20);
       pdf.setTextColor(74, 107, 175);
@@ -199,22 +202,18 @@ const InvoiceList = () => {
       pdf.setTextColor(0, 0, 0);
       pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 15;
-      // Add contact info
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
       pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
       yOffset += 10;
-      // Add divider
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
       yOffset += 15;
     };
 
-    // Initial header
     addHeader();
 
-    // Add offers section
     if (offers.length > 0) {
       pdf.setFontSize(14);
       pdf.text("Available Offers", margin, yOffset);
@@ -228,17 +227,15 @@ const InvoiceList = () => {
           addHeader();
         }
 
-        // Offer header
         pdf.setFillColor(74, 107, 175);
         pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
         yOffset += 15;
-
-        // Offer details
         pdf.setFontSize(12);
         pdf.setTextColor(0, 0, 0);
+
         const offerDetails = [
           `Provider: ${offer.provider_name || "N/A"}`,
           `Product: ${offer.product_name || "N/A"}`,
@@ -257,12 +254,10 @@ const InvoiceList = () => {
           pdf.text(detail, margin, yOffset);
           yOffset += 10;
         });
-
-        yOffset += 10; // Space between offers
+        yOffset += 10;
       });
     }
 
-    // Add footer to each page
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
@@ -282,7 +277,6 @@ const InvoiceList = () => {
     const headers = ["Field", "Value"];
     const rows = filteredData.map(([key, value]) => [key, formatValue(value)]);
 
-    // Add offers if available
     if (offers && offers.length > 0) {
       headers.push("", "Offers", "", "", "");
       offers.forEach((offer, index) => {
@@ -349,42 +343,33 @@ const InvoiceList = () => {
 
   const generatePDFBlob = () => {
     if (!selectedInvoice || !offers) return null;
-    
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 15;
     let yOffset = margin;
     let pageNumber = 1;
 
-    // Add header function for consistent headers on each page
     const addHeader = () => {
       pdf.setFontSize(20);
       pdf.setTextColor(74, 107, 175);
       pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 10;
-      
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
       pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 15;
-
-      // Add contact info
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
       pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
       yOffset += 10;
-
-      // Add divider
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
       yOffset += 15;
     };
 
-    // Initial header
     addHeader();
 
-    // Add offers section
     if (offers.length > 0) {
       pdf.setFontSize(14);
       pdf.text("Available Offers", margin, yOffset);
@@ -398,17 +383,15 @@ const InvoiceList = () => {
           addHeader();
         }
 
-        // Offer header
         pdf.setFillColor(74, 107, 175);
         pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
         yOffset += 15;
-
-        // Offer details
         pdf.setFontSize(12);
         pdf.setTextColor(0, 0, 0);
+
         const offerDetails = [
           `Provider: ${offer.provider_name || "N/A"}`,
           `Product: ${offer.product_name || "N/A"}`,
@@ -427,12 +410,174 @@ const InvoiceList = () => {
           pdf.text(detail, margin, yOffset);
           yOffset += 10;
         });
-
-        yOffset += 10; // Space between offers
+        yOffset += 10;
       });
     }
 
-    // Add footer to each page
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
+
+    return pdf.output("blob");
+  };
+
+  const generateSingleOfferPDFBlob = (offer) => {
+    if (!selectedInvoice || !offer) return null;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
+
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Offer Details", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 15;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      yOffset += 10;
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
+
+    addHeader();
+
+    pdf.setFontSize(14);
+    pdf.text("Offer Details", margin, yOffset);
+    yOffset += 15;
+
+    if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
+      pdf.addPage();
+      yOffset = margin;
+      pageNumber++;
+      addHeader();
+    }
+
+    pdf.setFillColor(74, 107, 175);
+    pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+    pdf.setFontSize(14);
+    pdf.setTextColor(255, 255, 255);
+    pdf.text("Selected Offer", margin + 5, yOffset + 7);
+    yOffset += 15;
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+
+    const offerDetails = [
+      `Provider: ${offer.provider_name || "N/A"}`,
+      `Product: ${offer.product_name || "N/A"}`,
+      `Savings: ${offer.saving || "0"}%`,
+      `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+    ];
+
+    offerDetails.forEach(detail => {
+      if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+      pdf.text(detail, margin, yOffset);
+      yOffset += 10;
+    });
+
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
+
+    return pdf.output("blob");
+  };
+
+  const generateMultipleOfferPDFBlob = (selectedOffers) => {
+    if (!selectedInvoice || !selectedOffers || selectedOffers.length === 0) return null;
+    
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
+
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Selected Offers", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 15;
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      yOffset += 10;
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
+
+    addHeader();
+
+    pdf.setFontSize(14);
+    pdf.text("Selected Offers", margin, yOffset);
+    yOffset += 15;
+
+    selectedOffers.forEach((offer, index) => {
+      if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+
+      pdf.setFillColor(74, 107, 175);
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+      pdf.setFontSize(14);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Offer ${index + 1}: ${offer.product_name || "Unnamed Product"}`, margin + 5, yOffset + 7);
+      yOffset += 15;
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+
+      const offerDetails = [
+        `Provider: ${offer.provider_name || "N/A"}`,
+        `Product: ${offer.product_name || "N/A"}`,
+        `Savings: ${offer.saving || "0"}%`,
+        `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+      ];
+
+      offerDetails.forEach(detail => {
+        if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+        }
+        pdf.text(detail, margin, yOffset);
+        yOffset += 10;
+      });
+      yOffset += 10;
+    });
+
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
@@ -458,6 +603,37 @@ const InvoiceList = () => {
     });
   };
 
+  const handleSingleOfferWhatsappClick = (offer) => {
+    setSelectedOffer(offer);
+    setShowSingleOfferWhatsappModal(true);
+    setWhatsappData({
+      to: "",
+      message: `Here is your offer details from MyBillSmart for ${offer.product_name || "product"}.`,
+    });
+  };
+
+  const handleSingleOfferWhatsappModalClose = () => {
+    setShowSingleOfferWhatsappModal(false);
+    setSelectedOffer(null);
+    setWhatsappData({
+      to: "",
+      message: "Here is your offer details from MyBillSmart.",
+    });
+  };
+
+  const handleMultiOfferWhatsappClick = () => {
+    setShowMultiOfferWhatsappModal(true);
+  };
+
+  const handleMultiOfferWhatsappModalClose = () => {
+    setShowMultiOfferWhatsappModal(false);
+    setSelectedOffers([]);
+    setWhatsappData({
+      to: "",
+      message: "Here are your selected offers from MyBillSmart.",
+    });
+  };
+
   const handleWhatsappChange = (e) => {
     const { name, value } = e.target;
     setWhatsappData({
@@ -477,8 +653,10 @@ const InvoiceList = () => {
       });
       return;
     }
+
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
+
     if (!phoneRegex.test(rawPhone)) {
       Swal.fire({
         icon: "error",
@@ -489,6 +667,7 @@ const InvoiceList = () => {
       });
       return;
     }
+
     try {
       const loadingSwal = Swal.fire({
         title: 'Preparing PDF',
@@ -498,28 +677,30 @@ const InvoiceList = () => {
           Swal.showLoading();
         }
       });
-      
+
       const pdfBlob = generatePDFBlob();
+
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
-      
+
       const formattedPhone = `${rawPhone}@c.us`;
-      const filename = `Invoice_${selectedInvoice.id}_Offers.pdf`;
+      const filename = `Invoice_${selectedInvoice?.id}_Offers.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-      
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-      
+
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
+
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-      
+
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -530,9 +711,9 @@ const InvoiceList = () => {
           mimeType: "application/pdf",
         },
       };
-      
+
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile",
+        "https://waha.ai3dscanning.com/api/sendFile ",
         payload,
         {
           headers: {
@@ -541,8 +722,9 @@ const InvoiceList = () => {
           timeout: 30000
         }
       );
-      
+
       await loadingSwal.close();
+
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -550,10 +732,12 @@ const InvoiceList = () => {
         timer: 3000,
         showConfirmButton: false,
       });
+
       handleWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
+
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
@@ -564,6 +748,7 @@ const InvoiceList = () => {
                      error.message ||
                      errorMessage;
       }
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -574,9 +759,264 @@ const InvoiceList = () => {
     }
   };
 
+  const handleSingleOfferWhatsappSubmit = async () => {
+    if (!whatsappData.to.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Phone number is required",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    const phoneRegex = /^\d{11,}$/;
+    const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
+
+    if (!phoneRegex.test(rawPhone)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please enter a valid phone number (e.g., 923001234567)",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    try {
+      const loadingSwal = Swal.fire({
+        title: 'Preparing Offer PDF',
+        html: 'Please wait while we generate and send your offer...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const pdfBlob = generateSingleOfferPDFBlob(selectedOffer);
+
+      if (!pdfBlob) {
+        throw new Error("Failed to generate PDF");
+      }
+
+      const formattedPhone = `${rawPhone}@c.us`;
+      const filename = `Offer_${selectedOffer.id}_Details.pdf`;
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const fileSizeMB = pdfBlob.size / (1024 * 1024);
+
+      if (fileSizeMB > 5) {
+        throw new Error("PDF file is too large for WhatsApp (max 5MB)");
+      }
+
+      const payload = {
+        chatId: formattedPhone,
+        caption: whatsappData.message,
+        session: sessionEmail,
+        file: {
+          data: base64data,
+          filename: filename,
+          mimeType: "application/pdf",
+        },
+      };
+
+      const response = await axios.post(
+        "https://waha.ai3dscanning.com/api/sendFile ",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000
+        }
+      );
+
+      await loadingSwal.close();
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "WhatsApp message sent successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+
+      handleSingleOfferWhatsappModalClose();
+    } catch (error) {
+      console.error("WhatsApp send error:", error);
+      let errorMessage = "Failed to send WhatsApp message";
+
+      if (error.message.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (error.message.includes("too large")) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = error.response?.data?.error ||
+                     error.response?.data?.message ||
+                     error.message ||
+                     errorMessage;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        timer: 5000,
+        showConfirmButton: true,
+      });
+    }
+  };
+
+  const handleMultiOfferWhatsappSubmit = async () => {
+    if (!whatsappData.to.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Phone number is required",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    const phoneRegex = /^\d{11,}$/;
+    const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
+
+    if (!phoneRegex.test(rawPhone)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please enter a valid phone number (e.g., 923001234567)",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    if (selectedOffers.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Please select at least one offer to send",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    try {
+      const loadingSwal = Swal.fire({
+        title: 'Preparing Selected Offers PDF',
+        html: 'Please wait while we generate and send your selected offers...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const pdfBlob = generateMultipleOfferPDFBlob(selectedOffers);
+
+      if (!pdfBlob) {
+        throw new Error("Failed to generate PDF");
+      }
+
+      const formattedPhone = `${rawPhone}@c.us`;
+      const filename = `Selected_Offers_Details.pdf`;
+      const sessionEmail = email.replace(/[@.]/g, "_");
+
+      const base64data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = (error) => reject(error);
+      });
+
+      const fileSizeMB = pdfBlob.size / (1024 * 1024);
+
+      if (fileSizeMB > 5) {
+        throw new Error("PDF file is too large for WhatsApp (max 5MB)");
+      }
+
+      const payload = {
+        chatId: formattedPhone,
+        caption: whatsappData.message,
+        session: sessionEmail,
+        file: {
+          data: base64data,
+          filename: filename,
+          mimeType: "application/pdf",
+        },
+      };
+
+      const response = await axios.post(
+        "https://waha.ai3dscanning.com/api/sendFile ",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000
+        }
+      );
+
+      await loadingSwal.close();
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "WhatsApp message sent successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+
+      handleMultiOfferWhatsappModalClose();
+    } catch (error) {
+      console.error("WhatsApp send error:", error);
+      let errorMessage = "Failed to send WhatsApp message";
+
+      if (error.message.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (error.message.includes("too large")) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = error.response?.data?.error ||
+                     error.response?.data?.message ||
+                     error.message ||
+                     errorMessage;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        timer: 5000,
+        showConfirmButton: true,
+      });
+    }
+  };
+
+  const handleOfferCheckboxChange = (offer, isChecked) => {
+    if (isChecked) {
+      setSelectedOffers([...selectedOffers, offer]);
+    } else {
+      setSelectedOffers(selectedOffers.filter(o => o.id !== offer.id));
+    }
+  };
+
   const renderInvoiceDetails = () => {
     if (!selectedInvoice) return null;
+
     const filteredData = getFilteredInvoiceData(selectedInvoice);
+
     return (
       <div className="invoice-details-container">
         <div className="invoice-details-header">
@@ -610,6 +1050,7 @@ const InvoiceList = () => {
         <div className="no-offers">No offers available for this invoice</div>
       );
     }
+
     return (
       <div className="offers-section">
         <h2 className="offers-title">Available Offers</h2>
@@ -651,14 +1092,22 @@ const InvoiceList = () => {
                     {renderOfferStatus(offer.is_selected || 0)}
                   </span>
                 </div>
-                {selectedInvoice?.is_offer_selected === 0 && (
+                <div className="offer-actions">
+                  {selectedInvoice?.is_offer_selected === 0 && (
+                    <button
+                      className="create-agreement-btn"
+                      onClick={() => handleCreateAgreement(offer.id)}
+                    >
+                      Create Agreement
+                    </button>
+                  )}
                   <button
-                    className="create-agreement-btn"
-                    onClick={() => handleCreateAgreement(offer.id)}
+                    className="whatsapp-offer-btn"
+                    onClick={() => handleSingleOfferWhatsappClick(offer)}
                   >
-                    Create Agreement
+                    <FaWhatsapp className="me-1" /> Share on WhatsApp
                   </button>
-                )}
+                </div>
               </div>
             </div>
           ))}
@@ -675,6 +1124,9 @@ const InvoiceList = () => {
           </button>
           <button onClick={handleWhatsappClick} className="export-btn whatsapp-btn">
             <FaWhatsapp className="me-2" /> WhatsApp
+          </button>
+          <button onClick={handleMultiOfferWhatsappClick} className="export-btn multi-whatsapp-btn">
+            <FaWhatsapp className="me-2" /> Select & Send
           </button>
         </div>
       </div>
@@ -695,8 +1147,8 @@ const InvoiceList = () => {
   if (loading) {
     return (
       <div className="loading-container">
-        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
-          <span class="visually-hidden">Loading...</span>
+        <div className="spinner-border" role="status" style={{ color: "#3598db" }}>
+          <span className="visually-hidden">Loading...</span>
         </div>
       </div>
     );
@@ -806,7 +1258,7 @@ const InvoiceList = () => {
         </>
       )}
 
-      {/* WhatsApp Modal */}
+      {/* WhatsApp Modal for all offers */}
       {showWhatsappModal && (
         <div className="whatsapp-modal-overlay">
           <div className="whatsapp-modal-content">
@@ -858,6 +1310,141 @@ const InvoiceList = () => {
               >
                 <FaWhatsapp className="me-2" />
                 Send Message
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WhatsApp Modal for single offer */}
+      {showSingleOfferWhatsappModal && selectedOffer && (
+        <div className="whatsapp-modal-overlay">
+          <div className="whatsapp-modal-content">
+            <div className="whatsapp-modal-header">
+              <h3>Send Offer via WhatsApp</h3>
+              <button
+                onClick={handleSingleOfferWhatsappModalClose}
+                className="whatsapp-modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="whatsapp-modal-body">
+              <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-to">Phone Number:</label>
+                <input
+                  type="text"
+                  id="whatsapp-to"
+                  name="to"
+                  value={whatsappData.to}
+                  onChange={handleWhatsappChange}
+                  placeholder="e.g., 923001234567"
+                  required
+                />
+                <small className="whatsapp-input-hint">
+                  Enter phone number with country code but without + sign
+                  (e.g., 923001234567 for Pakistan)
+                </small>
+              </div>
+              <div className="whatsapp-pdf-preview">
+                <p className="whatsapp-pdf-label">Offer PDF Attachment:</p>
+                <div className="whatsapp-pdf-placeholder">
+                  <FaFilePdf className="whatsapp-pdf-icon" />
+                  <p>Offer_{selectedOffer.id}_Details.pdf</p>
+                </div>
+              </div>
+            </div>
+            <div className="whatsapp-modal-footer">
+              <button
+                onClick={handleSingleOfferWhatsappModalClose}
+                className="whatsapp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSingleOfferWhatsappSubmit}
+                className="whatsapp-modal-send-btn"
+                disabled={!whatsappData.to}
+              >
+                <FaWhatsapp className="me-2" />
+                Send Offer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WhatsApp Modal for multiple selected offers */}
+      {showMultiOfferWhatsappModal && offers.length > 0 && (
+        <div className="whatsapp-modal-overlay">
+          <div className="whatsapp-modal-content">
+            <div className="whatsapp-modal-header">
+              <h3>Select Offers to Send</h3>
+              <button
+                onClick={handleMultiOfferWhatsappModalClose}
+                className="whatsapp-modal-close-btn"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="whatsapp-modal-body">
+              <div className="whatsapp-input-group">
+                <label htmlFor="whatsapp-to">Phone Number:</label>
+                <input
+                  type="text"
+                  id="whatsapp-to"
+                  name="to"
+                  value={whatsappData.to}
+                  onChange={handleWhatsappChange}
+                  placeholder="e.g., 923001234567"
+                  required
+                />
+                <small className="whatsapp-input-hint">
+                  Enter phone number with country code but without + sign
+                  (e.g., 923001234567 for Pakistan)
+                </small>
+              </div>
+
+              <div className="offers-selection">
+                <h4>Select Offers:</h4>
+                <div className="offers-checkboxes">
+                  {offers.map((offer) => (
+                    <div key={offer.id} className="offer-checkbox">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selectedOffers.some(o => o.id === offer.id)}
+                          onChange={(e) => handleOfferCheckboxChange(offer, e.target.checked)}
+                        />
+                        {offer.product_name || "Unnamed Product"} ({offer.provider_name || "Unknown Provider"})
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="whatsapp-pdf-preview">
+                <p className="whatsapp-pdf-label">Selected Offers PDF Attachment:</p>
+                <div className="whatsapp-pdf-placeholder">
+                  <FaFilePdf className="whatsapp-pdf-icon" />
+                  <p>Selected_Offers_Details.pdf</p>
+                </div>
+              </div>
+            </div>
+            <div className="whatsapp-modal-footer">
+              <button
+                onClick={handleMultiOfferWhatsappModalClose}
+                className="whatsapp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMultiOfferWhatsappSubmit}
+                className="whatsapp-modal-send-btn"
+                disabled={!whatsappData.to || selectedOffers.length === 0}
+              >
+                <FaWhatsapp className="me-2" />
+                Send Selected Offers
               </button>
             </div>
           </div>

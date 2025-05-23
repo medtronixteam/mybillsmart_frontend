@@ -3,11 +3,13 @@ import "./ComapnyDetailsList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyDetailsList = () => {
   const [companyDetails, setCompanyDetails] = useState(null);
   const [loading, setLoading] = useState(true);   
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCompanyDetails = async () => {
@@ -18,6 +20,12 @@ const CompanyDetailsList = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
         if (!response.ok) {
           throw new Error('Failed to fetch company details');

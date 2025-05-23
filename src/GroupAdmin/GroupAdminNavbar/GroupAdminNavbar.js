@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
@@ -10,6 +10,7 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
   const [show, setShow] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const { name, token } = useAuth();
+  const navigate = useNavigate();
 
   const api = axios.create({
     baseURL: `${config.BASE_URL}`,
@@ -23,15 +24,18 @@ const GroupAdminNavbar = ({ toggleSidebar }) => {
     try {
       // setLoading(true);
       const response = await api.get("/api/notifications");
-      // Access the notifications array from response data
+      if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
+    
       setNotifications(response.data.notifications || []);
-      // setError(null);
     } catch (err) {
-      // setError("Failed to fetch notifications");
       console.error("Error fetching notifications:", err);
       setNotifications([]);
     } finally {
-      // setLoading(false);
     }
   };
   useEffect(() => {

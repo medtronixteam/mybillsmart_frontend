@@ -71,8 +71,20 @@ const callWhatsappUnlink = async () => {
     setError(null);
     try {
       await axios.post(`${API_BASE_URL}/api/sessions`, {
-        name: sanitizeSessionName(currentSession),
-      });
+                name: sanitizeSessionName(currentSession),
+                config: {
+                  proxy: null,
+                  webhooks: [
+                    {
+                      url: "https://ocr.ai3dscanning.com/webhook",
+                      events: ["message"],
+                      hmac: null,
+                      retries: null,
+                      customHeaders: null
+                    }
+                  ]
+                }
+              });
       await startSession();
     } catch (err) {
       if (err.response?.status === 409) {

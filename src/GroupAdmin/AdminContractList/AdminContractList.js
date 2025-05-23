@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./AdminContractList.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import Breadcrumbs from "../../Breadcrumbs";
@@ -10,6 +10,7 @@ const AdminContractList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -22,6 +23,12 @@ const AdminContractList = () => {
             },
           }
         );
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }

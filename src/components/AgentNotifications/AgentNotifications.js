@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./AgentNotifications.css";
+// import "./GroupAdminNotifications.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import Breadcrumbs from "../../Breadcrumbs";
 
 const AgentNotifications = () => {
-  const [notificationDetail, setNotificationDetail] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [selectedNotification, setSelectedNotification] = useState(null);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [notificationsPerPage] = useState(10);
   const { token } = useAuth();
 
   const api = axios.create({
@@ -25,7 +25,6 @@ const AgentNotifications = () => {
     try {
       setLoading(true);
       const response = await api.get("/api/notifications");
-      // Access the notifications array from response data
       setNotifications(response.data.notifications || []);
       setError(null);
     } catch (err) {
@@ -37,19 +36,14 @@ const AgentNotifications = () => {
     }
   };
 
-  const fetchNotificationDetails = async (id) => {
+  const markAsRead = async (id) => {
     try {
-      setLoading(true);
-      const response = await api.get(`/api/notification/${id}`);
-      setSelectedNotification(response.data);
-      setNotificationDetail(true);
-
       await api.put(`/api/notification/read/${id}`);
+      setNotifications(notifications.map(notification => 
+        notification.id === id ? { ...notification, read: true } : notification
+      ));
     } catch (err) {
-      setError("Failed to fetch notification details");
-      console.error("Error fetching notification details:", err);
-    } finally {
-      setLoading(false);
+      console.error("Error marking notification as read:", err);
     }
   };
 
@@ -57,50 +51,31 @@ const AgentNotifications = () => {
     fetchNotifications();
   }, []);
 
+  // Pagination logic
+  const indexOfLastNotification = currentPage * notificationsPerPage;
+  const indexOfFirstNotification = indexOfLastNotification - notificationsPerPage;
+  const currentNotifications = notifications.slice(indexOfFirstNotification, indexOfLastNotification);
+  const totalPages = Math.ceil(notifications.length / notificationsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="container mt-4">
-      <Breadcrumbs homePath={"/agent/dashboard"} />
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="text-center">Notifications</h2>
 
       {loading ? (
         <div className="text-center py-5">
-          <div
-            class="spinner-border"
-            role="status"
-            style={{ color: "#3598db" }}
-          >
-            <span class="visually-hidden">Loading...</span>
+          <div className="spinner-border" role="status" style={{ color: "#3598db" }}>
+            <span className="visually-hidden">Loading...</span>
           </div>
         </div>
       ) : error ? (
         <div className="alert alert-danger text-center">
           {error}
-          <button
-            className="btn btn-sm btn-outline-danger ms-3"
-            onClick={fetchNotifications}
-          >
+          <button className="btn btn-sm btn-outline-danger ms-3" onClick={fetchNotifications}>
             Retry
           </button>
-        </div>
-      ) : notificationDetail ? (
-        <div className="card">
-          <div className="card-body">
-            <button
-              className="btn btn-sm btn-outline-secondary mb-3"
-              onClick={() => setNotificationDetail(false)}
-            >
-              ← Back to notifications
-            </button>
-            <h3>{selectedNotification?.title || "Notification Details"}</h3>
-            <div className="card-text">
-              <p>{selectedNotification?.message || "No details available"}</p>
-              {selectedNotification?.timestamp && (
-                <small className="text-muted">
-                  {new Date(selectedNotification.timestamp).toLocaleString()}
-                </small>
-              )}
-            </div>
-          </div>
         </div>
       ) : notifications.length === 0 ? (
         <div className="card">
@@ -110,53 +85,71 @@ const AgentNotifications = () => {
             <p className="text-muted">
               You'll see notifications here when they become available
             </p>
-            <button
-              className="btn btn-outline-primary mt-2"
-              onClick={fetchNotifications}
-            >
+            <button className="btn btn-outline-primary mt-2" onClick={fetchNotifications}>
               Refresh
             </button>
           </div>
         </div>
       ) : (
-        <div className="card">
-          <div className="card-body p-0">
-            <ul className="list-group list-group-flush">
-              {notifications.map((notification) => (
-                <li
-                  key={notification.id}
-                  className={`list-group-item ${
-                    notification.read ? "" : "unread-notification"
-                  }`}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
+        <>
+          <div className="card mb-3">
+            <div className="card-body p-0">
+              <ul className="list-group list-group-flush">
+                {currentNotifications.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className={`list-group-item ${notification.read ? "" : "unread-notification"}`}
+                    onClick={() => !notification.read && markAsRead(notification.id)}
+                  >
                     <div>
-                      <h6 className="mb-1">
-                        {notification.title || "Notification"}
-                      </h6>
-                      <p className="mb-1 text-muted">
-                        {notification.message.length > 50
-                          ? `${notification.message.substring(0, 50)}...`
-                          : notification.message}
-                      </p>
+                      <h6 className="mb-1">{notification.title || "Notification"}</h6>
+                      <p className="mb-1">{notification.message}</p>
                       {notification.timestamp && (
                         <small className="text-muted">
                           {new Date(notification.timestamp).toLocaleString()}
                         </small>
                       )}
                     </div>
-                    <button
-                      className="btn btn-sm btn-outline-primary d-none"
-                      onClick={() => fetchNotificationDetails(notification.id)}
-                    >
-                      View
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+
+          {/* Pagination with icons and single page number */}
+          {notifications.length > notificationsPerPage && (
+            <nav>
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <i className="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+
+                {/* Show only current page number */}
+                <li className="page-item active">
+                  <button className="page-link">
+                    {currentPage}
+                  </button>
+                </li>
+
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    <i className="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );

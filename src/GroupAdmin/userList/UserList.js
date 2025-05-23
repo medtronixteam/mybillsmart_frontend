@@ -26,6 +26,7 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
   const [roleFilter, setRoleFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState(""); // New search state
 
   // Performance view states
   const [showPerformance, setShowPerformance] = useState(false);
@@ -84,11 +85,31 @@ const UserList = () => {
     }
   };
 
-  // Filter users based on selected role
-  const filteredUsers =
-    roleFilter === "all"
-      ? users
-      : users.filter((user) => user.role === roleFilter);
+  // Apply both role and search filters
+  const filteredUsers = users.filter((user) => {
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return matchesRole;
+
+    return (
+      (user.name && user.name.toLowerCase().includes(query)) ||
+      (user.email && user.email.toLowerCase().includes(query)) ||
+      (user.phone && user.phone.toLowerCase().includes(query))
+    );
+  });
+
+  // Pagination for user list
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const paginateUsers = (pageNumber) => setCurrentPage(pageNumber);
+  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const nextPage = () => {
+    if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   // Performance view functions
   const fetchPerformanceData = async (userId) => {
@@ -102,11 +123,9 @@ const UserList = () => {
           },
         }
       );
-
       if (!response.ok) {
         throw new Error("Failed to fetch performance data");
       }
-
       const result = await response.json();
       setPerformanceData(result.data.user);
       setShowPerformance(true);
@@ -128,7 +147,6 @@ const UserList = () => {
     setPerformanceData(null);
   };
 
-  // Pagination functions
   const paginate = (array, page) => {
     const startIndex = (page - 1) * itemsPerPage;
     return array.slice(startIndex, startIndex + itemsPerPage);
@@ -141,19 +159,6 @@ const UserList = () => {
     ? Math.ceil(performanceData.contracts.length / itemsPerPage)
     : 0;
 
-  // User list pagination logic
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-
-  const paginateUsers = (pageNumber) => setCurrentPage(pageNumber);
-  const prevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
-  const nextPage = () => {
-    if (currentPage < Math.ceil(filteredUsers.length / usersPerPage)) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
   // Session history pagination
   const indexOfLastSession = currentSessionPage * sessionsPerPage;
   const indexOfFirstSession = indexOfLastSession - sessionsPerPage;
@@ -161,7 +166,6 @@ const UserList = () => {
     indexOfFirstSession,
     indexOfLastSession
   );
-
   const paginateSessions = (pageNumber) => setCurrentSessionPage(pageNumber);
   const prevSessionPage = () =>
     currentSessionPage > 1 && setCurrentSessionPage(currentSessionPage - 1);
@@ -251,7 +255,6 @@ const UserList = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, disable it!",
     });
-
     if (result.isConfirmed) {
       try {
         const response = await fetch(
@@ -298,7 +301,6 @@ const UserList = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, enable it!",
     });
-
     if (result.isConfirmed) {
       try {
         const response = await fetch(
@@ -345,7 +347,6 @@ const UserList = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     });
-
     if (result.isConfirmed) {
       try {
         const response = await fetch(
@@ -490,6 +491,7 @@ const UserList = () => {
   return (
     <div className="user-list-container">
       <Breadcrumbs homePath={"/group_admin/dashboard"} />
+
       {showSessionHistory ? (
         <div className="session-history-container">
           <button
@@ -498,7 +500,6 @@ const UserList = () => {
           >
             Back to User List
           </button>
-
           {selectedSession ? (
             <div className="session-details-card">
               <button
@@ -563,7 +564,6 @@ const UserList = () => {
                     >
                       Previous
                     </button>
-
                     {Array.from({
                       length: Math.ceil(
                         sessionHistory.length / sessionsPerPage
@@ -579,7 +579,6 @@ const UserList = () => {
                         {index + 1}
                       </button>
                     ))}
-
                     <button
                       onClick={nextSessionPage}
                       disabled={
@@ -598,14 +597,18 @@ const UserList = () => {
         </div>
       ) : showPerformance ? (
         <div className="performance-view-container">
-          <button onClick={handleBackFromPerformance} className="back-button">
+          <button
+            onClick={handleBackFromPerformance}
+            className="back-button"
+          >
             Back to User List
           </button>
-
           <div className="user-details-container">
             <div className="user-profile-card">
               <div className="profile-header">
-                <div className="avatar">{performanceData.name.charAt(0)}</div>
+                <div className="avatar">
+                  {performanceData.name.charAt(0)}
+                </div>
                 <div className="profile-info">
                   <h3>{performanceData.name}</h3>
                   <p className="user-role">{performanceData.role}</p>
@@ -618,7 +621,6 @@ const UserList = () => {
                   {performanceData.status === 1 ? "Active" : "Inactive"}
                 </span>
               </div>
-
               <div className="profile-details-grid">
                 <div className="detail-item">
                   <span className="detail-label">Email:</span>
@@ -672,7 +674,6 @@ const UserList = () => {
                   </div>
                 )}
               </div>
-
               {performanceData.invoices.length > 0 ? (
                 <>
                   <div className="responsive-table">
@@ -694,9 +695,7 @@ const UserList = () => {
                           <tr key={invoice.id}>
                             <td data-label="ID">{invoice.id}</td>
                             <td data-label="Type">{invoice.bill_type}</td>
-                            <td data-label="Period">
-                              {invoice.billing_period}
-                            </td>
+                            <td data-label="Period">{invoice.billing_period}</td>
                             <td data-label="Address">{invoice.address}</td>
                             <td data-label="Total Bill">
                               €{invoice.bill_info?.["total bill"] || "N/A"}
@@ -752,7 +751,6 @@ const UserList = () => {
                   </div>
                 )}
               </div>
-
               {performanceData.contracts.length > 0 ? (
                 <>
                   <div className="responsive-table">
@@ -833,13 +831,11 @@ const UserList = () => {
       ) : (
         <>
           <h1>User List</h1>
+
+          {/* Search Input */}
           <div className="row align-items-center mb-3">
+            <div className="col-12 col-md-2"></div>
             <div className="col-12 col-md-4">
-              <label htmlFor="role-filter" className="form-label mb-md-0 fs-5">
-                Filter by Role:
-              </label>
-            </div>
-            <div className="col-12 col-md-8">
               <select
                 id="role-filter"
                 value={roleFilter}
@@ -847,27 +843,44 @@ const UserList = () => {
                   setRoleFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="form-select"
+                className="form-select mb-2"
               >
                 <option value="all">All Roles</option>
-                <option value="group_admin">Group Admin</option>
+                <option value="agent">Aale Agent</option>
                 <option value="client">Client</option>
                 <option value="supervisor">Supervisor</option>
               </select>
+
+             
             </div>
+            <div className="col-12 col-md-4">
+               {/* Search Input Field */}
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="form-control"
+              />
+            </div>
+               <div className="col-12 col-md-2"></div>
           </div>
 
           {loading ? (
             <div
-              class="spinner-border d-block mx-auto"
+              className="spinner-border d-block mx-auto"
               role="status"
               style={{ color: "#3598db" }}
             >
-              <span class="visually-hidden">Loading...</span>
+              <span className="visually-hidden">Loading...</span>
             </div>
           ) : filteredUsers.length === 0 ? (
             <p>
-              No users found. <Link to="/group_admin/add-user">Add User</Link>
+              No users found.{" "}
+              <Link to="/group_admin/add-user">Add User</Link>
             </p>
           ) : (
             <>
@@ -972,7 +985,6 @@ const UserList = () => {
                 >
                   Previous
                 </button>
-
                 {Array.from({
                   length: Math.ceil(filteredUsers.length / usersPerPage),
                 }).map((_, index) => (
@@ -986,7 +998,6 @@ const UserList = () => {
                     {index + 1}
                   </button>
                 ))}
-
                 <button
                   onClick={nextPage}
                   disabled={
@@ -1001,6 +1012,7 @@ const UserList = () => {
             </>
           )}
 
+          {/* Edit Modal */}
           {isModalOpen && (
             <div className="modal-overlay">
               <div className="edit-user-modal">
@@ -1061,7 +1073,6 @@ const UserList = () => {
                       <option value="client">Client</option>
                       <option value="supervisor">Supervisor</option>
                       <option value="agent">Sale Agent</option>
-                      {/* <option value="admin">Admin</option> */}
                     </select>
                   </div>
                   <div className="form-group">

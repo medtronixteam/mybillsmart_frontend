@@ -5,6 +5,7 @@ import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
+import { useNavigate } from "react-router-dom";
 
 const CompanyDetails = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ const CompanyDetails = () => {
   const [existingLogo, setExistingLogo] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
   const { token } = useAuth();
 
   useEffect(() => {
@@ -35,6 +37,12 @@ const CompanyDetails = () => {
             },
           }
         );
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
         if (response.data.status === "success" && response.data.data) {
           const data = response.data.data;
@@ -128,7 +136,12 @@ const CompanyDetails = () => {
           },
         }
       );
-
+      if (response.status === 401) {
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("role");
+                navigate("/login");
+                return;
+                }
       const successMessage =
         response.data?.message ||
         (hasExistingData

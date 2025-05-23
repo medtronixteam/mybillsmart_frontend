@@ -440,6 +440,8 @@ const AddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                  <option value="" disabled selected>Select customer type</option>
+
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -610,6 +612,7 @@ const AddProduct = () => {
                   onChange={handleElectricityChange}
                   className="form-control w-100"
                 >
+                   <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -740,6 +743,8 @@ const AddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                  <option value="" disabled selected>Select customer type</option>
+
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -903,6 +908,7 @@ const AddProduct = () => {
                   onChange={handleGasChange}
                   className="form-control w-100"
                 >
+                   <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -1033,6 +1039,8 @@ const AddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                  <option value="" disabled selected>Select customer type</option>
+
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -1261,6 +1269,7 @@ const AddProduct = () => {
                   onChange={handleCombinedChange}
                   className="form-control w-100"
                 >
+                   <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>

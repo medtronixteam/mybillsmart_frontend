@@ -3,12 +3,13 @@ import Swal from "sweetalert2";
 import "./AdminAddProduct.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../Breadcrumbs";
 
 const AdminAddProduct = () => {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("electricity");
+  const navigate = useNavigate();
 
   const [electricityForm, setElectricityForm] = useState({
     provider_name: "",
@@ -160,6 +161,12 @@ const AdminAddProduct = () => {
           body: formData,
         }
       );
+      if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
       if (!response.ok) throw new Error("Failed to add electricity product");
 
@@ -235,7 +242,12 @@ const AdminAddProduct = () => {
         },
         body: formData,
       });
-
+      if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
       if (!response.ok) throw new Error("Failed to add gas product");
 
       Swal.fire({
@@ -301,6 +313,12 @@ const AdminAddProduct = () => {
         },
         body: formData,
       });
+      if (response.status === 401) {
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("role");
+                navigate("/login");
+                return;
+                }
 
       if (!response.ok) throw new Error("Failed to add combined product");
 
@@ -441,6 +459,8 @@ const AdminAddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                  
+                  <option value="" disabled selected>Select customer type</option>
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -607,6 +627,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
                <select name="commision_type" value={electricityForm.commision_type} onChange={handleElectricityChange} className="form-control w-100">
+                  <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -738,6 +759,7 @@ const AdminAddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                 <option value="" disabled selected>Select customer type</option>
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -896,6 +918,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
                <select name="commision_type" value={gasForm.commision_type} onChange={handleGasChange} className="form-control w-100">
+                  <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>
@@ -1027,6 +1050,7 @@ const AdminAddProduct = () => {
                   required
                   className="form-control w-100"
                 >
+                  <option value="" disabled selected>Select customer type</option>
                   <option value="residential">Residential</option>
                   <option value="business">Business</option>
                 </select>
@@ -1250,6 +1274,7 @@ const AdminAddProduct = () => {
               <div className="col-12 col-md-6 mb-3">
                 <label>Commission Type</label>
                <select name="commision_type" value={combinedForm.commision_type} onChange={handleCombinedChange} className="form-control w-100">
+                   <option value="" disabled selected>Select Commission type</option>
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed</option>
                 </select>

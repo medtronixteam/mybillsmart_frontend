@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./GoalList.css";
+import "./SupervisorGoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
-import { useNavigate } from "react-router-dom";
 
-const GoalList = () => {
+const SupervisorGoalList = () => {
   const [goals, setGoals] = useState([]);
   const [filteredGoals, setFilteredGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingGoal, setEditingGoal] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(false);
   const { token } = useAuth();
-  const navigate = useNavigate();
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [goalsPerPage] = useState(10); // You can adjust this number
@@ -58,29 +57,14 @@ const GoalList = () => {
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${config.BASE_URL}/api/group/goals`, {
+      const response = await axios.get(`${config.BASE_URL}/api/supervisor/goals`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      if (response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       setGoals(response.data.data);
       setLoading(false);
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       console.error("Error fetching goals:", err);
       Swal.fire({
         icon: "error",
@@ -111,29 +95,14 @@ const GoalList = () => {
 
     try {
       setLoading(true);
-      const response = await axios.delete(`${config.BASE_URL}/api/group/goals/${goalId}`, {
+      await axios.delete(`${config.BASE_URL}/api/supervisor/goals/${goalId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      if (response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       Swal.fire("Deleted!", "Goal has been deleted successfully.", "success");
       fetchGoals();
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       console.error("Error deleting goal:", err);
       Swal.fire({
         icon: "error",
@@ -157,8 +126,8 @@ const GoalList = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.patch(
-        `${config.BASE_URL}/api/group/goals/${editingGoal.id}/status`,
+      await axios.patch(
+        `${config.BASE_URL}/api/supervisor/goals/${editingGoal.id}/status`,
         editingGoal,
         {
           headers: {
@@ -167,14 +136,6 @@ const GoalList = () => {
           },
         }
       );
-      
-      if (response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -183,13 +144,6 @@ const GoalList = () => {
       setEditingGoal(null);
       fetchGoals();
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
       console.error("Error updating goal:", err);
       Swal.fire({
         icon: "error",
@@ -201,51 +155,35 @@ const GoalList = () => {
     }
   };
 
-  const markAsComplete = async (goalId) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `${config.BASE_URL}/api/group/mark-as-read/goal/${goalId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      
-      if (response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
+const markAsComplete = async (goalId) => {
+  try {
+    setLoading(true);
+    await axios.get( 
+      `${config.BASE_URL}/api/supervisor/mark-as-read/goal/${goalId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-      
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: "Goal marked as complete successfully!",
-      });
-      fetchGoals();
-    } catch (err) {
-      if (err.response && err.response.status === 401) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("role");
-        navigate("/login");
-        return;
-      }
-      
-      console.error("Error marking goal as complete:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: err.response?.data?.message || "Failed to mark goal as complete",
-      });
-    } finally {
-      setLoading(false);
-      setActiveDropdown(false);
-    }
-  };
-
+    );
+    Swal.fire({
+      icon: "success",
+      title: "Success!",
+      text: "Goal marked as complete successfully!",
+    });
+    fetchGoals();
+  } catch (err) {
+    console.error("Error marking goal as complete:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.response?.data?.message || "Failed to mark goal as complete",
+    });
+  } finally {
+    setLoading(false);
+    setActiveDropdown(false);
+  }
+};
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
     setEditingGoal({
@@ -303,8 +241,8 @@ const GoalList = () => {
       </div>
 
       {loading && !editingGoal ? (
-        <div className="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
-          <span className="visually-hidden">Loading...</span>
+        <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
+          <span class="visually-hidden">Loading...</span>
         </div>
       ) : (
         <>
@@ -538,4 +476,4 @@ const GoalList = () => {
   );
 };
 
-export default GoalList;
+export default SupervisorGoalList;

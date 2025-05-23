@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
+import { useNavigate } from "react-router-dom";
 
 const AgreementList = () => {
   const [agreements, setAgreements] = useState([]);
@@ -27,6 +28,7 @@ const AgreementList = () => {
   // Filter states
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const toggleDropdown = (index) => {
     // e.stopPropagation();
@@ -64,6 +66,12 @@ const AgreementList = () => {
         }
       );
 
+       if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
       let filteredData = [...response.data.data];
 
       if (statusFilter !== "all") {

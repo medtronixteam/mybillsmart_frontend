@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Breadcrumbs from "../Breadcrumbs";
+import { Navigate } from "react-router-dom";
 
 const GroupAdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -42,6 +43,12 @@ const GroupAdminDashboard = () => {
             },
           }
         );
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          Navigate("/login");
+          return;
+          }
 
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard data");

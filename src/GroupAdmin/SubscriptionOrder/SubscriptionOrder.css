@@ -393,3 +393,6 @@
 .table-container {
   overflow-x: auto;
 }
+.search-filter{
+  width: 50%;
+}

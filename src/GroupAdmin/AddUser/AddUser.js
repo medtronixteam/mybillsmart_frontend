@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import "./AddUser.css";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import config from "../../config";
 import Breadcrumbs from "../../Breadcrumbs";
 
@@ -20,6 +20,7 @@ const AddUser = ({ onAddUser }) => {
     address: "",
   });
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,8 +72,12 @@ const AddUser = ({ onAddUser }) => {
           },
         }
       );
-
-      // Show success message with API response if available
+      if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
       const successMessage =
         response.data?.message || "User added successfully!";
       Swal.fire({
@@ -83,7 +88,6 @@ const AddUser = ({ onAddUser }) => {
         timer: 3000,
         timerProgressBar: true,
       });
-
       // Reset the form
       setFormData({
         name: "",

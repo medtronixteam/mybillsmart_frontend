@@ -33,6 +33,14 @@ const GroupAdminWhatsapp = () => {
     return name.replace(/[^a-zA-Z0-9-_]/g, "").substring(0, 32);
   };
 
+  const getAuthHeaders = () => {
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+  };
+
   const prepareWebhookConfig = () => {
     const webhookConfig = {
       name: currentSession,
@@ -57,13 +65,8 @@ const GroupAdminWhatsapp = () => {
     try {
       await axios.post(`${config.BASE_URL}/api/whatsapp/link`, {
         session_name: sanitizeSessionName(currentSession),
-      }, {
-        headers: {
-          Authorization: `Bearer ${auth.token}` 
-        }
-      });
+      }, getAuthHeaders());
       console.log("WhatsApp link API called successfully");
-      
     } catch (err) {
       console.error("Error calling whatsapp/link API:", err);
     }
@@ -71,11 +74,7 @@ const GroupAdminWhatsapp = () => {
 
   const callWhatsappUnlink = async () => {
     try {
-      await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, {
-        headers: {
-          Authorization: `Bearer ${auth.token}` 
-        }
-      });
+      await axios.get(`${config.BASE_URL}/api/whatsapp/unlink`, getAuthHeaders());
       console.log("WhatsApp unlink API called successfully");
     } catch (err) {
       console.error("Error calling whatsapp/unlink API:", err);
@@ -87,22 +86,25 @@ const GroupAdminWhatsapp = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await axios.post(`${API_BASE_URL}/api/sessions`, {
-        
-          name:  sanitizeSessionName(currentSession),
-      config: {
-        proxy: null,
-        webhooks: [
-          {
-            url: "https://ocr.ai3dscanning.com/webhook",
-            events: ["message"],
-            hmac: null,
-            retries: null,
-            customHeaders: null
+      await axios.post(
+        `${API_BASE_URL}/api/sessions`,
+        {
+          name: sanitizeSessionName(currentSession),
+          config: {
+            proxy: null,
+            webhooks: [
+              {
+                url: "https://ocr.ai3dscanning.com/webhook",
+                events: ["message"],
+                hmac: null,
+                retries: null,
+                customHeaders: null
+              }
+            ]
           }
-        ]
-      }
-      });
+        },
+        getAuthHeaders()
+      );
       await startSession();
     } catch (err) {
       if (err.response?.status === 409) {
@@ -120,10 +122,11 @@ const GroupAdminWhatsapp = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/start`
+      await axios.post(
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/start`,
+        null,
+        getAuthHeaders()
       );
-
       const status = await getSessionInfo();
       handleStatusResponse(status);
       startStatusPolling();
@@ -137,7 +140,8 @@ const GroupAdminWhatsapp = () => {
   const getSessionInfo = async () => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`,
+        getAuthHeaders()
       );
       return response.data;
     } catch (err) {
@@ -154,7 +158,9 @@ const GroupAdminWhatsapp = () => {
     setError(null);
     try {
       await axios.post(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/stop`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/stop`,
+        null,
+        getAuthHeaders()
       );
       setStep(5);
       setSessionStatus("stopped");
@@ -173,7 +179,8 @@ const GroupAdminWhatsapp = () => {
     setError(null);
     try {
       await axios.delete(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}`,
+        getAuthHeaders()
       );
       setStep(1);
       setSessionStatus("disconnected");
@@ -192,9 +199,12 @@ const GroupAdminWhatsapp = () => {
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/${sanitizeSessionName(currentSession)}/auth/qr`,
-        { params: { ts: Date.now() }, responseType: "blob" }
+        {
+          ...getAuthHeaders(),
+          params: { ts: Date.now() },
+          responseType: "blob"
+        }
       );
-
       const imageUrl = URL.createObjectURL(response.data);
       setQrCode(imageUrl);
     } catch (err) {
@@ -208,7 +218,8 @@ const GroupAdminWhatsapp = () => {
   const getProfileInfo = async () => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/me`
+        `${API_BASE_URL}/api/sessions/${sanitizeSessionName(currentSession)}/me`,
+        getAuthHeaders()
       );
       setProfileInfo(response.data);
       await callWhatsappLink();
@@ -445,10 +456,6 @@ const GroupAdminWhatsapp = () => {
                     <span>Name:</span>
                     <span>{profileInfo.pushname || "Not available"}</span>
                   </div>
-                  { /* <div className="wai-info-row">
-                    <span>Phone:</span>
-                    <span>{profileInfo?.wid?.user || "Not available"}</span>
-                  </div> */}
                 </div>
               )}
 

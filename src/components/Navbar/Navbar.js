@@ -118,6 +118,12 @@ const Navbar = ({ toggleSidebar }) => {
                 >
                   Profile Setting
                 </Link>
+                 <Link
+                  to="/agent/session-history"
+                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                >
+                  Session History
+                </Link>
               </div>
             )}
             {/* </Link> */}

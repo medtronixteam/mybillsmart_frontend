@@ -6,6 +6,7 @@ import config from "../../config";
 import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
+import { useNavigate } from "react-router-dom";
 
 const Agrement = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Agrement = () => {
   });
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +54,12 @@ const Agrement = () => {
           },
         }
       );
+     if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
       if (response.data.status === "success") {
         Swal.fire({

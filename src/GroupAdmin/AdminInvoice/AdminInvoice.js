@@ -8,7 +8,7 @@ import {
 } from "react-icons/bs";
 import "./AdminInvoice.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import jsPDF from "jspdf";
 import { IoIosSend } from "react-icons/io";
@@ -35,7 +35,8 @@ const AdminInvoice = () => {
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
+    message:
+      "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
   });
   const [isDragging, setIsDragging] = useState(false);
   const [planInfo, setPlanInfo] = useState(null);
@@ -45,16 +46,15 @@ const AdminInvoice = () => {
 
   // Helper function to display API errors
   const showApiError = (error, defaultMessage = "An error occurred") => {
-    const errorMessage = error.response?.data?.message || 
-                        error.message || 
-                        defaultMessage;
-    
+    const errorMessage =
+      error.response?.data?.message || error.message || defaultMessage;
+
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
+      icon: "error",
+      title: "Error",
       text: errorMessage,
       timer: 3000,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   };
 
@@ -70,7 +70,12 @@ const AdminInvoice = () => {
           },
         }
       );
-
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("role");
+        navigate("/login");
+        return;
+      }
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -95,10 +100,12 @@ const AdminInvoice = () => {
         setPlanInfo(response.data);
       } catch (error) {
         console.error("Error fetching plan info:", error);
-        setPlanInfo(error.response?.data || { 
-          status: "error", 
-          message: "Failed to fetch plan information" 
-        });
+        setPlanInfo(
+          error.response?.data || {
+            status: "error",
+            message: "Failed to fetch plan information",
+          }
+        );
       } finally {
         setLoadingPlanInfo(false);
       }
@@ -162,6 +169,7 @@ const AdminInvoice = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       return response.data.id;
     } catch (error) {
       console.error("Error fetching group ID:", error);
@@ -181,7 +189,12 @@ const AdminInvoice = () => {
           },
         }
       );
-
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("role");
+        navigate("/login");
+        return;
+      }
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -269,7 +282,12 @@ const AdminInvoice = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("role");
+        navigate("/login");
+        return;
+      }
       if (response.data) {
         setResponseData(response.data);
         setFormData(response.data);
@@ -308,7 +326,7 @@ const AdminInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
-        app_mode: '1',
+        app_mode: "1",
       };
 
       const matchResponse = await axios.post(
@@ -524,7 +542,7 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("Error generating Excel:", error);
       showApiError(error, "Failed to generate Excel file");
-    } 
+    }
   };
 
   const generatePDF = () => {
@@ -539,16 +557,20 @@ const AdminInvoice = () => {
       pdf.setTextColor(74, 107, 175);
       pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 10;
-      
+
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
 
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
 
       pdf.setDrawColor(200, 200, 200);
@@ -568,11 +590,18 @@ const AdminInvoice = () => {
         }
 
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
-        pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
-                 margin + 5, yOffset + 7);
+        pdf.text(
+          `Offer ${index + 1}: ${
+            supplier["Supplier Name"] ||
+            supplier["supplierName"] ||
+            `Supplier ${index + 1}`
+          }`,
+          margin + 5,
+          yOffset + 7
+        );
         yOffset += 15;
 
         pdf.setFontSize(11);
@@ -584,20 +613,27 @@ const AdminInvoice = () => {
         let column2Y = yOffset;
 
         Object.keys(supplier).forEach((key, i) => {
-          if (![
-            "Supplier Name", 
-            "supplierName",
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id"
-          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+              "id",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
 
-            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            if (
+              Math.max(column1Y, column2Y) >
+              pdf.internal.pageSize.getHeight() - 20
+            ) {
               pdf.addPage();
               yOffset = margin;
               pageNumber++;
@@ -646,8 +682,12 @@ const AdminInvoice = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+        align: "center",
+      });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
@@ -665,16 +705,20 @@ const AdminInvoice = () => {
       pdf.setTextColor(74, 107, 175);
       pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
       yOffset += 10;
-      
+
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
 
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
 
       pdf.setDrawColor(200, 200, 200);
@@ -694,11 +738,18 @@ const AdminInvoice = () => {
         }
 
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
-        pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
-                 margin + 5, yOffset + 7);
+        pdf.text(
+          `Offer ${index + 1}: ${
+            supplier["Supplier Name"] ||
+            supplier["supplierName"] ||
+            `Supplier ${index + 1}`
+          }`,
+          margin + 5,
+          yOffset + 7
+        );
         yOffset += 15;
 
         pdf.setFontSize(11);
@@ -710,20 +761,27 @@ const AdminInvoice = () => {
         let column2Y = yOffset;
 
         Object.keys(supplier).forEach((key, i) => {
-          if (![
-            "Supplier Name", 
-            "supplierName",
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id"
-          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+              "id",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
             const displayKey = key
               .replace(/([A-Z])/g, " $1")
               .replace(/^./, (str) => str.toUpperCase());
 
-            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            if (
+              Math.max(column1Y, column2Y) >
+              pdf.internal.pageSize.getHeight() - 20
+            ) {
               pdf.addPage();
               yOffset = margin;
               pageNumber++;
@@ -772,8 +830,12 @@ const AdminInvoice = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+        align: "center",
+      });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     return pdf.output("blob");
@@ -806,7 +868,8 @@ const AdminInvoice = () => {
     setShowWhatsappModal(false);
     setWhatsappData({
       to: "",
-      message: "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
+      message:
+        "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
     });
   };
 
@@ -832,7 +895,7 @@ const AdminInvoice = () => {
 
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-    
+
     if (!phoneRegex.test(rawPhone)) {
       Swal.fire({
         icon: "error",
@@ -846,12 +909,12 @@ const AdminInvoice = () => {
 
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing PDF',
-        html: 'Please wait while we generate and send your document...',
+        title: "Preparing PDF",
+        html: "Please wait while we generate and send your document...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
 
       const pdfBlob = generatePDFBlob();
@@ -889,12 +952,18 @@ const AdminInvoice = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
 
       await loadingSwal.close();
-      
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("role");
+        navigate("/login");
+        return;
+      }
+
       if (response.status === 201) {
         Swal.fire({
           icon: "success",
@@ -916,16 +985,17 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-      
+
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
 
       Swal.fire({
@@ -973,6 +1043,7 @@ const AdminInvoice = () => {
             },
           }
         );
+
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -994,7 +1065,12 @@ const AdminInvoice = () => {
             },
           }
         );
-
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          Navigate("/login");
+          return;
+        }
         if (response.status === 200) {
           Swal.fire({
             icon: "success",
@@ -1017,7 +1093,10 @@ const AdminInvoice = () => {
 
   if (loadingPlanInfo) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -1032,14 +1111,20 @@ const AdminInvoice = () => {
           <div className="col-md-8 col-lg-6">
             <div className="card border-danger">
               <div className="card-body text-center p-5">
-                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <BsExclamationCircle
+                  className="text-danger mb-4"
+                  style={{ fontSize: "4rem" }}
+                />
                 <h2 className="card-title mb-3">Plan Information</h2>
                 <p className="card-text mb-4">
-                  {planInfo.message || "You need to purchase a plan to submit invoices."}
+                  {planInfo.message ||
+                    "You need to purchase a plan to submit invoices."}
                 </p>
-                <button 
+                <button
                   className="btn btn-primary"
-                  onClick={() => window.location.href = "/group_admin/subscription"}
+                  onClick={() =>
+                    (window.location.href = "/group_admin/subscription")
+                  }
                 >
                   View Plans
                 </button>
@@ -1138,7 +1223,6 @@ const AdminInvoice = () => {
                 </div>
               </div>
             </div>
-
             <div className="justify-content-center row w-100">
               {offers.map((offer, index) => (
                 <div className="col-xl-4 col-md-6" key={index}>
@@ -1323,7 +1407,6 @@ const AdminInvoice = () => {
             </div>
           </div>
         )}
-
         {showWhatsappModal && (
           <div className="whatsapp-modal-overlay">
             <div className="whatsapp-modal-content">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./CheckoutForm.css";
 import Breadcrumbs from "../../Breadcrumbs";
 
@@ -12,6 +12,7 @@ const CheckoutForm = () => {
   const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const {
     planDetails,

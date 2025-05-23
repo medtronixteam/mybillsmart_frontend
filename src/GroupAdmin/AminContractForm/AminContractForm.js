@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useLocation, useSearchParams } from "react-router-dom";
+import {  useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import "./AminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
@@ -26,6 +26,7 @@ const AminContractForm = () => {
     status: "pending",
     closure_date: "",
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     // First try to get offer_id from URL query parameters
@@ -63,6 +64,12 @@ const AminContractForm = () => {
             },
           }
         );
+         if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
         if (isMounted && response.data && Array.isArray(response.data.data)) {
           setClients(response.data.data);

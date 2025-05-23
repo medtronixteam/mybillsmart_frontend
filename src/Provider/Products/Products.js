@@ -21,6 +21,8 @@ const AdminProducts = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editProductData, setEditProductData] = useState({});
   const [filterType, setFilterType] = useState("all");
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search
+
   const { token } = useAuth();
 
   const toggleDropdown = (index) => {
@@ -28,13 +30,7 @@ const AdminProducts = () => {
   };
 
   // Fields to exclude from modal display
-  const excludedFields = [
-    "group_id",
-    "addedby_id",
-    "updated_at",
-    "created_at",
-    "id",
-  ];
+  const excludedFields = ["group_id", "addedby_id", "updated_at", "created_at", "id"];
 
   // Field groups for edit form based on agreement type
   const commonFields = [
@@ -99,8 +95,15 @@ const AdminProducts = () => {
   // Explicit list of numeric fields for validation
   const numericFields = [
     "fixed_rate",
-    "p1", "p2", "p3", "p4", "p5", "p6",
-    "rl1", "rl2", "rl3",
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+    "rl1",
+    "rl2",
+    "rl3",
     "sales_commission",
     "points_per_deal",
     "meter_rental",
@@ -131,18 +134,31 @@ const AdminProducts = () => {
     fetchProducts();
   }, []);
 
-  // Apply filter when filterType changes
+  // Apply both type and search filters
   useEffect(() => {
-    if (filterType === "all") {
-      setFilteredProducts(products);
-    } else {
-      const filtered = products.filter(
+    let result = [...products];
+
+    // Apply agreement type filter
+    if (filterType !== "all") {
+      result = result.filter(
         (product) => product.agreement_type === filterType
       );
-      setFilteredProducts(filtered);
     }
-    setCurrentPage(1); // Reset to first page when filter changes
-  }, [filterType, products]);
+
+    // Apply search filter
+    if (searchQuery.trim() !== "") {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (product) =>
+          product.product_name?.toLowerCase().includes(lowerCaseQuery) ||
+          product.provider_name?.toLowerCase().includes(lowerCaseQuery) ||
+          product.agreement_type?.toLowerCase().includes(lowerCaseQuery)
+      );
+    }
+
+    setFilteredProducts(result);
+    setCurrentPage(1); // Reset pagination when filters change
+  }, [filterType, searchQuery, products]);
 
   // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -208,9 +224,9 @@ const AdminProducts = () => {
 
   const enterEditMode = (product) => {
     const processedProduct = {};
-    Object.keys(product).forEach(key => {
+    Object.keys(product).forEach((key) => {
       // Initialize all fields to prevent disappearing
-      processedProduct[key] = product[key] === null ? '' : product[key];
+      processedProduct[key] = product[key] === null ? "" : product[key];
     });
     setEditProductData(processedProduct);
     setIsEditMode(true);
@@ -221,7 +237,7 @@ const AdminProducts = () => {
 
     // Only validate numeric fields
     if (numericFields.includes(name)) {
-      if (value !== '' && isNaN(value)) {
+      if (value !== "" && isNaN(value)) {
         Swal.fire({
           icon: "error",
           title: "Invalid Input",
@@ -236,7 +252,6 @@ const AdminProducts = () => {
 
   const saveEditedProduct = () => {
     const id = editProductData.id;
-
     if (!id || isNaN(id)) {
       Swal.fire({
         icon: "error",
@@ -246,32 +261,17 @@ const AdminProducts = () => {
       return;
     }
 
-    // for (const field of numericFields) {
-    //   if (editProductData[field] !== '' && editProductData[field] !== null && isNaN(editProductData[field])) {
-    //     Swal.fire({
-    //       icon: "error",
-    //       title: "Error",
-    //       text: `${field.replace(/_/g, " ")} must be a valid number.`,
-    //     });
-    //     return;
-    //   }
-    // }
-
     const dataToSend = {};
-    Object.keys(editProductData).forEach(key => {
-      dataToSend[key] = editProductData[key] === '' ? null : editProductData[key];
+    Object.keys(editProductData).forEach((key) => {
+      dataToSend[key] = editProductData[key] === "" ? null : editProductData[key];
     });
 
     axios
-      .put(
-        `${config.BASE_URL}/api/supervisor/products/${id}`,
-        dataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .put(`${config.BASE_URL}/api/supervisor/products/${id}`, dataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then(() => {
         fetchProducts();
         setIsEditMode(false);
@@ -310,61 +310,61 @@ const AdminProducts = () => {
       <div className="form-group mb-3" key={field}>
         <label className="form-label">
           {field.replace(/_/g, " ")}:
-          {field === "customer_type" ? (
-            <select
-              name={field}
-              value={editProductData[field] || ""}
-              onChange={handleEditChange}
-              className="form-control"
-            >
-              <option value="residential">Residential</option>
-              <option value="business">Business</option>
-            </select>
-          ) : field === "commision_type" ? (
-            <select
-              name={field}
-              value={editProductData[field] || ""}
-              onChange={handleEditChange}
-              className="form-control"
-            >
-              <option value="percentage">Percentage</option>
-              <option value="fixed">Fixed</option>
-            </select>
-          ) : field.includes("period") || field.includes("date") ? (
-            <input
-              type="date"
-              name={field}
-              value={editProductData[field] || ""}
-              onChange={handleEditChange}
-              className="form-control"
-            />
-          ) : isNumeric ? (
-            <input
-              type="number"
-              step={isElectricityRate || isGasRate ? "0.0001" : "0.01"}
-              name={field}
-              value={editProductData[field] || ""}
-              onChange={handleEditChange}
-              className="form-control"
-            />
-          ) : (
-            <input
-              type="text"
-              name={field}
-              value={editProductData[field] || ""}
-              onChange={handleEditChange}
-              className="form-control"
-            />
-          )}
         </label>
+        {field === "customer_type" ? (
+          <select
+            name={field}
+            value={editProductData[field] || ""}
+            onChange={handleEditChange}
+            className="form-control"
+          >
+            <option value="residential">Residential</option>
+            <option value="business">Business</option>
+          </select>
+        ) : field === "commision_type" ? (
+          <select
+            name={field}
+            value={editProductData[field] || ""}
+            onChange={handleEditChange}
+            className="form-control"
+          >
+            <option value="percentage">Percentage</option>
+            <option value="fixed">Fixed</option>
+          </select>
+        ) : field.includes("period") || field.includes("date") ? (
+          <input
+            type="date"
+            name={field}
+            value={editProductData[field] || ""}
+            onChange={handleEditChange}
+            className="form-control"
+          />
+        ) : isNumeric ? (
+          <input
+            type="number"
+            step={isElectricityRate || isGasRate ? "0.0001" : "0.01"}
+            name={field}
+            value={editProductData[field] || ""}
+            onChange={handleEditChange}
+            className="form-control"
+          />
+        ) : (
+          <input
+            type="text"
+            name={field}
+            value={editProductData[field] || ""}
+            onChange={handleEditChange}
+            className="form-control"
+          />
+        )}
       </div>
     );
   };
 
   const renderEditFormSection = (fields, title = null) => {
     // Always render all fields in the section, even if empty
-    const fieldsToRender = fields.filter(field => 
-      editProductData[field] !== undefined
+    const fieldsToRender = fields.filter(
+      (field) => editProductData[field] !== undefined
     );
 
     // Don't render the section if no fields exist
@@ -373,7 +373,7 @@ const AdminProducts = () => {
     }
 
     return (
-      <div className="edit-form-section mb-4">
+      <div className="edit-form-section mb-4" key={title}>
         {title && <h4 className="mb-3">{title}</h4>}
         <div className="row">
           {fieldsToRender.map((field) => (
@@ -398,10 +398,7 @@ const AdminProducts = () => {
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
               "Basic Information"
             )}
-            {renderEditFormSection(
-              ["p1", "p2", "p3", "p4", "p5", "p6"],
-              "Energy Terms (€/kWh)"
-            )}
+            {renderEditFormSection(["p1", "p2", "p3", "p4", "p5", "p6"], "Energy Terms (€/kWh)")}
             {renderEditFormSection(
               ["power_term", "peak", "off_peak", "energy_term_by_time", "variable_term_by_tariff"],
               "Power Terms"
@@ -414,10 +411,7 @@ const AdminProducts = () => {
               ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
               "Validity Period"
             )}
-            {renderEditFormSection(
-              ["contact_terms"],
-              "Contract Terms"
-            )}
+            {renderEditFormSection(["contact_terms"], "Contract Terms")}
           </div>
         );
       case "gas":
@@ -428,10 +422,7 @@ const AdminProducts = () => {
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
               "Basic Information"
             )}
-            {renderEditFormSection(
-              ["rl1", "rl2", "rl3"],
-              "Variable Terms (€/kWh)"
-            )}
+            {renderEditFormSection(["rl1", "rl2", "rl3"], "Variable Terms (€/kWh)")}
             {renderEditFormSection(
               ["power_term", "peak", "off_peak", "energy_term_by_time", "variable_term_by_tariff"],
               "Power Terms"
@@ -444,10 +435,7 @@ const AdminProducts = () => {
               ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
               "Validity Period"
             )}
-            {renderEditFormSection(
-              ["contact_terms"],
-              "Contract Terms"
-            )}
+            {renderEditFormSection(["contact_terms"], "Contract Terms")}
           </div>
         );
       case "combined":
@@ -459,23 +447,14 @@ const AdminProducts = () => {
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "dual_discount", "commision_type"],
               "Basic Information"
             )}
-            
             <div className="electricity-section mb-4">
               <h5 className="mb-3">Electricity Terms</h5>
-              {renderEditFormSection(
-                ["p1", "p2", "p3", "p4", "p5", "p6"],
-                "Energy Terms (€/kWh)"
-              )}
+              {renderEditFormSection(["p1", "p2", "p3", "p4", "p5", "p6"], "Energy Terms (€/kWh)")}
             </div>
-
             <div className="gas-section mb-4">
               <h5 className="mb-3">Gas Terms</h5>
-              {renderEditFormSection(
-                ["rl1", "rl2", "rl3"],
-                "Variable Terms (€/kWh)"
-              )}
+              {renderEditFormSection(["rl1", "rl2", "rl3"], "Variable Terms (€/kWh)")}
             </div>
-
             {renderEditFormSection(
               ["contract_duration", "sales_commission", "points_per_deal", "meter_rental"],
               "Contract Details"
@@ -484,10 +463,7 @@ const AdminProducts = () => {
               ["validity_period_from", "validity_period_to", "discount_period_start", "discount_period_end"],
               "Validity Period"
             )}
-            {renderEditFormSection(
-              ["contact_terms"],
-              "Contract Terms"
-            )}
+            {renderEditFormSection(["contact_terms"], "Contract Terms")}
           </div>
         );
       default:
@@ -500,45 +476,73 @@ const AdminProducts = () => {
       <div className="mb-3">
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
-      <div className="products-header">
+      <div className="products-header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Products</h2>
         <Link to="/group_admin/add-product">
           <button className="btn btn-primary mb-0">Add New Product</button>
         </Link>
       </div>
 
+    
+
       {/* Filter Controls */}
       <div className="filter-controls mb-3">
         <div className="btn-group">
           <button
-            className={`btn ${filterType === "all" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn ${
+              filterType === "all" ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => setFilterType("all")}
           >
             All Products
           </button>
           <button
-            className={`btn ${filterType === "electricity" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn ${
+              filterType === "electricity" ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => setFilterType("electricity")}
           >
             Electricity
           </button>
           <button
-            className={`btn ${filterType === "gas" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn ${
+              filterType === "gas" ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => setFilterType("gas")}
           >
             Gas
           </button>
           <button
-            className={`btn ${filterType === "combined" ? "btn-primary" : "btn-outline-primary"}`}
-            onClick={() => setFilterType("combined")}
+            className={`btn ${
+              filterType === "Combined" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => setFilterType("both")}
           >
             Combined
           </button>
         </div>
+
+          {/* Search Input */}
+      <div className="search-control mb-3">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="form-control form-control-lg"
+          style={{ maxWidth: "300px" }}
+        />
+      </div>
       </div>
 
       {loading ? (
-        <p>Loading products...</p>
+        <div
+          className="spinner-border d-block mx-auto"
+          role="status"
+          style={{ color: "#3598db" }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
       ) : isEditMode ? (
         <div className="edit-product-card bg-white p-4 rounded shadow">
           {renderEditForm()}
@@ -631,7 +635,6 @@ const AdminProducts = () => {
               )}
             </tbody>
           </table>
-
           <div className="pagination">
             <button
               onClick={() => paginate(currentPage - 1)}
@@ -660,11 +663,12 @@ const AdminProducts = () => {
             <h3>{selectedProduct.product_name}</h3>
             <div className="modal-scrollable-content">
               {Object.entries(selectedProduct)
-                .filter(([key, value]) => 
-                  !excludedFields.includes(key) && 
-                  value !== null && 
-                  value !== undefined && 
-                  value !== ''
+                .filter(
+                  ([key, value]) =>
+                    !excludedFields.includes(key) &&
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ""
                 )
                 .map(([key, value]) => (
                   <p key={key}>

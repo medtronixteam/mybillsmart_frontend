@@ -118,6 +118,8 @@ import UserNotifications from "./User/Notifications/UserNotifications";
 import AgentsContractForm from "./components/AgentsContractForm/AgentsContractForm";
 import ReffredUserList from "./components/ReffredUserList/ReffredUserList";
 import ChatBoard from "./GroupAdmin/ChatBoard/ChatBoard";
+import SupervisorManageGoal from "./Provider/SupervisorManageGoal/SupervisorManageGoal";
+import SupervisorGoalList from "./Provider/SupervisorGoalList/SupervisorGoalList";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -432,8 +434,16 @@ const App = () => {
                             path="session-history"
                             element={<SupervisorSessionHistory />}
                           />
+                           <Route
+                            path="manage-goal"
+                            element={<SupervisorManageGoal />}
+                          />
+
+                           <Route
+                            path="goal"
+                            element={<SupervisorGoalList />}
+                          />
                           
-                          <Route path="goal" element={<ProviderGoalList />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

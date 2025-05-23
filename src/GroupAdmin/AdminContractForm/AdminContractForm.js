@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AdminContractForm.css";
 import { useAuth } from "../../contexts/AuthContext";
@@ -29,6 +29,7 @@ const AdminContractForm = () => {
   });
 
   const [showWarning, setShowWarning] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.state) {
@@ -55,6 +56,12 @@ const AdminContractForm = () => {
             },
           }
         );
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
 
         if (isMounted && response.data && Array.isArray(response.data.data)) {
           setClients(response.data.data);
@@ -84,7 +91,12 @@ const AdminContractForm = () => {
             },
           }
         );
-
+        if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
         if (isMounted && response.data && Array.isArray(response.data.data)) {
           setAgreements(response.data.data);
         }
@@ -211,7 +223,13 @@ const AdminContractForm = () => {
           },
         }
       );
-      
+      if (response.status === 401) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("role");
+          navigate("/login");
+          return;
+          }
+
       await showSuccessAlert();
       
       setFormData({

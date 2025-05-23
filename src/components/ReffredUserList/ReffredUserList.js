@@ -418,12 +418,7 @@ const ReffredUserList = () => {
           </div>
         </div>
       ) : filteredUsers.length === 0 ? (
-        <div className="alert alert-info text-center">
-          No users found.{" "}
-          <Link to="/agent/add-client" className="alert-link">
-            Add New User
-          </Link>
-        </div>
+       <p>No referred users found</p>
       ) : (
         <>
           <div className="table-responsive">

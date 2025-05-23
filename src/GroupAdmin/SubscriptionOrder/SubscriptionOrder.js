@@ -13,6 +13,7 @@ const SubscriptionOrder = () => {
   const [error, setError] = useState(null);
   const [subscriptionData, setSubscriptionData] = useState([]);
   const [orderData, setOrderData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { token } = useAuth();
 
   // Fetch data based on active tab
@@ -20,7 +21,6 @@ const SubscriptionOrder = () => {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
         let endpoint = "";
         if (activeTab === "subscriptions") {
@@ -40,8 +40,8 @@ const SubscriptionOrder = () => {
         }
 
         const result = await response.json();
-
         const data = result.data || [];
+
         const formattedData = data.map((item) => {
           if (activeTab === "subscriptions") {
             return {
@@ -86,7 +86,8 @@ const SubscriptionOrder = () => {
     fetchData();
   }, [activeTab, token]);
 
-    const downloadReceipt = async (orderId) => {
+  // Handle receipt download
+  const downloadReceipt = async (orderId) => {
     try {
       Swal.fire({
         title: "Generating Receipt",
@@ -111,9 +112,7 @@ const SubscriptionOrder = () => {
       }
 
       const result = await response.json();
-
       if (result.message) {
-        // Open the PDF URL in a new tab
         window.open(result.message, "_blank");
         Swal.close();
       } else {
@@ -129,20 +128,39 @@ const SubscriptionOrder = () => {
     }
   };
 
-  // Pagination state
+  // Pagination and Filtering Logic
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   // Get current items based on active tab
   const currentItems =
-    (activeTab === "subscriptions" ? subscriptionData : orderData) || [];
-  const totalPages = Math.ceil(currentItems.length / itemsPerPage);
+    activeTab === "subscriptions" ? subscriptionData : orderData;
+
+  // Apply search filter
+  const filteredItems = currentItems.filter((item) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    
+    return (
+      item.planName?.toLowerCase().includes(query) ||
+      item.amount.toString().includes(query) ||
+      item.status?.toLowerCase().includes(query) ||
+      (item.startDate && item.startDate.toLowerCase().includes(query)) ||
+      (item.date && item.date.toLowerCase().includes(query))
+    );
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const paginatedItems = currentItems.slice(indexOfFirstItem, indexOfLastItem);
+  const paginatedItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const renderTableHeaders = () => {
     if (activeTab === "subscriptions") {
@@ -172,10 +190,7 @@ const SubscriptionOrder = () => {
     if (isLoading) {
       return (
         <tr>
-          <td
-            colSpan={activeTab === "orderHistory" ? 5 : 5}
-            className="loading-cell"
-          >
+          <td colSpan={activeTab === "orderHistory" ? 5 : 5} className="loading-cell">
             Loading...
           </td>
         </tr>
@@ -185,10 +200,7 @@ const SubscriptionOrder = () => {
     if (error) {
       return (
         <tr>
-          <td
-            colSpan={activeTab === "orderHistory" ? 5 : 5}
-            className="error-cell"
-          >
+          <td colSpan={activeTab === "orderHistory" ? 5 : 5} className="error-cell">
             Error: {error}
           </td>
         </tr>
@@ -198,11 +210,8 @@ const SubscriptionOrder = () => {
     if (paginatedItems.length === 0) {
       return (
         <tr>
-          <td
-            colSpan={activeTab === "orderHistory" ? 5 : 5}
-            className="empty-cell"
-          >
-            No data available
+          <td colSpan={activeTab === "orderHistory" ? 5 : 5} className="empty-cell">
+            No matching results found.
           </td>
         </tr>
       );
@@ -260,14 +269,17 @@ const SubscriptionOrder = () => {
   return (
     <div className="subscription-container">
       <Breadcrumbs homePath={"/group_admin/dashboard"} />
+
       <h1>Subscription and Order History</h1>
 
+      {/* Tabs */}
       <div className="tabs">
         <button
           className={`tab ${activeTab === "subscriptions" ? "active" : ""}`}
           onClick={() => {
             setActiveTab("subscriptions");
             setCurrentPage(1);
+            setSearchQuery(""); // Reset search when switching tabs
           }}
         >
           Subscriptions
@@ -277,21 +289,38 @@ const SubscriptionOrder = () => {
           onClick={() => {
             setActiveTab("orderHistory");
             setCurrentPage(1);
+            setSearchQuery(""); // Reset search when switching tabs
           }}
         >
           Order History
         </button>
       </div>
 
-      <div className="results-header">
+      {/* Search Input */}
+      <div className="search-filter mt-3 mb-3">
+        <input
+          type="text"
+          placeholder="Search by Plan Name, Amount, Status, or Date..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1); // Go to first page after search
+          }}
+          className="form-control"
+        />
+      </div>
+
+      {/* Results info */}
+      <div className="results-info mb-3">
         <span>
-          {currentItems.length}{" "}
-          {activeTab === "subscriptions" ? "subscriptions" : "orders"}
+          {filteredItems.length}{" "}
+          {activeTab === "subscriptions" ? "subscription(s)" : "order(s)"}
         </span>
       </div>
 
+      {/* Table */}
       <div className="table-container">
-        <table className="data-table">
+        <table className="data-table table table-bordered table-striped">
           <thead>
             <tr>{renderTableHeaders()}</tr>
           </thead>
@@ -299,6 +328,7 @@ const SubscriptionOrder = () => {
         </table>
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
           <button
@@ -310,42 +340,35 @@ const SubscriptionOrder = () => {
           </button>
 
           <div className="page-numbers">
-            {/* Always show first page */}
+            {/* Show first page */}
             <button
               onClick={() => paginate(1)}
-              className={`pagination-btn ${
-                currentPage === 1 ? "active" : ""
-              }`}
+              className={`pagination-btn ${currentPage === 1 ? "active" : ""}`}
             >
               1
             </button>
 
-            {/* Show ellipsis if current page is far from start */}
+            {/* Show ellipsis if needed */}
             {currentPage > 3 && <span className="ellipsis">...</span>}
 
-            {/* Show current page and neighbors */}
-            {[
-              currentPage - 1,
-              currentPage,
-              currentPage + 1
-            ]
-              .filter(page => page > 1 && page < totalPages)
-              .map((number) => (
-                <button
-                  key={number}
-                  onClick={() => paginate(number)}
-                  className={`pagination-btn ${
-                    currentPage === number ? "active" : ""
-                  }`}
-                >
-                  {number}
-                </button>
-              ))}
+            {/* Show adjacent pages */}
+            {[currentPage - 1, currentPage + 1].map(
+              (number) =>
+                number > 1 &&
+                number < totalPages && (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`pagination-btn ${
+                      currentPage === number ? "active" : ""
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+            )}
 
-            {/* Show ellipsis if current page is far from end */}
-            {currentPage < totalPages - 2 && <span className="ellipsis">...</span>}
-
-            {/* Always show last page if there's more than 1 page */}
+            {/* Show last page if needed */}
             {totalPages > 1 && (
               <button
                 onClick={() => paginate(totalPages)}

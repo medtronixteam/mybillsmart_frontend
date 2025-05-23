@@ -11,7 +11,7 @@ import {
   FaUserPlus,
   FaUsers,
   FaLink,
-  FaGem,
+   FaBullseye,
   FaSignOutAlt,
   FaBoxOpen,
 } from "react-icons/fa";
@@ -23,7 +23,7 @@ import {
   MdEmail,
   MdMessage,
   MdListAlt,
-  MdHistory,
+    MdAddCircle,
 } from "react-icons/md";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
@@ -238,6 +238,57 @@ const ProviderSidebar = () => {
               <span className="nav-link-text">Submission Link</span>
             </NavLink>
           </li> */}
+          <li className="nav-item">
+                      <NavLink
+                        className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+                        style={{ color: " #67748e" }}
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapgoals"
+                        aria-expanded="false"
+                        aria-controls="collapseInvoices"
+                      >
+                        <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                          <FaBullseye />
+                        </div>
+                        <span className="nav-link-text">Manage Goals</span>
+                        <RiArrowDropDownLine size={30} />
+                      </NavLink>
+                      <div
+                        id="collapgoals"
+                        className="accordion-collapse collapse"
+                        aria-labelledby="headingInvoices"
+                        data-bs-parent="#sidebarAccordion"
+                      >
+                        <div className="accordion-body py-0">
+                          <ul className="list-unstyled">
+                            <li>
+                              <NavLink
+                                to="/supervisor/manage-goal"
+                                className="nav-link"
+                                activeClassName="active-class"
+                              >
+                                <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                                  <MdAddCircle />
+                                </div>
+                                <span className="nav-link-text">Create Goal</span>
+                              </NavLink>
+                            </li>
+                            <li>
+                              <NavLink
+                                to="/supervisor/goal"
+                                className="nav-link "
+                                activeClassName="active-class"
+                              >
+                                <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                                  <MdListAlt />
+                                </div>
+                                <span className="nav-link-text">Goal List</span>
+                              </NavLink>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </li>
 
           <li className="nav-item">
             <NavLink
@@ -290,7 +341,7 @@ const ProviderSidebar = () => {
               <span className="nav-link-text">Campaign List</span>
             </NavLink>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/goal"
@@ -301,7 +352,10 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text">Goal List</span>
             </NavLink>
-          </li>
+          </li> */}
+
+
+          
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"
