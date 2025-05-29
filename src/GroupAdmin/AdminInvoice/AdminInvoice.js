@@ -46,7 +46,6 @@ const AdminInvoice = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [clientSuggestions, setClientSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-
   const navigate = useNavigate();
   const { token, email } = useAuth();
 
@@ -142,12 +141,10 @@ const AdminInvoice = () => {
       preventDefaults(e);
       setIsDragging(true);
     };
-
     window.addEventListener("dragenter", handleDragEnter);
     window.addEventListener("dragleave", handleDragLeave);
     window.addEventListener("dragover", handleDragOver);
     window.addEventListener("drop", handleDrop);
-
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
       window.removeEventListener("dragleave", handleDragLeave);
@@ -194,7 +191,6 @@ const AdminInvoice = () => {
         navigate("/login");
         return;
       }
-
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -269,7 +265,7 @@ const AdminInvoice = () => {
     formData.append("file", selectedFile);
     try {
       const response = await axios.post(
-        "https://ocr.ai3dscanning.com/api/file/ ",
+        "https://ocr.ai3dscanning.com/api/file/  ",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -320,7 +316,7 @@ const AdminInvoice = () => {
         app_mode: "0",
       };
       const matchResponse = await axios.post(
-        "https://ocr.ai3dscanning.com/api/match/ ",
+        "https://ocr.ai3dscanning.com/api/match/  ",
         matchData,
         {
           headers: { "Content-Type": "application/json" },
@@ -517,7 +513,7 @@ const AdminInvoice = () => {
     }
   };
 
-  const generatePDF = (offersToInclude = []) => {
+  const generatePDF = (offersToInclude = [], includeCommission = false) => {
     const offersArray = Array.isArray(offersToInclude) ? offersToInclude : offers;
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -557,7 +553,6 @@ const AdminInvoice = () => {
         pageNumber++;
         addHeader();
       }
-
       pdf.setFillColor(74, 107, 175);
       pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
       pdf.setFontSize(14);
@@ -572,7 +567,6 @@ const AdminInvoice = () => {
       yOffset += 15;
       pdf.setFontSize(11);
       pdf.setTextColor(0, 0, 0);
-
       const col1X = margin + 5;
       const col2X = pageWidth / 2 + 10;
       let col1Y = yOffset;
@@ -588,12 +582,13 @@ const AdminInvoice = () => {
           "updated_at",
           "id",
           "Client_id",
-          "commission",
-          "Commission",
+          "product_id",
         ];
-        if (offersToInclude !== offers) {
-          skipFields.push("product_id", "sales_commission");
+
+        if (!includeCommission) {
+          skipFields.push("commission", "sales_commission");
         }
+
         if (
           !skipFields.includes(key) &&
           typeof supplier[key] !== "object"
@@ -602,7 +597,6 @@ const AdminInvoice = () => {
             .replace(/([A-Z])/g, " $1")
             .replace(/^./, (str) => str.toUpperCase());
           const value = String(supplier[key]).trim();
-
           if (col1Y > pdf.internal.pageSize.getHeight() - 20) {
             pdf.addPage();
             yOffset = margin;
@@ -611,7 +605,6 @@ const AdminInvoice = () => {
             col1Y = yOffset;
             col2Y = yOffset;
           }
-
           if (i % 2 === 0) {
             pdf.text(`${label}:`, col1X, col1Y);
             pdf.text(value, col1X + 40, col1Y);
@@ -623,6 +616,20 @@ const AdminInvoice = () => {
           }
         }
       });
+
+      if (includeCommission && supplier.sales_commission) {
+        if (col1Y > pdf.internal.pageSize.getHeight() - 20) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+          col1Y = yOffset;
+          col2Y = yOffset;
+        }
+        pdf.text("Sales Commission:", col1X, col1Y);
+        pdf.text(String(supplier.sales_commission), col1X + 40, col1Y);
+        col1Y += 7;
+      }
 
       yOffset = Math.max(col1Y, col2Y) + 10;
     });
@@ -644,13 +651,16 @@ const AdminInvoice = () => {
     return pdf.output("blob");
   };
 
-  const generatePDFBlob = () => {
-    return generatePDF(selectedOffers.length > 0 ? selectedOffers : offers);
+  const generatePDFBlob = (includeCommission = false) => {
+    return generatePDF(
+      selectedOffers.length > 0 ? selectedOffers : offers,
+      includeCommission
+    );
   };
 
   const downloadPDF = () => {
     try {
-      const pdfBlob = generatePDF(offers);
+      const pdfBlob = generatePDF(offers, true); // Include sales commission only here
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
@@ -733,7 +743,6 @@ const AdminInvoice = () => {
       setClientSuggestions([]);
       return;
     }
-
     setSearchLoading(true);
     try {
       const res = await axios.post(
@@ -770,7 +779,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
     if (!phoneRegex.test(rawPhone)) {
@@ -783,7 +791,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-
     try {
       const loadingSwal = Swal.fire({
         title: "Preparing PDF",
@@ -793,24 +800,20 @@ const AdminInvoice = () => {
           Swal.showLoading();
         },
       });
-
-      const pdfBlob = generatePDFBlob();
+      const pdfBlob = generatePDFBlob(false); // Exclude sales commission here
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `MyBillSmart_Offers_${invoiceId}.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -821,9 +824,8 @@ const AdminInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile  ",
         payload,
         {
           headers: {
@@ -832,7 +834,6 @@ const AdminInvoice = () => {
           timeout: 30000,
         }
       );
-
       await loadingSwal.close();
       if (response.status === 401) {
         localStorage.removeItem("authToken");
@@ -903,7 +904,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
     if (!phoneRegex.test(rawPhone)) {
@@ -916,7 +916,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-
     try {
       const loadingSwal = Swal.fire({
         title: "Preparing PDF",
@@ -926,24 +925,20 @@ const AdminInvoice = () => {
           Swal.showLoading();
         },
       });
-
-      const pdfBlob = generatePDF(selectedOffers);
+      const pdfBlob = generatePDF(selectedOffers, false); // Exclude sales commission here
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `MyBillSmart_Selected_Offers_${invoiceId}.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -954,9 +949,8 @@ const AdminInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile  ",
         payload,
         {
           headers: {
@@ -965,7 +959,6 @@ const AdminInvoice = () => {
           timeout: 30000,
         }
       );
-
       await loadingSwal.close();
       if (response.status === 401) {
         localStorage.removeItem("authToken");
@@ -1113,7 +1106,6 @@ const AdminInvoice = () => {
       </div>
     );
   }
-
   if (planInfo?.status === "error") {
     return (
       <div className="container mt-5">
@@ -1135,13 +1127,11 @@ const AdminInvoice = () => {
       </div>
     );
   }
-
   return (
     <>
       <div className="mt-4 container">
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
-
       <div className="invoice-container">
         {isDragging && (
           <div className="drag-drop-overlay">
@@ -1152,7 +1142,6 @@ const AdminInvoice = () => {
             </div>
           </div>
         )}
-
         {/* Stepper */}
         <div className="invoice-stepper">
           <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
@@ -1189,8 +1178,7 @@ const AdminInvoice = () => {
             </div>
           </>
         )}
-
-        {/* Step 2: Verify Data */}
+        
         {step === 2 && responseData && (
           <div className="invoice-form-container w-100">
             <h2 className="invoice-form-heading">Verify your Invoice</h2>

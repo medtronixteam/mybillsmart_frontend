@@ -89,7 +89,9 @@ const ManageGoal = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Please fill in all fields",
+        text: formData.user_ids.length === 0
+          ? "Please select at least one user or create a user first."
+          : "Please fill in all fields",
       });
       return;
     }
@@ -221,6 +223,10 @@ const ManageGoal = () => {
             <div className="users-checkbox-container">
               {loading ? (
                 <div>Loading users...</div>
+              ) : users.length === 0 ? (
+                <div className="text-white">
+                  No users available. Please create a user first.
+                </div>
               ) : (
                 users.map((user) => (
                   <div key={user.id} className="user-checkbox-item">
@@ -235,8 +241,8 @@ const ManageGoal = () => {
                 ))
               )}
             </div>
-            {formData.user_ids.length === 0 && (
-              <small className="text-danger d-none">
+            {formData.user_ids.length === 0 && users.length > 0 && (
+              <small className="text-danger">
                 Please select at least one user
               </small>
             )}
@@ -244,7 +250,7 @@ const ManageGoal = () => {
 
           <button
             type="submit"
-            className="btn bg-white  goal-btn p-3 w-50 mx-auto rounded-pill d-block"
+            className="btn bg-white goal-btn p-3 w-50 mx-auto rounded-pill d-block"
             disabled={loading}
           >
             {loading ? "Submitting..." : "Create Goal"}

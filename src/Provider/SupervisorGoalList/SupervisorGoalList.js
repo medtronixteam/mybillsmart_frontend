@@ -2,133 +2,114 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./SupervisorGoalList.css";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import config from "../../config";
-import { HiDotsHorizontal } from "react-icons/hi";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
 
 const SupervisorGoalList = () => {
-  const [goals, setGoals] = useState([]);
-  const [filteredGoals, setFilteredGoals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingGoal, setEditingGoal] = useState(null);
-  const [activeDropdown, setActiveDropdown] = useState(false);
+  const [formData, setFormData] = useState({
+    task_name: "",
+    start_date: "",
+    end_date: "",
+    points: "",
+    user_ids: [],
+    status: "pending",
+  });
+
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [goalsPerPage] = useState(10); // You can adjust this number
-
-  // Filter state
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const toggleDropdown = (index) => {
-    setActiveDropdown((prev) => (prev === index ? null : index));
-  };
-
   useEffect(() => {
-    fetchGoals();
+    fetchUsers();
   }, []);
 
-  useEffect(() => {
-    // Apply filters whenever goals, statusFilter or searchTerm changes
-    let result = [...goals];
-
-    // Apply status filter
-    if (statusFilter !== "all") {
-      result = result.filter((goal) => goal.status === statusFilter);
-    }
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        (goal) =>
-          goal.task_name.toLowerCase().includes(term) ||
-          goal.status.toLowerCase().includes(term)
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${config.BASE_URL}/api/group/users/list`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-    }
 
-    setFilteredGoals(result);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [goals, statusFilter, searchTerm]);
+      const filteredUsers = response.data.data.filter(
+        (user) => user.role === "supervisor" || user.role === "agent"
+      );
 
-  const fetchGoals = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${config.BASE_URL}/api/supervisor/goals`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setGoals(response.data.data);
+      setUsers(filteredUsers);
       setLoading(false);
     } catch (err) {
-      console.error("Error fetching goals:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to fetch goals. Please try again.",
+        text: "Failed to fetch users. Please try again.",
       });
       setLoading(false);
+      console.error("Error fetching users:", err);
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const handleDelete = async (goalId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
+  };
 
-    if (!result.isConfirmed) return;
+  const handleUserCheckbox = (userId) => {
+    setFormData((prev) => {
+      const newUserIds = prev.user_ids.includes(userId)
+        ? prev.user_ids.filter((id) => id !== userId)
+        : [...prev.user_ids, userId];
 
-    try {
-      setLoading(true);
-      await axios.delete(`${config.BASE_URL}/api/supervisor/goals/${goalId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      Swal.fire("Deleted!", "Goal has been deleted successfully.", "success");
-      fetchGoals();
-    } catch (err) {
-      console.error("Error deleting goal:", err);
+      return {
+        ...prev,
+        user_ids: newUserIds,
+      };
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (
+      !formData.task_name ||
+      !formData.start_date ||
+      !formData.end_date ||
+      !formData.points ||
+      formData.user_ids.length === 0
+    ) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to delete goal. Please try again.",
+        text: formData.user_ids.length === 0
+          ? "Please select at least one user or create a user first."
+          : "Please fill in all fields",
       });
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
 
-  const handleEdit = (goal) => {
-    setEditingGoal(goal);
-  };
+    if (new Date(formData.end_date) < new Date(formData.start_date)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "End date must be after start date",
+      });
+      return;
+    }
 
-  const handleCancelEdit = () => {
-    setEditingGoal(null);
-  };
-
-  const handleSaveEdit = async (e) => {
-    e.preventDefault();
     try {
       setLoading(true);
-      await axios.patch(
-        `${config.BASE_URL}/api/supervisor/goals/${editingGoal.id}/status`,
-        editingGoal,
+      const response = await axios.post(
+        `${config.BASE_URL}/api/group/goals`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -136,343 +117,147 @@ const SupervisorGoalList = () => {
           },
         }
       );
+
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "Goal updated successfully!",
+        title: "Success!",
+        text: "Goal created successfully!",
       });
-      setEditingGoal(null);
-      fetchGoals();
+
+      setFormData({
+        task_name: "",
+        start_date: "",
+        end_date: "",
+        points: "",
+        user_ids: [],
+        status: "pending",
+      });
     } catch (err) {
-      console.error("Error updating goal:", err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update goal. Please try again.",
+        text: "Failed to create goal. Please try again.",
       });
+      console.error("Error creating goal:", err);
     } finally {
       setLoading(false);
     }
   };
 
-const markAsComplete = async (goalId) => {
-  try {
-    setLoading(true);
-    await axios.get( 
-      `${config.BASE_URL}/api/supervisor/mark-as-read/goal/${goalId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    Swal.fire({
-      icon: "success",
-      title: "Success!",
-      text: "Goal marked as complete successfully!",
-    });
-    fetchGoals();
-  } catch (err) {
-    console.error("Error marking goal as complete:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: err.response?.data?.message || "Failed to mark goal as complete",
-    });
-  } finally {
-    setLoading(false);
-    setActiveDropdown(false);
-  }
-};
-  const handleEditInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditingGoal({
-      ...editingGoal,
-      [name]: value,
-    });
-  };
-
-  // Get current goals for pagination
-  const indexOfLastGoal = currentPage * goalsPerPage;
-  const indexOfFirstGoal = indexOfLastGoal - goalsPerPage;
-  const currentGoals = filteredGoals.slice(indexOfFirstGoal, indexOfLastGoal);
-
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   return (
-    <div className="goal-list-container">
-      <Breadcrumbs homePath={"/group_admin/dashboard"} />
-      <h2>Goals List</h2>
+    <>
+      <div className="mt-4 container">
+        <Breadcrumbs homePath={"/group_admin/dashboard"} />
+      </div>
+      <div className="manage-goal-container p-md-5 p-4 mt-5">
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
+          <h2 className="mb-0">Create New Goal</h2>
+          <Link to="/group_admin/goal-list">
+            <button className="btn bg-white goal-btn px-3 py-2">
+              Goal List
+            </button>
+          </Link>
+        </div>
 
-      {/* Filter Controls */}
-      <div className="container-fluid mb-4">
-        <div className="row g-3 align-items-center justify-content-center">
-          <div className="col-12 col-md-6 col-lg-4">
-            <label htmlFor="statusFilter" className="form-label mx-0 mb-2">
-              Filter by Status
-            </label>
-            <select
-              id="statusFilter"
-              className="form-select my-0"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
-          <div className="col-12 col-md-6 col-lg-4">
-            <label htmlFor="searchTerm" className="form-label mx-0 mb-2">
-              Search
-            </label>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="task_name">Task Name</label>
             <input
               type="text"
-              id="searchTerm"
-              className="form-control my-0"
-              placeholder="Search by task name or status..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              id="task_name"
+              placeholder="Enter task name"
+              name="task_name"
+              value={formData.task_name}
+              onChange={handleInputChange}
+              className="form-control"
+              required
             />
           </div>
-        </div>
-      </div>
 
-      {loading && !editingGoal ? (
-        <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      ) : (
-        <>
-          {editingGoal ? (
-            <div className="edit-goal-form">
-              <h3>Edit Goal</h3>
-              <form onSubmit={handleSaveEdit}>
-                <div className="form-group">
-                  <label>Task Name</label>
-                  <input
-                    type="text"
-                    name="task_name"
-                    value={editingGoal.task_name}
-                    onChange={handleEditInputChange}
-                    className="form-control"
-                    required
-                  />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Start Date</label>
-                    <input
-                      type="date"
-                      name="start_date"
-                      value={editingGoal.start_date}
-                      onChange={handleEditInputChange}
-                      className="form-control"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>End Date</label>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={editingGoal.end_date}
-                      onChange={handleEditInputChange}
-                      className="form-control"
-                      required
-                      min={editingGoal.start_date}
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Points</label>
-                  <input
-                    type="number"
-                    name="points"
-                    value={editingGoal.points}
-                    onChange={handleEditInputChange}
-                    className="form-control"
-                    required
-                    min="1"
-                  />
-                </div>
-                <div className="form-actions">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="start_date">Start Date</label>
+              <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+              />
             </div>
-          ) : (
-            <>
-              <div className="goals-table-container table-responsive">
-                <table className="goals-table table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Task Name</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Points</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentGoals.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className="text-center">
-                          No goals found
-                        </td>
-                      </tr>
-                    ) : (
-                      currentGoals.map((goal, index) => (
-                        <tr key={goal.id}>
-                          <td>{goal.task_name}</td>
-                          <td>{formatDate(goal.start_date)}</td>
-                          <td>{formatDate(goal.end_date)}</td>
-                          <td>{goal.points}</td>
-                          <td>
-                            {goal.status.charAt(0).toUpperCase() +
-                              goal.status.slice(1).replace("_", " ")}
-                          </td>
-                          <td className="actions">
-                            <HiDotsHorizontal
-                              size={30}
-                              onClick={() => toggleDropdown(index)}
-                              className="cursor-pointer"
-                            />
 
-                            {activeDropdown === index && (
-                              <div
-                                className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0 "
-                                style={{
-                                  marginLeft: "-130px",
-                                  marginTop: "30px",
-                                }}
-                              >
-                                <a
-                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                  onClick={() => {
-                                    handleEdit(goal);
-                                    setActiveDropdown(false);
-                                  }}
-                                  disabled={loading}
-                                >
-                                  Edit
-                                </a>
-                                <a
-                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                  onClick={() => {
-                                    markAsComplete(goal.id);
-                                  }}
-                                  disabled={loading || goal.status === "completed"}
-                                >
-                                  Mark as Complete
-                                </a>
-                                <a
-                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                  onClick={() => {
-                                    handleDelete(goal.id);
-                                    setActiveDropdown(false);
-                                  }}
-                                  disabled={loading}
-                                >
-                                  Delete
-                                </a>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            <div className="form-group">
+              <label htmlFor="end_date">End Date</label>
+              <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                min={formData.start_date}
+              />
+            </div>
 
-              {/* Pagination */}
-              {filteredGoals.length > goalsPerPage && (
-                <nav className="mt-4">
-                  <ul className="pagination justify-content-center">
-                    <li
-                      className={`page-item ${
-                        currentPage === 1 ? "disabled" : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => paginate(currentPage - 1)}
-                        disabled={currentPage === 1}
-                      >
-                        Pre
-                      </button>
-                    </li>
+            <div className="form-group">
+              <label htmlFor="points">Points</label>
+              <input
+                type="number"
+                id="points"
+                placeholder="Enter points"
+                name="points"
+                value={formData.points}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                min="1"
+              />
+            </div>
+          </div>
 
-                    {Array.from({
-                      length: Math.ceil(filteredGoals.length / goalsPerPage),
-                    }).map((_, index) => (
-                      <li
-                        key={index}
-                        className={`page-item ${
-                          currentPage === index + 1 ? "active" : ""
-                        }`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => paginate(index + 1)}
-                        >
-                          {index + 1}
-                        </button>
-                      </li>
-                    ))}
-
-                    <li
-                      className={`page-item ${
-                        currentPage ===
-                        Math.ceil(filteredGoals.length / goalsPerPage)
-                          ? "disabled"
-                          : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => paginate(currentPage + 1)}
-                        disabled={
-                          currentPage ===
-                          Math.ceil(filteredGoals.length / goalsPerPage)
-                        }
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
+          <div className="form-group">
+            <label>Assign to Users</label>
+            <div className="users-checkbox-container">
+              {loading ? (
+                <div>Loading users...</div>
+              ) : users.length === 0 ? (
+                <div className="text-white">
+                  No users available. Please create a user first.
+                </div>
+              ) : (
+                users.map((user) => (
+                  <div key={user.id} className="user-checkbox-item">
+                    <input
+                      type="checkbox"
+                      id={`user-${user.id}`}
+                      checked={formData.user_ids.includes(user.id)}
+                      onChange={() => handleUserCheckbox(user.id)}
+                    />
+                    <label htmlFor={`user-${user.id}`}>{user.name}</label>
+                  </div>
+                ))
               )}
+            </div>
+            {formData.user_ids.length === 0 && users.length > 0 && (
+              <small className="text-danger">
+                Please select at least one user
+              </small>
+            )}
+          </div>
 
-              {/* Results count */}
-              <div className="text-muted mt-2 text-end">
-                Showing {indexOfFirstGoal + 1} to{" "}
-                {Math.min(indexOfLastGoal, filteredGoals.length)} of{" "}
-                {filteredGoals.length} goals
-              </div>
-            </>
-          )}
-        </>
-      )}
-    </div>
+          <button
+            type="submit"
+            className="btn bg-white goal-btn p-3 w-50 mx-auto rounded-pill d-block"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Create Goal"}
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 
