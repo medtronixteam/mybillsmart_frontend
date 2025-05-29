@@ -97,7 +97,7 @@ const ProviderSidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                 <FaBoxes />
               </div>
-              <span className="nav-link-text ">Manage Products</span>
+              <span className="nav-link-text ">Manage Agreements</span>
               <RiArrowDropDownLine size={30} />
             </NavLink>
             <div
@@ -117,7 +117,7 @@ const ProviderSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                         <FaBoxOpen />
                       </div>
-                      <span className="nav-link-text ">Add Product</span>
+                      <span className="nav-link-text ">Add Agreements</span>
                     </NavLink>
                   </li>
                   <li>
@@ -129,7 +129,7 @@ const ProviderSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                         <MdViewList />
                       </div>
-                      <span className="nav-link-text">Product List</span>
+                      <span className="nav-link-text">Agreements List</span>
                     </NavLink>
                   </li>
                 </ul>

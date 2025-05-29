@@ -477,7 +477,7 @@ const AdminProducts = () => {
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
       <div className="products-header d-flex justify-content-between align-items-center">
-        <h2 className="mb-0">Products</h2>
+        <h2 className="mb-0">Agreements</h2>
         <Link to="/group_admin/add-product">
           <button className="btn btn-primary mb-0">Add New Product</button>
         </Link>

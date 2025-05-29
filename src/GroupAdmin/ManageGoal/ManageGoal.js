@@ -224,7 +224,7 @@ const ManageGoal = () => {
               {loading ? (
                 <div>Loading users...</div>
               ) : users.length === 0 ? (
-                <div className="text-white">
+                <div className="text-danger" style={{ textAlign: 'center'}}>
                   No users available. Please create a user first.
                 </div>
               ) : (

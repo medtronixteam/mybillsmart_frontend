@@ -408,10 +408,10 @@ const AdminAddProduct = () => {
 
       <div className="add-product-container mx-auto">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
-          <h1 className="mb-0">Add Product</h1>
+          <h1 className="mb-0">Add Agreement</h1>
           <Link to="/group_admin/products">
             <button className="btn btn-primary w-100 fs-6">
-              View Products
+              View Agreements
             </button>
           </Link>
         </div>

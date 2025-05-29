@@ -145,7 +145,7 @@ const GroupAdminSidebar = () => {
               <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
                 <FaBoxes />
               </div>
-              <span className="nav-link-text">Manage Products</span>
+              <span className="nav-link-text">Manage Agreement</span>
               <RiArrowDropDownLine size={30} />
             </NavLink>
             <div
@@ -165,7 +165,7 @@ const GroupAdminSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                         <FaBoxOpen />
                       </div>
-                      <span className="nav-link-text">Add Product</span>
+                      <span className="nav-link-text">Add Agreement</span>
                     </NavLink>
                   </li>
                   <li>
@@ -177,7 +177,7 @@ const GroupAdminSidebar = () => {
                       <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
                         <MdViewList />
                       </div>
-                      <span className="nav-link-text">Products List</span>
+                      <span className="nav-link-text">Agreement List</span>
                     </NavLink>
                   </li>
                 </ul>

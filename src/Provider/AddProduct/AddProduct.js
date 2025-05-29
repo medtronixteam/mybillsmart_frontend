@@ -392,7 +392,7 @@ const AddProduct = () => {
           <h1 className="mb-0">Add Product</h1>
           <Link to="/supervisor/product-list">
             <button className="btn btn-primary w-100 fs-6">
-              View Products
+              View Agreements
             </button>
           </Link>
         </div>

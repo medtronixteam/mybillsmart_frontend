@@ -224,7 +224,7 @@ const SupervisorGoalList = () => {
               {loading ? (
                 <div>Loading users...</div>
               ) : users.length === 0 ? (
-                <div className="text-white">
+                <div className="text-danger">
                   No users available. Please create a user first.
                 </div>
               ) : (
