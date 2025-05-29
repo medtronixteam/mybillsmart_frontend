@@ -43,6 +43,10 @@ const AdminInvoice = () => {
   const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
   const [showMultiWhatsappModal, setShowMultiWhatsappModal] = useState(false);
   const [selectedOffers, setSelectedOffers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [clientSuggestions, setClientSuggestions] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
   const navigate = useNavigate();
   const { token, email } = useAuth();
 
@@ -138,10 +142,12 @@ const AdminInvoice = () => {
       preventDefaults(e);
       setIsDragging(true);
     };
+
     window.addEventListener("dragenter", handleDragEnter);
     window.addEventListener("dragleave", handleDragLeave);
     window.addEventListener("dragover", handleDragOver);
     window.addEventListener("drop", handleDrop);
+
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
       window.removeEventListener("dragleave", handleDragLeave);
@@ -188,6 +194,7 @@ const AdminInvoice = () => {
         navigate("/login");
         return;
       }
+
       let clientsData = [];
       if (Array.isArray(response.data)) {
         clientsData = response.data;
@@ -370,43 +377,38 @@ const AdminInvoice = () => {
   const renderFormFields = (data) => {
     return Object.keys(data)
       .filter((key) => data[key] !== null && typeof data[key] !== "object")
-      .map((key, index) => {
-        const value = data[key];
-        return (
-          <div key={index} className="form-field">
-            <label>
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
-              :
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={value || ""}
-              onChange={handleFormChange}
-              required
-            />
-          </div>
-        );
-      });
+      .map((key, index) => (
+        <div key={index} className="form-field">
+          <label>
+            {key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase())}
+            :
+          </label>
+          <input
+            type="text"
+            name={key}
+            value={data[key] || ""}
+            onChange={handleFormChange}
+            required
+          />
+        </div>
+      ));
   };
 
   const convertToCSV = (data) => {
     if (!Array.isArray(data) || data.length === 0) return "";
     const allKeys = data.reduce((keys, item) => {
       Object.keys(item).forEach((key) => {
-        if (
-          !keys.includes(key) &&
-          ![
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id",
-            "Client_id",
-          ].includes(key)
-        ) {
+        const skip = [
+          "user_id",
+          "invoice_id",
+          "created_at",
+          "updated_at",
+          "id",
+          "Client_id",
+        ];
+        if (!skip.includes(key) && !keys.includes(key)) {
           keys.push(key);
         }
       });
@@ -421,14 +423,14 @@ const AdminInvoice = () => {
       )
       .join(",");
     const rows = data
-      .map((item) => {
-        return allKeys
+      .map((item) =>
+        allKeys
           .map((key) => {
             const value = item[key] !== undefined ? item[key] : "";
             return `"${String(value).replace(/"/g, '""')}"`;
           })
-          .join(",");
-      })
+          .join(",")
+      )
       .join("\n");
     return `${headers}\n${rows}`;
   };
@@ -515,13 +517,14 @@ const AdminInvoice = () => {
     }
   };
 
-  const generatePDF = (offersToInclude = offers) => {
+  const generatePDF = (offersToInclude = []) => {
+    const offersArray = Array.isArray(offersToInclude) ? offersToInclude : offers;
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 15;
     let yOffset = margin;
     let pageNumber = 1;
-    
+
     const addHeader = () => {
       pdf.setFontSize(20);
       pdf.setTextColor(74, 107, 175);
@@ -544,26 +547,24 @@ const AdminInvoice = () => {
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
       yOffset += 15;
     };
-    
+
     addHeader();
-    
-    offersToInclude.forEach((supplier, index) => {
+
+    offersArray.forEach((supplier, index) => {
       if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
         pdf.addPage();
         yOffset = margin;
         pageNumber++;
         addHeader();
       }
-      
+
       pdf.setFillColor(74, 107, 175);
       pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
       pdf.setFontSize(14);
       pdf.setTextColor(255, 255, 255);
       pdf.text(
         `Offer ${index + 1}: ${
-          supplier["Supplier Name"] ||
-          supplier["supplierName"] ||
-          `Supplier ${index + 1}`
+          supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`
         }`,
         margin + 5,
         yOffset + 7
@@ -571,76 +572,62 @@ const AdminInvoice = () => {
       yOffset += 15;
       pdf.setFontSize(11);
       pdf.setTextColor(0, 0, 0);
-      
-      const column1X = margin + 5;
-      const column2X = pageWidth / 2 + 10;
-      let column1Y = yOffset;
-      let column2Y = yOffset;
-      
+
+      const col1X = margin + 5;
+      const col2X = pageWidth / 2 + 10;
+      let col1Y = yOffset;
+      let col2Y = yOffset;
+
       Object.keys(supplier).forEach((key, i) => {
+        const skipFields = [
+          "Supplier Name",
+          "supplierName",
+          "user_id",
+          "invoice_id",
+          "created_at",
+          "updated_at",
+          "id",
+          "Client_id",
+          "commission",
+          "Commission",
+        ];
+        if (offersToInclude !== offers) {
+          skipFields.push("product_id", "sales_commission");
+        }
         if (
-          ![
-            "Supplier Name",
-            "supplierName",
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id",
-            "Client_id",
-            "commission",
-            "Commission"
-          ].includes(key) &&
-          supplier[key] &&
+          !skipFields.includes(key) &&
           typeof supplier[key] !== "object"
         ) {
-          const displayKey = key
+          const label = key
             .replace(/([A-Z])/g, " $1")
             .replace(/^./, (str) => str.toUpperCase());
-          
-          if (
-            Math.max(column1Y, column2Y) >
-            pdf.internal.pageSize.getHeight() - 20
-          ) {
+          const value = String(supplier[key]).trim();
+
+          if (col1Y > pdf.internal.pageSize.getHeight() - 20) {
             pdf.addPage();
             yOffset = margin;
             pageNumber++;
             addHeader();
-            column1Y = yOffset;
-            column2Y = yOffset;
+            col1Y = yOffset;
+            col2Y = yOffset;
           }
-          
+
           if (i % 2 === 0) {
-            pdf.text(`${displayKey}:`, column1X, column1Y);
-            pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
-            column1Y += 7;
+            pdf.text(`${label}:`, col1X, col1Y);
+            pdf.text(value, col1X + 40, col1Y);
+            col1Y += 7;
           } else {
-            pdf.text(`${displayKey}:`, column2X, column2Y);
-            pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
-            column2Y += 7;
+            pdf.text(`${label}:`, col2X, col2Y);
+            pdf.text(value, col2X + 40, col2Y);
+            col2Y += 7;
           }
         }
       });
-      
-      yOffset = Math.max(column1Y, column2Y) + 10;
-      
-      if (supplier["Saving %"] || supplier["savingPercentage"]) {
-        const savings = supplier["Saving %"] || supplier["savingPercentage"];
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 128, 0);
-        pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
-        yOffset += 10;
-      }
-      
-      if (index < offersToInclude.length - 1) {
-        pdf.setDrawColor(200, 200, 200);
-        pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-        yOffset += 15;
-      }
+
+      yOffset = Math.max(col1Y, col2Y) + 10;
     });
-    
+
     const pageCount = pdf.internal.getNumberOfPages();
-    
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
       pdf.setFontSize(10);
@@ -653,12 +640,36 @@ const AdminInvoice = () => {
         align: "center",
       });
     }
-    
+
     return pdf.output("blob");
   };
 
   const generatePDFBlob = () => {
     return generatePDF(selectedOffers.length > 0 ? selectedOffers : offers);
+  };
+
+  const downloadPDF = () => {
+    try {
+      const pdfBlob = generatePDF(offers);
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `MyBillSmart_Offers_${invoiceId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "PDF downloaded successfully",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      showApiError(error, "Failed to generate PDF");
+    }
   };
 
   const handleContractClick = (offer) => {
@@ -716,6 +727,38 @@ const AdminInvoice = () => {
     });
   };
 
+  const handleSearchClient = async (number) => {
+    setSearchQuery(number);
+    if (number.trim().length < 3) {
+      setClientSuggestions([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const res = await axios.post(
+        `${config.BASE_URL}/api/group/client/search`,
+        { number },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setClientSuggestions(res.data || []);
+    } catch (err) {
+      console.error("Client search error:", err);
+      setClientSuggestions([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleSuggestionClick = (client) => {
+    setWhatsappData({ ...whatsappData, to: client.phone });
+    setClientSuggestions([]);
+  };
+
   const handleWhatsappSubmit = async () => {
     if (!whatsappData.to.trim()) {
       Swal.fire({
@@ -727,10 +770,9 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
+
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-    
     if (!phoneRegex.test(rawPhone)) {
       Swal.fire({
         icon: "error",
@@ -741,7 +783,7 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
+
     try {
       const loadingSwal = Swal.fire({
         title: "Preparing PDF",
@@ -751,25 +793,24 @@ const AdminInvoice = () => {
           Swal.showLoading();
         },
       });
-      
+
       const pdfBlob = generatePDFBlob();
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `MyBillSmart_Offers_${invoiceId}.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-      
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-      
+
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-      
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-      
+
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -780,7 +821,7 @@ const AdminInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-      
+
       const response = await axios.post(
         "https://waha.ai3dscanning.com/api/sendFile ",
         payload,
@@ -791,16 +832,14 @@ const AdminInvoice = () => {
           timeout: 30000,
         }
       );
-      
+
       await loadingSwal.close();
-      
       if (response.status === 401) {
         localStorage.removeItem("authToken");
         localStorage.removeItem("role");
         navigate("/login");
         return;
       }
-      
       if (response.status === 201) {
         Swal.fire({
           icon: "success",
@@ -822,7 +861,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-      
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
@@ -834,7 +872,6 @@ const AdminInvoice = () => {
           error.message ||
           errorMessage;
       }
-      
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -856,7 +893,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
     if (selectedOffers.length === 0) {
       Swal.fire({
         icon: "error",
@@ -867,10 +903,9 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
+
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-    
     if (!phoneRegex.test(rawPhone)) {
       Swal.fire({
         icon: "error",
@@ -881,7 +916,7 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
+
     try {
       const loadingSwal = Swal.fire({
         title: "Preparing PDF",
@@ -891,25 +926,24 @@ const AdminInvoice = () => {
           Swal.showLoading();
         },
       });
-      
+
       const pdfBlob = generatePDF(selectedOffers);
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `MyBillSmart_Selected_Offers_${invoiceId}.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-      
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-      
+
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-      
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-      
+
       const payload = {
         chatId: formattedPhone,
         caption: whatsappData.message,
@@ -920,7 +954,7 @@ const AdminInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-      
+
       const response = await axios.post(
         "https://waha.ai3dscanning.com/api/sendFile ",
         payload,
@@ -931,16 +965,14 @@ const AdminInvoice = () => {
           timeout: 30000,
         }
       );
-      
+
       await loadingSwal.close();
-      
       if (response.status === 401) {
         localStorage.removeItem("authToken");
         localStorage.removeItem("role");
         navigate("/login");
         return;
       }
-      
       if (response.status === 201) {
         Swal.fire({
           icon: "success",
@@ -962,7 +994,6 @@ const AdminInvoice = () => {
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-      
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
@@ -974,7 +1005,6 @@ const AdminInvoice = () => {
           error.message ||
           errorMessage;
       }
-      
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -1005,7 +1035,6 @@ const AdminInvoice = () => {
       });
       return;
     }
-    
     try {
       if (modalType === "email") {
         await axios.post(
@@ -1041,14 +1070,12 @@ const AdminInvoice = () => {
             },
           }
         );
-        
         if (response.status === 401) {
           localStorage.removeItem("authToken");
           localStorage.removeItem("role");
-          Navigate("/login");
+          navigate("/login");
           return;
         }
-        
         if (response.status === 200) {
           Swal.fire({
             icon: "success",
@@ -1065,13 +1092,11 @@ const AdminInvoice = () => {
       console.error("Error sending data", error);
       showApiError(error, "Failed to send data");
     }
-    
     handleModalClose();
   };
 
   const toggleOfferSelection = (offer) => {
     const isSelected = selectedOffers.some((o) => o.id === offer.id);
-    
     if (isSelected) {
       setSelectedOffers(selectedOffers.filter((o) => o.id !== offer.id));
     } else {
@@ -1081,10 +1106,7 @@ const AdminInvoice = () => {
 
   if (loadingPlanInfo) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "100vh" }}
-      >
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -1097,26 +1119,16 @@ const AdminInvoice = () => {
       <div className="container mt-5">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-6">
-            <div className="card border-danger">
-              <div className="card-body text-center p-5">
-                <BsExclamationCircle
-                  className="text-danger mb-4"
-                  style={{ fontSize: "4rem" }}
-                />
-                <h2 className="card-title mb-3">Plan Information</h2>
-                <p className="card-text mb-4">
-                  {planInfo.message ||
-                    "You need to purchase a plan to submit invoices."}
-                </p>
-                <button
-                  className="btn btn-primary"
-                  onClick={() =>
-                    (window.location.href = "/group_admin/subscription")
-                  }
-                >
-                  View Plans
-                </button>
-              </div>
+            <div className="card border-danger text-center p-5">
+              <BsExclamationCircle className="text-danger mb-4" size={64} />
+              <h2>Plan Information</h2>
+              <p>{planInfo.message || "You need to purchase a plan to submit invoices."}</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => (window.location.href = "/group_admin/subscription")}
+              >
+                View Plans
+              </button>
             </div>
           </div>
         </div>
@@ -1129,6 +1141,7 @@ const AdminInvoice = () => {
       <div className="mt-4 container">
         <Breadcrumbs homePath={"/group_admin/dashboard"} />
       </div>
+
       <div className="invoice-container">
         {isDragging && (
           <div className="drag-drop-overlay">
@@ -1139,6 +1152,8 @@ const AdminInvoice = () => {
             </div>
           </div>
         )}
+
+        {/* Stepper */}
         <div className="invoice-stepper">
           <div className={`step ${step === 1 ? "active" : ""}`}>1</div>
           <div className={`line ${step === 1 ? "active-line" : ""}`}></div>
@@ -1146,28 +1161,25 @@ const AdminInvoice = () => {
           <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
           <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
         </div>
+
+        {/* Step 1: Upload File */}
         {step === 1 && (
           <>
             <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
             <div
-              className={`invoice-file-upload-box ${
-                isDragging ? "dragging" : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                document.getElementById("file-input").click();
-              }}
+              className={`invoice-file-upload-box ${isDragging ? "dragging" : ""}`}
+              onClick={() => document.getElementById("file-input").click()}
             >
               <input
-                type="file"
                 id="file-input"
-                className="invoice-file-input"
-                onChange={handleFileChange}
+                type="file"
                 accept=".jpg,.jpeg,.png,.pdf"
+                onChange={handleFileChange}
+                className="invoice-file-input"
               />
               <label className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
-                <p>{uploading ? "Uploading..." : "Choose / Drop File here "}</p>
+                <p>{uploading ? "Uploading..." : "Choose / Drop File here"}</p>
                 {file && (
                   <div className="file-preview">
                     <p>({Math.round(file.size / 1024)} KB)</p>
@@ -1177,35 +1189,33 @@ const AdminInvoice = () => {
             </div>
           </>
         )}
+
+        {/* Step 2: Verify Data */}
         {step === 2 && responseData && (
           <div className="invoice-form-container w-100">
             <h2 className="invoice-form-heading">Verify your Invoice</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-row">
-                {renderFormFields(formData).map((field, index) => (
-                  <div key={index} className="form-row-item">
+                {renderFormFields(formData).map((field, idx) => (
+                  <div key={idx} className="form-row-item">
                     {field}
                   </div>
                 ))}
               </div>
-              <div>
-                <button type="submit" className="invoice-submit-btn">
-                  Submit
-                </button>
-              </div>
+              <button type="submit" className="invoice-submit-btn">
+                Submit
+              </button>
             </form>
           </div>
         )}
+
+        {/* Step 3: Show Offers */}
         {step === 3 && offers.length > 0 && (
           <>
             <div className="text-center container">
-              <div className="row">
-                <div className="col-12">
-                  <h1 className="best-offers-heading mb-0">
-                    Here are the best offers for you
-                  </h1>
-                </div>
-              </div>
+              <h1 className="best-offers-heading mb-0">
+                Here are the best offers for you
+              </h1>
             </div>
             <div className="justify-content-center row w-100">
               {offers.map((offer, index) => (
@@ -1213,30 +1223,32 @@ const AdminInvoice = () => {
                   <div className="invoice-card-responsive invoice-card h-100 w-100">
                     {Object.keys(offer).map((key) => {
                       if (
-                        key !== "user_id" &&
-                        key !== "invoice_id" &&
-                        key !== "created_at" &&
-                        key !== "updated_at" &&
-                        key !== "id" &&
-                        key !== "Client_id" &&
-                        key !== "product_id" &&
-                        key !== "commission" &&
-                        key !== "Commission" &&
-                        offer[key]
+                        [
+                          "user_id",
+                          "invoice_id",
+                          "created_at",
+                          "updated_at",
+                          "id",
+                          "Client_id",
+                          "product_id",
+                    
+                        ].includes(key) ||
+                        !offer[key]
                       ) {
-                        return (
-                          <p key={key}>
-                            <strong>
-                              {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                              :
-                            </strong>{" "}
-                            {offer[key]}
-                          </p>
-                        );
+                        return null;
                       }
-                      return null;
+                      return (
+                        <p key={key}>
+                          <strong>
+                            {key
+                              .replace(/_/g, " ")
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            :
+                          </strong>{" "}
+                          {offer[key]}
+                        </p>
+                      );
                     })}
                     <div className="d-flex flex-column gap-2">
                       <button
@@ -1256,11 +1268,14 @@ const AdminInvoice = () => {
                 </div>
               ))}
             </div>
+
+            {/* Action Buttons */}
             <div className="row mt-3 gy-3 w-100 text-center justify-content-center">
               <div className="col-xl-3 col-lg-4 col-md-4 col-sm-6">
                 <button
-                  onClick={generatePDF}
+                  onClick={downloadPDF}
                   className="pdf-btn p-2 rounded-2 text-white border-0 w-100"
+                  disabled={!submittedData || submittedData.length === 0}
                 >
                   <BsDownload className="me-2" />
                   Download PDF
@@ -1325,15 +1340,13 @@ const AdminInvoice = () => {
             </div>
           </>
         )}
+
+        {/* Modals */}
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content w-100">
               <div className="modal-header">
-                <h3 className="mb-0">
-                  {modalType === "email"
-                    ? "Send Email"
-                    : "Send to Client Portal"}
-                </h3>
+                <h3>{modalType === "email" ? "Send Email" : "Send to Client Portal"}</h3>
                 <button
                   onClick={handleModalClose}
                   className="modal-close-btn bg-transparent border-0"
@@ -1399,6 +1412,8 @@ const AdminInvoice = () => {
             </div>
           </div>
         )}
+
+        {/* WhatsApp Modal */}
         {showWhatsappModal && (
           <div className="whatsapp-modal-overlay">
             <div className="whatsapp-modal-content">
@@ -1419,15 +1434,31 @@ const AdminInvoice = () => {
                     id="whatsapp-to"
                     name="to"
                     value={whatsappData.to}
-                    onChange={handleWhatsappChange}
+                    onChange={(e) => {
+                      handleWhatsappChange(e);
+                      handleSearchClient(e.target.value);
+                    }}
                     placeholder="e.g., 923001234567"
                     required
                   />
                   <small className="whatsapp-input-hint">
                     Enter phone number with country code but without + sign
-                    (e.g., 923001234567 for Pakistan)
                   </small>
+                  {clientSuggestions.length > 0 && (
+                    <ul className="suggestion-list">
+                      {clientSuggestions.map((client) => (
+                        <li
+                          key={client.id}
+                          onClick={() => handleSuggestionClick(client)}
+                          className="suggestion-item"
+                        >
+                          {client.name} ({client.phone})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
+
                 <div className="whatsapp-pdf-preview">
                   <p className="whatsapp-pdf-label">PDF Attachment:</p>
                   <div className="whatsapp-pdf-placeholder">
@@ -1455,6 +1486,8 @@ const AdminInvoice = () => {
             </div>
           </div>
         )}
+
+        {/* Multi WhatsApp Modal */}
         {showMultiWhatsappModal && (
           <div className="multi-whatsapp-modal-overlay">
             <div className="multi-whatsapp-modal-content">
@@ -1475,16 +1508,30 @@ const AdminInvoice = () => {
                     id="multi-whatsapp-to"
                     name="to"
                     value={whatsappData.to}
-                    onChange={handleWhatsappChange}
+                    onChange={(e) => {
+                      handleWhatsappChange(e);
+                      handleSearchClient(e.target.value);
+                    }}
                     placeholder="e.g., 923001234567"
                     required
                   />
                   <small className="whatsapp-input-hint">
                     Enter phone number with country code but without + sign
-                    (e.g., 923001234567 for Pakistan)
                   </small>
+                  {clientSuggestions.length > 0 && (
+                    <ul className="suggestion-list">
+                      {clientSuggestions.map((client) => (
+                        <li
+                          key={client.id}
+                          onClick={() => handleSuggestionClick(client)}
+                          className="suggestion-item"
+                        >
+                          {client.name} ({client.phone})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                
                 <div className="offers-selection">
                   <h4>Select Offers:</h4>
                   <div className="offers-list">

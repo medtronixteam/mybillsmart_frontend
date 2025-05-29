@@ -4,7 +4,14 @@ import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { Link, useNavigate } from "react-router-dom";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { FaCheck, FaTimes, FaFilePdf, FaFileCsv, FaWhatsapp, FaFileExcel } from "react-icons/fa";
+import {
+  FaCheck,
+  FaTimes,
+  FaFilePdf,
+  FaFileCsv,
+  FaWhatsapp,
+  FaFileExcel,
+} from "react-icons/fa";
 import { IoIosSend } from "react-icons/io5";
 import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
@@ -21,14 +28,19 @@ const InvoiceList = () => {
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [showWhatsappModal, setShowWhatsappModal] = useState(false);
-  const [showSingleOfferWhatsappModal, setShowSingleOfferWhatsappModal] = useState(false);
-  const [showMultiOfferWhatsappModal, setShowMultiOfferWhatsappModal] = useState(false);
+  const [showSingleOfferWhatsappModal, setShowSingleOfferWhatsappModal] =
+    useState(false);
+  const [showMultiOfferWhatsappModal, setShowMultiOfferWhatsappModal] =
+    useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [selectedOffers, setSelectedOffers] = useState([]);
   const [whatsappData, setWhatsappData] = useState({
     to: "",
-    message: "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
+    message:
+      "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
   });
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 Search state
+
   const { token, email } = useAuth();
   const navigate = useNavigate();
 
@@ -49,15 +61,15 @@ const InvoiceList = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        let invoiceList = [];
         if (Array.isArray(data)) {
-          setInvoices(data);
+          invoiceList = data;
         } else if (data && Array.isArray(data.data)) {
-          setInvoices(data.data);
+          invoiceList = data.data;
         } else if (data && Array.isArray(data.invoices)) {
-          setInvoices(data.invoices);
-        } else {
-          throw new Error("Unexpected API response format");
+          invoiceList = data.invoices;
         }
+        setInvoices(invoiceList);
       } catch (error) {
         console.error("Error fetching invoices:", error);
         Swal.fire({
@@ -72,6 +84,27 @@ const InvoiceList = () => {
     };
     fetchInvoices();
   }, [token]);
+
+  // 🔍 Apply filter globally on all invoices
+  const filteredInvoices = invoices.filter((invoice) =>
+    invoice.bill_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.billing_period?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 📄 Pagination logic based on filtered list
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInvoices = filteredInvoices.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const fetchInvoiceDetails = async (id) => {
     try {
@@ -134,7 +167,11 @@ const InvoiceList = () => {
   const flattenObject = (obj, prefix = "") => {
     return Object.entries(obj).reduce((acc, [key, value]) => {
       const newKey = prefix ? `${prefix}.${key}` : key;
-      if (value && typeof value === "object" && !Array.isArray(value)) {
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
         return [...acc, ...flattenObject(value, newKey)];
       } else {
         return [...acc, [newKey, value]];
@@ -150,7 +187,9 @@ const InvoiceList = () => {
     return flattenedInvoice
       .filter(([key]) => {
         const baseKey = key.split(".")[0];
-        return !excludedFields.includes(baseKey) && !excludedPattern.test(key);
+        return (
+          !excludedFields.includes(baseKey) && !excludedPattern.test(key)
+        );
       })
       .filter(([_, value]) => {
         return (
@@ -200,12 +239,16 @@ const InvoiceList = () => {
       yOffset += 10;
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
@@ -218,7 +261,6 @@ const InvoiceList = () => {
       pdf.setFontSize(14);
       pdf.text("Available Offers", margin, yOffset);
       yOffset += 15;
-
       offers.forEach((offer, index) => {
         if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
           pdf.addPage();
@@ -226,25 +268,22 @@ const InvoiceList = () => {
           pageNumber++;
           addHeader();
         }
-
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
         yOffset += 15;
         pdf.setFontSize(12);
         pdf.setTextColor(0, 0, 0);
-
         const offerDetails = [
           `Provider: ${offer.provider_name || "N/A"}`,
           `Product: ${offer.product_name || "N/A"}`,
           `Savings: ${offer.saving || "0"}%`,
           `Commission: ${offer.sales_commission || "0"}%`,
-          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
         ];
-
-        offerDetails.forEach(detail => {
+        offerDetails.forEach((detail) => {
           if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
             pdf.addPage();
             yOffset = margin;
@@ -264,8 +303,15 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text(
+        "Thank you for using MyBillSmart",
+        pageWidth / 2,
+        footerY - 5,
+        { align: "center" }
+      );
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     pdf.save(`Invoice_${selectedInvoice.id}_Offers.pdf`);
@@ -275,7 +321,10 @@ const InvoiceList = () => {
     if (!selectedInvoice) return "";
     const filteredData = getFilteredInvoiceData(selectedInvoice);
     const headers = ["Field", "Value"];
-    const rows = filteredData.map(([key, value]) => [key, formatValue(value)]);
+    const rows = filteredData.map(([key, value]) => [
+      key,
+      formatValue(value),
+    ]);
 
     if (offers && offers.length > 0) {
       headers.push("", "Offers", "", "", "");
@@ -293,7 +342,11 @@ const InvoiceList = () => {
     }
 
     return [headers, ...rows]
-      .map(row => row.map(item => `"${String(item).replace(/"/g, '""')}"`).join(","))
+      .map((row) =>
+        row
+          .map((item) => `"${String(item).replace(/"/g, '""')}"`)
+          .join(",")
+      )
       .join("\n");
   };
 
@@ -301,11 +354,16 @@ const InvoiceList = () => {
     if (!selectedInvoice) return;
     try {
       const csvContent = convertToCSV();
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `Invoice_${selectedInvoice.id}_Offers.csv`);
+      link.setAttribute(
+        "download",
+        `Invoice_${selectedInvoice.id}_Offers.csv`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -323,11 +381,16 @@ const InvoiceList = () => {
     if (!selectedInvoice) return;
     try {
       const csvContent = "\uFEFF" + convertToCSV();
-      const blob = new Blob([csvContent], { type: "application/vnd.ms-excel;charset=utf-8;" });
+      const blob = new Blob([csvContent], {
+        type: "application/vnd.ms-excel;charset=utf-8;",
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `Invoice_${selectedInvoice.id}_Offers.xls`);
+      link.setAttribute(
+        "download",
+        `Invoice_${selectedInvoice.id}_Offers.xls`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -356,12 +419,16 @@ const InvoiceList = () => {
       yOffset += 10;
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
@@ -374,7 +441,6 @@ const InvoiceList = () => {
       pdf.setFontSize(14);
       pdf.text("Available Offers", margin, yOffset);
       yOffset += 15;
-
       offers.forEach((offer, index) => {
         if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
           pdf.addPage();
@@ -382,25 +448,22 @@ const InvoiceList = () => {
           pageNumber++;
           addHeader();
         }
-
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
         yOffset += 15;
         pdf.setFontSize(12);
         pdf.setTextColor(0, 0, 0);
-
         const offerDetails = [
           `Provider: ${offer.provider_name || "N/A"}`,
           `Product: ${offer.product_name || "N/A"}`,
           `Savings: ${offer.saving || "0"}%`,
           `Commission: ${offer.sales_commission || "0"}%`,
-          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
         ];
-
-        offerDetails.forEach(detail => {
+        offerDetails.forEach((detail) => {
           if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
             pdf.addPage();
             yOffset = margin;
@@ -420,8 +483,15 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text(
+        "Thank you for using MyBillSmart",
+        pageWidth / 2,
+        footerY - 5,
+        { align: "center" }
+      );
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     return pdf.output("blob");
@@ -447,7 +517,9 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
@@ -468,7 +540,7 @@ const InvoiceList = () => {
     }
 
     pdf.setFillColor(74, 107, 175);
-    pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+    pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
     pdf.setFontSize(14);
     pdf.setTextColor(255, 255, 255);
     pdf.text("Selected Offer", margin + 5, yOffset + 7);
@@ -480,10 +552,10 @@ const InvoiceList = () => {
       `Provider: ${offer.provider_name || "N/A"}`,
       `Product: ${offer.product_name || "N/A"}`,
       `Savings: ${offer.saving || "0"}%`,
-      `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+      `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
     ];
 
-    offerDetails.forEach(detail => {
+    offerDetails.forEach((detail) => {
       if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
         pdf.addPage();
         yOffset = margin;
@@ -500,16 +572,23 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text(
+        "Thank you for using MyBillSmart",
+        pageWidth / 2,
+        footerY - 5,
+        { align: "center" }
+      );
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     return pdf.output("blob");
   };
 
   const generateMultipleOfferPDFBlob = (selectedOffers) => {
-    if (!selectedInvoice || !selectedOffers || selectedOffers.length === 0) return null;
-    
+    if (!selectedInvoice || !selectedOffers || selectedOffers.length === 0)
+      return null;
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const margin = 15;
@@ -528,7 +607,9 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
@@ -548,12 +629,15 @@ const InvoiceList = () => {
         pageNumber++;
         addHeader();
       }
-
       pdf.setFillColor(74, 107, 175);
-      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
       pdf.setFontSize(14);
       pdf.setTextColor(255, 255, 255);
-      pdf.text(`Offer ${index + 1}: ${offer.product_name || "Unnamed Product"}`, margin + 5, yOffset + 7);
+      pdf.text(
+        `Offer ${index + 1}: ${offer.product_name || "Unnamed Product"}`,
+        margin + 5,
+        yOffset + 7
+      );
       yOffset += 15;
       pdf.setFontSize(12);
       pdf.setTextColor(0, 0, 0);
@@ -562,10 +646,10 @@ const InvoiceList = () => {
         `Provider: ${offer.provider_name || "N/A"}`,
         `Product: ${offer.product_name || "N/A"}`,
         `Savings: ${offer.saving || "0"}%`,
-        `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`
+        `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
       ];
 
-      offerDetails.forEach(detail => {
+      offerDetails.forEach((detail) => {
         if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
           pdf.addPage();
           yOffset = margin;
@@ -584,8 +668,15 @@ const InvoiceList = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text(
+        "Thank you for using MyBillSmart",
+        pageWidth / 2,
+        footerY - 5,
+        { align: "center" }
+      );
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
 
     return pdf.output("blob");
@@ -599,7 +690,8 @@ const InvoiceList = () => {
     setShowWhatsappModal(false);
     setWhatsappData({
       to: "",
-      message: "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
+      message:
+        "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
     });
   };
 
@@ -608,7 +700,9 @@ const InvoiceList = () => {
     setShowSingleOfferWhatsappModal(true);
     setWhatsappData({
       to: "",
-      message: `Here is your offer details from MyBillSmart for ${offer.product_name || "product"}.`,
+      message: `Here is your offer details from MyBillSmart for ${
+        offer.product_name || "product"
+      }.`,
     });
   };
 
@@ -670,16 +764,15 @@ const InvoiceList = () => {
 
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing PDF',
-        html: 'Please wait while we generate and send your document...',
+        title: "Preparing PDF",
+        html: "Please wait while we generate and send your document...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
 
       const pdfBlob = generatePDFBlob();
-
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
@@ -696,7 +789,6 @@ const InvoiceList = () => {
       });
 
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
@@ -713,18 +805,17 @@ const InvoiceList = () => {
       };
 
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile  ",
         payload,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
 
       await loadingSwal.close();
-
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -732,23 +823,21 @@ const InvoiceList = () => {
         timer: 3000,
         showConfirmButton: false,
       });
-
       handleWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
-
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -787,16 +876,15 @@ const InvoiceList = () => {
 
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing Offer PDF',
-        html: 'Please wait while we generate and send your offer...',
+        title: "Preparing Offer PDF",
+        html: "Please wait while we generate and send your offer...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
 
       const pdfBlob = generateSingleOfferPDFBlob(selectedOffer);
-
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
@@ -813,7 +901,6 @@ const InvoiceList = () => {
       });
 
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
@@ -830,18 +917,17 @@ const InvoiceList = () => {
       };
 
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile  ",
         payload,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
 
       await loadingSwal.close();
-
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -849,23 +935,21 @@ const InvoiceList = () => {
         timer: 3000,
         showConfirmButton: false,
       });
-
       handleSingleOfferWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
-
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -915,16 +999,15 @@ const InvoiceList = () => {
 
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing Selected Offers PDF',
-        html: 'Please wait while we generate and send your selected offers...',
+        title: "Preparing Selected Offers PDF",
+        html: "Please wait while we generate and send your selected offers...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
 
       const pdfBlob = generateMultipleOfferPDFBlob(selectedOffers);
-
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
@@ -941,7 +1024,6 @@ const InvoiceList = () => {
       });
 
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
@@ -958,18 +1040,17 @@ const InvoiceList = () => {
       };
 
       const response = await axios.post(
-        "https://waha.ai3dscanning.com/api/sendFile ",
+        "https://waha.ai3dscanning.com/api/sendFile  ",
         payload,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
 
       await loadingSwal.close();
-
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -977,23 +1058,21 @@ const InvoiceList = () => {
         timer: 3000,
         showConfirmButton: false,
       });
-
       handleMultiOfferWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
-
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -1008,15 +1087,15 @@ const InvoiceList = () => {
     if (isChecked) {
       setSelectedOffers([...selectedOffers, offer]);
     } else {
-      setSelectedOffers(selectedOffers.filter(o => o.id !== offer.id));
+      setSelectedOffers(
+        selectedOffers.filter((o) => o.id !== offer.id)
+      );
     }
   };
 
   const renderInvoiceDetails = () => {
     if (!selectedInvoice) return null;
-
     const filteredData = getFilteredInvoiceData(selectedInvoice);
-
     return (
       <div className="invoice-details-container">
         <div className="invoice-details-header">
@@ -1047,10 +1126,11 @@ const InvoiceList = () => {
   const renderOfferCards = () => {
     if (!offers || offers.length === 0) {
       return (
-        <div className="no-offers">No offers available for this invoice</div>
+        <div className="no-offers">
+          No offers available for this invoice
+        </div>
       );
     }
-
     return (
       <div className="offers-section">
         <h2 className="offers-title">Available Offers</h2>
@@ -1077,8 +1157,22 @@ const InvoiceList = () => {
                   </span>
                 </div>
                 <div className="offer-field">
-                  <span className="offer-label">Savings:</span>
-                  <span className="offer-value">{offer.saving || "0"}%</span>
+                  <span className="offer-label">Monthly Saving:</span>
+                  <span className="offer-value">
+                    {offer.monthly_saving_amount || "0"}%
+                  </span>
+                </div>
+                <div className="offer-field">
+                  <span className="offer-label">Yearly Saving:</span>
+                  <span className="offer-value">
+                    {offer.yearly_saving_amount || "0"}%
+                  </span>
+                </div>
+                <div className="offer-field">
+                  <span className="offer-label">Yearly Saving:</span>
+                  <span className="offer-value">
+                    {offer.yearly_saving_percentage || "0"}%
+                  </span>
                 </div>
                 <div className="offer-field">
                   <span className="offer-label">Commission:</span>
@@ -1122,10 +1216,16 @@ const InvoiceList = () => {
           <button onClick={downloadExcel} className="export-btn excel-btn">
             <FaFileExcel className="me-2" /> Excel
           </button>
-          <button onClick={handleWhatsappClick} className="export-btn whatsapp-btn">
+          <button
+            onClick={handleWhatsappClick}
+            className="export-btn whatsapp-btn"
+          >
             <FaWhatsapp className="me-2" /> WhatsApp
           </button>
-          <button onClick={handleMultiOfferWhatsappClick} className="export-btn multi-whatsapp-btn">
+          <button
+            onClick={handleMultiOfferWhatsappClick}
+            className="export-btn multi-whatsapp-btn"
+          >
             <FaWhatsapp className="me-2" /> Select & Send
           </button>
         </div>
@@ -1133,21 +1233,14 @@ const InvoiceList = () => {
     );
   };
 
-  const totalPages = Math.ceil(invoices.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentInvoices = invoices.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
   if (loading) {
     return (
       <div className="loading-container">
-        <div className="spinner-border" role="status" style={{ color: "#3598db" }}>
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ color: "#3598db" }}
+        >
           <span className="visually-hidden">Loading...</span>
         </div>
       </div>
@@ -1159,14 +1252,26 @@ const InvoiceList = () => {
       <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <div className="d-flex justify-content-between align-items-center">
         <h1 className="invoice-list-title mb-0">Invoice List</h1>
-        {/* <Link
-          to="/agent"
+        <Link
+          to="/group_admin/client-contract-list"
           type="button"
           className="btn btn-primary"
         >
           Client Agreement List
-        </Link> */}
+        </Link>
       </div>
+
+      {/* 🔍 Search Input */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <input
+          type="text"
+          placeholder="Search by Bill Type, Address or Billing Period"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control w-50"
+        />
+      </div>
+
       {showNewTable ? (
         <>
           {renderInvoiceDetails()}
@@ -1192,7 +1297,9 @@ const InvoiceList = () => {
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>
-                      <td className="invoice-table-cell">{invoice.address}</td>
+                      <td className="invoice-table-cell">
+                        {invoice.address}
+                      </td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
                       </td>
@@ -1226,15 +1333,17 @@ const InvoiceList = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="no-invoices">
-                      No invoices found
+                    <td colSpan="5" className="no-invoices">
+                      No matching invoices found
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-          {invoices.length > itemsPerPage && (
+
+          {/* Pagination UI */}
+          {totalPages > 0 && (
             <div className="pagination">
               <button
                 onClick={() => paginate(currentPage - 1)}
@@ -1404,7 +1513,6 @@ const InvoiceList = () => {
                   (e.g., 923001234567 for Pakistan)
                 </small>
               </div>
-
               <div className="offers-selection">
                 <h4>Select Offers:</h4>
                 <div className="offers-checkboxes">
@@ -1413,16 +1521,20 @@ const InvoiceList = () => {
                       <label>
                         <input
                           type="checkbox"
-                          checked={selectedOffers.some(o => o.id === offer.id)}
-                          onChange={(e) => handleOfferCheckboxChange(offer, e.target.checked)}
+                          checked={selectedOffers.some(
+                            (o) => o.id === offer.id
+                          )}
+                          onChange={(e) =>
+                            handleOfferCheckboxChange(offer, e.target.checked)
+                          }
                         />
-                        {offer.product_name || "Unnamed Product"} ({offer.provider_name || "Unknown Provider"})
+                        {offer.product_name || "Unnamed Product"} (
+                        {offer.provider_name || "Unknown Provider"})
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
-
               <div className="whatsapp-pdf-preview">
                 <p className="whatsapp-pdf-label">Selected Offers PDF Attachment:</p>
                 <div className="whatsapp-pdf-placeholder">
@@ -1441,7 +1553,9 @@ const InvoiceList = () => {
               <button
                 onClick={handleMultiOfferWhatsappSubmit}
                 className="whatsapp-modal-send-btn"
-                disabled={!whatsappData.to || selectedOffers.length === 0}
+                disabled={
+                  !whatsappData.to || selectedOffers.length === 0
+                }
               >
                 <FaWhatsapp className="me-2" />
                 Send Selected Offers

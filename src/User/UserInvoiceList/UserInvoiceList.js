@@ -16,7 +16,10 @@ const UserInvoiceList = () => {
   const [itemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 New state for search term
+
   const { token } = useAuth();
+
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
@@ -31,22 +34,21 @@ const UserInvoiceList = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
-
+        let invoiceList = [];
         if (Array.isArray(data)) {
-          setInvoices(data);
+          invoiceList = data;
         } else if (data && Array.isArray(data.data)) {
-          setInvoices(data.data);
+          invoiceList = data.data;
         } else if (data && Array.isArray(data.invoices)) {
-          setInvoices(data.invoices);
+          invoiceList = data.invoices;
         } else {
           throw new Error("Unexpected API response format");
         }
+        setInvoices(invoiceList);
       } catch (error) {
         console.error("Error fetching invoices:", error);
         setError(error.message);
@@ -55,15 +57,32 @@ const UserInvoiceList = () => {
         setLoading(false);
       }
     };
-
     fetchInvoices();
   }, [token]);
+
+  // 🔍 Apply filter on all invoices
+  const filteredInvoices = invoices.filter((invoice) =>
+    invoice.bill_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.billing_period?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 📄 Pagination logic based on filtered results
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const fetchInvoiceDetails = async (id) => {
     try {
       setLoading(true);
       setError(null);
-
       const [invoiceResponse, offersResponse] = await Promise.all([
         fetch(`${config.BASE_URL}/api/client/invoices/${id}`, {
           headers: {
@@ -79,14 +98,11 @@ const UserInvoiceList = () => {
           body: JSON.stringify({ invoice_id: id }),
         }),
       ]);
-
       if (!invoiceResponse.ok || !offersResponse.ok) {
         throw new Error("Failed to fetch invoice details or offers");
       }
-
       const invoiceData = await invoiceResponse.json();
       const offersData = await offersResponse.json();
-
       setSelectedInvoice(invoiceData.data || invoiceData);
       setOffers(
         Array.isArray(offersData)
@@ -121,8 +137,11 @@ const UserInvoiceList = () => {
   const flattenObject = (obj, prefix = "") => {
     return Object.entries(obj).reduce((acc, [key, value]) => {
       const newKey = prefix ? `${prefix}.${key}` : key;
-
-      if (value && typeof value === "object" && !Array.isArray(value)) {
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
         return [...acc, ...flattenObject(value, newKey)];
       } else {
         return [...acc, [newKey, value]];
@@ -132,22 +151,17 @@ const UserInvoiceList = () => {
 
   const getFilteredInvoiceData = (invoice) => {
     if (!invoice) return [];
-
-    // Exclude all fields containing 'id' (case insensitive)
     const excludedFields = ["created_at", "updated_at"];
-    const excludedPattern = /id$/i; // Regex to match any field ending with 'id'
-
-    // Flatten the entire invoice object first
+    const excludedPattern = /id$/i;
     const flattenedInvoice = flattenObject(invoice);
-
     return flattenedInvoice
       .filter(([key]) => {
-        // Exclude specific fields and any field ending with 'id'
         const baseKey = key.split(".")[0];
-        return !excludedFields.includes(baseKey) && !excludedPattern.test(key); // This will exclude any field ending with 'id'
+        return (
+          !excludedFields.includes(baseKey) && !excludedPattern.test(key)
+        );
       })
       .filter(([_, value]) => {
-        // Filter out empty values
         return (
           value !== null &&
           value !== undefined &&
@@ -156,7 +170,6 @@ const UserInvoiceList = () => {
         );
       })
       .map(([key, value]) => {
-        // Format the keys for display
         const displayKey = key
           .split(".")
           .map((part) => formatFieldName(part))
@@ -167,9 +180,7 @@ const UserInvoiceList = () => {
 
   const renderInvoiceDetails = () => {
     if (!selectedInvoice) return null;
-
     const filteredData = getFilteredInvoiceData(selectedInvoice);
-
     return (
       <div className="invoice-details-container">
         <div className="invoice-details-header">
@@ -181,7 +192,6 @@ const UserInvoiceList = () => {
             Back to List
           </button>
         </div>
-
         <div className="details-grid">
           {filteredData.map(([key, value]) => (
             <div key={key} className="detail-item">
@@ -202,7 +212,6 @@ const UserInvoiceList = () => {
         </div>
       );
     }
-
     return (
       <div className="offers-section d-none">
         <h2 className="offers-title">Available Offers</h2>
@@ -212,7 +221,6 @@ const UserInvoiceList = () => {
               <div className="offer-card-header">
                 <h3>Offer #{index + 1}</h3>
               </div>
-
               <div className="offer-card-body">
                 <div className="offer-field">
                   <span className="offer-label">Provider:</span>
@@ -220,19 +228,18 @@ const UserInvoiceList = () => {
                     {offer.provider_name || "N/A"}
                   </span>
                 </div>
-
                 <div className="offer-field">
                   <span className="offer-label">Product:</span>
                   <span className="offer-value">
                     {offer.product_name || "N/A"}
                   </span>
                 </div>
-
                 <div className="offer-field">
                   <span className="offer-label">Savings:</span>
-                  <span className="offer-value">{offer.saving || "0"}%</span>
+                  <span className="offer-value">
+                    {offer.saving || "0"}%
+                  </span>
                 </div>
-
                 <div className="offer-field">
                   <span className="offer-label">Commission:</span>
                   <span className="offer-value">
@@ -247,25 +254,14 @@ const UserInvoiceList = () => {
     );
   };
 
-  const totalPages = Math.ceil(invoices.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentInvoices = invoices.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
   if (loading) {
     return (
       <div
-        class="spinner-border d-block mx-auto"
+        className="spinner-border d-block mx-auto"
         role="status"
         style={{ color: "#3598db" }}
       >
-        <span class="visually-hidden">Loading...</span>
+        <span className="visually-hidden">Loading...</span>
       </div>
     );
   }
@@ -277,13 +273,21 @@ const UserInvoiceList = () => {
   return (
     <div className="invoice-list-container">
       <Breadcrumbs homePath={"/user/dashboard"} />
-
-      {/* <div className="d-flex justify-content-between align-items-center "> */}
       <h1 className="text-center mb-0">Invoice List</h1>
-      {/* <Link to="/agent/contract-list">
-          <button className="btn btn-primary w-100">Agreement List</button>
-        </Link> */}
-      {/* </div> */}
+
+      {/* 🔍 Search Input */}
+      <div className="d-flex justify-content-center align-items-center mb-3">
+        <input
+          type="text"
+          placeholder="Search by Bill Type, Address or Billing Period"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // Reset to first page when typing
+          }}
+          className="form-control w-50"
+        />
+      </div>
 
       {showNewTable ? (
         <>
@@ -311,7 +315,9 @@ const UserInvoiceList = () => {
                       <td className="invoice-table-cell">
                         {invoice.bill_type}
                       </td>
-                      <td className="invoice-table-cell">{invoice.address}</td>
+                      <td className="invoice-table-cell">
+                        {invoice.address}
+                      </td>
                       <td className="invoice-table-cell">
                         {invoice.billing_period}
                       </td>
@@ -330,26 +336,20 @@ const UserInvoiceList = () => {
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                               onClick={() => {
                                 fetchInvoiceDetails(invoice.id);
-                                setActiveDropdown(false);
+                                setActiveDropdown(null);
                               }}
                             >
                               View Details
                             </a>
                           </div>
                         )}
-                        {/* <button
-                          className="view-invoice-btn"
-                          onClick={() => fetchInvoiceDetails(invoice.id)}
-                        >
-                          View Details
-                        </button> */}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="5" className="no-invoices">
-                      No invoices found
+                      No matching invoices found
                     </td>
                   </tr>
                 )}
@@ -357,24 +357,23 @@ const UserInvoiceList = () => {
             </table>
           </div>
 
-          {invoices.length > itemsPerPage && (
-            <div className="pagination">
+          {/* Pagination UI */}
+          {totalPages > 0 && (
+            <div className="pagination justify-content-center mt-3">
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="pagination-button"
+                className="btn btn-outline-primary me-2"
               >
                 Previous
               </button>
-
-              <span className="page-info">
+              <span className="page-info me-2">
                 Page {currentPage} of {totalPages}
               </span>
-
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="pagination-button"
+                className="btn btn-outline-primary"
               >
                 Next
               </button>

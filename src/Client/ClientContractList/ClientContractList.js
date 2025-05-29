@@ -11,6 +11,7 @@ const ClientContractList = () => {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 New state for search term
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -19,6 +20,10 @@ const ClientContractList = () => {
   const [companyData, setCompanyData] = useState(null);
   const [selectedContractId, setSelectedContractId] = useState(null);
   const [groupDataLoading, setGroupDataLoading] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
@@ -44,6 +49,26 @@ const ClientContractList = () => {
     };
     fetchContracts();
   }, [token]);
+
+  // 🔍 Apply search filter on all contracts
+  const filteredContracts = contracts.filter((contract) =>
+    contract.contracted_provider?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contract.contracted_rate?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contract.closure_date?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contract.status?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 📄 Pagination logic based on filtered results
+  const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentContracts = filteredContracts.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const handleViewDetails = (contractId) => {
     navigate(`/client/contract-docx`, { state: { contractId } });
@@ -72,8 +97,8 @@ const ClientContractList = () => {
     } catch (err) {
       setGroupDataLoading(false);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
+        icon: "error",
+        title: "Error",
         text: err.message,
       });
       setCurrentStep(0);
@@ -82,8 +107,9 @@ const ClientContractList = () => {
 
   const handleNextStep = () => {
     if (currentStep === 1) {
-      // Skip Step 2 and go directly to document upload/view page
-      navigate(`/client/contract-docx`, { state: { contractId: selectedContractId } });
+      navigate(`/client/contract-docx`, {
+        state: { contractId: selectedContractId },
+      });
     }
   };
 
@@ -100,10 +126,27 @@ const ClientContractList = () => {
       case 0:
         return (
           <>
-            <h1>Agreement List</h1>
+          
+            <h1 className="text-center">Agreement List</h1>
+            <div className="d-flex justify-content-start align-items-center">
+              {/* 🔍 Search Input */}
+              <input
+                type="text"
+                placeholder="Search by Provider, Rate, Date or Status"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset to first page after typing
+                }}
+                className="form-control w-50"
+              />
+            </div>
+
             <div className="table-responsive">
-              {contracts.length === 0 ? (
-                <div className="no-data-message text-center">No Agreement found.</div>
+              {filteredContracts.length === 0 ? (
+                <div className="no-data-message text-center">
+                  No matching agreements found.
+                </div>
               ) : (
                 <table className="contract-table">
                   <thead>
@@ -116,13 +159,21 @@ const ClientContractList = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {contracts.map((contract, index) => (
+                    {currentContracts.map((contract, index) => (
                       <tr key={index} className="contract-table-row">
-                        <td className="contract-table-cell">{contract.contracted_provider}</td>
-                        <td className="contract-table-cell">{contract.contracted_rate}</td>
-                        <td className="contract-table-cell">{contract.closure_date}</td>
                         <td className="contract-table-cell">
-                          <button className={`w-100 status-button status-${contract.status.toLowerCase()}`}>
+                          {contract.contracted_provider}
+                        </td>
+                        <td className="contract-table-cell">
+                          {contract.contracted_rate}
+                        </td>
+                        <td className="contract-table-cell">
+                          {contract.closure_date}
+                        </td>
+                        <td className="contract-table-cell">
+                          <button
+                            className={`w-100 status-button status-${contract.status.toLowerCase()}`}
+                          >
                             {contract.status}
                           </button>
                         </td>
@@ -132,24 +183,54 @@ const ClientContractList = () => {
                             onClick={() => toggleDropdown(index)}
                             className="cursor-pointer"
                           />
-                          {contract.status === "pending" && activeDropdown === index && (
-                            <div className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0" style={{ marginLeft: "-130px" }}>
-                              <a
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                onClick={() => {
-                                  startAgreementProcess(contract.id, contract.group_id);
-                                  setActiveDropdown(false);
-                                }}
+                          {contract.status === "pending" &&
+                            activeDropdown === index && (
+                              <div
+                                className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
+                                style={{ marginLeft: "-130px" }}
                               >
-                                Upload Document
-                              </a>
-                            </div>
-                          )}
+                                <a
+                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                                  onClick={() => {
+                                    startAgreementProcess(
+                                      contract.id,
+                                      contract.group_id
+                                    );
+                                    setActiveDropdown(false);
+                                  }}
+                                >
+                                  Upload Document
+                                </a>
+                              </div>
+                            )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              )}
+
+              {/* Pagination UI */}
+              {totalPages > 0 && (
+                <div className="pagination justify-content-center mt-3">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="btn btn-outline-primary me-2"
+                  >
+                    Previous
+                  </button>
+                  <span className="page-info me-2">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="btn btn-outline-primary"
+                  >
+                    Next
+                  </button>
+                </div>
               )}
             </div>
           </>
@@ -171,28 +252,49 @@ const ClientContractList = () => {
                 <div className="company-info">
                   <div className="company-logo-container">
                     {companyData.company_logo && (
-                      <img 
-                        src={`${config.BASE_URL}/storage/${companyData.company_logo}`} 
-                        alt="Company Logo" 
+                      <img
+                        src={`${config.BASE_URL}/storage/${companyData.company_logo}`}
+                        alt="Company Logo"
                         className="company-logo"
                       />
                     )}
                   </div>
                   <div className="company-details">
-                    <p><strong>Name:</strong> {companyData.company_name}</p>
-                    <p><strong>Email:</strong> {companyData.company_email}</p>
-                    <p><strong>Phone:</strong> {companyData.company_phone}</p>
-                    <p><strong>Address:</strong> {companyData.company_address}</p>
-                    <p><strong>City:</strong> {companyData.company_city}</p>
-                    <p><strong>State:</strong> {companyData.company_state}</p>
-                    <p><strong>Zip:</strong> {companyData.company_zip}</p>
-                    <p><strong>Country:</strong> {companyData.company_country}</p>
+                    <p>
+                      <strong>Name:</strong> {companyData.company_name}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {companyData.company_email}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {companyData.company_phone}
+                    </p>
+                    <p>
+                      <strong>Address:</strong> {companyData.company_address}
+                    </p>
+                    <p>
+                      <strong>City:</strong> {companyData.company_city}
+                    </p>
+                    <p>
+                      <strong>State:</strong> {companyData.company_state}
+                    </p>
+                    <p>
+                      <strong>Zip:</strong> {companyData.company_zip}
+                    </p>
+                    <p>
+                      <strong>Country:</strong> {companyData.company_country}
+                    </p>
                   </div>
                 </div>
               )
             )}
-            <div className="step-actions">
-              <button onClick={handleBackStep} className="back-button">Back to List</button>
+            <div className="step-actions d-flex justify-content-between">
+              <button
+                onClick={handleBackStep}
+                className="back-button"
+              >
+                Back to List
+              </button>
               <button
                 onClick={handleNextStep}
                 className="next-button"
@@ -212,8 +314,12 @@ const ClientContractList = () => {
   if (loading)
     return (
       <div className="loader-container">
-        <div class="spinner-border" role="status" style={{ color: "#3598db" }}>
-          <span class="visually-hidden">Loading...</span>
+        <div
+          className="spinner-border"
+          role="status"
+          style={{ color: "#3598db" }}
+        >
+          <span className="visually-hidden">Loading...</span>
         </div>
       </div>
     );

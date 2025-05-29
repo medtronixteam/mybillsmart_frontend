@@ -20,6 +20,12 @@ const Subscription = () => {
   });
   const [planPrices, setPlanPrices] = useState({});
   const [isAnnual, setIsAnnual] = useState(false);
+  const [hasPurchasedPlan, setHasPurchasedPlan] = useState(false);
+
+  useEffect(() => {
+    // Check if user has purchased any main plan
+    setHasPurchasedPlan(planName && ["starter", "pro", "enterprise"].includes(planName.toLowerCase()));
+  }, [planName]);
 
   const staticPlans = [
     {
@@ -186,9 +192,9 @@ const Subscription = () => {
       isCurrent: planName && planName.toLowerCase() === plan.id,
     }));
 
-    // Only show free trial if no plan is active
-    if (!planName) {
-      return plansWithPrices;
+    // Show free trial only if no plan is active
+    if (!hasPurchasedPlan) {
+      return plansWithPrices.filter(plan => plan.isTrial || !plan.isTrial);
     }
     return plansWithPrices.filter(plan => !plan.isTrial);
   };
@@ -324,8 +330,8 @@ const Subscription = () => {
       <h2 className="section-title">Subscription Plans</h2>
       <p className="section-subtitle">Select the perfect plan for your needs</p>
 
-      {/* Show toggle only when not showing free trial */}
-      {planName && (
+      {/* Show toggle only when user has purchased a plan */}
+      {hasPurchasedPlan && (
         <div className="toggle-switch-container">
           <span>Monthly</span>
           <label className="switch">
@@ -390,7 +396,8 @@ const Subscription = () => {
         ))}
       </div>
 
-      {planName && (
+      {/* Only show volume and expansion packs if user has purchased a main plan */}
+      {hasPurchasedPlan && (
         <>
           <div className="volume-section">
             <h2 className="section-title">Volume Packs</h2>

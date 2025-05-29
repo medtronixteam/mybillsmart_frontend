@@ -95,7 +95,7 @@ const GroupAdminWhatsapp = () => {
             webhooks: [
               {
                 url: "https://ocr.ai3dscanning.com/webhook",
-                events: ["message"],
+                events: ["message.any"],
                 hmac: null,
                 retries: null,
                 customHeaders: null
