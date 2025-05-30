@@ -275,7 +275,7 @@ const ProviderSidebar = () => {
                             </li>
                             <li>
                               <NavLink
-                                to="/supervisor/goal"
+                                to="/supervisor/goal-list"
                                 className="nav-link "
                                 activeClassName="active-class"
                               >
@@ -329,7 +329,7 @@ const ProviderSidebar = () => {
               </div>
             </div>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/supervisor/message"
@@ -340,7 +340,7 @@ const ProviderSidebar = () => {
               </div>
               <span className="nav-link-text">Campaign List</span>
             </NavLink>
-          </li>
+          </li> */}
           {/* <li className="nav-item">
             <NavLink
               className="nav-link"

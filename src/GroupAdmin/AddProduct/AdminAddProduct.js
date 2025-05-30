@@ -168,12 +168,12 @@ const AdminAddProduct = () => {
           return;
           }
 
-      if (!response.ok) throw new Error("Failed to add electricity product");
+      if (!response.ok) throw new Error("Failed to add electricity Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Electricity product added successfully!",
+        text: "Electricity Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -248,12 +248,12 @@ const AdminAddProduct = () => {
           navigate("/login");
           return;
           }
-      if (!response.ok) throw new Error("Failed to add gas product");
+      if (!response.ok) throw new Error("Failed to add gas Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Gas product added successfully!",
+        text: "Gas Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -320,12 +320,12 @@ const AdminAddProduct = () => {
                 return;
                 }
 
-      if (!response.ok) throw new Error("Failed to add combined product");
+      if (!response.ok) throw new Error("Failed to add combined Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Combined product added successfully!",
+        text: "Combined Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -438,11 +438,11 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={electricityForm.product_name}
                   onChange={handleElectricityChange}
                   required
@@ -738,11 +738,11 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={gasForm.product_name}
                   onChange={handleGasChange}
                   required
@@ -1029,11 +1029,11 @@ const AdminAddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={combinedForm.product_name}
                   onChange={handleCombinedChange}
                   required

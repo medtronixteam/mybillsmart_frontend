@@ -198,60 +198,59 @@ const ClientList = () => {
   };
 
   const handleDeleteClick = async (id) => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
-  });
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  try {
-    const response = await fetch(
-      `${config.BASE_URL}/api/supervisor/user/delete/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    try {
+      const response = await fetch(
+        `${config.BASE_URL}/api/supervisor/user/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const resultData = await response.json();
+
+      if (response.ok && resultData.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "User has been deleted successfully.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        fetchUsers();
+      } else {
+        // Show error alert if API returns failure
+        Swal.fire({
+          icon: "success",
+          title: "success",
+          text: resultData.message || "Failed to delete user.",
+          confirmButtonColor: "#3085d6",
+        });
       }
-    );
-
-    const resultData = await response.json();
-
-    if (response.ok && resultData.status === "success") {
-      
+    } catch (error) {
+      console.error("Error deleting user:", error);
       Swal.fire({
-        icon: "success",
-        title: "Deleted!",
-        text: "User has been deleted successfully.",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-      fetchUsers();
-    } else {
-      // Show error alert if API returns failure
-      Swal.fire({
-        icon: "success",
-        title: "success",
-        text: resultData.message || "Failed to delete user.",
+        icon: "error",
+        title: "Error",
+        text: "An unexpected error occurred. Please try again.",
         confirmButtonColor: "#3085d6",
       });
     }
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "An unexpected error occurred. Please try again.",
-      confirmButtonColor: "#3085d6",
-    });
-  }
-};
+  };
 
   const handleDisableClick = async (id) => {
     const result = await Swal.fire({
@@ -466,15 +465,18 @@ const ClientList = () => {
                           className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
                           style={{ marginTop: "40px", marginLeft: "-140px" }}
                         >
-                          <a
-                            className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                            onClick={() => {
-                              handleEditClick(user);
-                              setActiveDropdown(false);
-                            }}
-                          >
-                            Edit
-                          </a>
+                          {user.status === 1 && (
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => {
+                                handleEditClick(user);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Edit
+                            </a>
+                          )}
+
                           {user.status === 1 ? (
                             <a
                               className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
@@ -496,6 +498,7 @@ const ClientList = () => {
                               Enable
                             </a>
                           )}
+
                           <a
                             className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
                             onClick={() => {

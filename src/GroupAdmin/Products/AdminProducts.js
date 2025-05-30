@@ -125,7 +125,7 @@ const AdminProducts = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching Agreements:", error);
         setLoading(false);
       });
   };
@@ -208,15 +208,15 @@ const AdminProducts = () => {
         fetchProducts();
         Swal.fire({
           title: "Deleted!",
-          text: "Product has been deleted.",
+          text: "Agreement has been deleted.",
           icon: "success",
         });
       })
       .catch((error) => {
-        console.error("Error deleting product:", error);
+        console.error("Error deleting Agreement:", error);
         Swal.fire({
           title: "Error!",
-          text: "Failed to delete product.",
+          text: "Failed to delete Agreement.",
           icon: "error",
         });
       });
@@ -256,7 +256,7 @@ const AdminProducts = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Invalid Product ID.",
+        text: "Invalid Agreement ID.",
       });
       return;
     }
@@ -278,15 +278,15 @@ const AdminProducts = () => {
         Swal.fire({
           icon: "success",
           title: "Success!",
-          text: "Product updated successfully!",
+          text: "Agreement updated successfully!",
         });
       })
       .catch((error) => {
-        console.error("Error updating product:", error);
+        console.error("Error updating Agreement:", error);
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to update product.",
+          text: "Failed to update Agreement.",
         });
       });
   };
@@ -393,7 +393,7 @@ const AdminProducts = () => {
       case "electricity":
         return (
           <div className="edit-product-form">
-            <h3 className="mb-4">Edit Electricity Product</h3>
+            <h3 className="mb-4">Edit Electricity Agreement</h3>
             {renderEditFormSection(
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
               "Basic Information"
@@ -417,7 +417,7 @@ const AdminProducts = () => {
       case "gas":
         return (
           <div className="edit-product-form">
-            <h3 className="mb-4">Edit Gas Product</h3>
+            <h3 className="mb-4">Edit Gas Agreement</h3>
             {renderEditFormSection(
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "commision_type"],
               "Basic Information"
@@ -442,7 +442,7 @@ const AdminProducts = () => {
       case "both":
         return (
           <div className="edit-product-form">
-            <h3 className="mb-4">Edit Combined Product</h3>
+            <h3 className="mb-4">Edit Combined Agreement</h3>
             {renderEditFormSection(
               ["provider_name", "product_name", "light_category", "fixed_rate", "customer_type", "dual_discount", "commision_type"],
               "Basic Information"
@@ -630,7 +630,7 @@ const AdminProducts = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6">No products available</td>
+                  <td colSpan="6">No Agreements available</td>
                 </tr>
               )}
             </tbody>

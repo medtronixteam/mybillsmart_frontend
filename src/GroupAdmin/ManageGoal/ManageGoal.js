@@ -42,8 +42,6 @@ const ManageGoal = () => {
     (user.role === "supervisor" || user.role === "agent") &&
     user.status !== 0 
 );
-
-
       setUsers(filteredUsers);
       setLoading(false);
     } catch (err) {

@@ -908,68 +908,71 @@ const UserList = () => {
                           className="cursor-pointer"
                         />
                         {activeDropdown === index && (
-                          <div
-                            className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                            style={{ marginTop: "40px", marginLeft: "-140px" }}
-                          >
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => {
-                                handleEditClick(index, user);
-                                setActiveDropdown(false);
-                              }}
-                            >
-                              Edit
-                            </a>
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => {
-                                fetchSessionHistory(user.id);
-                                setActiveDropdown(false);
-                              }}
-                            >
-                              Session History
-                            </a>
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => {
-                                fetchPerformanceData(user.id);
-                                setActiveDropdown(false);
-                              }}
-                            >
-                              Performance
-                            </a>
-                            {user.status === 1 ? (
-                              <a
-                                onClick={() => {
-                                  handleDisableClick(user.id);
-                                  setActiveDropdown(false);
-                                }}
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              >
-                                Disable
-                              </a>
-                            ) : (
-                              <a
-                                onClick={() => {
-                                  handleEnableClick(user.id);
-                                  setActiveDropdown(false);
-                                }}
-                                className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              >
-                                Enable
-                              </a>
-                            )}
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                              onClick={() => {
-                                handleDeleteClick(user.id);
-                                setActiveDropdown(false);
-                              }}
-                            >
-                              Delete
-                            </a>
-                          </div>
+                        <div className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0" style={{ marginTop: "40px", marginLeft: "-140px" }}>
+  {user.status === 1 && (
+    <a
+      className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+      onClick={() => {
+        handleEditClick(index, user);
+        setActiveDropdown(false);
+      }}
+    >
+      Edit
+    </a>
+  )}
+  
+  <a
+    className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+    onClick={() => {
+      fetchSessionHistory(user.id);
+      setActiveDropdown(false);
+    }}
+  >
+    Session History
+  </a>
+
+  <a
+    className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+    onClick={() => {
+      fetchPerformanceData(user.id);
+      setActiveDropdown(false);
+    }}
+  >
+    Performance
+  </a>
+
+  {user.status === 1 ? (
+    <a
+      onClick={() => {
+        handleDisableClick(user.id);
+        setActiveDropdown(false);
+      }}
+      className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+    >
+      Disable
+    </a>
+  ) : (
+    <a
+      onClick={() => {
+        handleEnableClick(user.id);
+        setActiveDropdown(false);
+      }}
+      className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+    >
+      Enable
+    </a>
+  )}
+
+  <a
+    className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+    onClick={() => {
+      handleDeleteClick(user.id);
+      setActiveDropdown(false);
+    }}
+  >
+    Delete
+  </a>
+</div>
                         )}
                       </td>
                     </tr>

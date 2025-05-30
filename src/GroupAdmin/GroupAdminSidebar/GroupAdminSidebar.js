@@ -286,7 +286,7 @@ const GroupAdminSidebar = () => {
                   </li>
                 </ul>
               </div>
-            </div>
+            </div> 
           </li>
 
           <li className="nav-item">

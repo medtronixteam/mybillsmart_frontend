@@ -3,14 +3,14 @@ import "./MessageList.css";
 import { useAuth } from "../../contexts/AuthContext";
 import config from "../../config";
 import { HiDotsHorizontal } from "react-icons/hi";
+import Swal from "sweetalert2";
 import Breadcrumbs from "../../Breadcrumbs";
 
-const AgentMessageList = () => {
+const MessageList = () => {
   const [activeDropdown, setActiveDropdown] = useState(false);
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,15 +20,26 @@ const AgentMessageList = () => {
 
   // Filter states
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
   const [editForm, setEditForm] = useState({
     to_number: "",
     message: "",
     time_send: "",
     date_send: "",
+    status: 0, // 0 for pending, 1 for completed
   });
+
+  // Helper function to get status text
+  const getStatusText = (status) => {
+    return status === 1 ? "Completed" : "Pending";
+  };
+
+  // Helper function to get status class
+  const getStatusClass = (status) => {
+    return status === 1 ? "completed" : "pending";
+  };
 
   const toggleDropdown = (index) => {
     setActiveDropdown((prev) => (prev === index ? null : index));
@@ -37,7 +48,6 @@ const AgentMessageList = () => {
   const fetchMessages = async (page = 1) => {
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages?page=${page}&per_page=${itemsPerPage}`,
         {
@@ -54,39 +64,31 @@ const AgentMessageList = () => {
       }
 
       setMessages(data.data || []);
-      setFilteredMessages(data.data || []); // Initialize filtered messages
+      setFilteredMessages(data.data || []);
       setTotalPages(data.last_page || 1);
       setCurrentPage(data.current_page || 1);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // Apply filters whenever messages or filter criteria change
   useEffect(() => {
-    applyFilters();
-  }, [messages, statusFilter, dateFilter, searchTerm]);
-
-  const applyFilters = () => {
     let result = [...messages];
 
     // Apply status filter
     if (statusFilter !== "all") {
-      result = result.filter(
-        (message) =>
-          message.status?.toLowerCase() === statusFilter.toLowerCase()
-      );
-    }
-
-    // Apply date filter
-    if (dateFilter) {
-      const filterDate = new Date(dateFilter).setHours(0, 0, 0, 0);
-      result = result.filter((message) => {
-        if (!message.time_send) return false;
-        const messageDate = new Date(message.time_send).setHours(0, 0, 0, 0);
-        return messageDate === filterDate;
-      });
+      if (statusFilter === "pending") {
+        result = result.filter((message) => message.status === 0);
+      } else if (statusFilter === "completed") {
+        result = result.filter((message) => message.status === 1);
+      }
     }
 
     // Apply search filter
@@ -94,26 +96,59 @@ const AgentMessageList = () => {
       const term = searchTerm.toLowerCase();
       result = result.filter(
         (message) =>
-          message.to_number?.toLowerCase().includes(term) ||
-          message.message?.toLowerCase().includes(term)
+          (message.to_number &&
+            message.to_number.toLowerCase().includes(term)) ||
+          (message.message && message.message.toLowerCase().includes(term)) ||
+          getStatusText(message.status).toLowerCase().includes(term)
       );
     }
 
-    setFilteredMessages(result);
-    setTotalPages(Math.ceil(result.length / itemsPerPage));
-    setCurrentPage(1); // Reset to first page when filters change
-  };
+    // Apply date filter
+    if (dateFilter) {
+      result = result.filter((message) => {
+        if (!message.time_send) return false;
 
-  const resetFilters = () => {
-    setStatusFilter("all");
-    setDateFilter("");
-    setSearchTerm("");
+        try {
+          const messageDate = new Date(message.time_send)
+            .toISOString()
+            .split("T")[0];
+          return messageDate === dateFilter;
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+
+    setFilteredMessages(result);
+    setCurrentPage(1);
+    setTotalPages(Math.ceil(result.length / itemsPerPage));
+  }, [messages, statusFilter, searchTerm, dateFilter]);
+
+  const formatDateTime = (timeString) => {
+    if (!timeString) return "N/A";
+
+    try {
+      if (timeString.includes("T")) {
+        return new Date(timeString).toLocaleString();
+      }
+
+      if (/^\d{2}:\d{2}:\d{2}$/.test(timeString)) {
+        const today = new Date();
+        const [hours, minutes, seconds] = timeString.split(":");
+        today.setHours(hours, minutes, seconds);
+        return today.toLocaleTimeString();
+      }
+
+      return timeString;
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return timeString;
+    }
   };
 
   const fetchMessageDetails = async (id) => {
     try {
       setLoading(true);
-      setError(null);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -124,11 +159,10 @@ const AgentMessageList = () => {
       );
 
       const responseData = await response.json();
-      console.log("API Response:", responseData);
 
       if (!response.ok) {
         throw new Error(
-          responseData.message || "Failed to fetch campaign details"
+          responseData.message || "Failed to fetch message details"
         );
       }
 
@@ -137,32 +171,53 @@ const AgentMessageList = () => {
       if (messageData) {
         setSelectedMessage(messageData);
 
-        // Handle invalid/missing time_send
         let datetime;
-        try {
-          datetime = messageData.time_send
-            ? new Date(messageData.time_send)
-            : new Date();
-          if (isNaN(datetime.getTime())) {
-            datetime = new Date(); // Fallback to current date if invalid
+        let date = "";
+        let time = "";
+
+        if (messageData.time_send) {
+          if (/^\d{2}:\d{2}:\d{2}$/.test(messageData.time_send)) {
+            time = messageData.time_send;
+            const today = new Date();
+            date = today.toISOString().split("T")[0];
+          } else if (!isNaN(new Date(messageData.time_send).getTime())) {
+            datetime = new Date(messageData.time_send);
+            date = datetime.toISOString().split("T")[0];
+            const hours = datetime.getHours().toString().padStart(2, "0");
+            const minutes = datetime.getMinutes().toString().padStart(2, "0");
+            const seconds = datetime.getSeconds().toString().padStart(2, "0");
+            time = `${hours}:${minutes}:${seconds}`;
           }
-        } catch (e) {
-          datetime = new Date(); // Fallback to current date if error
         }
 
-        const date = datetime.toISOString().split("T")[0];
-        const time = datetime.toTimeString().substring(0, 5);
+        if (!time) {
+          datetime = new Date();
+          const hours = datetime.getHours().toString().padStart(2, "0");
+          const minutes = datetime.getMinutes().toString().padStart(2, "0");
+          const seconds = datetime.getSeconds().toString().padStart(2, "0");
+          time = `${hours}:${minutes}:${seconds}`;
+        }
+
+        if (!date) {
+          datetime = new Date();
+          date = datetime.toISOString().split("T")[0];
+        }
 
         setEditForm({
           to_number: messageData.to_number || "",
           message: messageData.message || "",
           date_send: date,
           time_send: time,
+          status: messageData.status || 0,
         });
       }
     } catch (err) {
-      setError(err.message);
-      console.error("Error fetching campaign details:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+      });
+      console.error("Error fetching message details:", err);
     } finally {
       setLoading(false);
     }
@@ -171,9 +226,18 @@ const AgentMessageList = () => {
   const updateMessage = async (id) => {
     try {
       setLoading(true);
-      setError(null);
 
-      const datetime = `${editForm.date_send}T${editForm.time_send}:00`;
+      // Format time to H:i:s
+      let formattedTime = editForm.time_send;
+      if (!/^\d{2}:\d{2}:\d{2}$/.test(formattedTime)) {
+        // If time is not in HH:MM:SS format, convert it
+        const timeParts = formattedTime.split(":");
+        if (timeParts.length === 2) {
+          formattedTime = `${timeParts[0]}:${timeParts[1]}:00`;
+        } else {
+          formattedTime = "00:00:00";
+        }
+      }
 
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
@@ -186,21 +250,33 @@ const AgentMessageList = () => {
           body: JSON.stringify({
             to_number: editForm.to_number,
             message: editForm.message,
-            time_send: datetime,
+            time_send: formattedTime,
+            date_send: editForm.date_send,
+            status: editForm.status,
           }),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update campaign");
+        throw new Error(errorData.message || "Failed to update message");
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Campaign updated successfully!",
+      });
 
       fetchMessages(currentPage);
       setEditMode(false);
       setSelectedMessage(null);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -208,9 +284,19 @@ const AgentMessageList = () => {
 
   const deleteMessage = async (id) => {
     try {
-      setLoading(true);
-      setError(null);
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
 
+      if (!result.isConfirmed) return;
+
+      setLoading(true);
       const response = await fetch(
         `${config.BASE_URL}/api/auto-messages/${id}`,
         {
@@ -222,13 +308,23 @@ const AgentMessageList = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete message");
+        throw new Error("Failed to delete campaign");
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Your campaign has been deleted.",
+      });
 
       fetchMessages(currentPage);
       setSelectedMessage(null);
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -242,27 +338,39 @@ const AgentMessageList = () => {
     }));
   };
 
+  const handleStatusChange = (e) => {
+    const status = parseInt(e.target.value);
+    setEditForm((prev) => ({
+      ...prev,
+      status: status,
+    }));
+  };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      // For client-side pagination with filtered results
-      // No need to fetch again as we have all data
     }
+  };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setSearchTerm("");
+    setDateFilter("");
   };
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
-  if (loading && messages.length === 0)
+  if (loading && messages.length === 0) {
     return (
       <div class="spinner-border d-block mx-auto" role="status" style={{ color: "#3598db" }}>
         <span class="visually-hidden">Loading...</span>
       </div>
     );
-  if (error) return <div className="error-message">Error: {error}</div>;
+  }
 
-  // Get current messages for pagination
+  // Get current messages for pagination (client-side)
   const indexOfLastMessage = currentPage * itemsPerPage;
   const indexOfFirstMessage = indexOfLastMessage - itemsPerPage;
   const currentMessages = filteredMessages.slice(
@@ -272,47 +380,45 @@ const AgentMessageList = () => {
 
   return (
     <div className="message-list-container">
-      <Breadcrumbs homePath={"/agent/dashboard"} />
+      <Breadcrumbs homePath={"/group_admin/dashboard"} />
       <h2 className="page-title">Scheduled Campaigns</h2>
 
-      {/* Filter Section */}
-      <div className="filters-section mb-4 p-3 rounded bg-transparent shadow-none">
-        <div className="row align-items-end w-100 gy-4 justify-content-center">
-          <div className="col-12 col-md-4 col-lg-3">
-            <label className="form-label m-0">Status</label>
+      {/* Filter Controls */}
+      <div className="container-fluid mb-4">
+        <div className="row g-3 align-items-end">
+          <div className="col-12 col-md-4">
+            <label htmlFor="statusFilter" className="form-label mx-0 mb-2">
+              Status
+            </label>
             <select
-              className="form-control my-0"
+              id="statusFilter"
+              className="form-select my-0"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
-              <option value="sent">Sent</option>
-              <option value="failed">Failed</option>
+              <option value="completed">Completed</option>
             </select>
           </div>
-          <div className="col-12 col-md-4 col-lg-3 m-0">
-            <label className="form-label m-0">Date</label>
-            <input
-              type="date"
-              className="form-control"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-          </div>
-          <div className="col-12 col-md-4 col-lg-3 m-0">
-            <label className="form-label m-0">Search</label>
+
+          <div className="col-12 col-md-4">
+            <label htmlFor="searchTerm" className="form-label mx-0 mb-2">
+              Search
+            </label>
             <input
               type="text"
-              className="form-control"
-              placeholder="Search by number or message"
+              id="searchTerm"
+              className="form-control my-0"
+              placeholder="Search by number or message..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="col-12 col-md-6 col-lg-3">
+
+          <div className="col-12 col-md-4">
             <button
-              className="btn btn-primary my-0 w-100"
+              className="btn btn-primary w-100 my-0"
               onClick={resetFilters}
             >
               Reset Filters
@@ -362,18 +468,31 @@ const AgentMessageList = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Time</label>
+                <label>Time (HH:MM:SS)</label>
                 <input
                   type="time"
                   name="time_send"
                   value={editForm.time_send}
                   onChange={handleEditChange}
+                  step="1"
                   required
                 />
               </div>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {/* <div className="form-group">
+              <label>Status</label>
+              <select
+                name="status"
+                value={editForm.status}
+                onChange={handleStatusChange}
+                className="form-control"
+                required
+              >
+                <option value={0}>Pending</option>
+                <option value={1}>Completed</option>
+              </select>
+            </div> */}
 
             <div className="form-actions">
               <button className="cancel-btn" onClick={() => setEditMode(false)}>
@@ -401,12 +520,12 @@ const AgentMessageList = () => {
             </div>
 
             <div className="detail-content">
-              <div className="detail-row">
+              {/* <div className="detail-row">
                 <span className="detail-label">ID:</span>
                 <span className="detail-value">
                   {selectedMessage.id || "N/A"}
                 </span>
-              </div>
+              </div> */}
               <div className="detail-row">
                 <span className="detail-label">To:</span>
                 <span className="detail-value">
@@ -422,29 +541,21 @@ const AgentMessageList = () => {
               <div className="detail-row">
                 <span className="detail-label">Scheduled Time:</span>
                 <span className="detail-value">
-                  {selectedMessage.time_send
-                    ? new Date(selectedMessage.time_send).toLocaleString()
-                    : "N/A"}
+                  {formatDateTime(selectedMessage.time_send)}
                 </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Status:</span>
                 <span className="detail-value">
-                  {selectedMessage.status || "Pending"}
+                  <span
+                    className={`status-badge ${getStatusClass(
+                      selectedMessage.status
+                    )}`}
+                  >
+                    {getStatusText(selectedMessage.status)}
+                  </span>
                 </span>
               </div>
-            </div>
-
-            <div className="action-buttons">
-              <button className="edit-btn" onClick={() => setEditMode(true)}>
-                Edit
-              </button>
-              <button
-                className="delete-btn"
-                onClick={() => deleteMessage(selectedMessage.id)}
-              >
-                Delete
-              </button>
             </div>
           </div>
         )
@@ -458,7 +569,7 @@ const AgentMessageList = () => {
                   <th>Campaign</th>
                   <th>Scheduled Time</th>
                   <th>Status</th>
-                  {/* <th>Actions</th> */}
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -473,21 +584,17 @@ const AgentMessageList = () => {
                             : message.message
                           : "N/A"}
                       </td>
-                      <td>
-                        {message.time_send
-                          ? new Date(message.time_send).toLocaleString()
-                          : "N/A"}
-                      </td>
+                      <td>{formatDateTime(message.time_send)}</td>
                       <td>
                         <span
-                          className={`status-badge ${(
-                            message.status || ""
-                          ).toLowerCase()}`}
+                          className={`status-badge ${getStatusClass(
+                            message.status
+                          )}`}
                         >
-                          {message.status || "Pending"}
+                          {getStatusText(message.status)}
                         </span>
                       </td>
-                      {/* <td>
+                      <td>
                         <HiDotsHorizontal
                           size={30}
                           onClick={() => toggleDropdown(index)}
@@ -496,20 +603,40 @@ const AgentMessageList = () => {
                         {activeDropdown === index && (
                           <div
                             className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                            style={{ marginLeft: "-130px", marginTop: "40px" }}
+                            style={{ minWidth: "150px" }}
                           >
-                            <a
-                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
                               onClick={() => {
                                 fetchMessageDetails(message.id);
                                 setActiveDropdown(false);
                               }}
                             >
-                              View
-                            </a>
+                              View Details
+                            </button>
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
+                              onClick={() => {
+                                fetchMessageDetails(message.id);
+                                setEditMode(true);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            
+                            <button
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none w-100 text-start"
+                              onClick={() => {
+                                deleteMessage(message.id);
+                                setActiveDropdown(false);
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
                         )}
-                      </td> */}
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -526,19 +653,42 @@ const AgentMessageList = () => {
           {filteredMessages.length > itemsPerPage && (
             <div className="pagination-controls">
               <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </button>
+              <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
                 Previous
               </button>
               <span>
-                Page {currentPage} of {totalPages}
+                Page {currentPage} of{" "}
+                {Math.ceil(filteredMessages.length / itemsPerPage)}
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={
+                  currentPage ===
+                  Math.ceil(filteredMessages.length / itemsPerPage)
+                }
               >
                 Next
+              </button>
+              <button
+                onClick={() =>
+                  handlePageChange(
+                    Math.ceil(filteredMessages.length / itemsPerPage)
+                  )
+                }
+                disabled={
+                  currentPage ===
+                  Math.ceil(filteredMessages.length / itemsPerPage)
+                }
+              >
+                Last
               </button>
             </div>
           )}
@@ -548,4 +698,4 @@ const AgentMessageList = () => {
   );
 };
 
-export default AgentMessageList;
+export default MessageList;

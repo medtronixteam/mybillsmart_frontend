@@ -90,7 +90,6 @@
   /* box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5); */
 }
 
-/* Mobile Styling */
 @media screen and (max-width: 600px) {
   .add-product-container input,
   .add-product-container select {

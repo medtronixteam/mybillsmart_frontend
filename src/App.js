@@ -89,7 +89,7 @@ import ProviderMessageList from "./Provider/MessageList/MessageList";
 import AdminProducts from "./GroupAdmin/Products/AdminProducts";
 import AdminAddProduct from "./GroupAdmin/AddProduct/AdminAddProduct";
 import AgentGoalList from "./components/GoalList/GoalList";
-import ProviderGoalList from "./Provider/GoalList/GoalList";
+
 import SessionHistory from "./GroupAdmin/SessionHistory/SessionHistory";
 import SubscriptionOrder from "./GroupAdmin/SubscriptionOrder/SubscriptionOrder";
 import CompanyDetails from "./GroupAdmin/CompanyDetails/CompanyDetails";
@@ -120,6 +120,7 @@ import ReffredUserList from "./components/ReffredUserList/ReffredUserList";
 import ChatBoard from "./GroupAdmin/ChatBoard/ChatBoard";
 import SupervisorManageGoal from "./Provider/SupervisorManageGoal/SupervisorManageGoal";
 import SupervisorGoalList from "./Provider/SupervisorGoalList/SupervisorGoalList";
+import AgentScheduleMessage from "./components/AgentScheduleMessage/AgentScheduleMessage";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -343,8 +344,12 @@ const App = () => {
                             element={<AgentCheckoutForm />}
                           />
                           <Route
-                            path="message"
+                            path="campaign-list"
                             element={<AgentMessageList />}
+                          />
+                          <Route
+                            path="campaign"
+                            element={<AgentScheduleMessage />}
                           />
                           <Route
                             path="session-history"
@@ -440,7 +445,7 @@ const App = () => {
                           />
 
                            <Route
-                            path="goal"
+                            path="goal-list"
                             element={<SupervisorGoalList />}
                           />
                           

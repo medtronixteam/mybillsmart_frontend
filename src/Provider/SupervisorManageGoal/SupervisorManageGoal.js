@@ -150,7 +150,7 @@ const SupervisorManageGoal = () => {
       <div className="manage-goal-container p-md-5 p-4 mt-5">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
           <h2 className="mb-0">Create New Goal</h2>
-          <Link to="/supervisor/goal">
+          <Link to="/supervisor/goal-list">
             <button className="btn bg-white goal-btn px-3 py-2">
               Goal List
             </button>

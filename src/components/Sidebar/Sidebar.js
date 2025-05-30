@@ -14,6 +14,7 @@ import {
   FaFileUpload,
   FaFileInvoice,
   FaWhatsapp,
+  FaListUl,
 } from "react-icons/fa";
 import { NavLink, Link } from "react-router-dom";
 import "./Sidebar.css";
@@ -25,7 +26,10 @@ import {
   MdListAlt,
   MdSettings,
   MdEmail,
+  MdSchedule,
+  MdAddCircle
 } from "react-icons/md";
+
 import { HiOutlineUserGroup } from "react-icons/hi";
 
 const Sidebar = () => {
@@ -297,6 +301,57 @@ const Sidebar = () => {
             </NavLink>
           </li> */}
           <li className="nav-item">
+                      <NavLink
+                        className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"
+                        style={{ color: " #67748e" }}
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseCampaign"
+                        aria-expanded="false"
+                        aria-controls="collapseCampaign"
+                      >
+                        <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
+                          <MdMessage />
+                        </div>
+                        <span className="nav-link-text">Manage Campaign</span>
+                        <RiArrowDropDownLine size={30} />
+                      </NavLink>
+                      <div
+                        id="collapseCampaign"
+                        className="accordion-collapse collapse"
+                        aria-labelledby="headingInvoices"
+                        data-bs-parent="#sidebarAccordion"
+                      >
+                        <div className="accordion-body py-0">
+                          <ul className="list-unstyled">
+                            <li>
+                              <NavLink
+                                to="/agent/campaign"
+                                className="nav-link"
+                                activeClassName="active-class"
+                              >
+                                <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                                  <MdSchedule />
+                                </div>
+                                <span className="nav-link-text">Schedule Campaign</span>
+                              </NavLink>
+                            </li>
+                            <li>
+                              <NavLink
+                                to="/agent/campaign-list"
+                                className="nav-link "
+                                activeClassName="active-class"
+                              >
+                                <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                                  <FaListUl />
+                                </div>
+                                <span className="nav-link-text">Campaign List</span>
+                              </NavLink>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </li>
+          <li className="nav-item">
             <NavLink
               className="nav-link"
               to="/agent/goal"
@@ -308,18 +363,7 @@ const Sidebar = () => {
               <span className="nav-link-text">Goal List</span>
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink
-              className="nav-link"
-              to="/agent/message"
-              activeClassName="active-class"
-            >
-              <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center  d-flex align-items-center justify-content-center">
-                <MdMessage />
-              </div>
-              <span className="nav-link-text ">Campaign List</span>
-            </NavLink>
-          </li>
+          
           <li className="nav-item">
             <NavLink
               className="accordion-button sidebar-accordion bg-transparent shadow-none d-flex align-items-center collapsed nav-link"

@@ -160,12 +160,12 @@ const AddProduct = () => {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to add electricity product");
+      if (!response.ok) throw new Error("Failed to add electricity Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Electricity product added successfully!",
+        text: "Electricity Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -235,12 +235,12 @@ const AddProduct = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Failed to add gas product");
+      if (!response.ok) throw new Error("Failed to add gas Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Gas product added successfully!",
+        text: "Gas Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -301,12 +301,12 @@ const AddProduct = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Failed to add combined product");
+      if (!response.ok) throw new Error("Failed to add combined Agreement");
 
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Combined product added successfully!",
+        text: "Combined Agreement added successfully!",
         confirmButtonText: "OK",
       });
 
@@ -389,7 +389,7 @@ const AddProduct = () => {
 
       <div className="add-product-container mx-auto">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
-          <h1 className="mb-0">Add Product</h1>
+          <h1 className="mb-0">Add Agreement</h1>
           <Link to="/supervisor/product-list">
             <button className="btn btn-primary w-100 fs-6">
               View Agreements
@@ -419,11 +419,11 @@ const AddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={electricityForm.product_name}
                   onChange={handleElectricityChange}
                   required
@@ -691,7 +691,7 @@ const AddProduct = () => {
               <div className="col-12">
                 <button
                   type="submit"
-                  className="btn btn-primary mt-5 w-100 w-md-50"
+                  className="btn btn-primary mt-5 w-100 w-md-50 "
                 >
                   Submit
                 </button>
@@ -722,11 +722,11 @@ const AddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={gasForm.product_name}
                   onChange={handleGasChange}
                   required
@@ -1018,11 +1018,11 @@ const AddProduct = () => {
               </div>
 
               <div className="col-12 col-md-6 mb-3">
-                <label>Product Name*</label>
+                <label>Agreement Name*</label>
                 <input
                   type="text"
                   name="product_name"
-                  placeholder="Product Name"
+                  placeholder="Agreement Name"
                   value={combinedForm.product_name}
                   onChange={handleCombinedChange}
                   required

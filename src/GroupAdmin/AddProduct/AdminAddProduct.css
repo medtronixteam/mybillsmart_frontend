@@ -90,14 +90,21 @@
   font-weight: 700;
   /* box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5); */
 }
-.add-product-container .btn.btn-primary:hover {
-  color: #000000 !important;
+.add-product-container button:hover{
+  background-color: #007bff !important;
+}
+.add-product-container button:focus {
+  outline: none;
+  color: black !important;
 }
 /* Mobile Styling */
 @media screen and (max-width: 600px) {
   .add-product-container input,
   .add-product-container select {
     width: 100%;
+  }
+  .add-product-container button{
+    margin-bottom: 6rem !important;
   }
 
   .add-product-container {
