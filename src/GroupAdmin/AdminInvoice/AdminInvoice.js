@@ -1120,15 +1120,10 @@ const generatePDF = (offersToInclude = [], includeCommission = false) => {
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-6">
             <div className="card border-danger text-center p-5">
-              <BsExclamationCircle className="text-danger mb-4" size={64} />
+              <BsExclamationCircle className="text-danger mx-auto text-center mb-4" size={64} />
               <h2>Plan Information</h2>
               <p>{planInfo.message || "You need to purchase a plan to submit invoices."}</p>
-              <button
-                className="btn btn-primary"
-                onClick={() => (window.location.href = "/group_admin/subscription")}
-              >
-                View Plans
-              </button>
+             
             </div>
           </div>
         </div>
