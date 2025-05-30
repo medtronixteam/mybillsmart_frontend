@@ -98,7 +98,7 @@ const ProviderSidebar = () => {
                 <FaBoxes />
               </div>
               <span className="nav-link-text ">Manage Agreements</span>
-              <RiArrowDropDownLine size={30} />
+              <RiArrowDropDownLine size={30} style={{marginRight:"-7px"}}/>
             </NavLink>
             <div
               id="collapseProducts"
@@ -110,7 +110,7 @@ const ProviderSidebar = () => {
                 <ul className="list-unstyled">
                   <li>
                     <NavLink
-                      to="/supervisor/add-product"
+                      to="/supervisor/add-agreement"
                       className="nav-link"
                       activeClassName="active-class"
                     >
@@ -122,7 +122,7 @@ const ProviderSidebar = () => {
                   </li>
                   <li>
                     <NavLink
-                      to="/supervisor/product-list"
+                      to="/supervisor/agreement"
                       className="nav-link "
                       activeClassName="active-class"
                     >

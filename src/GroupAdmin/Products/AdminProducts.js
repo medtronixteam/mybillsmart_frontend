@@ -478,7 +478,7 @@ const AdminProducts = () => {
       </div>
       <div className="products-header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Agreements</h2>
-        <Link to="/group_admin/add-product">
+        <Link to="/group_admin/add-Agreement">
           <button className="btn btn-primary mb-0">Add New Agreements</button>
         </Link>
       </div>
@@ -526,7 +526,7 @@ const AdminProducts = () => {
       <div className="search-control mb-3">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search Agreements..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="form-control form-control-lg"

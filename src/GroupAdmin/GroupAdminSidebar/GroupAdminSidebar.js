@@ -146,7 +146,7 @@ const GroupAdminSidebar = () => {
                 <FaBoxes />
               </div>
               <span className="nav-link-text">Manage Agreement</span>
-              <RiArrowDropDownLine size={30} />
+              <RiArrowDropDownLine size={30} style={{ marginRight: "-10px",}}/>
             </NavLink>
             <div
               id="collapssProducts"
@@ -158,7 +158,7 @@ const GroupAdminSidebar = () => {
                 <ul className="list-unstyled">
                   <li>
                     <NavLink
-                      to="/group_admin/add-product"
+                      to="/group_admin/add-Agreement"
                       className="nav-link"
                       activeClassName="active-class"
                     >
@@ -170,7 +170,7 @@ const GroupAdminSidebar = () => {
                   </li>
                   <li>
                     <NavLink
-                      to="/group_admin/products"
+                      to="/group_admin/agreement"
                       className="nav-link "
                       activeClassName="active-class"
                     >

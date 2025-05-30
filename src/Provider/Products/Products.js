@@ -478,7 +478,7 @@ const AdminProducts = () => {
       </div>
       <div className="products-header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Agreements</h2>
-        <Link to="/supervisor/add-product">
+        <Link to="/supervisor/add-agreement">
           <button className="btn btn-primary mb-0">Add New Agreement</button>
         </Link>
       </div>

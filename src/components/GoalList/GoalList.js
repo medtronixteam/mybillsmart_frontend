@@ -419,7 +419,7 @@ const AgentGoalList = () => {
                       <th>Start Date</th>
                       <th>End Date</th>
                       <th>Points</th>
-                      <th>Status</th>
+                      {/* <th>Status</th> */}
                       {/* <th>Action</th> */}
                     </tr>
                   </thead>

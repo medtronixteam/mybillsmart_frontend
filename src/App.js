@@ -402,8 +402,8 @@ const App = () => {
                             path="profile-edit"
                             element={<ProviderProfileSetting />}
                           />
-                          <Route path="product-list" element={<Products />} />
-                          <Route path="add-product" element={<AddProduct />} />
+                          <Route path="agreement" element={<Products />} />
+                          <Route path="add-agreement" element={<AddProduct />} />
                           <Route path="add-client" element={<AddClient />} />
                           <Route path="client-list" element={<ClientList />} />
                           <Route
@@ -481,9 +481,9 @@ const App = () => {
                             path="dashboard"
                             element={<GroupAdminDashboard />}
                           />
-                          <Route path="products" element={<AdminProducts />} />
+                          <Route path="agreement" element={<AdminProducts />} />
                           <Route
-                            path="add-product"
+                            path="add-Agreement"
                             element={<AdminAddProduct />}
                           />
                           <Route
