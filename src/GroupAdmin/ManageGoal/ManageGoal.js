@@ -38,8 +38,11 @@ const ManageGoal = () => {
       );
 
       const filteredUsers = response.data.data.filter(
-        (user) => user.role === "supervisor" || user.role === "agent"
-      );
+     (user) =>
+    (user.role === "supervisor" || user.role === "agent") &&
+    user.status !== 0 
+);
+
 
       setUsers(filteredUsers);
       setLoading(false);

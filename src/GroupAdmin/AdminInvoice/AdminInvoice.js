@@ -570,9 +570,8 @@ const generatePDF = (offersToInclude = [], includeCommission = false) => {
     pdf.setFontSize(11);
     pdf.setTextColor(0, 0, 0);
 
-    // Adjust column positions for more spacing
-    const col1X = margin + 5; // Move left column slightly closer to the margin
-    const col2X = pageWidth / 2 + 15; // Move right column further to the right
+    const col1X = margin + 5; 
+    const col2X = pageWidth / 2 + 15; 
     let col1Y = yOffset;
     let col2Y = yOffset;
 

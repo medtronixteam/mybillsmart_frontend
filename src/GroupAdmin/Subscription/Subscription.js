@@ -9,144 +9,35 @@ import Swal from "sweetalert2";
 const Subscription = () => {
   const navigate = useNavigate();
   const { token, planName } = useAuth();
+
   const [loading, setLoading] = useState({
     free_trial: false,
     starter: false,
     pro: false,
     enterprise: false,
-    growth: false,
-    scale: false,
-    max: false,
+    growth_pack: false,
+    scale_pack: false,
+    max_pack: false,
+    volume_mini: false,
+    volume_medium: false,
+    volume_max: false,
   });
+
   const [planPrices, setPlanPrices] = useState({});
   const [isAnnual, setIsAnnual] = useState(false);
   const [hasPurchasedPlan, setHasPurchasedPlan] = useState(false);
+  const [dynamicPlans, setDynamicPlans] = useState({
+    mainPlans: [],
+    expansionPacks: [],
+    volumePacks: [],
+  });
 
+  // Check if user has an active paid plan
   useEffect(() => {
-    // Check if user has purchased any main plan
     setHasPurchasedPlan(planName && ["starter", "pro", "enterprise"].includes(planName.toLowerCase()));
   }, [planName]);
 
-  const staticPlans = [
-    {
-      id: "free_trial",
-      name: "Free Trial",
-      period: "7 days",
-      price: "0.00",
-      description: "Try all features for 7 days at no cost",
-      features: [
-        "1 active agent",
-        "Up to 50 invoices",
-        "All Pro features included",
-        "No credit card required",
-        "Cancel anytime"
-      ],
-      featured: false,
-      isTrial: true
-    },
-    {
-      id: "starter",
-      name: "Starter",
-      period: "month",
-      description: "For individual agents or small businesses",
-      features: [
-        "1 active agent",
-        "Up to 200 invoices/month",
-        "AI-powered savings analysis",
-        "Automatic generation of personalized offers",
-        "Offer delivery via WhatsApp and email",
-        "Access to the web dashboard",
-        "Email support",
-      ],
-      featured: false,
-    },
-    {
-      id: "pro",
-      name: "Pro",
-      period: "month",
-      description: "For commercial teams",
-      features: [
-        "Up to 5 active agents",
-        "Up to 1,000 invoices/month",
-        "Agreement and provider management",
-        "Automatic commission calculation",
-        "Performance dashboard per agent",
-        "WhatsApp integration via Twilio",
-        "Priority support",
-        "Basic API access",
-      ],
-      featured: true,
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise",
-      period: "month",
-      description: "For large businesses",
-      features: [
-        "Up to 25 active agents",
-        "Up to 5,000 invoices/month",
-        "Multi-tier team structure (agents and sub-agents)",
-        "Advanced API integration (CRM, ERP, etc.)",
-        "Custom reporting",
-        "Dedicated technical support",
-        "Supervisor dashboard with agreement management",
-        "Scheduling of time-based offers/campaigns",
-      ],
-      featured: false,
-    },
-  ];
-
-  const volumePacks = [
-    {
-      id: "volume_mini",
-      name: "Volume Mini",
-      extraAgents: "+5 agents",
-      monthlyPrice: "420",
-      annualPrice: "4200",
-      pricePerAgent: "84",
-    },
-    {
-      id: "volume_medium",
-      name: "Volume Medium",
-      extraAgents: "+10 agents",
-      monthlyPrice: "790",
-      annualPrice: "7900",
-      pricePerAgent: "79",
-    },
-    {
-      id: "volume_max",
-      name: "Volume Max",
-      extraAgents: "+25 agents",
-      monthlyPrice: "1700",
-      annualPrice: "17000",
-      pricePerAgent: "68",
-    },
-  ];
-
-  const expansionPacks = [
-    {
-      id: "growth_pack",
-      name: "Growth Pack",
-      extraAgents: "+5 agents",
-      monthlyPrice: "420",
-      pricePerAgent: "84",
-    },
-    {
-      id: "scale_pack",
-      name: "Scale Pack",
-      extraAgents: "+10 agents",
-      monthlyPrice: "790",
-      pricePerAgent: "79",
-    },
-    {
-      id: "max_pack",
-      name: "Max Pack",
-      extraAgents: "+25 agents",
-      monthlyPrice: "1700",
-      pricePerAgent: "68",
-    },
-  ];
-
+  // Fetch plan data from API
   useEffect(() => {
     const fetchPlanPrices = async () => {
       try {
@@ -155,15 +46,66 @@ const Subscription = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.data && response.data.status === "success") {
+
+        if (response.data?.status === "success") {
+          const fetchedPlans = response.data.plans;
+
           const prices = {};
-          response.data.plans.forEach((plan) => {
-            prices[plan.name.toLowerCase()] = {
-              monthly: plan.monthly_price,
-              annual: plan.annual_price,
-              duration: "monthly"
+          const mainPlans = [];
+          const expansionPacks = [];
+          const volumePacks = [];
+
+          fetchedPlans.forEach((plan) => {
+            const id = plan.name.toLowerCase();
+            prices[id] = {
+              monthly: plan.monthly_price.toFixed(2),
+              annual: plan.annual_price.toFixed(2),
             };
+
+            const features = [];
+
+            if (plan.agents_per_month > 0)
+              features.push(`${plan.agents_per_month} active agent${plan.agents_per_month !== 1 ? "s" : ""}`);
+            if (plan.invoices_per_month > 0)
+              features.push(`Up to ${plan.invoices_per_month.toLocaleString()} invoice${plan.invoices_per_month !== 1 ? "s" : ""}/month`);
+            else if (id.includes("pack"))
+              features.push("Add more agents without changing your current plan");
+
+            features.push("Access to dashboard");
+            features.push("Email support");
+
+            if (["free_trial", "starter", "pro", "enterprise"].includes(id)) {
+              mainPlans.push({
+                id,
+                name: plan.name,
+                period: "month",
+                description: "",
+                features,
+                featured: id === "pro",
+                price: prices[id]?.monthly || "N/A",
+                isCurrent: planName?.toLowerCase() === id,
+              });
+            } else if (id.includes("growth") || id.includes("scale") || id.includes("max")) {
+              expansionPacks.push({
+                id,
+                name: plan.name,
+                extraAgents: `+${plan.agents_per_month} agents`,
+                monthlyPrice: plan.monthly_price.toFixed(2),
+                pricePerAgent: (plan.monthly_price / plan.agents_per_month).toFixed(2),
+              });
+            } else if (id.includes("volume")) {
+              volumePacks.push({
+                id,
+                name: plan.name,
+                extraAgents: `+${plan.agents_per_month} agents`,
+                monthlyPrice: plan.monthly_price.toFixed(2),
+                annualPrice: plan.annual_price.toFixed(2),
+                pricePerAgent: (plan.monthly_price / plan.agents_per_month).toFixed(2),
+              });
+            }
           });
+
+          setDynamicPlans({ mainPlans, expansionPacks, volumePacks });
           setPlanPrices(prices);
         }
       } catch (error) {
@@ -175,28 +117,56 @@ const Subscription = () => {
           timer: 3000,
           showConfirmButton: false,
         });
+
+        // Default fallback values
         setPlanPrices({
           starter: { monthly: "99.00", annual: "990.00" },
           pro: { monthly: "450.00", annual: "4500.00" },
           enterprise: { monthly: "1890.00", annual: "18900.00" },
         });
+
+        setDynamicPlans({
+          mainPlans: [
+            {
+              id: "starter",
+              name: "Starter",
+              period: "month",
+              description: "For individual agents or small businesses",
+              features: ["1 active agent", "Up to 200 invoices/month"],
+              featured: false,
+            },
+            {
+              id: "pro",
+              name: "Pro",
+              period: "month",
+              description: "For commercial teams",
+              features: ["5 active agents", "Up to 1000 invoices/month"],
+              featured: true,
+            },
+            {
+              id: "enterprise",
+              name: "Enterprise",
+              period: "month",
+              description: "For large businesses",
+              features: ["25 active agents", "Up to 5000 invoices/month"],
+              featured: false,
+            },
+          ],
+          expansionPacks: [],
+          volumePacks: [],
+        });
       }
     };
+
     fetchPlanPrices();
   }, [token]);
 
   const getPlansWithPrices = () => {
-    const plansWithPrices = staticPlans.map((plan) => ({
+    return dynamicPlans.mainPlans.map((plan) => ({
       ...plan,
-      price: plan.isTrial ? plan.price : planPrices[plan.id]?.[isAnnual ? "annual" : "monthly"] || "N/A",
-      isCurrent: planName && planName.toLowerCase() === plan.id,
+      price: planPrices[plan.id]?.[isAnnual ? "annual" : "monthly"] || "N/A",
+      isCurrent: planName?.toLowerCase() === plan.id,
     }));
-
-    // Show free trial only if no plan is active
-    if (!hasPurchasedPlan) {
-      return plansWithPrices.filter(plan => plan.isTrial || !plan.isTrial);
-    }
-    return plansWithPrices.filter(plan => !plan.isTrial);
   };
 
   const handleSubscription = async (selectedPlan) => {
@@ -208,12 +178,11 @@ const Subscription = () => {
       });
       return;
     }
-    
+
     setLoading((prev) => ({ ...prev, [selectedPlan.id]: true }));
-    
+
     try {
       if (selectedPlan.isTrial) {
-        // Handle free trial signup
         const response = await axios.post(
           `${config.BASE_URL}/api/start-free-trial`,
           {},
@@ -223,7 +192,7 @@ const Subscription = () => {
             },
           }
         );
-        
+
         if (response.status === 200) {
           Swal.fire({
             icon: "success",
@@ -231,12 +200,9 @@ const Subscription = () => {
             text: "Your 7-day free trial has been activated!",
             timer: 3000,
             showConfirmButton: false,
-          }).then(() => {
-            window.location.reload(); // Refresh to update the UI
-          });
+          }).then(() => window.location.reload());
         }
       } else {
-        // Handle regular subscription
         const response = await axios.post(
           `${config.BASE_URL}/api/create-payment-intent`,
           {
@@ -250,7 +216,7 @@ const Subscription = () => {
             },
           }
         );
-        
+
         if (response.status === 200) {
           navigate("/group_admin/checkout", {
             state: {
@@ -270,8 +236,8 @@ const Subscription = () => {
         title: selectedPlan.isTrial ? "Trial Failed" : "Payment Failed",
         text:
           error.response?.data?.message ||
-          (selectedPlan.isTrial 
-            ? "Failed to start free trial. Please try again." 
+          (selectedPlan.isTrial
+            ? "Failed to start free trial. Please try again."
             : "Payment processing failed. Please try again."),
       });
     } finally {
@@ -281,6 +247,7 @@ const Subscription = () => {
 
   const handleExpansionPack = async (pack) => {
     setLoading((prev) => ({ ...prev, [pack.id]: true }));
+
     try {
       const amountInCents = parseFloat(pack.monthlyPrice) * 100;
       const response = await axios.post(
@@ -297,6 +264,7 @@ const Subscription = () => {
           },
         }
       );
+
       if (response.status === 200) {
         navigate("/group_admin/checkout", {
           state: {
@@ -335,11 +303,7 @@ const Subscription = () => {
         <div className="toggle-switch-container">
           <span>Monthly</span>
           <label className="switch">
-            <input
-              type="checkbox"
-              checked={isAnnual}
-              onChange={() => setIsAnnual(!isAnnual)}
-            />
+            <input type="checkbox" checked={isAnnual} onChange={() => setIsAnnual(!isAnnual)} />
             <span className="slider round"></span>
           </label>
           <span>Annual</span>
@@ -352,18 +316,13 @@ const Subscription = () => {
             key={plan.id}
             className={`subscription-card ${
               plan.featured ? "featured" : ""
-            } ${plan.isCurrent ? "current-plan" : ""} ${
-              plan.isTrial ? "trial-card" : ""
-            }`}
+            } ${plan.isCurrent ? "current-plan" : ""}`}
           >
             {plan.featured && <div className="popular-badge">Most Popular</div>}
-            {plan.isTrial && <div className="trial-badge">Free Trial</div>}
             <h3 className="plan-name">{plan.name}</h3>
             <div className="price-container">
               <span className="price">€{plan.price}</span>
-              <span className="period">
-                /{plan.isTrial ? plan.period : (isAnnual ? "year" : plan.period)}
-              </span>
+              <span className="period">/{isAnnual ? "year" : "month"}</span>
             </div>
             <p className="plan-description">{plan.description}</p>
             <div className="features-container">
@@ -378,9 +337,7 @@ const Subscription = () => {
               </ul>
             </div>
             <button
-              className={`subscribe-btn ${
-                plan.isCurrent ? "current-btn" : ""
-              } ${plan.isTrial ? "trial-btn" : ""}`}
+              className={`subscribe-btn ${plan.isCurrent ? "current-btn" : ""}`}
               onClick={() => handleSubscription(plan)}
               disabled={loading[plan.id] || plan.isCurrent}
             >
@@ -388,89 +345,78 @@ const Subscription = () => {
                 ? "Processing..."
                 : plan.isCurrent
                 ? "Current Plan"
-                : plan.isTrial
-                ? "Start Free Trial"
                 : "Get Started"}
             </button>
           </div>
         ))}
       </div>
 
-      {/* Only show volume and expansion packs if user has purchased a main plan */}
-      {hasPurchasedPlan && (
-        <>
-          <div className="volume-section">
-            <h2 className="section-title">Volume Packs</h2>
-            <p className="section-subtitle">
-              Add more agents without changing your current subscription plan.
-            </p>
-            <div className="volume-cards-container">
-              {volumePacks.map((pack) => (
-                <div key={pack.id} className="volume-card">
-                  <h3 className="volume-name">{pack.name}</h3>
-                  <div className="volume-price-container">
-                    <span className="volume-price">
-                      €{isAnnual ? pack.annualPrice : pack.monthlyPrice}
-                    </span>
-                    <span className="volume-period">
-                      /{isAnnual ? "year" : "month"}
-                    </span>
-                  </div>
-                  <p className="volume-extra-agents">{pack.extraAgents}</p>
-                  <p className="volume-price-per-agent">
-                    Price per Agent: €{pack.pricePerAgent}
-                  </p>
-                  <button
-                    className="subscribe-btn"
-                    onClick={() => handleExpansionPack(pack)}
-                    disabled={loading[pack.id]}
-                  >
-                    {loading[pack.id] ? "Processing..." : "Add Pack"}
-                  </button>
+      {/* Volume Packs Section */}
+      {hasPurchasedPlan && dynamicPlans.volumePacks.length > 0 && (
+        <div className="volume-section">
+          <h2 className="section-title">Volume Packs</h2>
+          <p className="section-subtitle">Add more agents without changing your current subscription plan.</p>
+          <div className="volume-cards-container">
+            {dynamicPlans.volumePacks.map((pack) => (
+              <div key={pack.id} className="volume-card">
+                <h3 className="volume-name">{pack.name}</h3>
+                <div className="volume-price-container">
+                  <span className="volume-price">€{isAnnual ? pack.annualPrice : pack.monthlyPrice}</span>
+                  <span className="volume-period">/{isAnnual ? "year" : "month"}</span>
                 </div>
-              ))}
-            </div>
+                <p className="volume-extra-agents">{pack.extraAgents}</p>
+                <p className="volume-price-per-agent">Price per Agent: €{pack.pricePerAgent}</p>
+                <button
+                  className="subscribe-btn"
+                  onClick={() => handleExpansionPack(pack)}
+                  disabled={loading[pack.id]}
+                >
+                  {loading[pack.id] ? "Processing..." : "Add Pack"}
+                </button>
+              </div>
+            ))}
           </div>
+        </div>
+      )}
 
-          <div className="expansion-section">
-            <h2 className="section-title">Expansion Packs</h2>
-            <p className="section-subtitle">
-              Add more agents without changing your current subscription plan.
-            </p>
-            <div className="expansion-table-container">
-              <table className="expansion-table">
-                <thead>
-                  <tr>
-                    <th>Pack Name</th>
-                    <th>Extra Agents</th>
-                    <th>Monthly Price</th>
-                    <th>Price per Agent</th>
-                    <th>Action</th>
+      {/* Expansion Packs Table */}
+      {hasPurchasedPlan && dynamicPlans.expansionPacks.length > 0 && (
+        <div className="expansion-section">
+          <h2 className="section-title">Expansion Packs</h2>
+          <p className="section-subtitle">Add more agents without changing your current subscription plan.</p>
+          <div className="expansion-table-container">
+            <table className="expansion-table">
+              <thead>
+                <tr>
+                  <th>Pack Name</th>
+                  <th>Extra Agents</th>
+                  <th>Monthly Price</th>
+                  <th>Price per Agent</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dynamicPlans.expansionPacks.map((pack) => (
+                  <tr key={pack.id}>
+                    <td>{pack.name}</td>
+                    <td>{pack.extraAgents}</td>
+                    <td>€{pack.monthlyPrice}</td>
+                    <td>€{pack.pricePerAgent}</td>
+                    <td>
+                      <button
+                        className="subscribe-btn"
+                        onClick={() => handleExpansionPack(pack)}
+                        disabled={loading[pack.id]}
+                      >
+                        {loading[pack.id] ? "Processing..." : "Add Pack"}
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {expansionPacks.map((pack) => (
-                    <tr key={pack.id}>
-                      <td>{pack.name}</td>
-                      <td>{pack.extraAgents}</td>
-                      <td>€{pack.monthlyPrice}</td>
-                      <td>€{pack.pricePerAgent}</td>
-                      <td>
-                        <button
-                          className="subscribe-btn"
-                          onClick={() => handleExpansionPack(pack)}
-                          disabled={loading[pack.id]}
-                        >
-                          {loading[pack.id] ? "Processing..." : "Add Pack"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

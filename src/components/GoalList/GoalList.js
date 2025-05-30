@@ -407,23 +407,6 @@ const AgentGoalList = () => {
                   </select>
                 </div>
 
-                <div className="form-actions">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
-                    {loading ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
-                </div>
               </form>
             </div>
           ) : (
@@ -459,41 +442,7 @@ const AgentGoalList = () => {
                               goal.status.slice(1).replace("_", " ")}
                           </td> */}
 
-                          <td className="actions">
-                            <HiDotsHorizontal
-                              size={30}
-                              onClick={() => toggleDropdown(index)}
-                              className="cursor-pointer"
-                            />
-                            {activeDropdown === index && (
-                              <div
-                                className="dropdown-menu show shadow rounded-3 bg-white p-2 border-0"
-                                style={{
-                                  marginLeft: "-130px",
-                                  marginTop: "40px",
-                                }}
-                              >
-                                <a
-                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                  onClick={() => {
-                                    handleEdit(goal);
-                                    setActiveDropdown(false);
-                                  }}
-                                >
-                                  Edit
-                                </a>
-                                <a
-                                  className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
-                                  onClick={() => {
-                                    confirmDelete(goal.id);
-                                    setActiveDropdown(false);
-                                  }}
-                                >
-                                  Delete
-                                </a>
-                              </div>
-                            )}
-                          </td>
+                         
                         </tr>
                       ))
                     )}
