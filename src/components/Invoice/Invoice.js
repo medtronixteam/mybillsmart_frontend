@@ -92,28 +92,37 @@ const Invoice = () => {
     });
   };
 
-  // Fetch plan info
-  useEffect(() => {
-    const fetchPlanInfo = async () => {
-      try {
-        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setPlanInfo(response.data);
-      } catch (error) {
-        console.error("Error fetching plan info:", error);
-        setPlanInfo(error.response?.data || { 
-          status: "error", 
-          message: "Failed to fetch plan information" 
-        });
-      } finally {
-        setLoadingPlanInfo(false);
-      }
-    };
+ useEffect(() => {
+  const fetchPlanInfo = async () => {
+    try {
+      const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPlanInfo(response.data);
+      console.log("planInfo:", response.data);
+
+    } catch (error) {
+      console.error("Error fetching plan info:", error);
+
+      setPlanInfo({
+        status: error.response?.status || "error",
+        message: error.response?.data?.message || error.message || "Failed to fetch plan information",
+        code: error.code || null,
+      });
+
+    } finally {
+      setLoadingPlanInfo(false);
+    }
+  };
+
+  if (token) {
     fetchPlanInfo();
-  }, [token]);
+  }
+}, [token]);
+
 
   // Drag & Drop File Upload Listeners
   useEffect(() => {
@@ -1109,7 +1118,7 @@ const Invoice = () => {
     );
   }
 
-  if (planInfo?.status === "error") {
+  if (planInfo?.status === 404 || planInfo?.status === "error") {
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">

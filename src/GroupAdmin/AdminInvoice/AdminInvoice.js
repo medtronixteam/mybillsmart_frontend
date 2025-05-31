@@ -93,29 +93,37 @@ const AdminInvoice = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchPlanInfo = async () => {
-      try {
-        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setPlanInfo(response.data);
-      } catch (error) {
-        console.error("Error fetching plan info:", error);
-        setPlanInfo(
-          error.response?.data || {
-            status: "error",
-            message: "Failed to fetch plan information",
-          }
-        );
-      } finally {
-        setLoadingPlanInfo(false);
-      }
-    };
+useEffect(() => {
+  const fetchPlanInfo = async () => {
+    try {
+      const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPlanInfo(response.data);
+      console.log("planInfo:", response.data);
+
+    } catch (error) {
+      console.error("Error fetching plan info:", error);
+
+      setPlanInfo({
+        status: error.response?.status || "error",
+        message: error.response?.data?.message || error.message || "Failed to fetch plan information",
+        code: error.code || null,
+      });
+
+    } finally {
+      setLoadingPlanInfo(false);
+    }
+  };
+
+  if (token) {
     fetchPlanInfo();
-  }, [token]);
+  }
+}, [token]);
+
 
   useEffect(() => {
     const preventDefaults = (e) => {
@@ -1114,7 +1122,7 @@ const generatePDF = (offersToInclude = [], includeCommission = false) => {
       </div>
     );
   }
-  if (planInfo?.status === "error") {
+if (planInfo?.status === 404 || planInfo?.status === "error") {
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">
@@ -1122,8 +1130,7 @@ const generatePDF = (offersToInclude = [], includeCommission = false) => {
             <div className="card border-danger text-center p-5">
               <BsExclamationCircle className="text-danger mx-auto text-center mb-4" size={64} />
               <h2>Plan Information</h2>
-              <p>{planInfo.message || "You need to purchase a plan to submit invoices."}</p>
-             
+              <p>{planInfo?.message || "You need to purchase a plan to submit invoices."}</p>
             </div>
           </div>
         </div>
