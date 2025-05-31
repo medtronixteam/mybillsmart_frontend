@@ -225,97 +225,143 @@ const InvoiceList = () => {
   };
 
   const downloadPDF = () => {
-    if (!selectedInvoice || !offers) return;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 15;
-    let yOffset = margin;
-    let pageNumber = 1;
+  if (!selectedInvoice || !offers) return;
 
-    const addHeader = () => {
-      pdf.setFontSize(20);
-      pdf.setTextColor(74, 107, 175);
-      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 10;
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, {
-        align: "center",
-      });
-      yOffset += 15;
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
-        align: "right",
-      });
-      yOffset += 10;
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-      yOffset += 15;
-    };
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
 
-    addHeader();
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175);
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, {
+      align: "center",
+    });
+    yOffset += 15;
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+      align: "right",
+    });
+    yOffset += 10;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
+  };
 
-    if (offers.length > 0) {
+  addHeader();
+
+ 
+  // Offers section
+  if (offers.length > 0) {
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Available Offers", margin, yOffset);
+    yOffset += 10;
+
+    offers.forEach((offer, index) => {
+      if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+
+      // Offer header box
+      pdf.setFillColor(74, 107, 175);
+      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
       pdf.setFontSize(14);
-      pdf.text("Available Offers", margin, yOffset);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(
+        `Offer ${index + 1}: ${offer.provider_name || offer["Supplier Name"] || "N/A"}`,
+        margin + 5,
+        yOffset + 7
+      );
       yOffset += 15;
-      offers.forEach((offer, index) => {
-        if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
-          pdf.addPage();
-          yOffset = margin;
-          pageNumber++;
-          addHeader();
-        }
-        pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
-        pdf.setFontSize(14);
-        pdf.setTextColor(255, 255, 255);
-        pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
-        yOffset += 15;
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 0, 0);
-        const offerDetails = [
-          `Provider: ${offer.provider_name || "N/A"}`,
-          `Product: ${offer.product_name || "N/A"}`,
-          `Savings: ${offer.saving || "0"}%`,
-          `Commission: ${offer.sales_commission || "0"}%`,
-          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
+
+      pdf.setFontSize(11);
+      pdf.setTextColor(0, 0, 0);
+
+      const col1X = margin + 5;
+      const col2X = pageWidth / 2 + 15;
+      let col1Y = yOffset;
+      let col2Y = yOffset;
+
+      Object.keys(offer).forEach((key, i) => {
+        const skipFields = [
+          "user_id", "invoice_id", "created_at", "updated_at", "id",
+          "Client_id", "client_id", "product_id", "is_offer_selected",
+          "Is_offer_selected", "Sales_Commission", "sales_commission"
         ];
-        offerDetails.forEach((detail) => {
-          if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
+
+        if (!skipFields.includes(key) && typeof offer[key] !== "object") {
+          const label = key.replace(/_/g, " ").replace(/^./, (str) => str.toUpperCase());
+          const value = String(offer[key]).trim();
+
+          if (col1Y > pdf.internal.pageSize.getHeight() - 20) {
             pdf.addPage();
             yOffset = margin;
             pageNumber++;
             addHeader();
+            col1Y = yOffset;
+            col2Y = yOffset;
           }
-          pdf.text(detail, margin, yOffset);
-          yOffset += 10;
-        });
-        yOffset += 10;
-      });
-    }
 
-    const pageCount = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text(
-        "Thank you for using MyBillSmart",
-        pageWidth / 2,
-        footerY - 5,
-        { align: "center" }
-      );
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
-        align: "center",
+          if (i % 2 === 0) {
+            pdf.text(`${label}:`, col1X, col1Y);
+            pdf.text(value, col1X + 50, col1Y);
+            col1Y += 7;
+          } else {
+            pdf.text(`${label}:`, col2X, col2Y);
+            pdf.text(value, col2X + 50, col2Y);
+            col2Y += 7;
+          }
+        }
       });
-    }
 
-    pdf.save(`Invoice_${selectedInvoice.id}_Offers.pdf`);
-  };
+      if (offer.sales_commission) {
+        if (col1Y > pdf.internal.pageSize.getHeight() - 20) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+          col1Y = yOffset;
+          col2Y = yOffset;
+        }
+        pdf.text("Sales Commission:", col1X, col1Y);
+        pdf.text(String(offer.sales_commission), col1X + 60, col1Y);
+        col1Y += 7;
+      }
+
+      yOffset = Math.max(col1Y, col2Y) + 10;
+    });
+  }
+
+  // Footer for each page
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const footerY = pdf.internal.pageSize.getHeight() - 10;
+    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+      align: "center",
+    });
+    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+      align: "center",
+    });
+  }
+
+  pdf.save(`Invoice_${selectedInvoice.id}_Offers.pdf`);
+};
+
 
   const convertToCSV = () => {
     if (!selectedInvoice) return "";
@@ -333,9 +379,11 @@ const InvoiceList = () => {
           ["", `Offer ${index + 1}`],
           ["", `Provider: ${offer.provider_name || "N/A"}`],
           ["", `Product: ${offer.product_name || "N/A"}`],
-          ["", `Savings: ${offer.saving || "0"}%`],
-          ["", `Commission: ${offer.sales_commission || "0"}%`],
-          ["", `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`],
+          ["", `Monthly Savings: ${offer.monthly_saving_amount  || "0"}`],
+          ["", `Yearly Savings: ${offer.offer.yearly_saving_amount || "0"}`],
+          ["", `Yearly Savings: ${offer.yearly_saving_percentage || "0"}%`],
+          ["", `Commission: ${offer.sales_commission || "0"}`],
+          // ["", `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`],
           ["", ""]
         );
       });
@@ -402,285 +450,350 @@ const InvoiceList = () => {
         text: "Failed to generate Excel file",
       });
     }
+  }; 
+
+const generatePDFBlob = () => {
+  if (!selectedInvoice || !offers) return null;
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
+
+  // Header
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175); // MyBillSmart blue
+    pdf.setFont("helvetica", "bold");
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+
+    yOffset += 10;
+
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+
+    yOffset += 12;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+
+    yOffset += 10;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+
+    yOffset += 15;
   };
 
-  const generatePDFBlob = () => {
-    if (!selectedInvoice || !offers) return null;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 15;
-    let yOffset = margin;
-    let pageNumber = 1;
-
-    const addHeader = () => {
-      pdf.setFontSize(20);
-      pdf.setTextColor(74, 107, 175);
-      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 10;
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("Invoice & Offers Summary", pageWidth / 2, yOffset, {
-        align: "center",
-      });
-      yOffset += 15;
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
-        align: "right",
-      });
-      yOffset += 10;
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-      yOffset += 15;
-    };
-
-    addHeader();
-
-    if (offers.length > 0) {
-      pdf.setFontSize(14);
-      pdf.text("Available Offers", margin, yOffset);
-      yOffset += 15;
-      offers.forEach((offer, index) => {
-        if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
-          pdf.addPage();
-          yOffset = margin;
-          pageNumber++;
-          addHeader();
-        }
-        pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
-        pdf.setFontSize(14);
-        pdf.setTextColor(255, 255, 255);
-        pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
-        yOffset += 15;
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 0, 0);
-        const offerDetails = [
-          `Provider: ${offer.provider_name || "N/A"}`,
-          `Product: ${offer.product_name || "N/A"}`,
-          `Savings: ${offer.saving || "0"}%`,
-          `Commission: ${offer.sales_commission || "0"}%`,
-          `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
-        ];
-        offerDetails.forEach((detail) => {
-          if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
-            pdf.addPage();
-            yOffset = margin;
-            pageNumber++;
-            addHeader();
-          }
-          pdf.text(detail, margin, yOffset);
-          yOffset += 10;
-        });
-        yOffset += 10;
-      });
-    }
-
+  // Add Footer to all pages
+  const addFooterToAllPages = () => {
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
+      const footerY = pageHeight - 10;
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
-      const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text(
-        "Thank you for using MyBillSmart",
-        pageWidth / 2,
-        footerY - 5,
-        { align: "center" }
-      );
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
-        align: "center",
-      });
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
     }
-
-    return pdf.output("blob");
   };
 
-  const generateSingleOfferPDFBlob = (offer) => {
-    if (!selectedInvoice || !offer) return null;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 15;
-    let yOffset = margin;
-    let pageNumber = 1;
-
-    const addHeader = () => {
-      pdf.setFontSize(20);
-      pdf.setTextColor(74, 107, 175);
-      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 10;
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("Offer Details", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 15;
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
-        align: "right",
-      });
-      yOffset += 10;
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-      yOffset += 15;
-    };
-
-    addHeader();
-
-    pdf.setFontSize(14);
-    pdf.text("Offer Details", margin, yOffset);
-    yOffset += 15;
-
-    if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
+  // Add Offer Block
+  const addOffer = (offer, index) => {
+    // Check for page overflow
+    if (yOffset > pageHeight - 60) {
       pdf.addPage();
       yOffset = margin;
       pageNumber++;
       addHeader();
     }
 
+    // Offer Heading Box
+    pdf.setFillColor(74, 107, 175);
+    pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
+    pdf.setFontSize(13);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`Offer ${index + 1}`, margin + 5, yOffset + 7);
+
+    yOffset += 15;
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont("helvetica", "normal");
+
+    const offerFields = [
+      { label: "Provider", value: offer.provider_name || "N/A" },
+      { label: "Product", value: offer.product_name || "N/A" },
+      {
+        label: "Monthly Saving",
+        value: `${offer.monthly_saving_amount || 0}%`,
+      },
+      {
+        label: "Yearly Amount",
+        value: `${offer.yearly_saving_amount || 0}%`,
+      },
+      {
+        label: "Yearly %",
+        value: `${offer.yearly_saving_percentage || 0}%`,
+      },
+    ];
+
+    const col1X = margin;
+    const col2X = margin + 90;
+    const rowHeight = 8;
+    const padding = 6;
+
+    offerFields.forEach((field, i) => {
+      if (i % 2 === 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(field.label + ":", col1X, yOffset);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(field.value, col1X + 60, yOffset, { align: "right" });
+      } else {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(field.label + ":", col2X, yOffset);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(field.value, col2X + 60, yOffset, { align: "right" });
+        yOffset += rowHeight;
+      }
+    });
+
+    // If number of fields is odd, move down after last one
+    if (offerFields.length % 2 !== 0) {
+      yOffset += rowHeight;
+    }
+
+    yOffset += padding + 5;
+  };
+
+  // === Execution ===
+  addHeader();
+
+  if (offers.length > 0) {
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Available Offers", margin, yOffset);
+    yOffset += 10;
+
+    offers.forEach((offer, index) => {
+      addOffer(offer, index);
+    });
+  }
+
+  addFooterToAllPages();
+
+  return pdf.output("blob");
+};
+const generateSingleOfferPDFBlob = (offer) => {
+  if (!selectedInvoice || !offer) return null;
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
+
+  // Header Function
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175); // MyBillSmart blue
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Offer Details", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 15;
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+    yOffset += 10;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
+  };
+
+  addHeader();
+
+  // Offer Header Box
+  pdf.setFillColor(74, 107, 175);
+  pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
+  pdf.setFontSize(14);
+  pdf.setTextColor(255, 255, 255);
+  pdf.text("Offer Details", margin + 5, yOffset + 7);
+  yOffset += 15;
+  pdf.setTextColor(0, 0, 0);
+
+  // Offer Fields (excluding commission)
+  const offerFields = [
+    { label: "Provider", value: offer.provider_name || "N/A" },
+    { label: "Product", value: offer.product_name || "N/A" },
+    { label: "Monthly Saving", value: `${offer.monthly_saving_amount || 0}` },
+    { label: "Yearly Saving", value: `${offer.yearly_saving_amount || 0}` },
+    { label: "Yearly %", value: `${offer.yearly_saving_percentage || 0}%` },
+  ];
+
+  const col1X = margin;
+  const col2X = margin + 90;
+  const rowHeight = 8;
+  const padding = 5;
+
+  offerFields.forEach((field, i) => {
+    if (i % 2 === 0) {
+      pdf.setFont("helvetica", "bold");
+      pdf.text(field.label + ":", col1X, yOffset);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(field.value, col1X + 30, yOffset, { align: "right" });
+    } else {
+      pdf.setFont("helvetica", "bold");
+      pdf.text(field.label + ":", col2X, yOffset);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(field.value, col2X + 30, yOffset, { align: "right" });
+      yOffset += rowHeight;
+    }
+  });
+
+  // Handle odd number of fields
+  if (offerFields.length % 2 !== 0) {
+    yOffset += rowHeight;
+  }
+
+  yOffset += padding + 10;
+
+  // Footer
+  const pageCount = pdf.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const footerY = pdf.internal.pageSize.getHeight() - 10;
+    pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+    pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+  }
+
+  return pdf.output("blob");
+};
+
+
+ const generateMultipleOfferPDFBlob = (selectedOffers) => {
+  if (!selectedInvoice || !selectedOffers || selectedOffers.length === 0) return null;
+
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 15;
+  let yOffset = margin;
+  let pageNumber = 1;
+
+  const addHeader = () => {
+    pdf.setFontSize(20);
+    pdf.setTextColor(74, 107, 175);
+    pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 10;
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("Selected Offers", pageWidth / 2, yOffset, { align: "center" });
+    yOffset += 15;
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+    pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+    yOffset += 10;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+    yOffset += 15;
+  };
+
+  const addFooter = () => {
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pageHeight - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+    }
+  };
+
+  const drawOfferFields = (offer) => {
+    const offerFields = [
+      { label: "Provider", value: offer.provider_name || "N/A" },
+      { label: "Product", value: offer.product_name || "N/A" },
+      { label: "Monthly Saving", value: `${offer.monthly_saving_amount || 0}` },
+      { label: "Yearly Saving", value: `${offer.yearly_saving_amount || 0}` },
+      { label: "Yearly %", value: `${offer.yearly_saving_percentage || 0}%` },
+
+    ];
+
+    const col1X = margin;
+    const col2X = margin + 90;
+    const rowHeight = 8;
+
+    offerFields.forEach((field, i) => {
+      if (yOffset > pageHeight - 20) {
+        pdf.addPage();
+        yOffset = margin;
+        pageNumber++;
+        addHeader();
+      }
+
+      if (i % 2 === 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(field.label + ":", col1X, yOffset);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(field.value, col1X + 30, yOffset);
+      } else {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(field.label + ":", col2X, yOffset);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(field.value, col2X + 30, yOffset);
+        yOffset += rowHeight;
+      }
+    });
+
+    if (offerFields.length % 2 !== 0) {
+      yOffset += rowHeight;
+    }
+
+    yOffset += 5; // extra spacing after each offer
+  };
+
+  addHeader();
+
+  selectedOffers.forEach((offer, index) => {
+    if (yOffset > pageHeight - 50) {
+      pdf.addPage();
+      yOffset = margin;
+      pageNumber++;
+      addHeader();
+    }
+
+    // Offer Header Block
     pdf.setFillColor(74, 107, 175);
     pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
     pdf.setFontSize(14);
     pdf.setTextColor(255, 255, 255);
-    pdf.text("Selected Offer", margin + 5, yOffset + 7);
+    pdf.text(`Offer ${index + 1}: ${offer.product_name || "Unnamed Product"}`, margin + 5, yOffset + 7);
     yOffset += 15;
-    pdf.setFontSize(12);
+
+    // Reset color for offer fields
+    pdf.setFontSize(11);
     pdf.setTextColor(0, 0, 0);
 
-    const offerDetails = [
-      `Provider: ${offer.provider_name || "N/A"}`,
-      `Product: ${offer.product_name || "N/A"}`,
-      `Savings: ${offer.saving || "0"}%`,
-      `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
-    ];
+    drawOfferFields(offer);
+  });
 
-    offerDetails.forEach((detail) => {
-      if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
-        pdf.addPage();
-        yOffset = margin;
-        pageNumber++;
-        addHeader();
-      }
-      pdf.text(detail, margin, yOffset);
-      yOffset += 10;
-    });
+  addFooter();
 
-    const pageCount = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text(
-        "Thank you for using MyBillSmart",
-        pageWidth / 2,
-        footerY - 5,
-        { align: "center" }
-      );
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
-        align: "center",
-      });
-    }
+  return pdf.output("blob");
+};
 
-    return pdf.output("blob");
-  };
-
-  const generateMultipleOfferPDFBlob = (selectedOffers) => {
-    if (!selectedInvoice || !selectedOffers || selectedOffers.length === 0)
-      return null;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 15;
-    let yOffset = margin;
-    let pageNumber = 1;
-
-    const addHeader = () => {
-      pdf.setFontSize(20);
-      pdf.setTextColor(74, 107, 175);
-      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 10;
-      pdf.setFontSize(16);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("Selected Offers", pageWidth / 2, yOffset, { align: "center" });
-      yOffset += 15;
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
-        align: "right",
-      });
-      yOffset += 10;
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-      yOffset += 15;
-    };
-
-    addHeader();
-
-    pdf.setFontSize(14);
-    pdf.text("Selected Offers", margin, yOffset);
-    yOffset += 15;
-
-    selectedOffers.forEach((offer, index) => {
-      if (yOffset > pdf.internal.pageSize.getHeight() - 60) {
-        pdf.addPage();
-        yOffset = margin;
-        pageNumber++;
-        addHeader();
-      }
-      pdf.setFillColor(74, 107, 175);
-      pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
-      pdf.setFontSize(14);
-      pdf.setTextColor(255, 255, 255);
-      pdf.text(
-        `Offer ${index + 1}: ${offer.product_name || "Unnamed Product"}`,
-        margin + 5,
-        yOffset + 7
-      );
-      yOffset += 15;
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0);
-
-      const offerDetails = [
-        `Provider: ${offer.provider_name || "N/A"}`,
-        `Product: ${offer.product_name || "N/A"}`,
-        `Savings: ${offer.saving || "0"}%`,
-        `Status: ${offer.is_selected ? "Selected" : "Not Selected"}`,
-      ];
-
-      offerDetails.forEach((detail) => {
-        if (yOffset > pdf.internal.pageSize.getHeight() - 20) {
-          pdf.addPage();
-          yOffset = margin;
-          pageNumber++;
-          addHeader();
-        }
-        pdf.text(detail, margin, yOffset);
-        yOffset += 10;
-      });
-      yOffset += 10;
-    });
-
-    const pageCount = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 100, 100);
-      const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text(
-        "Thank you for using MyBillSmart",
-        pageWidth / 2,
-        footerY - 5,
-        { align: "center" }
-      );
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
-        align: "center",
-      });
-    }
-
-    return pdf.output("blob");
-  };
 
   const handleWhatsappClick = () => {
     setShowWhatsappModal(true);
@@ -1159,13 +1272,13 @@ const InvoiceList = () => {
                 <div className="offer-field">
                   <span className="offer-label">Monthly Saving:</span>
                   <span className="offer-value">
-                    {offer.monthly_saving_amount || "0"}%
+                    {offer.monthly_saving_amount || "0"}
                   </span>
                 </div>
                 <div className="offer-field">
                   <span className="offer-label">Yearly Saving:</span>
                   <span className="offer-value">
-                    {offer.yearly_saving_amount || "0"}%
+                    {offer.yearly_saving_amount || "0"}
                   </span>
                 </div>
                 <div className="offer-field">
@@ -1177,7 +1290,7 @@ const InvoiceList = () => {
                 <div className="offer-field">
                   <span className="offer-label">Commission:</span>
                   <span className="offer-value">
-                    {offer.sales_commission || "0"}%
+                    {offer.sales_commission || "0"}
                   </span>
                 </div>
                 <div className="offer-field">
@@ -1195,12 +1308,12 @@ const InvoiceList = () => {
                       Create Agreement
                     </button>
                   )}
-                  <button
+                  {/* <button
                     className="whatsapp-offer-btn"
                     onClick={() => handleSingleOfferWhatsappClick(offer)}
                   >
                     <FaWhatsapp className="me-1" /> Share on WhatsApp
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
