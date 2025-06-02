@@ -38,9 +38,10 @@ const SupervisorManageGoal = () => {
       );
 
       const filteredUsers = response.data.data.filter(
-        (user) => user.role === "supervisor" || user.role === "agent"
-      );
-
+     (user) =>
+    (user.role === "supervisor" || user.role === "agent") &&
+    user.status !== 0 
+);
       setUsers(filteredUsers);
       setLoading(false);
     } catch (err) {
@@ -89,7 +90,9 @@ const SupervisorManageGoal = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Please fill in all fields",
+        text: formData.user_ids.length === 0
+          ? "Please select at least one user or create a user first."
+          : "Please fill in all fields",
       });
       return;
     }
@@ -150,7 +153,7 @@ const SupervisorManageGoal = () => {
       <div className="manage-goal-container p-md-5 p-4 mt-5">
         <div className="d-flex justify-content-between align-items-center mb-3 flex-column flex-sm-row">
           <h2 className="mb-0">Create New Goal</h2>
-          <Link to="/supervisor/goal-list">
+          <Link to="/group_admin/goal-list">
             <button className="btn bg-white goal-btn px-3 py-2">
               Goal List
             </button>
@@ -221,6 +224,10 @@ const SupervisorManageGoal = () => {
             <div className="users-checkbox-container">
               {loading ? (
                 <div>Loading users...</div>
+              ) : users.length === 0 ? (
+                <div className="text-danger" style={{ textAlign: 'center'}}>
+                  No users available. Please create a user first.
+                </div>
               ) : (
                 users.map((user) => (
                   <div key={user.id} className="user-checkbox-item">
@@ -234,10 +241,9 @@ const SupervisorManageGoal = () => {
                   </div>
                 ))
               )}
-
             </div>
-            {formData.user_ids.length === 0 && (
-              <small className="text-danger d-none">
+            {formData.user_ids.length === 0 && users.length > 0 && (
+              <small className="text-danger">
                 Please select at least one user
               </small>
             )}
@@ -245,7 +251,7 @@ const SupervisorManageGoal = () => {
 
           <button
             type="submit"
-            className="btn bg-white  goal-btn p-3 w-50 mx-auto rounded-pill d-block"
+            className="btn bg-white goal-btn p-3 w-50 mx-auto rounded-pill d-block"
             disabled={loading}
           >
             {loading ? "Submitting..." : "Create Goal"}
