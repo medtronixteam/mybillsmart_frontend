@@ -558,7 +558,7 @@ const ClientInvoice = () => {
                   className="text-danger mb-4"
                   style={{ fontSize: "4rem" }}
                 />
-                <h2 className="card-title mb-3">Plan Information</h2>
+                <h2 className="card-title mb-3">Information</h2>
                 <p className="card-text mb-4">
                   {planInfo.message ||
                     "You need to purchase a plan to submit invoices."}

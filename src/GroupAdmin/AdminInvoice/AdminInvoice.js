@@ -1169,7 +1169,7 @@ const AdminInvoice = () => {
                 className="text-danger mx-auto text-center mb-4"
                 size={64}
               />
-              <h2>Plan Information</h2>
+              <h2>Information</h2>
               <p>
                 {planInfo?.message ||
                   "You need to purchase a plan to submit invoices."}

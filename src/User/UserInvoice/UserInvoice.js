@@ -1158,7 +1158,7 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
             <div className="card border-danger">
               <div className="card-body text-center p-5">
                 <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
-                <h2 className="card-title mb-3">Plan Information</h2>
+                <h2 className="card-title mb-3">Information</h2>
                 <p className="card-text mb-4">
                   {planInfo.message || "Your admin needs to purchase a plan to submit invoices."}
                 </p>
