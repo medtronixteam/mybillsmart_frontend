@@ -252,43 +252,43 @@ const ClientList = () => {
     }
   };
 
-  const handleDisableClick = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You are about to disable this user!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, disable it!",
-    });
+const handleDisableClick = async (id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to disable this user!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, disable it!",
+  });
 
-    if (!result.isConfirmed) return;
+  if (!result.isConfirmed) return;
 
-    try {
-      const response = await fetch(
-        `${config.BASE_URL}/api/supervisor/user/disable/${id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const result = await response.json();
-
-      if (response.ok && result.status === "success") {
-        showSuccessAlert("User disabled successfully!");
-        fetchUsers();
-      } else {
-        showErrorAlert(result.message || "Failed to disable user!");
+  try {
+    const response = await fetch(
+      `${config.BASE_URL}/api/supervisor/user/disable/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.error("Error disabling user:", error);
-      showErrorAlert("Failed to disable user!");
+    );
+
+    const result = await response.json();
+
+    if (response.ok || result.status == 200) {
+      showSuccessAlert(result.message || "User disabled successfully!");
+      fetchUsers();
     }
-  };
+  } catch (error) {
+    console.error("Error disabling user:", error);
+    showErrorAlert("Failed to disable user!");
+  }
+};
+
+
 
   const handleEnableClick = async (id) => {
     const result = await Swal.fire({
@@ -316,8 +316,8 @@ const ClientList = () => {
 
       const result = await response.json();
 
-      if (response.ok && result.status === "success") {
-        showSuccessAlert("User enabled successfully!");
+    if (response.ok || result.status == 200) {
+      showSuccessAlert(result.message || "User disabled successfully!");
         fetchUsers();
       } else {
         showErrorAlert(result.message || "Failed to enable user!");

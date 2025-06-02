@@ -37,52 +37,55 @@ const AgentSubmissionLink = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!email) {
-      showErrorAlert("Please enter a valid email address");
-      return;
-    }
+  if (!email) {
+    showErrorAlert("Please enter a valid email address");
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    const loadingAlert = Swal.fire({
-      title: "Generating Link",
-      html: "Please wait...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
+  const loadingAlert = Swal.fire({
+    title: "Generating Link",
+    html: "Please wait...",
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
+  try {
+    const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ email }),
     });
 
-    try {
-      const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email }),
-      });
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Failed to generate link");
-      }
-
-      const data = await response.json();
-      setGeneratedLink(data.url);
-      setIsSubmitted(true);
-      loadingAlert.close();
-      showSuccessAlert("Submission link generated and sent successfully!");
-    } catch (error) {
-      loadingAlert.close();
-      console.error("Error:", error);
-      showErrorAlert(error.message || "Failed to send link. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      const apiErrorMsg = data?.message || data?.error || "Failed to generate link";
+      throw new Error(apiErrorMsg);
     }
-  };
+
+    setGeneratedLink(data.url);
+    setIsSubmitted(true);
+    Swal.close();
+    showSuccessAlert(data?.message || "Submission link generated and sent successfully!");
+  } catch (error) {
+    Swal.close();
+    console.error("Error:", error);
+    showErrorAlert(error.message || "Failed to send link. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);

@@ -109,11 +109,12 @@ const AgentSessionHistory = () => {
               <ul className="pagination justify-content-end">
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                   <button 
-                    className="page-link" 
+                    className="page-link"
+                    style={{ color: 'white' }} 
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
-                    Previous
+                    Pr
                   </button>
                 </li>
                 {Array.from({ length: Math.ceil(sessionHistory.length / sessionsPerPage) }).map((_, index) => (
@@ -129,10 +130,11 @@ const AgentSessionHistory = () => {
                 <li className={`page-item ${currentPage === Math.ceil(sessionHistory.length / sessionsPerPage) ? 'disabled' : ''}`}>
                   <button 
                     className="page-link" 
+                    style={{ color: 'white' }}
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === Math.ceil(sessionHistory.length / sessionsPerPage)}
                   >
-                    Next
+                    Nx
                   </button>
                 </li>
               </ul>
