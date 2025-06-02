@@ -38,46 +38,55 @@ const ProviderSubmissionLink = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
 
-    // Show loading alert
-    const loadingAlert = Swal.fire({
-      title: "Generating Link",
-      html: "Please wait...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
+  if (!email) {
+    showErrorAlert("Please enter a valid email address");
+    return;
+  }
+
+  setIsLoading(true);
+
+  const loadingAlert = Swal.fire({
+    title: "Generating Link",
+    html: "Please wait...",
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
+  try {
+    const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ email }),
     });
 
-    try {
-      const response = await fetch(`${config.BASE_URL}/api/generate-url`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email }),
-      });
+    const data = await response.json(); // always parse the body
 
-      if (!response.ok) {
-        throw new Error("Failed to generate link");
-      }
-
-      const data = await response.json();
-      setGeneratedLink(data.url);
-      setIsSubmitted(true);
-      loadingAlert.close();
-      showSuccessAlert("Link generated successfully!");
-    } catch (error) {
-      loadingAlert.close();
-      console.error("Error:", error);
-      showErrorAlert("Failed to generate link. Please try again.");
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      // API returned an error - show its message
+      throw new Error(data.message || "Failed to generate link");
     }
-  };
+
+    // Success
+    setGeneratedLink(data.url);
+    setIsSubmitted(true);
+    loadingAlert.close();
+    showSuccessAlert(data.message || "Link generated successfully!");
+  } catch (error) {
+    loadingAlert.close();
+    console.error("Error:", error);
+    showErrorAlert(error.message || "Something went wrong.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);
