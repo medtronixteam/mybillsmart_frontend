@@ -186,7 +186,7 @@ const AdminInvoice = () => {
     setLoadingClients(true);
     try {
       const response = await axios.get(
-        `${config.BASE_URL}/api/agent/client/list`,
+        `${config.BASE_URL}/api/group/client/list`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1106,7 +1106,7 @@ const AdminInvoice = () => {
     try {
       if (modalType === "email") {
         await axios.post(
-          `${config.BASE_URL}/api/agent/send-offers-email`,
+          `${config.BASE_URL}/api/group/send-offers-email`,
           {
             client_id: selectedClient,
             invoice_id: invoiceId,
