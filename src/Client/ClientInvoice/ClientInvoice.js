@@ -168,45 +168,59 @@ const ClientInvoice = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const matchData = {
-        ...formData,
-        group_id: groupId,
-        app_mode: "0",
-      };
-      const matchResponse = await axios.post(
-        "https://ocr.ai3dscanning.com/api/match/",
-        matchData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setSubmittedData(matchResponse.data);
-      setOffers(matchResponse.data);
-      const invoiceData = {
-        ...formData,
-        group_id: groupId,
-      };
-      const invoiceResponse = await axios.post(
-        `${config.BASE_URL}/api/client/invoices`,
-        invoiceData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId);
-      setStep(3);
-      showAlert("success", "Success", "Form submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting data", error);
-      showAlert("error", "Error", "Error submitting form. Please try again.");
-    }
-  };
+  e.preventDefault();
+  try {
+    const matchData = {
+      ...formData,
+      group_id: groupId,
+      app_mode: "0",
+    };
+
+    const matchResponse = await axios.post(
+      "https://ocr.ai3dscanning.com/api/match/",
+      matchData,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    setSubmittedData(matchResponse.data);
+    setOffers(matchResponse.data);
+
+    const invoiceData = {
+      ...formData,
+      group_id: groupId,
+    };
+
+    const invoiceResponse = await axios.post(
+      `${config.BASE_URL}/api/client/invoices`,
+      invoiceData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const invoiceId = invoiceResponse.data.invoice;
+    setInvoiceId(invoiceId);
+    setStep(3);
+
+    showAlert("success", "Success", invoiceResponse.data?.message || "Form submitted successfully!");
+  } catch (error) {
+    console.error("Error submitting data", error);
+
+    const apiMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error.message ||
+      "Error submitting form. Please try again.";
+
+    showAlert("error", "Error", apiMessage);
+  }
+};
+
   const handleSave = async () => {
   try {
     const payload = {
