@@ -107,48 +107,59 @@ const InvoiceList = () => {
   };
 
   const fetchInvoiceDetails = async (id) => {
-    try {
-      setLoading(true);
-      const [invoiceResponse, offersResponse] = await Promise.all([
-        fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }),
-        fetch(`${config.BASE_URL}/api/group/invoice/offers`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ invoice_id: id }),
-        }),
-      ]);
-      if (!invoiceResponse.ok || !offersResponse.ok) {
-        throw new Error("Failed to fetch invoice details or offers");
-      }
-      const invoiceData = await invoiceResponse.json();
-      const offersData = await offersResponse.json();
-      setSelectedInvoice(invoiceData.data || invoiceData);
-      setOffers(
-        Array.isArray(offersData)
-          ? offersData
-          : Array.isArray(offersData.data)
-          ? offersData.data
-          : offersData.offers || []
-      );
-      setShowNewTable(true);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to fetch invoice details. Please try again.",
-      });
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+
+    const [invoiceResponse, offersResponse] = await Promise.all([
+      fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      fetch(`${config.BASE_URL}/api/group/invoice/offers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ invoice_id: id }),
+      }),
+    ]);
+
+    const invoiceData = await invoiceResponse.json();
+    const offersData = await offersResponse.json();
+
+    if (!invoiceResponse.ok || !offersResponse.ok) {
+      const invoiceError = !invoiceResponse.ok && invoiceData?.message;
+      const offersError = !offersResponse.ok && offersData?.message;
+
+      const errorMessage = [invoiceError, offersError].filter(Boolean).join(" | ") 
+        || "Failed to fetch invoice details or offers";
+
+      throw new Error(errorMessage);
     }
-  };
+
+    setSelectedInvoice(invoiceData.data || invoiceData);
+    setOffers(
+      Array.isArray(offersData)
+        ? offersData
+        : Array.isArray(offersData.data)
+        ? offersData.data
+        : offersData.offers || []
+    );
+    setShowNewTable(true);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: `${error.message || "Something went wrong"}`,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const formatFieldName = (name) => {
     return name
