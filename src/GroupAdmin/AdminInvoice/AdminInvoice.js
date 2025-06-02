@@ -314,69 +314,94 @@ const AdminInvoice = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const groupId = await fetchGroupId();
-      const matchData = {
-        ...formData,
-        group_id: groupId,
-        app_mode: "0",
-      };
-      const matchResponse = await axios.post(
-        "https://ocr.ai3dscanning.com/api/match/  ",
-        matchData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setSubmittedData(matchResponse.data);
-      const invoicePayload = {
-        ...formData,
-        group_id: groupId,
-      };
-      const invoiceResponse = await axios.post(
-        `${config.BASE_URL}/api/group/invoices`,
-        invoicePayload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const invoiceId = invoiceResponse.data.invoice;
-      setInvoiceId(invoiceId);
-      const offersData = matchResponse.data.map((item) => ({
-        ...item,
-        invoice_id: invoiceId,
-      }));
-      const offersResponse = await axios.post(
-        `${config.BASE_URL}/api/group/offers`,
-        offersData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (offersResponse.data && offersResponse.data.offers) {
-        setOffers(offersResponse.data.offers);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const groupId = await fetchGroupId();
+
+    const matchData = {
+      ...formData,
+      group_id: groupId,
+      app_mode: "0",
+    };
+
+    const matchResponse = await axios.post(
+      "https://ocr.ai3dscanning.com/api/match/",
+      matchData,
+      {
+        headers: { "Content-Type": "application/json" },
       }
-      setStep(3);
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Invoice submitted successfully! ",
-        timer: 3000,
-        showConfirmButton: false,
-      });
-    } catch (error) {
-      console.error("Error submitting data", error);
-      showApiError(error, "Failed to submit form");
+    );
+
+    setSubmittedData(matchResponse.data);
+
+    const invoicePayload = {
+      ...formData,
+      group_id: groupId,
+    };
+
+    const invoiceResponse = await axios.post(
+      `${config.BASE_URL}/api/group/invoices`,
+      invoicePayload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const invoiceId = invoiceResponse.data.invoice;
+    setInvoiceId(invoiceId);
+
+    const offersData = matchResponse.data.map((item) => ({
+      ...item,
+      invoice_id: invoiceId,
+    }));
+
+    const offersResponse = await axios.post(
+      `${config.BASE_URL}/api/group/offers`,
+      offersData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (offersResponse.data && offersResponse.data.offers) {
+      setOffers(offersResponse.data.offers);
     }
-  };
+
+    setStep(3);
+
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Invoice submitted successfully!",
+      timer: 3000,
+      showConfirmButton: false,
+    });
+
+  } catch (error) {
+    console.error("Error submitting data", error);
+
+    // Extract error message from API response
+    const apiMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Something went wrong";
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: apiMessage,
+    });
+  }
+};
+
   const handleSave = async () => {
     try {
       const groupId = await fetchGroupId();
