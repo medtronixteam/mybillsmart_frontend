@@ -547,7 +547,7 @@ const ClientInvoice = () => {
     );
   }
 
-  if (planInfo?.status === "error") {
+  if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status === "error") {
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">
