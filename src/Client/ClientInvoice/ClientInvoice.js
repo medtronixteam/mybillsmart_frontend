@@ -659,7 +659,7 @@ const ClientInvoice = () => {
               </div>
               <div>
                 <button type="submit" className="invoice-submit-btn mb-3">
-                  Submit
+                 Get Offers
                 </button>
                  <button
                 type="button"

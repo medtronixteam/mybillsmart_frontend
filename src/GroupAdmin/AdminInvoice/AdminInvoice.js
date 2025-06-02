@@ -1271,7 +1271,7 @@ const AdminInvoice = () => {
                 ))}
               </div>
               <button type="submit" className="invoice-submit-btn">
-                Submit
+                Get Offers
               </button>
               {/* Save Button */}
               <button

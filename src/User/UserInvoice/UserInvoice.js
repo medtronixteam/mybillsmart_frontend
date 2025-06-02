@@ -1234,7 +1234,7 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
               </div>
               <div>
                 <button type="submit" className="invoice-submit-btn mb-3">
-                  Submit
+                  Get Offers
                 </button>
                  <button
                 type="button"
