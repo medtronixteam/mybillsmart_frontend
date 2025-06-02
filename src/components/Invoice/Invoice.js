@@ -363,6 +363,38 @@ const Invoice = () => {
       showErrorAlert(`${error.response.data.message}`);
     }
   };
+  const handleSave = async () => {
+  try {
+    const payload = {
+      ...formData,
+      group_id: groupId,
+    };
+
+    const response = await axios.post(
+      `${config.BASE_URL}/api/agent/invoices`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Invoice saved successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error saving invoice", error);
+    showApiError(error, "Failed to save invoice");
+  }
+};
 
   // Render Fields
   const renderFormFields = (data) => {
@@ -1204,6 +1236,13 @@ const Invoice = () => {
                 <button type="submit" className="invoice-submit-btn mb-3">
                   Submit
                 </button>
+                 <button
+                type="button"
+                className="invoice-save-btn"
+                onClick={handleSave}
+              >
+                Save Invoice
+              </button>
               </div>
             </form>
           </div>

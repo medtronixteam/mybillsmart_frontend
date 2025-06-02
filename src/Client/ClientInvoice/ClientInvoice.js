@@ -46,10 +46,12 @@ const ClientInvoice = () => {
         setPlanInfo(response.data);
       } catch (error) {
         console.error("Error fetching plan info:", error);
-        setPlanInfo(error.response?.data || {
-          status: "error",
-          message: "Failed to fetch plan information",
-        });
+        setPlanInfo(
+          error.response?.data || {
+            status: "error",
+            message: "Failed to fetch plan information",
+          }
+        );
       } finally {
         setLoadingPlanInfo(false);
       }
@@ -100,11 +102,19 @@ const ClientInvoice = () => {
       if (!selectedFile) return;
       const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
       if (!allowedTypes.includes(selectedFile.type)) {
-        showAlert("error", "Error", "Only JPEG, PNG, and PDF files are allowed.");
+        showAlert(
+          "error",
+          "Error",
+          "Only JPEG, PNG, and PDF files are allowed."
+        );
         return;
       }
       if (file) {
-        showAlert("info", "Info", "A file is already uploaded. Please submit the form.");
+        showAlert(
+          "info",
+          "Info",
+          "A file is already uploaded. Please submit the form."
+        );
         return;
       }
       uploadFile(selectedFile);
@@ -163,7 +173,7 @@ const ClientInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
-        app_mode: '0',
+        app_mode: "0",
       };
       const matchResponse = await axios.post(
         "https://ocr.ai3dscanning.com/api/match/",
@@ -197,6 +207,38 @@ const ClientInvoice = () => {
       showAlert("error", "Error", "Error submitting form. Please try again.");
     }
   };
+  const handleSave = async () => {
+  try {
+    const payload = {
+      ...formData,
+      group_id: groupId,
+    };
+
+    const response = await axios.post(
+      `${config.BASE_URL}/api/client/invoices`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Invoice saved successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error saving invoice", error);
+    showAlert("error", "Error", "Failed to save invoice");
+  }
+};
 
   const renderFormFields = (data) => {
     return Object.keys(data)
@@ -277,13 +319,21 @@ const ClientInvoice = () => {
   };
 
   const downloadCSV = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       showAlert("error", "Error", "No data available to download");
       return;
     }
     try {
       const csvContent = convertToCSV(submittedData);
-      downloadFile(`invoice_${invoiceId}_data.csv`, csvContent, "text/csv;charset=utf-8;");
+      downloadFile(
+        `invoice_${invoiceId}_data.csv`,
+        csvContent,
+        "text/csv;charset=utf-8;"
+      );
       showAlert("success", "Success", "CSV downloaded successfully");
     } catch (error) {
       console.error("Error generating CSV:", error);
@@ -292,13 +342,21 @@ const ClientInvoice = () => {
   };
 
   const downloadExcel = () => {
-    if (!submittedData || !Array.isArray(submittedData) || submittedData.length === 0) {
+    if (
+      !submittedData ||
+      !Array.isArray(submittedData) ||
+      submittedData.length === 0
+    ) {
       showAlert("error", "Error", "No data available to download");
       return;
     }
     try {
       const csvContent = "\uFEFF" + convertToCSV(submittedData);
-      downloadFile(`invoice_${invoiceId}_data.xls`, csvContent, "application/vnd.ms-excel;charset=utf-8;");
+      downloadFile(
+        `invoice_${invoiceId}_data.xls`,
+        csvContent,
+        "application/vnd.ms-excel;charset=utf-8;"
+      );
       showAlert("success", "Success", "Excel file downloaded successfully");
     } catch (error) {
       console.error("Error generating Excel:", error);
@@ -307,143 +365,165 @@ const ClientInvoice = () => {
   };
 
   const generatePDF = () => {
-   const pdf = new jsPDF("p", "mm", "a4");
-   const pageWidth = pdf.internal.pageSize.getWidth();
-   const margin = 15;
-   let yOffset = margin;
-   let pageNumber = 1;
- 
-   const addHeader = () => {
-     pdf.setFontSize(20);
-     pdf.setTextColor(74, 107, 175);
-     pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
-     yOffset += 10;
-     
-     pdf.setFontSize(16);
-     pdf.setTextColor(0, 0, 0);
-     pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
-     yOffset += 15;
- 
-     // Add contact info
-     pdf.setFontSize(10);
-     pdf.setTextColor(100, 100, 100);
-     pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-     pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
-     yOffset += 10;
- 
-     // Add divider
-     pdf.setDrawColor(200, 200, 200);
-     pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-     yOffset += 15;
-   };
- 
-   // Initial header
-   addHeader();
- 
-   if (submittedData && Array.isArray(submittedData)) {
-     submittedData.forEach((supplier, index) => {
-       // Check if we need a new page (leave 40mm at bottom for footer)
-       if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
-         pdf.addPage();
-         yOffset = margin;
-         pageNumber++;
-         addHeader();
-       }
- 
-       // Supplier card header
-       pdf.setFillColor(74, 107, 175);
-       pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
-       pdf.setFontSize(14);
-       pdf.setTextColor(255, 255, 255);
-       pdf.text(`Offer ${index + 1}: ${supplier["Supplier Name"] || supplier["supplierName"] || `Supplier ${index + 1}`}`, 
-                margin + 5, yOffset + 7);
-       yOffset += 15;
- 
-       // Supplier details
-       pdf.setFontSize(11);
-       pdf.setTextColor(0, 0, 0);
- 
-       // Create two columns for details
-       const column1X = margin + 5;
-       const column2X = pageWidth / 2 + 10;
-       let column1Y = yOffset;
-       let column2Y = yOffset;
- 
-       Object.keys(supplier).forEach((key, i) => {
-         if (![
-           "Supplier Name", 
-           "supplierName",
-           "user_id",
-           "invoice_id",
-           "created_at",
-           "updated_at",
-           "id"
-         ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
-           const displayKey = key
-             .replace(/([A-Z])/g, " $1")
-             .replace(/^./, (str) => str.toUpperCase());
- 
-           // Check if we need a new page before adding content
-           if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
-             pdf.addPage();
-             yOffset = margin;
-             pageNumber++;
-             addHeader();
-             column1Y = yOffset;
-             column2Y = yOffset;
-           }
- 
-           // Alternate between columns
-           if (i % 2 === 0) {
-             pdf.text(`${displayKey}:`, column1X, column1Y);
-             pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
-             column1Y += 7;
-           } else {
-             pdf.text(`${displayKey}:`, column2X, column2Y);
-             pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
-             column2Y += 7;
-           }
-         }
-       });
- 
-       // Move yOffset to the max of both columns
-       yOffset = Math.max(column1Y, column2Y) + 10;
- 
-       // Highlight savings if available
-       if (supplier["Saving %"] || supplier["savingPercentage"]) {
-         const savings = supplier["Saving %"] || supplier["savingPercentage"];
-         pdf.setFontSize(12);
-         pdf.setTextColor(0, 128, 0);
-         pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
-         yOffset += 10;
-       }
- 
-       // Add divider between suppliers
-       if (index < submittedData.length - 1) {
-         pdf.setDrawColor(200, 200, 200);
-         pdf.line(margin, yOffset, pageWidth - margin, yOffset);
-         yOffset += 15;
-       }
-     });
-   } else {
-     pdf.setFontSize(12);
-     pdf.text("No offer data available", margin, yOffset);
-     yOffset += 10;
-   }
- 
-   // Add footer to each page
-   const pageCount = pdf.internal.getNumberOfPages();
-   for (let i = 1; i <= pageCount; i++) {
-     pdf.setPage(i);
-     pdf.setFontSize(10);
-     pdf.setTextColor(100, 100, 100);
-     const footerY = pdf.internal.pageSize.getHeight() - 10;
-     pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-     pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
-   }
- 
-   pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
- };
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    let yOffset = margin;
+    let pageNumber = 1;
+
+    const addHeader = () => {
+      pdf.setFontSize(20);
+      pdf.setTextColor(74, 107, 175);
+      pdf.text("MyBillSmart", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
+      yOffset += 15;
+
+      // Add contact info
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
+      yOffset += 10;
+
+      // Add divider
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+      yOffset += 15;
+    };
+
+    // Initial header
+    addHeader();
+
+    if (submittedData && Array.isArray(submittedData)) {
+      submittedData.forEach((supplier, index) => {
+        // Check if we need a new page (leave 40mm at bottom for footer)
+        if (yOffset > pdf.internal.pageSize.getHeight() - 40) {
+          pdf.addPage();
+          yOffset = margin;
+          pageNumber++;
+          addHeader();
+        }
+
+        // Supplier card header
+        pdf.setFillColor(74, 107, 175);
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
+        pdf.setFontSize(14);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(
+          `Offer ${index + 1}: ${
+            supplier["Supplier Name"] ||
+            supplier["supplierName"] ||
+            `Supplier ${index + 1}`
+          }`,
+          margin + 5,
+          yOffset + 7
+        );
+        yOffset += 15;
+
+        // Supplier details
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 0, 0);
+
+        // Create two columns for details
+        const column1X = margin + 5;
+        const column2X = pageWidth / 2 + 10;
+        let column1Y = yOffset;
+        let column2Y = yOffset;
+
+        Object.keys(supplier).forEach((key, i) => {
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+              "id",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
+            // Check if we need a new page before adding content
+            if (
+              Math.max(column1Y, column2Y) >
+              pdf.internal.pageSize.getHeight() - 20
+            ) {
+              pdf.addPage();
+              yOffset = margin;
+              pageNumber++;
+              addHeader();
+              column1Y = yOffset;
+              column2Y = yOffset;
+            }
+
+            // Alternate between columns
+            if (i % 2 === 0) {
+              pdf.text(`${displayKey}:`, column1X, column1Y);
+              pdf.text(`${supplier[key]}`, column1X + 40, column1Y);
+              column1Y += 7;
+            } else {
+              pdf.text(`${displayKey}:`, column2X, column2Y);
+              pdf.text(`${supplier[key]}`, column2X + 40, column2Y);
+              column2Y += 7;
+            }
+          }
+        });
+
+        // Move yOffset to the max of both columns
+        yOffset = Math.max(column1Y, column2Y) + 10;
+
+        // Highlight savings if available
+        if (supplier["Saving %"] || supplier["savingPercentage"]) {
+          const savings = supplier["Saving %"] || supplier["savingPercentage"];
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 128, 0);
+          pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
+          yOffset += 10;
+        }
+
+        // Add divider between suppliers
+        if (index < submittedData.length - 1) {
+          pdf.setDrawColor(200, 200, 200);
+          pdf.line(margin, yOffset, pageWidth - margin, yOffset);
+          yOffset += 15;
+        }
+      });
+    } else {
+      pdf.setFontSize(12);
+      pdf.text("No offer data available", margin, yOffset);
+      yOffset += 10;
+    }
+
+    // Add footer to each page
+    const pageCount = pdf.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      const footerY = pdf.internal.pageSize.getHeight() - 10;
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+        align: "center",
+      });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
+    }
+
+    pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
+  };
 
   const handleContractClick = (offer) => {
     navigate("/agent/contract", {
@@ -456,7 +536,10 @@ const ClientInvoice = () => {
 
   if (loadingPlanInfo) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -471,10 +554,14 @@ const ClientInvoice = () => {
           <div className="col-md-8 col-lg-6">
             <div className="card border-danger">
               <div className="card-body text-center p-5">
-                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <BsExclamationCircle
+                  className="text-danger mb-4"
+                  style={{ fontSize: "4rem" }}
+                />
                 <h2 className="card-title mb-3">Plan Information</h2>
                 <p className="card-text mb-4">
-                  {planInfo.message || "You need to purchase a plan to submit invoices."}
+                  {planInfo.message ||
+                    "You need to purchase a plan to submit invoices."}
                 </p>
                 {/* <button
                   className="btn btn-primary"
@@ -516,7 +603,9 @@ const ClientInvoice = () => {
           <>
             <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
             <div
-              className={`invoice-file-upload-box ${isDragging ? "dragging" : ""}`}
+              className={`invoice-file-upload-box ${
+                isDragging ? "dragging" : ""
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 document.getElementById("file-input").click();
@@ -524,7 +613,9 @@ const ClientInvoice = () => {
             >
               <label className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
-                <p>{uploading ? "Uploading..." : "Choose / Drop a File Here"}</p>
+                <p>
+                  {uploading ? "Uploading..." : "Choose / Drop a File Here"}
+                </p>
                 {file && (
                   <div className="file-preview">
                     <p>({Math.round(file.size / 1024)} KB)</p>
@@ -556,6 +647,13 @@ const ClientInvoice = () => {
                 <button type="submit" className="invoice-submit-btn mb-3">
                   Submit
                 </button>
+                 <button
+                type="button"
+                className="invoice-save-btn"
+                onClick={handleSave}
+              >
+                Save Invoice
+              </button>
               </div>
             </form>
           </div>
