@@ -35,6 +35,7 @@ import {
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./UserSidebar.css";
+import GoogleTranslateWidget from "../../components/GoogleTranslateWidget";
 
 const UserSidebar = () => {
   const { logout } = useAuth();
@@ -186,8 +187,12 @@ const UserSidebar = () => {
           </li>
         </ul>
       </div>
+
+
+       <div className="translate">
+    <GoogleTranslateWidget />
+   </div>
       <div className="sidenav-footer mx-3 ">
-        <div id="google_translate_element"></div>
 
         <button
           className="btn mt-5 w-100"

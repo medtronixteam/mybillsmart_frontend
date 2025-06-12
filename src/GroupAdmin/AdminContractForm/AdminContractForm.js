@@ -19,17 +19,29 @@ const AdminContractForm = () => {
     selectedClient: "",
     client_id: "",
     selectedAgreement: "",
-    agreement_id: "",
+    // agreement_id: "",
     contracted_provider: "",
     contracted_rate: "",
     status: "pending",
     start_date: "",
     closure_date: "",
-    requires_document: "no", // New field for document requirement
+    requires_document: "no",
+    note: "",
+    required_documents: [] 
   });
 
   const [showWarning, setShowWarning] = useState(false);
+  const [showDocumentSelection, setShowDocumentSelection] = useState(false);
   const navigate = useNavigate();
+
+  const documentOptions = [
+    { value: "id_card_front", label: "ID Card Front" },
+    { value: "id_card_back", label: "ID Card Back" },
+    { value: "bank_receipt", label: "Bank Receipt" },
+    { value: "last_service_invoice", label: "Last Service Invoice" },
+    { value: "lease_agreement", label: "Lease Agreement" },
+    { value: "bank_account_certificate", label: "Bank Account Certificate" }
+  ];
 
   useEffect(() => {
     if (location.state) {
@@ -61,7 +73,7 @@ const AdminContractForm = () => {
           localStorage.removeItem("role");
           navigate("/login");
           return;
-          }
+        }
 
         if (isMounted && response.data && Array.isArray(response.data.data)) {
           setClients(response.data.data);
@@ -80,42 +92,42 @@ const AdminContractForm = () => {
       }
     };
 
-    const fetchAgreements = async () => {
-      try {
-        const response = await axios.get(
-          `${config.BASE_URL}/api/group/agreements`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.status === 401) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("role");
-          navigate("/login");
-          return;
-          }
-        if (isMounted && response.data && Array.isArray(response.data.data)) {
-          setAgreements(response.data.data);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("Error fetching agreements:", error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to fetch agreements.',
-            showConfirmButton: true,
-            confirmButtonColor: '#3085d6'
-          });
-        }
-      }
-    };
+    // const fetchAgreements = async () => {
+    //   try {
+    //     const response = await axios.get(
+    //       `${config.BASE_URL}/api/group/agreements`,
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: `Bearer ${token}`,
+    //         },
+    //       }
+    //     );
+    //     if (response.status === 401) {
+    //       localStorage.removeItem("authToken");
+    //       localStorage.removeItem("role");
+    //       navigate("/login");
+    //       return;
+    //     }
+    //     if (isMounted && response.data && Array.isArray(response.data.data)) {
+    //       setAgreements(response.data.data);
+    //     }
+    //   } catch (error) {
+    //     if (isMounted) {
+    //       console.error("Error fetching agreements:", error);
+    //       Swal.fire({
+    //         icon: 'error',
+    //         title: 'Error',
+    //         text: 'Failed to fetch agreements.',
+    //         showConfirmButton: true,
+    //         confirmButtonColor: '#3085d6'
+    //       });
+    //     }
+    //   }
+    // };
 
     fetchClients();
-    fetchAgreements();
+    // fetchAgreements();
 
     return () => {
       isMounted = false;
@@ -146,12 +158,30 @@ const AdminContractForm = () => {
         ...formData,
         requires_document: value,
         status: value === "yes" ? "pending" : "active",
+        required_documents: value === "no" ? [] : formData.required_documents
       });
       setShowWarning(value === "yes");
+      setShowDocumentSelection(value === "yes");
     }
     else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  const handleDocumentChange = (e) => {
+    const { value, checked } = e.target;
+    let updatedDocuments = [...formData.required_documents];
+    
+    if (checked) {
+      updatedDocuments.push(value);
+    } else {
+      updatedDocuments = updatedDocuments.filter(doc => doc !== value);
+    }
+    
+    setFormData({
+      ...formData,
+      required_documents: updatedDocuments
+    });
   };
 
   const showSuccessAlert = () => {
@@ -177,10 +207,7 @@ const AdminContractForm = () => {
       return;
     }
 
-    if (
-   
-      !formData.selectedClient
-    ) {
+    if (!formData.selectedClient) {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -201,6 +228,17 @@ const AdminContractForm = () => {
       return;
     }
 
+    // Validate that at least one document is selected if requires_document is yes
+    if (formData.requires_document === "yes" && formData.required_documents.length === 0) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please select at least one document type when document upload is required!',
+        confirmButtonColor: '#3085d6'
+      });
+      return;
+    }
+
     const payload = {
       client_id: formData.client_id,
       offer_id: offerData.id,
@@ -209,6 +247,7 @@ const AdminContractForm = () => {
       start_date: formData.start_date,
       closure_date: formData.closure_date,
       requires_document: formData.requires_document === "yes",
+      required_documents: formData.required_documents,
       note: formData.note
     };
 
@@ -224,11 +263,11 @@ const AdminContractForm = () => {
         }
       );
       if (response.status === 401) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("role");
-          navigate("/login");
-          return;
-          }
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("role");
+        navigate("/login");
+        return;
+      }
 
       await showSuccessAlert();
       
@@ -244,9 +283,11 @@ const AdminContractForm = () => {
         start_date: "",
         closure_date: "",
         requires_document: "no",
+        required_documents: [],
         note: "",
       });
       setShowWarning(false);
+      setShowDocumentSelection(false);
     } catch (error) {
       console.error("API Error:", error.response ? error.response.data : error);
       await Swal.fire({
@@ -267,81 +308,54 @@ const AdminContractForm = () => {
         <h2 className="add-Contract-heading">Agreement With Client</h2>
         <form onSubmit={handleSubmit}>
           <div className="document-requirement-section">
-   <label>Please Enter Note for the Contract</label>
-          <textarea  name="note" value={formData.note} onChange={handleChange} placeholder="Please Enter a note"></textarea>
+            <label>Please Enter Note for the Contract</label>
+            <textarea 
+              name="note" 
+              value={formData.note} 
+              onChange={handleChange} 
+              placeholder="Please Enter a note"
+            ></textarea>
           </div>
-   <div className="document-requirement-section">
-   <label>Start Date</label>
-          <select
-            name="selectedClient"
-            value={formData.selectedClient}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select a Client</option>
-            {clients.map((client) => (
-              <option key={client.id} value={client.name}>
-                {client.name}
-              </option>
-            ))}
-          </select>
-
-
-        </div>
-
-          {/* <select
-            name="selectedAgreement"
-            value={formData.selectedAgreement}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select an Agreement</option>
-            {agreements.map((agreement) => (
-              <option key={agreement.id} value={agreement.title}>
-                {agreement.title}
-              </option>
-            ))}
-          </select> */}
-
-          {/* <input
-            type="text"
-            name="contracted_provider"
-            placeholder="Please Enter Contracted Provider"
-            value={formData.contracted_provider}
-            onChange={handleChange}
-            required
-          /> */}
-
-          {/* <input
-            type="number"
-            name="contracted_rate"
-            placeholder="Please Enter Contracted Rate"
-            value={formData.contracted_rate}
-            onChange={handleChange}
-            required
-          /> */}
-
-<div className="document-requirement-section">
-<label>Start Date</label>
-          <input
-            type="date"
-            name="start_date"
-            placeholder="Please Enter Start Date"
-            value={formData.start_date}
-            onChange={handleChange}
-            required
-          />
-          </div>
+          
           <div className="document-requirement-section">
-          <label style={{fontSize: "12px", fontWeight: "bold"}}>Close Date</label>
-          <input
-            type="date"
-            name="closure_date"
-            placeholder="Please Enter Closure Date"
-            value={formData.closure_date}
-            onChange={handleChange}
-            required
-          />
+            <label>Select a Client</label>
+            <select
+              name="selectedClient"
+              value={formData.selectedClient}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a Client</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.name}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="document-requirement-section">
+            <label>Start Date</label>
+            <input
+              type="date"
+              name="start_date"
+              placeholder="Please Enter Start Date"
+              value={formData.start_date}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="document-requirement-section">
+            <label style={{fontSize: "12px", fontWeight: "bold"}}>Close Date</label>
+            <input
+              type="date"
+              name="closure_date"
+              placeholder="Please Enter Closure Date"
+              value={formData.closure_date}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="document-requirement-section">
@@ -357,14 +371,35 @@ const AdminContractForm = () => {
             </select>
           </div>
 
-         
+          {showWarning && (
             <div className="warning-message bg-warning">
-              <strong>Warning:</strong> If you select "Yes", the client will NOT be able to upload documents for this agreement. 
-              The agreement will be marked as "active" immediately.
+              <strong>Warning:</strong> If you select "Yes", the client will need to upload documents for this agreement. 
+              The agreement will be marked as "pending" until documents are uploaded.
             </div>
-        
+          )}
 
-          <button type="submit">Add Contract</button>
+          {showDocumentSelection && (
+            <div className="document-selection-section">
+              <h4>Select the documents you want the client to upload:</h4>
+              <div className="document-checkboxes">
+                {documentOptions.map((doc) => (
+                  <div key={doc.value} className="document-checkbox">
+                    <input
+                      type="checkbox"
+                      id={doc.value}
+                      name="required_documents"
+                      value={doc.value}
+                      checked={formData.required_documents.includes(doc.value)}
+                      onChange={handleDocumentChange}
+                    />
+                    <label htmlFor={doc.value}>{doc.label}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button type="submit" style={{marginBottom : "30px"}}>Add Contract</button>
         </form>
       </div>
     </>

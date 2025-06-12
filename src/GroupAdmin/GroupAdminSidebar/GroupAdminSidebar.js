@@ -35,6 +35,7 @@ import {
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import "./GroupAdminSidebar.css";
+import GoogleTranslateWidget from "../../components/GoogleTranslateWidget";
 
 const GroupAdminSidebar = () => {
   const { logout } = useAuth();
@@ -460,10 +461,13 @@ const GroupAdminSidebar = () => {
           </li>
         </ul>
       </div>
+       <div className="translate">
+    <GoogleTranslateWidget/>
+   </div>
       <div className="sidenav-footer mx-3 ">
         <div id="google_translate_element"></div>
         <Link to="/group_admin/subscription">
-          <button className="btn mt-4 w-100" type="button" id="icon-color">
+          <button className="btn  w-100" type="button" id="icon-color">
             <FaGem className="me-2" />
             Subscription
           </button>

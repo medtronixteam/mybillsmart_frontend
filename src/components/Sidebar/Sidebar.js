@@ -31,6 +31,7 @@ import {
 } from "react-icons/md";
 
 import { HiOutlineUserGroup } from "react-icons/hi";
+import GoogleTranslateWidget from "../GoogleTranslateWidget";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -363,6 +364,7 @@ const Sidebar = () => {
               <span className="nav-link-text">Goal List</span>
             </NavLink>
           </li>
+           
           
           <li className="nav-item">
             <NavLink
@@ -423,10 +425,24 @@ const Sidebar = () => {
                       <span className="nav-link-text ">WhatsApp Link</span>
                     </NavLink>
                   </li>
+
+
+                  
                 </ul>
               </div>
             </div>
           </li>
+
+
+           {/* <li>
+                    <NavLink
+                      className="nav-link"
+                      to="/agent/whatsapp"
+                      activeClassName="active-class"
+                    >
+                        <GoogleTranslateWidget />
+                    </NavLink>
+                  </li> */}
         </ul>
         {/* <li className="nav-item">
 =======
@@ -448,12 +464,13 @@ const Sidebar = () => {
         <div id="google_translate_element"></div>
 
         {/* Subscription Button */}
-        {/* <Link to="/agent/subscription">
-          <button className="btn mt-3 w-100" type="button" id="icon-color">
-            <FaGem className="me-2" />
-            Subscription
-          </button>
-        </Link> */}
+        
+           
+    
+        
+   <div className="translate">
+    <GoogleTranslateWidget />
+   </div>
 
         {/* LogOut Button */}
         <button

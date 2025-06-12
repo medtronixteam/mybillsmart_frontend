@@ -20,6 +20,7 @@ import { NavLink } from "react-router-dom";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 import "./ClientSidebar.css";
+import GoogleTranslateWidget from "../../components/GoogleTranslateWidget";
 
 const ClientSidebar = () => {
   const { logout } = useAuth();
@@ -199,9 +200,14 @@ const ClientSidebar = () => {
             Subscription
           </button>
         </Link>
+
+
+         <div className="translate">
+            <GoogleTranslateWidget />
+           </div>
         {/* LogOut Button - On Click, it triggers handleLogout function */}
         <button
-          className="btn mt-5 w-100"
+          className="btn  w-100"
           type="button"
           onClick={handleLogout}
           id="icon-color"

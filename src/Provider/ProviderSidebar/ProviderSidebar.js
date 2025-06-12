@@ -28,6 +28,7 @@ import {
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
 import "./ProviderSidebar.css";
+import GoogleTranslateWidget from "../../components/GoogleTranslateWidget";
 
 const ProviderSidebar = () => {
   const { logout } = useAuth();
@@ -370,8 +371,11 @@ const ProviderSidebar = () => {
           </li> */}
         </ul>
       </div>
+       <div className="translate">
+          <GoogleTranslateWidget />
+         </div>
       <div className="sidenav-footer mx-3 ">
-        <div id="google_translate_element"></div>
+       
         {/* <Link to="/supervisor/subscription">
           <button className="btn mt-4 w-100" type="button" id="icon-color">
             <FaGem className="me-2" />

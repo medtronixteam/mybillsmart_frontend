@@ -50,39 +50,37 @@ const UserInvoice = () => {
   // Alert functions
   const showSuccessAlert = (message) => {
     Swal.fire({
-      icon: 'success',
-      title: 'Success',
+      icon: "success",
+      title: "Success",
       text: message,
       timer: 3000,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   };
-  
+
   const showErrorAlert = (message) => {
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: message,
-      timer: 3000
-    });
-  };
-  
-  const showInfoAlert = (message) => {
-    Swal.fire({
-      icon: 'info',
-      title: 'Info',
+      icon: "error",
+      title: "Error",
       text: message,
       timer: 3000,
-      showConfirmButton: false
+    });
+  };
+
+  const showInfoAlert = (message) => {
+    Swal.fire({
+      icon: "info",
+      title: "Info",
+      text: message,
+      timer: 3000,
+      showConfirmButton: false,
     });
   };
 
   // Helper function to display API errors
   const showApiError = (error, defaultMessage = "An error occurred") => {
-    const errorMessage = 
-      error.response?.data?.message || 
-      error.message || 
-      defaultMessage;
+    const errorMessage =
+      error.response?.data?.message || error.message || defaultMessage;
     Swal.fire({
       icon: "error",
       title: "Error",
@@ -92,37 +90,37 @@ const UserInvoice = () => {
     });
   };
 
- useEffect(() => {
-  const fetchPlanInfo = async () => {
-    try {
-      const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  useEffect(() => {
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      setPlanInfo(response.data);
-      console.log("planInfo:", response.data);
+        setPlanInfo(response.data);
+        console.log("planInfo:", response.data);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
 
-    } catch (error) {
-      console.error("Error fetching plan info:", error);
+        setPlanInfo({
+          status: error.response?.status || "error",
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch plan information",
+          code: error.code || null,
+        });
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
 
-      setPlanInfo({
-        status: error.response?.status || "error",
-        message: error.response?.data?.message || error.message || "Failed to fetch plan information",
-        code: error.code || null,
-      });
-
-    } finally {
-      setLoadingPlanInfo(false);
+    if (token) {
+      fetchPlanInfo();
     }
-  };
-
-  if (token) {
-    fetchPlanInfo();
-  }
-}, [token]);
-
+  }, [token]);
 
   // Drag & Drop File Upload Listeners
   useEffect(() => {
@@ -130,7 +128,7 @@ const UserInvoice = () => {
       e.preventDefault();
       e.stopPropagation();
     };
-    
+
     const handleDrop = (e) => {
       preventDefaults(e);
       setIsDragging(false);
@@ -138,27 +136,27 @@ const UserInvoice = () => {
         handleFiles(e.dataTransfer.files);
       }
     };
-    
+
     const handleDragEnter = (e) => {
       preventDefaults(e);
       setIsDragging(true);
     };
-    
+
     const handleDragLeave = (e) => {
       preventDefaults(e);
       setIsDragging(false);
     };
-    
+
     const handleDragOver = (e) => {
       preventDefaults(e);
       setIsDragging(true);
     };
-    
+
     window.addEventListener("dragenter", handleDragEnter);
     window.addEventListener("dragleave", handleDragLeave);
     window.addEventListener("dragover", handleDragOver);
     window.addEventListener("drop", handleDrop);
-    
+
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
       window.removeEventListener("dragleave", handleDragLeave);
@@ -274,7 +272,7 @@ const UserInvoice = () => {
     setFile(selectedFile);
     const formData = new FormData();
     formData.append("file", selectedFile);
-    try { 
+    try {
       const response = await axios.post(
         "https://ocr.ai3dscanning.com/api/file/ ",
         formData,
@@ -286,7 +284,9 @@ const UserInvoice = () => {
         setResponseData(response.data);
         setFormData(response.data);
         setStep(2);
-        showSuccessAlert(`Please Verify the ${selectedFile.name} file data before submitting`);
+        showSuccessAlert(
+          `Please Verify the ${selectedFile.name} file data before submitting`
+        );
       }
     } catch (error) {
       console.error("Error uploading file", error);
@@ -313,7 +313,7 @@ const UserInvoice = () => {
       const matchData = {
         ...formData,
         group_id: groupId,
-        app_mode: '0',
+        app_mode: "0",
       };
       const matchResponse = await axios.post(
         "https://ocr.ai3dscanning.com/api/match/ ",
@@ -358,68 +358,124 @@ const UserInvoice = () => {
         setOffers(offersResponse.data.offers);
       }
       setStep(3);
-      showSuccessAlert(`${invoiceResponse.data.message}` );
+      showSuccessAlert(`${invoiceResponse.data.message}`);
     } catch (error) {
       showErrorAlert(`${error.response.data.message}`);
     }
   };
   const handleSave = async () => {
-  try {
-    const payload = {
-      ...formData,
-      group_id: groupId,
-    };
+    try {
+      const payload = {
+        ...formData,
+        group_id: groupId,
+      };
 
-    const response = await axios.post(
-      `${config.BASE_URL}/api/member/invoices`,
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.post(
+        `${config.BASE_URL}/api/member/invoices`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Invoice saved successfully!",
+          timer: 3000,
+          showConfirmButton: false,
+        });
       }
-    );
-
-    if (response.status === 200 || response.status === 201) {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Invoice saved successfully!",
-        timer: 3000,
-        showConfirmButton: false,
-      });
+    } catch (error) {
+      console.error("Error saving invoice", error);
+      showApiError(error, "Failed to save invoice");
     }
-  } catch (error) {
-    console.error("Error saving invoice", error);
-    showApiError(error, "Failed to save invoice");
-  }
-};
+  };
 
-  // Render Fields
-  const renderFormFields = (data) => {
-    return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object")
-      .map((key, index) => {
-        const value = data[key];
-        return (
-          <div key={index} className="form-field">
-            <label>
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
-              :
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={value || ""}
-              onChange={handleFormChange}
-              required
-            />
-          </div>
-        );
-      });
+  const renderFormFieldsByBillType = (data) => {
+    const commonFields = [
+      { key: "bill_type", label: "Bill Type" },
+      { key: "address", label: "Address" },
+      { key: "billing_period", label: "Billing Period" },
+      { key: "cups", label: "CUPS Code" },
+      { key: "total_bill", label: "Total Bill" },
+      { key: "meter_rental", label: "Meter Rental" },
+    ];
+
+    let additionalFields = [];
+
+    if (data.bill_type === "GAS") {
+      additionalFields = [
+        { key: "total_consumption_m3", label: "Total Consumption (m³)" },
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "price_per_unit", label: "Price per Unit" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "tariff", label: "Tariff" },
+      ];
+    } else if (data.bill_type === "ELECTRICITY") {
+      additionalFields = [
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "tariff", label: "Tariff" },
+        { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+        {
+          key: "off_peak_consumption_kwh",
+          label: "Off-Peak Consumption (kWh)",
+        },
+        { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+        { key: "peak_power_kw", label: "Peak Power (kW)" },
+        { key: "valley_power_kw", label: "Valley Power (kW)" },
+        { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+        { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+        { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+        { key: "energy_term", label: "Energy Term" },
+      ];
+    } else if (data.bill_type === "GAS & ELECTRICITY") {
+      additionalFields = [
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "price_per_unit", label: "Price per Unit" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "gas_tariff", label: "Gas Tariff" },
+        { key: "gas_fixed_term", label: "Gas Fixed Term" },
+        { key: "gas_energy_cost", label: "Gas Energy Cost" },
+        { key: "electricity_tariff", label: "Electricity Tariff" },
+        { key: "electricity_fixed_term", label: "Electricity Fixed Term" },
+        { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+        {
+          key: "off_peak_consumption_kwh",
+          label: "Off-Peak Consumption (kWh)",
+        },
+        { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+        { key: "peak_power_kw", label: "Peak Power (kW)" },
+        { key: "valley_power_kw", label: "Valley Power (kW)" },
+        { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+        { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+        { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+        { key: "energy_term", label: "Energy Term" },
+      ];
+    }
+
+    const allFields = [...commonFields, ...additionalFields];
+
+    return allFields.map((field, index) => (
+      <div key={index} className="form-field">
+        <label>{field.label}:</label>
+        <input
+          type="text"
+          name={field.key}
+          value={data[field.key] !== undefined ? data[field.key] : ""}
+          onChange={handleFormChange}
+          placeholder={`Enter ${field.label}`}
+        />
+      </div>
+    ));
   };
 
   // CSV Conversion
@@ -443,7 +499,7 @@ const UserInvoice = () => {
       });
       return keys;
     }, []);
-    
+
     const headers = allKeys
       .map(
         (key) =>
@@ -452,7 +508,7 @@ const UserInvoice = () => {
             .replace(/^./, (str) => str.toUpperCase())}"`
       )
       .join(",");
-      
+
     const rows = data
       .map((item) => {
         return allKeys
@@ -463,7 +519,7 @@ const UserInvoice = () => {
           .join(",");
       })
       .join("\n");
-      
+
     return `${headers}\n${rows}`;
   };
 
@@ -502,7 +558,7 @@ const UserInvoice = () => {
       showErrorAlert("Failed to generate CSV file");
     }
   };
-  
+
   const downloadExcel = () => {
     if (
       !submittedData ||
@@ -533,7 +589,7 @@ const UserInvoice = () => {
     const margin = 15;
     let yOffset = margin;
     let pageNumber = 1;
-    
+
     const addHeader = () => {
       pdf.setFontSize(20);
       pdf.setTextColor(74, 107, 175);
@@ -541,22 +597,26 @@ const UserInvoice = () => {
       yOffset += 10;
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
       // Add contact info
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       // Add divider
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
       yOffset += 15;
     };
-    
+
     addHeader();
-    
+
     if (offersToInclude && Array.isArray(offersToInclude)) {
       offersToInclude.forEach((supplier, index) => {
         // Check if we need a new page (leave 40mm at bottom for footer)
@@ -566,19 +626,19 @@ const UserInvoice = () => {
           pageNumber++;
           addHeader();
         }
-        
+
         // Supplier card header
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(
           `Offer ${index + 1}: ${
-            supplier["Supplier Name"] || 
-            supplier["supplierName"] || 
+            supplier["Supplier Name"] ||
+            supplier["supplierName"] ||
             `Supplier ${index + 1}`
-          }`, 
-          margin + 5, 
+          }`,
+          margin + 5,
           yOffset + 7
         );
         yOffset += 15;
@@ -590,23 +650,32 @@ const UserInvoice = () => {
         const column2X = pageWidth / 2 + 10;
         let column1Y = yOffset;
         let column2Y = yOffset;
-        
+
         Object.keys(supplier).forEach((key, i) => {
-          if (![
-            "Supplier Name", 
-            "supplierName",
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id",
-            "commission",
-            "Commission"
-          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
-            const displayKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
-            
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+              "id",
+              "commission",
+              "Commission",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
             // Check if we need a new page before adding content
-            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            if (
+              Math.max(column1Y, column2Y) >
+              pdf.internal.pageSize.getHeight() - 20
+            ) {
               pdf.addPage();
               yOffset = margin;
               pageNumber++;
@@ -614,7 +683,7 @@ const UserInvoice = () => {
               column1Y = yOffset;
               column2Y = yOffset;
             }
-            
+
             // Alternate between columns
             if (i % 2 === 0) {
               pdf.text(`${displayKey}:`, column1X, column1Y);
@@ -627,10 +696,10 @@ const UserInvoice = () => {
             }
           }
         });
-        
+
         // Move yOffset to max of both columns
         yOffset = Math.max(column1Y, column2Y) + 10;
-        
+
         // Highlight savings if available
         if (supplier["Saving %"] || supplier["savingPercentage"]) {
           const savings = supplier["Saving %"] || supplier["savingPercentage"];
@@ -639,7 +708,7 @@ const UserInvoice = () => {
           pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
           yOffset += 10;
         }
-        
+
         // Add divider between suppliers
         if (index < offersToInclude.length - 1) {
           pdf.setDrawColor(200, 200, 200);
@@ -652,7 +721,7 @@ const UserInvoice = () => {
       pdf.text("No offer data available", margin, yOffset);
       yOffset += 10;
     }
-    
+
     // Add footer to each page
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -660,10 +729,14 @@ const UserInvoice = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+        align: "center",
+      });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
-    
+
     pdf.save(`MyBillSmart_Offers_${invoiceId}.pdf`);
   };
 
@@ -673,7 +746,7 @@ const UserInvoice = () => {
     const margin = 15;
     let yOffset = margin;
     let pageNumber = 1;
-    
+
     const addHeader = () => {
       pdf.setFontSize(20);
       pdf.setTextColor(74, 107, 175);
@@ -681,22 +754,26 @@ const UserInvoice = () => {
       yOffset += 10;
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
-      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, { align: "center" });
+      pdf.text("Energy Offers Summary", pageWidth / 2, yOffset, {
+        align: "center",
+      });
       yOffset += 15;
       // Add contact info
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text("Email: contact@mybillsmart.com", margin, yOffset);
-      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, { align: "right" });
+      pdf.text(`Page ${pageNumber}`, pageWidth - margin, yOffset, {
+        align: "right",
+      });
       yOffset += 10;
       // Add divider
       pdf.setDrawColor(200, 200, 200);
       pdf.line(margin, yOffset, pageWidth - margin, yOffset);
       yOffset += 15;
     };
-    
+
     addHeader();
-    
+
     if (offersToInclude && Array.isArray(offersToInclude)) {
       offersToInclude.forEach((supplier, index) => {
         // Check if we need a new page (leave 40mm at bottom for footer)
@@ -706,23 +783,23 @@ const UserInvoice = () => {
           pageNumber++;
           addHeader();
         }
-        
+
         // Supplier card header
         pdf.setFillColor(74, 107, 175);
-        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, 'F');
+        pdf.rect(margin, yOffset, pageWidth - 2 * margin, 10, "F");
         pdf.setFontSize(14);
         pdf.setTextColor(255, 255, 255);
         pdf.text(
           `Offer ${index + 1}: ${
-            supplier["Supplier Name"] || 
-            supplier["supplierName"] || 
+            supplier["Supplier Name"] ||
+            supplier["supplierName"] ||
             `Supplier ${index + 1}`
-          }`, 
-          margin + 5, 
+          }`,
+          margin + 5,
           yOffset + 7
         );
         yOffset += 15;
-        
+
         // Supplier details
         pdf.setFontSize(11);
         pdf.setTextColor(0, 0, 0);
@@ -731,23 +808,32 @@ const UserInvoice = () => {
         const column2X = pageWidth / 2 + 10;
         let column1Y = yOffset;
         let column2Y = yOffset;
-        
+
         Object.keys(supplier).forEach((key, i) => {
-          if (![
-            "Supplier Name", 
-            "supplierName",
-            "user_id",
-            "invoice_id",
-            "created_at",
-            "updated_at",
-            "id",
-            "commission",
-            "Commission"
-          ].includes(key) && supplier[key] && typeof supplier[key] !== "object") {
-            const displayKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
-            
+          if (
+            ![
+              "Supplier Name",
+              "supplierName",
+              "user_id",
+              "invoice_id",
+              "created_at",
+              "updated_at",
+              "id",
+              "commission",
+              "Commission",
+            ].includes(key) &&
+            supplier[key] &&
+            typeof supplier[key] !== "object"
+          ) {
+            const displayKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/^./, (str) => str.toUpperCase());
+
             // Check if we need a new page before adding content
-            if (Math.max(column1Y, column2Y) > pdf.internal.pageSize.getHeight() - 20) {
+            if (
+              Math.max(column1Y, column2Y) >
+              pdf.internal.pageSize.getHeight() - 20
+            ) {
               pdf.addPage();
               yOffset = margin;
               pageNumber++;
@@ -755,7 +841,7 @@ const UserInvoice = () => {
               column1Y = yOffset;
               column2Y = yOffset;
             }
-            
+
             // Alternate between columns
             if (i % 2 === 0) {
               pdf.text(`${displayKey}:`, column1X, column1Y);
@@ -768,10 +854,10 @@ const UserInvoice = () => {
             }
           }
         });
-        
+
         // Move yOffset to max of both columns
         yOffset = Math.max(column1Y, column2Y) + 10;
-        
+
         // Highlight savings if available
         if (supplier["Saving %"] || supplier["savingPercentage"]) {
           const savings = supplier["Saving %"] || supplier["savingPercentage"];
@@ -780,7 +866,7 @@ const UserInvoice = () => {
           pdf.text(`You save ${savings}% with this offer!`, margin, yOffset);
           yOffset += 10;
         }
-        
+
         // Add divider between suppliers
         if (index < offersToInclude.length - 1) {
           pdf.setDrawColor(200, 200, 200);
@@ -793,7 +879,7 @@ const UserInvoice = () => {
       pdf.text("No offer data available", margin, yOffset);
       yOffset += 10;
     }
-    
+
     // Add footer to each page
     const pageCount = pdf.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -801,10 +887,14 @@ const UserInvoice = () => {
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const footerY = pdf.internal.pageSize.getHeight() - 10;
-      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, { align: "center" });
-      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, { align: "center" });
+      pdf.text("Thank you for using MyBillSmart", pageWidth / 2, footerY - 5, {
+        align: "center",
+      });
+      pdf.text("www.mybillsmart.com", pageWidth / 2, footerY, {
+        align: "center",
+      });
     }
-    
+
     return pdf.output("blob");
   };
 
@@ -816,47 +906,49 @@ const UserInvoice = () => {
     }
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-    
+
     if (!phoneRegex.test(rawPhone)) {
       showErrorAlert("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
-    
+
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing PDF',
-        html: 'Please wait while we generate and send your document...',
+        title: "Preparing PDF",
+        html: "Please wait while we generate and send your document...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
-      
+
       const pdfBlob = generatePDFBlob();
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
-      
+
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `Invoice_${invoiceId}_Offers.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-      
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-      
+
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-      
+
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-      
+
       const payload = {
         chatId: formattedPhone,
-        caption: whatsappData.message || "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
+        caption:
+          whatsappData.message ||
+          "Here are your energy offers from MyBillSmart. Please review the attached PDF for details.",
         session: sessionEmail,
         file: {
           data: base64data,
@@ -864,7 +956,7 @@ const UserInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-      
+
       const response = await axios.post(
         "https://waha.ai3dscanning.com/api/sendFile ",
         payload,
@@ -872,12 +964,12 @@ const UserInvoice = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
-      
+
       await loadingSwal.close();
-      
+
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -885,23 +977,24 @@ const UserInvoice = () => {
         timer: 3000,
         showConfirmButton: false,
       });
-      
+
       handleWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-      
+
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
-      
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -941,55 +1034,57 @@ const UserInvoice = () => {
       showErrorAlert("Phone number is required");
       return;
     }
-    
+
     if (selectedOffers.length === 0) {
       showErrorAlert("Please select at least one offer");
       return;
     }
-    
+
     const phoneRegex = /^\d{11,}$/;
     const rawPhone = whatsappData.to.replace(/^\+/, "").replace(/\D/g, "");
-    
+
     if (!phoneRegex.test(rawPhone)) {
       showErrorAlert("Please enter a valid phone number (e.g., 923001234567)");
       return;
     }
-    
+
     try {
       const loadingSwal = Swal.fire({
-        title: 'Preparing PDF',
-        html: 'Please wait while we generate and send your document...',
+        title: "Preparing PDF",
+        html: "Please wait while we generate and send your document...",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
-      
+
       const pdfBlob = generatePDFBlob(selectedOffers);
       if (!pdfBlob) {
         throw new Error("Failed to generate PDF");
       }
-      
+
       const formattedPhone = `${rawPhone}@c.us`;
       const filename = `MyBillSmart_Selected_Offers_${invoiceId}.pdf`;
       const sessionEmail = email.replace(/[@.]/g, "_");
-      
+
       const base64data = await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(pdfBlob);
         reader.onload = () => resolve(reader.result.split(",")[1]);
         reader.onerror = (error) => reject(error);
       });
-      
+
       const fileSizeMB = pdfBlob.size / (1024 * 1024);
-      
+
       if (fileSizeMB > 5) {
         throw new Error("PDF file is too large for WhatsApp (max 5MB)");
       }
-      
+
       const payload = {
         chatId: formattedPhone,
-        caption: whatsappData.message || "Here are your selected offers from MyBillSmart. Please review the attached PDF for details.",
+        caption:
+          whatsappData.message ||
+          "Here are your selected offers from MyBillSmart. Please review the attached PDF for details.",
         session: sessionEmail,
         file: {
           data: base64data,
@@ -997,7 +1092,7 @@ const UserInvoice = () => {
           mimeType: "application/pdf",
         },
       };
-      
+
       const response = await axios.post(
         "https://waha.ai3dscanning.com/api/sendFile ",
         payload,
@@ -1005,12 +1100,12 @@ const UserInvoice = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          timeout: 30000
+          timeout: 30000,
         }
       );
-      
+
       await loadingSwal.close();
-      
+
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -1018,23 +1113,24 @@ const UserInvoice = () => {
         timer: 3000,
         showConfirmButton: false,
       });
-      
+
       handleMultiWhatsappModalClose();
     } catch (error) {
       console.error("WhatsApp send error:", error);
       let errorMessage = "Failed to send WhatsApp message";
-      
+
       if (error.message.includes("timeout")) {
         errorMessage = "Request timed out. Please try again.";
       } else if (error.message.includes("too large")) {
         errorMessage = error.message;
       } else {
-        errorMessage = error.response?.data?.error ||
-                     error.response?.data?.message ||
-                     error.message ||
-                     errorMessage;
+        errorMessage =
+          error.response?.data?.error ||
+          error.response?.data?.message ||
+          error.message ||
+          errorMessage;
       }
-      
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -1047,7 +1143,7 @@ const UserInvoice = () => {
 
   const toggleOfferSelection = (offer) => {
     const isSelected = selectedOffers.some((o) => o.id === offer.id);
-    
+
     if (isSelected) {
       setSelectedOffers(selectedOffers.filter((o) => o.id !== offer.id));
     } else {
@@ -1070,12 +1166,12 @@ const UserInvoice = () => {
     setModalType("portal");
     setShowModal(true);
   };
-  
+
   const handleSendEmail = () => {
     setModalType("email");
     setShowModal(true);
   };
-  
+
   const handleWhatsappClick = () => {
     setShowWhatsappModal(true);
   };
@@ -1085,17 +1181,17 @@ const UserInvoice = () => {
     setShowModal(false);
     setSelectedClient("");
   };
-  
+
   const handleClientSelect = (e) => {
     setSelectedClient(e.target.value);
   };
-  
+
   const handleModalSubmit = async () => {
     if (!selectedClient) {
       showErrorAlert("Please select a client!");
       return;
     }
-    
+
     try {
       if (modalType === "email") {
         await axios.post(
@@ -1125,7 +1221,7 @@ const UserInvoice = () => {
             },
           }
         );
-        
+
         if (response.status === 200) {
           showSuccessAlert("Invoice sent to client portal successfully!");
         } else {
@@ -1142,7 +1238,10 @@ const UserInvoice = () => {
   // Loading State
   if (loadingPlanInfo) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -1150,17 +1249,25 @@ const UserInvoice = () => {
     );
   }
 
-if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status === "error") {
+  if (
+    planInfo?.status === 404 ||
+    planInfo?.status === 403 ||
+    planInfo?.status === "error"
+  ) {
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-6">
             <div className="card border-danger">
               <div className="card-body text-center p-5">
-                <BsExclamationCircle className="text-danger mb-4" style={{ fontSize: "4rem" }} />
+                <BsExclamationCircle
+                  className="text-danger mb-4"
+                  style={{ fontSize: "4rem" }}
+                />
                 <h2 className="card-title mb-3">Information</h2>
                 <p className="card-text mb-4">
-                  {planInfo.message || "Your admin needs to purchase a plan to submit invoices."}
+                  {planInfo.message ||
+                    "Your admin needs to purchase a plan to submit invoices."}
                 </p>
               </div>
             </div>
@@ -1192,18 +1299,22 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
           <div className={`line ${step === 2 ? "active-line" : ""}`}></div>
           <div className={`step ${step === 3 ? "active" : ""}`}>3</div>
         </div>
-        
+
         {/* Step 1 */}
         {step === 1 && (
           <>
             <h2 className="invoice-upload-heading">Upload your Invoice File</h2>
             <div
-              className={`invoice-file-upload-box ${isDragging ? "dragging" : ""}`}
+              className={`invoice-file-upload-box ${
+                isDragging ? "dragging" : ""
+              }`}
               onClick={() => document.getElementById("file-input").click()}
             >
               <label className="invoice-file-upload-btn">
                 <BsCloudUpload className="invoice-upload-icon" />
-                <p>{uploading ? "Uploading..." : "Choose / Drop a file here"}</p>
+                <p>
+                  {uploading ? "Uploading..." : "Choose / Drop a file here"}
+                </p>
                 {file && (
                   <div className="file-preview">
                     <p>({Math.round(file.size / 1024)} KB)</p>
@@ -1220,34 +1331,31 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
             </div>
           </>
         )}
-        {/* Step 2 */}
-        {step === 2 && responseData && (
+        {step === 2 && (
           <div className="invoice-form-container w-100">
             <h2 className="invoice-form-heading">Verify your Invoice</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-row">
-                {renderFormFields(formData).map((field, index) => (
-                  <div key={index} className="form-row-item">
+                {renderFormFieldsByBillType(formData).map((field, idx) => (
+                  <div key={idx} className="form-row-item">
                     {field}
                   </div>
                 ))}
               </div>
-              <div>
-                <button type="submit" className="invoice-submit-btn mb-3">
-                  Get Offers
-                </button>
-                 <button
+              <button type="submit" className="invoice-submit-btn">
+                Get Offers
+              </button>
+              <button
                 type="button"
                 className="invoice-save-btn"
                 onClick={handleSave}
               >
                 Save Invoice
               </button>
-              </div>
             </form>
           </div>
         )}
-        
+
         {/* Step 3 */}
         {step === 3 && offers.length > 0 && (
           <>
@@ -1375,14 +1483,16 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
             </div>
           </>
         )}
-        
+
         {/* Modals */}
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content w-100">
               <div className="modal-header">
                 <h3 className="mb-0">
-                  {modalType === "email" ? "Send Email" : "Send to Client Portal"}
+                  {modalType === "email"
+                    ? "Send Email"
+                    : "Send to Client Portal"}
                 </h3>
                 <button
                   onClick={handleModalClose}
@@ -1447,7 +1557,7 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
             </div>
           </div>
         )}
-        
+
         {/* WhatsApp Modal */}
         {showWhatsappModal && (
           <div className="whatsapp-modal-overlay">
@@ -1474,7 +1584,8 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
                     required
                   />
                   <small className="whatsapp-input-hint">
-                    Enter phone number with country code but without + sign<br/>
+                    Enter phone number with country code but without + sign
+                    <br />
                     (e.g., 923001234567 for Pakistan)
                   </small>
                 </div>
@@ -1505,7 +1616,7 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
             </div>
           </div>
         )}
-        
+
         {/* Multi WhatsApp Modal */}
         {showMultiWhatsappModal && (
           <div className="multi-whatsapp-modal-overlay">
@@ -1532,11 +1643,12 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
                     required
                   />
                   <small className="whatsapp-input-hint">
-                    Enter phone number with country code but without + sign<br/>
+                    Enter phone number with country code but without + sign
+                    <br />
                     (e.g., 923001234567 for Pakistan)
                   </small>
                 </div>
-                
+
                 <div className="offers-selection">
                   <h4>Select Offers:</h4>
                   <div className="offers-list">
@@ -1545,11 +1657,15 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
                         <input
                           type="checkbox"
                           id={`offer-${offer.id}`}
-                          checked={selectedOffers.some((o) => o.id === offer.id)}
+                          checked={selectedOffers.some(
+                            (o) => o.id === offer.id
+                          )}
                           onChange={() => toggleOfferSelection(offer)}
                         />
                         <label htmlFor={`offer-${offer.id}`}>
-                          {offer["Supplier Name"] || offer["supplierName"] || `Offer ${offer.id}`}
+                          {offer["Supplier Name"] ||
+                            offer["supplierName"] ||
+                            `Offer ${offer.id}`}
                         </label>
                       </div>
                     ))}

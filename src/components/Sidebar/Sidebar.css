@@ -37,3 +37,59 @@
 .sidenav::-webkit-scrollbar-track {
   background-color: #f1f1f1;
 }
+
+
+/* Google Translate Widget Styling */
+#google_translate_element {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px; /* Space between dropdown and logout button */
+}
+
+/* Google Translate Dropdown */
+.goog-te-gadget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goog-te-combo {
+  font-size: 14px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  width: auto; /* Auto width based on content */
+  max-width: 150px; /* Responsive max width */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .goog-te-combo {
+    font-size: 12px;
+    padding: 4px 8px;
+    max-width: 120px;
+  }
+}
+
+/* Optional: Dark Mode Support */
+body.dark-mode #google_translate_element .goog-te-combo {
+  background-color: #333;
+  color: white;
+  border-color: #555;
+}
+
+
+.goog-te-gadget-simple{
+  width: 100% !important;
+  margin: 10px 0 0 0;
+}
+.translate{
+  width: 100% !important;
+  /* margin: auto !important; */
+  /* margin-left: 2rem; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

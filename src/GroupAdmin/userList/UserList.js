@@ -1066,7 +1066,7 @@ const UserList = () => {
                       onChange={handleEditChange}
                     />
                   </div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label>Role</label>
                     <select
                       name="role"
@@ -1077,7 +1077,7 @@ const UserList = () => {
                       <option value="supervisor">Supervisor</option>
                       <option value="agent">Sale Agent</option>
                     </select>
-                  </div>
+                  </div> */}
                   <div className="form-group">
                     <label>Status</label>
                     <select

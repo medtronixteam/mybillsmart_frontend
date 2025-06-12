@@ -126,7 +126,6 @@ const ClientContractDocx = () => {
       });
       
     } catch (err) {
-      // Show error message
       showErrorAlert(err.message);
     } finally {
       setLoading(false);

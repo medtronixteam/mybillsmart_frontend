@@ -267,7 +267,6 @@ const Invoice = () => {
     e.target.value = "";
   };
 
-  // Upload File
   const uploadFile = async (selectedFile) => {
     if (!selectedFile) return;
     setUploading(true);
@@ -297,7 +296,6 @@ const Invoice = () => {
     }
   };
 
-  // Form Change Handler
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -413,31 +411,81 @@ const handleSubmit = async (e) => {
   }
 };
 
-  // Render Fields
-  const renderFormFields = (data) => {
-    return Object.keys(data)
-      .filter((key) => data[key] !== null && typeof data[key] !== "object")
-      .map((key, index) => {
-        const value = data[key];
-        return (
-          <div key={index} className="form-field">
-            <label>
-              {key
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
-              :
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={value || ""}
-              onChange={handleFormChange}
-              required
-            />
-          </div>
-        );
-      });
-  };
+ const renderFormFieldsByBillType = (data) => {
+  const commonFields = [
+    { key: "bill_type", label: "Bill Type" },
+    { key: "address", label: "Address" },
+    { key: "billing_period", label: "Billing Period" },
+    { key: "cups", label: "C.U.P.S Code" }, 
+    { key: "total_bill", label: "Total Bill" },
+    { key: "meter_rental", label: "Meter Rental" },
+  ];
+
+  let additionalFields = [];
+
+  if (data.bill_type === "GAS") {
+    additionalFields = [
+      { key: "total_consumption_m3", label: "Total Consumption (m³)" },
+      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+      { key: "price_per_unit", label: "Price per Unit" },
+      { key: "fixed_term", label: "Fixed Term" },
+      { key: "taxes", label: "Taxes" },
+      { key: "tariff", label: "Tariff" },
+    ];
+  } else if (data.bill_type === "ELECTRICITY") {
+    additionalFields = [
+      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+      { key: "fixed_term", label: "Fixed Term" },
+      { key: "taxes", label: "Taxes" },
+      { key: "tariff", label: "Tariff" },
+      { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+      { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
+      { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+      { key: "peak_power_kw", label: "Peak Power (kW)" },
+      { key: "valley_power_kw", label: "Valley Power (kW)" },
+      { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+      { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+      { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+      { key: "energy_term", label: "Energy Term" },
+    ];
+  } else if (data.bill_type === "GAS & ELECTRICITY") {
+    additionalFields = [
+      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+      { key: "price_per_unit", label: "Price per Unit" },
+      { key: "fixed_term", label: "Fixed Term" },
+      { key: "taxes", label: "Taxes" },
+      { key: "gas_tariff", label: "Gas Tariff" },
+      { key: "gas_fixed_term", label: "Gas Fixed Term" },
+      { key: "gas_energy_cost", label: "Gas Energy Cost" },
+      { key: "electricity_tariff", label: "Electricity Tariff" },
+      { key: "electricity_fixed_term", label: "Electricity Fixed Term" },
+      { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+      { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
+      { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+      { key: "peak_power_kw", label: "Peak Power (kW)" },
+      { key: "valley_power_kw", label: "Valley Power (kW)" },
+      { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+      { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+      { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+      { key: "energy_term", label: "Energy Term" },
+    ];
+  }
+
+  const allFields = [...commonFields, ...additionalFields];
+
+  return allFields.map((field, index) => (
+    <div key={index} className="form-field">
+      <label>{field.label}:</label>
+      <input
+        type="text"
+        name={field.key}
+        value={data[field.key] !== undefined ? data[field.key] : ""}
+        onChange={handleFormChange}
+        placeholder={`Enter ${field.label}`}
+      />
+    </div>
+  ));
+};
 
   // CSV Conversion
   const convertToCSV = (data) => {
@@ -1238,32 +1286,30 @@ if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status ===
           </>
         )}
         {/* Step 2 */}
-        {step === 2 && responseData && (
-          <div className="invoice-form-container w-100">
-            <h2 className="invoice-form-heading">Verify your Invoice</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-row">
-                {renderFormFields(formData).map((field, index) => (
-                  <div key={index} className="form-row-item">
-                    {field}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <button type="submit" className="invoice-submit-btn mb-3">
-                  Get Offers
-                </button>
-                 <button
-                type="button"
-                className="invoice-save-btn"
-                onClick={handleSave}
-              >
-                Save Invoice
-              </button>
-              </div>
-            </form>
+        {step === 2 && (
+  <div className="invoice-form-container w-100">
+    <h2 className="invoice-form-heading">Verify your Invoice</h2>
+    <form onSubmit={handleSubmit}>
+      <div className="form-row">
+        {renderFormFieldsByBillType(formData).map((field, idx) => (
+          <div key={idx} className="form-row-item">
+            {field}
           </div>
-        )}
+        ))}
+      </div>
+      <button type="submit" className="invoice-submit-btn">
+        Get Offers
+      </button>
+      <button
+        type="button"
+        className="invoice-save-btn"
+        onClick={handleSave}
+      >
+        Save Invoice
+      </button>
+    </form>
+  </div>
+)}
         
         {/* Step 3 */}
         {step === 3 && offers.length > 0 && (
