@@ -49,7 +49,6 @@ const AdminInvoice = () => {
   const navigate = useNavigate();
   const { token, email } = useAuth();
 
-  // Helper function to display API errors
   const showApiError = (error, defaultMessage = "An error occurred") => {
     const errorMessage =
       error.response?.data?.message || error.message || defaultMessage;

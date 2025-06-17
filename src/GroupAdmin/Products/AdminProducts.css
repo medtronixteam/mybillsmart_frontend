@@ -246,10 +246,8 @@ select {
 }
 /* Styling for the edit product card container */
 .edit-product-card {
-  background-color: #fff;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   margin: 20px auto;
   font-family: "Arial", sans-serif;
@@ -416,5 +414,19 @@ select {
   max-width: 300px;
   margin-right: 10px;
   margin-bottom: 10px;
+}
+.btn-primary {
+  background-color: #000000 !important;
+
+}
+.btn-outline-primary{
+  background-color: #2a6398 !important;
+  color: white;
+
+}
+
+.btn-outline-primary:hover, .btn-primary:hover {
+  background-color: #133758 !important;
+  color: white;
 
 }

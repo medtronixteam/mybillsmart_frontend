@@ -418,7 +418,7 @@ const MessageList = () => {
 
           <div className="col-12 col-md-4">
             <button
-              className="btn btn-primary w-100 my-0"
+              className="btn btn-primary w-100 my-0 p-2"
               onClick={resetFilters}
             >
               Reset Filters
