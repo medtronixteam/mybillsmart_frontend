@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import Breadcrumbs from "../Breadcrumbs";
 import { Navigate } from "react-router-dom";
+import axios from "axios";
 
 const GroupAdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -30,6 +31,9 @@ const GroupAdminDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [invoicesPerPage] = useState(5);
   const { token } = useAuth();
+  const [planInfo, setPlanInfo] = useState(null);
+  const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
+  const [showPlanError, setShowPlanError] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -48,7 +52,7 @@ const GroupAdminDashboard = () => {
           localStorage.removeItem("role");
           Navigate("/login");
           return;
-          }
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard data");
@@ -66,7 +70,39 @@ const GroupAdminDashboard = () => {
     fetchDashboardData();
   }, [token]);
 
-  // Prepare data for the chart
+  useEffect(() => {
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setPlanInfo(response.data);
+        setShowPlanError(false);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+
+        setPlanInfo({
+          status: error.response?.status || "error",
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch plan information",
+          code: error.code || null,
+        });
+        setShowPlanError(true);
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
+
+    if (token) {
+      fetchPlanInfo();
+    }
+  }, [token]);
+
   const chartData = [
     {
       name: "Users",
@@ -81,7 +117,6 @@ const GroupAdminDashboard = () => {
     },
   ];
 
-  // Get current invoices
   const indexOfLastInvoice = currentPage * invoicesPerPage;
   const indexOfFirstInvoice = indexOfLastInvoice - invoicesPerPage;
   const currentInvoices =
@@ -103,20 +138,32 @@ const GroupAdminDashboard = () => {
       >
         <div className="text-center">
           <div
-            class="spinner-border"
+            className="spinner-border"
             role="status"
             style={{ color: "#3598db" }}
           >
-            <span class="visually-hidden">Loading...</span>
+            <span className="visually-hidden">Loading...</span>
           </div>
-          {/* <p className="mt-3">Loading dashboard data...</p> */}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid">
+      
+      {showPlanError && (
+       <div className="alert alert-primary text-center " role="alert">
+             {planInfo?.message || "Unknown error occurred"}
+              <button 
+                type="button" 
+                className="btn-close" 
+                onClick={() => setShowPlanError(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+      )}
+
       {/* Stats Cards Row */}
       <div className="row">
         <div className="col-12 mb-3">
@@ -211,6 +258,9 @@ const GroupAdminDashboard = () => {
         </div>
       </div>
 
+      {/* Rest of your existing dashboard content... */}
+      {/* (Keep all the other parts of your dashboard as they were) */}
+
       {/* Second Row of Cards */}
       <div className="row mt-4">
         {/* Total Invoices Card */}
@@ -234,50 +284,6 @@ const GroupAdminDashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Paid Invoices Card */}
-        {/* <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Paid Invoices
-                </p>
-                <h5 className="font-weight-bolder mb-0">
-                  {dashboardData?.paid_invoices || 0}
-                </h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#1abc9c" }}
-              >
-                <FaFileInvoiceDollar className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Empty Card for Layout */}
-        {/* <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-          <div className="card bg-white h-100">
-            <div className="card-body p-3 d-flex justify-content-center align-items-center flex-column">
-              <div className="numbers text-center">
-                <p className="text-sm mb-0 text-capitalize font-weight-bold">
-                    Total Revenue
-                </p>
-                <h5 className="font-weight-bolder mb-0">
-                  ${dashboardData?.total_revenue?.toLocaleString() || "0"}
-                </h5>
-              </div>
-              <div
-                className="icon icon-shape shadow text-center border-radius-md mt-3 d-flex justify-content-center align-items-center"
-                style={{ backgroundColor: "#e67e22" }}
-              >
-                <FaCoins className="text-white text-lg opacity-10" />
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {/* Latest Invoices Table */}
@@ -292,11 +298,9 @@ const GroupAdminDashboard = () => {
                 <table className="table table-hover">
                   <thead className="thead-light">
                     <tr>
-                      {/* <th>ID</th> */}
                       <th>Bill Type</th>
                       <th>Address</th>
                       <th>CUPS</th>
-
                       <th>Total Bill</th>
                     </tr>
                   </thead>
@@ -304,17 +308,15 @@ const GroupAdminDashboard = () => {
                     {currentInvoices.length > 0 ? (
                       currentInvoices.map((invoice) => (
                         <tr key={invoice.id}>
-                          {/* <td>{invoice.id}</td> */}
                           <td>{invoice.bill_type}</td>
                           <td>{invoice.address}</td>
                           <td>{invoice.CUPS}</td>
-
                           <td>{invoice.bill_info?.["total bill"] || "N/A"}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7" className="text-center">
+                        <td colSpan="4" className="text-center">
                           No invoices found
                         </td>
                       </tr>
@@ -387,6 +389,7 @@ const GroupAdminDashboard = () => {
           </div>
         </div>
       </div>
+      
       {/* Comprehensive Bar Chart */}
       <div className="row mt-4">
         <div className="col-12">

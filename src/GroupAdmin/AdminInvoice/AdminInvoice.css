@@ -277,6 +277,28 @@
   display: block;
   box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
+.status-button{
+  margin: 10px auto !important;
+  padding: 12px 0px !important;
+  background-color: #3598da;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 61%;
+  
+  transition: background-color 0.3s;
+  display: block;
+  box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+.pdf-btn {
+  margin: 10px auto !important;
+  padding: 8px 0px;
+  background-color: white;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+}
 @media screen and (max-width: 1199px) {
   /* .invoice-download-pdf-btn {
     right: 0;

@@ -73,3 +73,10 @@ body.sidebar-open {
     right: unset !important;
   }
 }
+
+
+.alert-primary{
+  background-color: #3598da !important;
+  color: white;
+
+}

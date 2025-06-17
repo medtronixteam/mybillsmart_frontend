@@ -1262,26 +1262,44 @@ const renderFormFieldsByBillType = (data) => {
     );
   }
  if (planInfo?.status === 404 || planInfo?.status === 403 || planInfo?.status === "error") {
-    return (
-      <div className="container mt-5">
-        <div className="row justify-content-center">
-          <div className="col-md-8 col-lg-6">
-            <div className="card border-danger text-center p-5">
-              <BsExclamationCircle
-                className="text-danger mx-auto text-center mb-4"
-                size={64}
-              />
-              <h2>Information</h2>
-              <p>
-                {planInfo?.message ||
-                  "You need to purchase a plan to submit invoices."}
-              </p>
-            </div>
+  return (
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card border-danger text-center p-5">
+            <BsExclamationCircle
+              className="text-danger mx-auto text-center mb-4"
+              size={64}
+            />
+            <h2>Information</h2>
+            <p>
+              {planInfo?.message ||
+                "You need to purchase a plan to submit invoices."}
+            </p>
+
+            {planInfo?.status === 403 && (
+              <button
+                className="status-button"
+                onClick={() => window.location.href = "/group_admin/subscription"}
+              >
+                Buy Plan
+              </button>
+            )}
+            {planInfo?.status === 404 && (
+              <button
+                className="status-button"
+                onClick={() => window.location.href = "/group_admin/add-Agreement"}
+              >
+                Add Agreement
+              </button>
+            )}
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
   return (
     <>
       <div className="mt-4 container">

@@ -19,12 +19,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Breadcrumbs from "../Breadcrumbs";
+import axios from "axios";
+
+
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuth();
+   const [planInfo, setPlanInfo] = useState(null);
+  const [loadingPlanInfo, setLoadingPlanInfo] = useState(true);
+  const [showPlanError, setShowPlanError] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -54,8 +60,38 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, [token]);
+ useEffect(() => {
+    const fetchPlanInfo = async () => {
+      try {
+        const response = await axios.get(`${config.BASE_URL}/api/plan/info`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  // Prepare data for the chart
+        setPlanInfo(response.data);
+        setShowPlanError(false);
+      } catch (error) {
+        console.error("Error fetching plan info:", error);
+
+        setPlanInfo({
+          status: error.response?.status || "error",
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to fetch plan information",
+          code: error.code || null,
+        });
+        setShowPlanError(true);
+      } finally {
+        setLoadingPlanInfo(false);
+      }
+    };
+
+    if (token) {
+      fetchPlanInfo();
+    }
+  }, [token]);
   const chartData = [
     {
       name: "Contracts",
@@ -93,7 +129,18 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid">
+       {showPlanError && (
+       <div className="alert alert-primary text-center " role="alert">
+             {planInfo?.message || "Unknown error occurred"}
+              <button 
+                type="button" 
+                className="btn-close" 
+                onClick={() => setShowPlanError(false)}
+                aria-label="Close"
+              ></button>
+            </div>
+      )}
       {/* Stats Cards Row */}
       <div className="row">
         <div className="col-12 mb-3">
