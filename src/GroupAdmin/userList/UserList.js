@@ -846,7 +846,7 @@ const UserList = () => {
                 className="form-select mb-2"
               >
                 <option value="all">All Roles</option>
-                <option value="agent">Aale Agent</option>
+                <option value="agent">Sale Agent</option>
                 <option value="client">Client</option>
                 <option value="supervisor">Supervisor</option>
               </select>
@@ -1019,7 +1019,10 @@ const UserList = () => {
           {isModalOpen && (
             <div className="modal-overlay">
               <div className="edit-user-modal">
-                <h2>Edit User</h2>
+               <div className="d-flex justify-content-between">
+                 <h2 className="text-center">Edit User</h2>
+                <p onClick={() => setIsModalOpen(false)} style={{backgroundColor : 'transparent', border : 'none', cursor : 'pointer', fontSize : '20px'}}>X</p>
+               </div>
                 <form>
                   <div className="form-group">
                     <label>Name</label>

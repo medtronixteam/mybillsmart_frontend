@@ -290,7 +290,7 @@ const CompanyDetails = () => {
             disabled={isSubmitting}
             className="company-details-submit"
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </form>
       </div>

@@ -415,11 +415,11 @@ select {
   margin-right: 10px;
   margin-bottom: 10px;
 }
-.btn-primary {
+.products-container .btn-primary {
   background-color: #000000 !important;
 
 }
-.btn-outline-primary{
+.products-container .btn-outline-primary{
   background-color: #2a6398 !important;
   color: white;
 
