@@ -89,7 +89,7 @@ const AgentScheduleMessage = () => {
       <div className="schedule-message-container p-lg-5 p-4 mt-5">
         <div className="d-flex justify-content-between align-items-center px-lg-4 px-3 pb-lg-4 pb-3">
           <h2 className="page-title mb-0">Schedule New Campaign</h2>
-          <Link to="/agent/message-list">
+          <Link to="/agent/campaign-list">
             <button className="btn bg-white msg-list-btn">Campaign List</button>
           </Link>
         </div>

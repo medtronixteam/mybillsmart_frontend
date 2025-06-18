@@ -285,8 +285,32 @@ const AdminInvoice = () => {
         return;
       }
       if (response.data) {
-        setResponseData(response.data);
-        setFormData(response.data);
+        // Only allow known valid bill types
+        const validBillTypes = ["electricity", "gas", "GAS & ELECTRICITY"];
+        const billType = (response.data.bill_type || "").toString().toLowerCase();
+        if (!validBillTypes.includes(billType)) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Bill Type",
+            text: "Please upload a valid bill file with correct bill type.",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+          setFile(null);
+          setUploading(false);
+          return;
+        }
+
+        // Clean the response data to remove Unknown and N/A values
+        const cleanedData = Object.fromEntries(
+          Object.entries(response.data).map(([key, value]) => [
+            key,
+            value === "Unknown" || value === "N/A" ? "" : value
+          ])
+        );
+
+        setResponseData(cleanedData);
+        setFormData(cleanedData);
         setStep(2);
         Swal.fire({
           icon: "success",
@@ -307,99 +331,125 @@ const AdminInvoice = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
+    // Don't allow Unknown or N/A values
+    if (value === "Unknown" || value === "N/A") {
+      return;
+    }
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const groupId = await fetchGroupId();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form fields before proceeding
+    const invalidFields = Object.entries(formData)
+      .filter(([key, value]) => {
+        // Skip validation for fields that can be 0
+        if (value === 0 || value === "0") return false;
+        // Check for N/A or Unknown values
+        return value === "N/A" || value === "Unknown" || !value;
+      })
+      .map(([key]) => key);
 
-    const matchData = {
-      ...formData,
-      group_id: groupId,
-      app_mode: "0",
-    };
-
-    const matchResponse = await axios.post(
-      "https://ocr.ai3dscanning.com/api/match/",
-      matchData,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    setSubmittedData(matchResponse.data);
-
-    const invoicePayload = {
-      ...formData,
-      group_id: groupId,
-    };
-
-    const invoiceResponse = await axios.post(
-      `${config.BASE_URL}/api/group/invoices`,
-      invoicePayload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const invoiceId = invoiceResponse.data.invoice;
-    setInvoiceId(invoiceId);
-
-    const offersData = matchResponse.data.map((item) => ({
-      ...item,
-      invoice_id: invoiceId,
-    }));
-
-    const offersResponse = await axios.post(
-      `${config.BASE_URL}/api/group/offers`,
-      offersData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (offersResponse.data && offersResponse.data.offers) {
-      setOffers(offersResponse.data.offers);
+    if (invalidFields.length > 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Fields",
+        text: `Please fill in the following fields: ${invalidFields.join(", ")}`,
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
     }
 
-    setStep(3);
+    try {
+      const groupId = await fetchGroupId();
 
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Invoice submitted successfully!",
-      timer: 3000,
-      showConfirmButton: false,
-    });
+      const matchData = {
+        ...formData,
+        group_id: groupId,
+        app_mode: "0",
+      };
 
-  } catch (error) {
-    console.error("Error submitting data", error);
+      const matchResponse = await axios.post(
+        "https://ocr.ai3dscanning.com/api/match/",
+        matchData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-    // Extract error message from API response
-    const apiMessage =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      error?.message ||
-      "Something went wrong";
+      setSubmittedData(matchResponse.data);
 
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: apiMessage,
-    });
-  }
-};
+      const invoicePayload = {
+        ...formData,
+        group_id: groupId,
+      };
+
+      const invoiceResponse = await axios.post(
+        `${config.BASE_URL}/api/group/invoices`,
+        invoicePayload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const invoiceId = invoiceResponse.data.invoice;
+      setInvoiceId(invoiceId);
+
+      const offersData = matchResponse.data.map((item) => ({
+        ...item,
+        invoice_id: invoiceId,
+      }));
+
+      const offersResponse = await axios.post(
+        `${config.BASE_URL}/api/group/offers`,
+        offersData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (offersResponse.data && offersResponse.data.offers) {
+        setOffers(offersResponse.data.offers);
+      }
+
+      setStep(3);
+
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Invoice submitted successfully!",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+      console.error("Error submitting data", error);
+
+      // Extract error message from API response
+      const apiMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Something went wrong";
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: apiMessage,
+      });
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -438,23 +488,27 @@ const AdminInvoice = () => {
   const renderFormFields = (data) => {
     return Object.keys(data)
       .filter((key) => data[key] !== null && typeof data[key] !== "object")
-      .map((key, index) => (
-        <div key={index} className="form-field">
-          <label>
-            {key
-              .replace(/([A-Z])/g, " $1")
-              .replace(/^./, (str) => str.toUpperCase())}
-            :
-          </label>
-          <input
-            type="text"
-            name={key}
-            value={data[key] || ""}
-            onChange={handleFormChange}
-            required
-          />
-        </div>
-      ));
+      .map((key, index) => {
+        // Replace Unknown or N/A values with empty string
+        const value = data[key] === "Unknown" || data[key] === "N/A" ? "" : data[key];
+        return (
+          <div key={index} className="form-field">
+            <label>
+              {key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
+              :
+            </label>
+            <input
+              type="text"
+              name={key}
+              value={value || ""}
+              onChange={handleFormChange}
+              required
+            />
+          </div>
+        );
+      });
   };
 
   const convertToCSV = (data) => {
@@ -1090,83 +1144,83 @@ const AdminInvoice = () => {
   const handleClientSelect = (e) => {
     setSelectedClient(e.target.value);
   };
-const renderFormFieldsByBillType = (data) => {
- 
-  const commonFields = [
-    { key: "bill_type", label: "Bill Type" },
-    { key: "address", label: "Address" },
-    { key: "billing_period", label: "Billing Period" },
-    { key: "cups", label: "C.U.P.S Code" },
-    { key: "total_bill", label: "Total Bill" },
-    { key: "meter_rental", label: "Meter Rental" },
-  ];
 
-  let additionalFields = [];
-
-  if (data.bill_type === "GAS") {
-    additionalFields = [
-      { key: "total_consumption_m3", label: "Total Consumption (m³)" },
-      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
-      { key: "price_per_unit", label: "Price per Unit" },
-      { key: "fixed_term", label: "Fixed Term" },
-      { key: "taxes", label: "Taxes" },
-      { key: "tariff", label: "Tariff" },
+  const renderFormFieldsByBillType = (data) => {
+    const commonFields = [
+      { key: "bill_type", label: "Bill Type" },
+      { key: "address", label: "Address" },
+      { key: "billing_period", label: "Billing Period" },
+      { key: "cups", label: "C.U.P.S Code" },
+      { key: "total_bill", label: "Total Bill" },
+      { key: "meter_rental", label: "Meter Rental" },
     ];
-  } else if (data.bill_type === "ELECTRICITY") {
-    additionalFields = [
-      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
-      { key: "fixed_term", label: "Fixed Term" },
-      { key: "taxes", label: "Taxes" },
-      { key: "tariff", label: "Tariff" },
-      { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
-      { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
-      { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
-      { key: "peak_power_kw", label: "Peak Power (kW)" },
-      { key: "valley_power_kw", label: "Valley Power (kW)" },
-      { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
-      { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
-      { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
-      { key: "energy_term", label: "Energy Term" },
-    ];
-  } else if (data.bill_type === "GAS & ELECTRICITY") {
-    additionalFields = [
-      { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
-      { key: "price_per_unit", label: "Price per Unit" },
-      { key: "fixed_term", label: "Fixed Term" },
-      { key: "taxes", label: "Taxes" },
-      { key: "gas_tariff", label: "Gas Tariff" },
-      { key: "gas_fixed_term", label: "Gas Fixed Term" },
-      { key: "gas_energy_cost", label: "Gas Energy Cost" },
-      { key: "electricity_tariff", label: "Electricity Tariff" },
-      { key: "electricity_fixed_term", label: "Electricity Fixed Term" },
-      { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
-      { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
-      { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
-      { key: "peak_power_kw", label: "Peak Power (kW)" },
-      { key: "valley_power_kw", label: "Valley Power (kW)" },
-      { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
-      { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
-      { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
-      { key: "energy_term", label: "Energy Term" },
-    ];
-  }
 
-  // All fields combined and deduplicated
-  const allFields = [...commonFields, ...additionalFields];
+    let additionalFields = [];
 
-  return allFields.map((field, index) => (
-    <div key={index} className="form-field">
-      <label>{field.label}:</label>
-      <input
-        type="text"
-        name={field.key}
-        value={data[field.key] !== undefined ? data[field.key] : ""}
-        onChange={handleFormChange}
-        placeholder={`Enter ${field.label}`}
-      />
-    </div>
-  ));
-};
+    if (data.bill_type === "GAS") {
+      additionalFields = [
+        { key: "total_consumption_m3", label: "Total Consumption (m³)" },
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "price_per_unit", label: "Price per Unit" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "tariff", label: "Tariff" },
+      ];
+    } else if (data.bill_type === "ELECTRICITY") {
+      additionalFields = [
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "tariff", label: "Tariff" },
+        { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+        { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
+        { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+        { key: "peak_power_kw", label: "Peak Power (kW)" },
+        { key: "valley_power_kw", label: "Valley Power (kW)" },
+        { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+        { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+        { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+        { key: "energy_term", label: "Energy Term" },
+      ];
+    } else if (data.bill_type === "GAS & ELECTRICITY") {
+      additionalFields = [
+        { key: "total_consumption_kwh", label: "Total Consumption (kWh)" },
+        { key: "price_per_unit", label: "Price per Unit" },
+        { key: "fixed_term", label: "Fixed Term" },
+        { key: "taxes", label: "Taxes" },
+        { key: "gas_tariff", label: "Gas Tariff" },
+        { key: "gas_fixed_term", label: "Gas Fixed Term" },
+        { key: "gas_energy_cost", label: "Gas Energy Cost" },
+        { key: "electricity_tariff", label: "Electricity Tariff" },
+        { key: "electricity_fixed_term", label: "Electricity Fixed Term" },
+        { key: "peak_consumption_kwh", label: "Peak Consumption (kWh)" },
+        { key: "off_peak_consumption_kwh", label: "Off-Peak Consumption (kWh)" },
+        { key: "valley_consumption_kwh", label: "Valley Consumption (kWh)" },
+        { key: "peak_power_kw", label: "Peak Power (kW)" },
+        { key: "valley_power_kw", label: "Valley Power (kW)" },
+        { key: "peak_price_per_kwh", label: "Peak Price per kWh" },
+        { key: "off_peak_price_per_kwh", label: "Off-Peak Price per kWh" },
+        { key: "valley_price_per_kwh", label: "Valley Price per kWh" },
+        { key: "energy_term", label: "Energy Term" },
+      ];
+    }
+
+    // All fields combined and deduplicated
+    const allFields = [...commonFields, ...additionalFields];
+
+    return allFields.map((field, index) => (
+      <div key={index} className="form-field">
+        <label>{field.label}:</label>
+        <input
+          type="text"
+          name={field.key}
+          value={data[field.key] !== undefined ? data[field.key] : ""}
+          onChange={handleFormChange}
+          placeholder={`Enter ${field.label}`}
+        />
+      </div>
+    ));
+  };
 
   const handleModalSubmit = async () => {
     if (!selectedClient) {

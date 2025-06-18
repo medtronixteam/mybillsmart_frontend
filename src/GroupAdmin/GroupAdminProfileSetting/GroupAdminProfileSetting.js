@@ -24,7 +24,6 @@ const GroupAdminProfileSetting = () => {
     confirm_password: "",
   });
 
-  // State for password visibility
   const [showPasswords, setShowPasswords] = useState({
     current_password: false,
     new_password: false,

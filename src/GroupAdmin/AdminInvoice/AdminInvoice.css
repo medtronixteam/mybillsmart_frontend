@@ -581,6 +581,7 @@
   display: block;
   font-weight: 700;
   box-shadow: inset 4px 4px 10px rgba(128, 128, 128, 0.5);
+  margin-bottom: 20px;
 }
 .invoice-pdf-title {
   color: #4a6baf;
