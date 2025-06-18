@@ -4,6 +4,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import Swal from "sweetalert2";
 import config from "../../config";
 import Breadcrumbs from "../../Breadcrumbs";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const GroupAdminProfileSetting = () => {
   // State for profile data
   const [profileData, setProfileData] = useState({
@@ -20,6 +22,13 @@ const GroupAdminProfileSetting = () => {
     current_password: "",
     new_password: "",
     confirm_password: "",
+  });
+
+  // State for password visibility
+  const [showPasswords, setShowPasswords] = useState({
+    current_password: false,
+    new_password: false,
+    confirm_password: false,
   });
 
   // State for 2FA
@@ -52,6 +61,14 @@ const GroupAdminProfileSetting = () => {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
+  };
+
+  // Handle password visibility toggle
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
   };
 
   // Handle 2FA input change
@@ -409,16 +426,25 @@ const GroupAdminProfileSetting = () => {
               >
                 Current Password
               </label>
-              <input
-                type="password"
-                id="current_password"
-                name="current_password"
-                placeholder="Enter your current password"
-                value={passwordData.current_password}
-                onChange={handlePasswordChange}
-                className="form-control profile-input-field"
-                required
-              />
+              <div className="position-relative">
+                <input
+                  type={showPasswords.current_password ? "text" : "password"}
+                  id="current_password"
+                  name="current_password"
+                  placeholder="Enter your current password"
+                  value={passwordData.current_password}
+                  onChange={handlePasswordChange}
+                  className="form-control profile-input-field"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => togglePasswordVisibility('current_password')}
+                >
+                  {showPasswords.current_password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <div className="">
               <label
@@ -427,16 +453,25 @@ const GroupAdminProfileSetting = () => {
               >
                 New Password
               </label>
-              <input
-                type="password"
-                id="new_password"
-                name="new_password"
-                placeholder="Enter your new password"
-                value={passwordData.new_password}
-                onChange={handlePasswordChange}
-                className="form-control profile-input-field"
-                required
-              />
+              <div className="position-relative">
+                <input
+                  type={showPasswords.new_password ? "text" : "password"}
+                  id="new_password"
+                  name="new_password"
+                  placeholder="Enter your new password"
+                  value={passwordData.new_password}
+                  onChange={handlePasswordChange}
+                  className="form-control profile-input-field"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => togglePasswordVisibility('new_password')}
+                >
+                  {showPasswords.new_password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <div className="">
               <label
@@ -445,16 +480,25 @@ const GroupAdminProfileSetting = () => {
               >
                 Confirm Password
               </label>
-              <input
-                type="password"
-                id="confirm_password" 
-                name="confirm_password"
-                placeholder="Confirm your new password"
-                value={passwordData.confirm_password}
-                onChange={handlePasswordChange}
-                className="form-control profile-input-field"
-                required
-              />
+              <div className="position-relative">
+                <input
+                  type={showPasswords.confirm_password ? "text" : "password"}
+                  id="confirm_password"
+                  name="confirm_password"
+                  placeholder="Confirm your new password"
+                  value={passwordData.confirm_password}
+                  onChange={handlePasswordChange}
+                  className="form-control profile-input-field"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => togglePasswordVisibility('confirm_password')}
+                >
+                  {showPasswords.confirm_password ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <div className="text-center">
               <button

@@ -52,6 +52,8 @@
   border: 1px solid #ccc;
   width: 100%;
   margin-bottom: 15px;
+  padding-right: 40px; /* Add space for the eye icon */
+  box-sizing: border-box;
 }
 .profile-input-field:focus {
   outline: none;
@@ -80,6 +82,24 @@
   background-color: #2c7fb7;
 }
 
+/* Password visibility toggle button styles */
+.btn-link {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.btn-link:hover {
+  color: #007bff !important;
+}
+
+.btn-link svg {
+  font-size: 1.2rem;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .card {
@@ -92,5 +112,42 @@
 
   .profile-input-field {
     padding: 10px;
+    padding-right: 40px;
   }
+}
+
+.position-relative {
+  position: relative;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: transparent !important;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  z-index: 2;
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.password-toggle-btn svg {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.password-toggle-btn:hover svg {
+  color: #007bff;
 }
