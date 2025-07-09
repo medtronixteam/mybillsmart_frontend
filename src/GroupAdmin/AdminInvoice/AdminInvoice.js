@@ -285,14 +285,13 @@ const AdminInvoice = () => {
         return;
       }
       if (response.data) {
-        // Only allow known valid bill types
-        const validBillTypes = ["electricity", "gas", "GAS & ELECTRICITY"];
-        const billType = (response.data.bill_type || "").toString().toLowerCase();
+        const validBillTypes = ["ELECTRICITY", "GAS", "GAS & ELECTRICITY"];
+        const billType = (response.data.bill_type || "");
         if (!validBillTypes.includes(billType)) {
           Swal.fire({
             icon: "error",
             title: "Invalid Bill Type",
-            text: "Please upload a valid bill file with correct bill type.",
+            text: "Please upload a valid file",
             timer: 3000,
             showConfirmButton: false,
           });
@@ -381,7 +380,19 @@ const AdminInvoice = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
+      if (!matchResponse.data || !Array.isArray(matchResponse.data) || matchResponse.data.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No Offers Found",
+          text: "No offers are available for the submitted invoice.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      
+        // Step 2 par hi raho, step 3 na jaye
+        setStep(2);
+        return;
+      }
       setSubmittedData(matchResponse.data);
 
       const invoicePayload = {

@@ -40,6 +40,7 @@ const InvoiceList = () => {
       "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
   });
   const [searchTerm, setSearchTerm] = useState(""); // 🔍 Search state
+  const [offersError, setOffersError] = useState(false);
 
   const { token, email } = useAuth();
   const navigate = useNavigate();
@@ -107,44 +108,53 @@ const InvoiceList = () => {
   };
 
   const fetchInvoiceDetails = async (id) => {
+    setLoading(true);
+    setOffersError(false);
     try {
-      setLoading(true);
-      const [invoiceResponse, offersResponse] = await Promise.all([
-        fetch(`${config.BASE_URL}/api/agent/invoices/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }),
-        fetch(`${config.BASE_URL}/api/agent/invoice/offers`, {
+      // Fetch invoice details first
+      const invoiceResponse = await fetch(`${config.BASE_URL}/api/agent/invoices/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!invoiceResponse.ok) {
+        throw new Error("Failed to fetch invoice details");
+      }
+      const invoiceData = await invoiceResponse.json();
+      setSelectedInvoice(invoiceData.data || invoiceData);
+      setShowNewTable(true);
+      // Now try to fetch offers, but don't block invoice details if it fails
+      try {
+        const offersResponse = await fetch(`${config.BASE_URL}/api/agent/invoice/offers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ invoice_id: id }),
-        }),
-      ]);
-      if (!invoiceResponse.ok || !offersResponse.ok) {
-        throw new Error("Failed to fetch invoice details or offers");
+        });
+        if (!offersResponse.ok) throw new Error("Offers API error");
+        const offersData = await offersResponse.json();
+        setOffers(
+          Array.isArray(offersData)
+            ? offersData
+            : Array.isArray(offersData.data)
+            ? offersData.data
+            : offersData.offers || []
+        );
+        setOffersError(false);
+      } catch (offerErr) {
+        setOffers([]);
+        setOffersError(true);
       }
-      const invoiceData = await invoiceResponse.json();
-      const offersData = await offersResponse.json();
-      setSelectedInvoice(invoiceData.data || invoiceData);
-      setOffers(
-        Array.isArray(offersData)
-          ? offersData
-          : Array.isArray(offersData.data)
-          ? offersData.data
-          : offersData.offers || []
-      );
-      setShowNewTable(true);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching invoice details:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Failed to fetch invoice details. Please try again.",
       });
+      setSelectedInvoice(null);
+      setOffers([]);
+      setOffersError(false);
     } finally {
       setLoading(false);
     }
@@ -1210,8 +1220,8 @@ const generateSingleOfferPDFBlob = (offer) => {
     if (!selectedInvoice) return null;
     const filteredData = getFilteredInvoiceData(selectedInvoice);
     return (
-      <div className="invoice-details-container">
-        <div className="invoice-details-header">
+      <div className="modern-invoice-details">
+        <div className="modern-invoice-header">
           <h2>Invoice Details</h2>
           <button
             className="back-button"
@@ -1220,11 +1230,11 @@ const generateSingleOfferPDFBlob = (offer) => {
             Back to List
           </button>
         </div>
-        <div className="details-grid">
+        <div className="modern-details-grid">
           {filteredData.map(([key, value]) => (
-            <div key={key} className="detail-item">
-              <div className="detail-label">{key}:</div>
-              <div className="detail-value">
+            <div key={key} className="modern-detail-item">
+              <div className="modern-detail-label">{key}:</div>
+              <div className="modern-detail-value">
                 {key.toLowerCase().includes("offer selected")
                   ? renderOfferStatus(value)
                   : formatValue(value)}
@@ -1237,6 +1247,13 @@ const generateSingleOfferPDFBlob = (offer) => {
   };
 
   const renderOfferCards = () => {
+    if (offersError) {
+      return (
+        <div className="no-offers">
+          No offers available or an error occurred while fetching offers.
+        </div>
+      );
+    }
     if (!offers || offers.length === 0) {
       return (
         <div className="no-offers">
@@ -1245,64 +1262,64 @@ const generateSingleOfferPDFBlob = (offer) => {
       );
     }
     return (
-      <div className="offers-section">
-        <h2 className="offers-title">Available Offers</h2>
-        <div className="offers-grid">
+      <div className="modern-offer-cards">
+        <h2 className="modern-offers-title">Available Offers</h2>
+        <div className="modern-offers-grid">
           {offers.map((offer, index) => (
-            <div key={offer.id || index} className="offer-card">
-              <div className="offer-card-header">
+            <div key={offer.id || index} className="modern-offer-card">
+              <div className="modern-offer-card-header">
                 <h3>Offer #{index + 1}</h3>
                 {offer.is_selected && (
-                  <span className="selected-badge">Selected</span>
+                  <span className="modern-selected-badge">Selected</span>
                 )}
               </div>
-              <div className="offer-card-body">
-                <div className="offer-field">
-                  <span className="offer-label">Provider:</span>
-                  <span className="offer-value">
+              <div className="modern-offer-card-body">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Provider:</span>
+                  <span className="modern-offer-value">
                     {offer.provider_name || "N/A"}
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Product:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Product:</span>
+                  <span className="modern-offer-value">
                     {offer.product_name || "N/A"}
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Monthly Saving:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Monthly Saving:</span>
+                  <span className="modern-offer-value">
                     {offer.monthly_saving_amount || "0"}
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Yearly Saving:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Yearly Saving:</span>
+                  <span className="modern-offer-value">
                     {offer.yearly_saving_amount || "0"}
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Yearly Saving:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Yearly Saving:</span>
+                  <span className="modern-offer-value">
                     {offer.yearly_saving_percentage || "0"}%
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Commission:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Commission:</span>
+                  <span className="modern-offer-value">
                     {offer.sales_commission || "0"}
                   </span>
                 </div>
-                <div className="offer-field">
-                  <span className="offer-label">Status:</span>
-                  <span className="offer-value">
+                <div className="modern-offer-field">
+                  <span className="modern-offer-label">Status:</span>
+                  <span className="modern-offer-value">
                     {renderOfferStatus(offer.is_selected || 0)}
                   </span>
                 </div>
-                <div className="offer-actions">
+                <div className="modern-offer-actions">
                   {selectedInvoice?.is_offer_selected === 0 && (
                     <button
-                      className="create-agreement-btn"
+                      className="modern-create-agreement-btn"
                       onClick={() => handleCreateAgreement(offer.id)}
                     >
                       Create Agreement
@@ -1319,25 +1336,25 @@ const generateSingleOfferPDFBlob = (offer) => {
             </div>
           ))}
         </div>
-        <div className="export-buttons">
-          <button onClick={downloadPDF} className="export-btn pdf-btn">
+        <div className="modern-export-buttons">
+          <button onClick={downloadPDF} className="modern-export-btn pdf-btn">
             <FaFilePdf className="me-2" /> PDF
           </button>
-          <button onClick={downloadCSV} className="export-btn csv-btn">
+          <button onClick={downloadCSV} className="modern-export-btn csv-btn">
             <FaFileCsv className="me-2" /> CSV
           </button>
-          <button onClick={downloadExcel} className="export-btn excel-btn">
+          <button onClick={downloadExcel} className="modern-export-btn excel-btn">
             <FaFileExcel className="me-2" /> Excel
           </button>
           <button
             onClick={handleWhatsappClick}
-            className="export-btn whatsapp-btn"
+            className="modern-export-btn whatsapp-btn"
           >
             <FaWhatsapp className="me-2" /> WhatsApp
           </button>
           <button
             onClick={handleMultiOfferWhatsappClick}
-            className="export-btn multi-whatsapp-btn"
+            className="modern-export-btn multi-whatsapp-btn"
           >
             <FaWhatsapp className="me-2" /> Select & Send
           </button>
@@ -1626,11 +1643,11 @@ const generateSingleOfferPDFBlob = (offer) => {
                   (e.g., 923001234567 for Pakistan)
                 </small>
               </div>
-              <div className="offers-selection">
+              <div className="modern-offers-selection">
                 <h4>Select Offers:</h4>
-                <div className="offers-checkboxes">
+                <div className="modern-offers-checkboxes">
                   {offers.map((offer) => (
-                    <div key={offer.id} className="offer-checkbox">
+                    <div key={offer.id} className="modern-offer-checkbox">
                       <label>
                         <input
                           type="checkbox"

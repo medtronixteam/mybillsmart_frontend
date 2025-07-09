@@ -121,6 +121,7 @@ import ChatBoard from "./GroupAdmin/ChatBoard/ChatBoard";
 import SupervisorManageGoal from "./Provider/SupervisorManageGoal/SupervisorManageGoal";
 import SupervisorGoalList from "./Provider/SupervisorGoalList/SupervisorGoalList";
 import AgentScheduleMessage from "./components/AgentScheduleMessage/AgentScheduleMessage";
+import ApiIntegration from "./GroupAdmin/ApiIntegration/ApiIntegration";
 
 const stripePromise = loadStripe(config.STRIPE.PUBLIC_KEY);
 
@@ -593,6 +594,10 @@ const App = () => {
                           <Route
                             path="chat"
                             element={<ChatBoard />}
+                          />
+                          <Route
+                            path="api-integration"
+                            element={<ApiIntegration />}
                           />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

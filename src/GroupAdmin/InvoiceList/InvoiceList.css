@@ -327,3 +327,113 @@
 
   margin: 10px 0;
 }
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* Modal Content */
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(53,152,219,0.18);
+  padding: 36px 32px 28px 32px;
+  max-width: 700px;
+  width: 95vw;
+  min-width: 320px;
+  position: relative;
+  animation: modalFadeIn 0.2s;
+  height: 80vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Close Button */
+.modal-content .modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #3598db;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Form Styling: 2 columns */
+.offer-form-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+  margin-bottom: 18px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+.form-group label {
+  font-weight: 700;
+  color: #3598db;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+.form-control {
+  padding: 10px 14px;
+  border-radius: 7px;
+  border: 1.5px solid #e0e0e0;
+  font-size: 1.08rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.form-control:focus {
+  border: 1.5px solid #3598db;
+  box-shadow: 0 2px 8px rgba(53,152,219,0.08);
+}
+.form-message {
+  color: #e74c3c;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 10px;
+  grid-column: 1 / -1;
+}
+.offer-form-section button {
+  margin-top: 8px;
+  padding: 12px 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  grid-column: 1 / -1;
+}
+.offer-form-section .back-button {
+  background: #e0e0e0;
+  color: #222;
+  margin-left: 8px;
+}
+@media (max-width: 900px) {
+  .modal-content {
+    max-width: 98vw;
+    padding: 18px 6vw 18px 6vw;
+  }
+  .offer-form-section {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}

@@ -40,6 +40,13 @@ const InvoiceList = () => {
       "Here are your invoice details from MyBillSmart. Please review the attached PDF.",
   });
   const [searchTerm, setSearchTerm] = useState(""); // 🔍 Search state
+  const [offersError, setOffersError] = useState(false);
+  const [generatedOffers, setGeneratedOffers] = useState([]);
+  const [generatingOffers, setGeneratingOffers] = useState(false);
+  const [generateOffersError, setGenerateOffersError] = useState("");
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [offerFormData, setOfferFormData] = useState({});
+  const [createdInvoiceDetails, setCreatedInvoiceDetails] = useState(null);
 
   const { token, email } = useAuth();
   const navigate = useNavigate();
@@ -107,59 +114,57 @@ const InvoiceList = () => {
   };
 
   const fetchInvoiceDetails = async (id) => {
-  try {
     setLoading(true);
-
-    const [invoiceResponse, offersResponse] = await Promise.all([
-      fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-      fetch(`${config.BASE_URL}/api/group/invoice/offers`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ invoice_id: id }),
-      }),
-    ]);
-
-    const invoiceData = await invoiceResponse.json();
-    const offersData = await offersResponse.json();
-
-    if (!invoiceResponse.ok || !offersResponse.ok) {
-      const invoiceError = !invoiceResponse.ok && invoiceData?.message;
-      const offersError = !offersResponse.ok && offersData?.message;
-
-      const errorMessage = [invoiceError, offersError].filter(Boolean).join(" | ") 
-        || "Failed to fetch invoice details or offers";
-
-      throw new Error(errorMessage);
+    setOffersError(false);
+    try {
+      // Fetch invoice details first
+      const invoiceResponse = await fetch(`${config.BASE_URL}/api/group/invoices/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!invoiceResponse.ok) {
+        throw new Error("Failed to fetch invoice details");
+      }
+      const invoiceData = await invoiceResponse.json();
+      setSelectedInvoice(invoiceData.data || invoiceData);
+      setShowNewTable(true);
+      // Now try to fetch offers, but don't block invoice details if it fails
+      try {
+        const offersResponse = await fetch(`${config.BASE_URL}/api/group/invoice/offers`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ invoice_id: id }),
+        });
+        if (!offersResponse.ok) throw new Error("Offers API error");
+        const offersData = await offersResponse.json();
+        setOffers(
+          Array.isArray(offersData)
+            ? offersData
+            : Array.isArray(offersData.data)
+            ? offersData.data
+            : offersData.offers || []
+        );
+        setOffersError(false);
+      } catch (offerErr) {
+        setOffers([]);
+        setOffersError(true);
+      }
+    } catch (error) {
+      console.error("Error fetching invoice details:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch invoice details. Please try again.",
+      });
+      setSelectedInvoice(null);
+      setOffers([]);
+      setOffersError(false);
+    } finally {
+      setLoading(false);
     }
-
-    setSelectedInvoice(invoiceData.data || invoiceData);
-    setOffers(
-      Array.isArray(offersData)
-        ? offersData
-        : Array.isArray(offersData.data)
-        ? offersData.data
-        : offersData.offers || []
-    );
-    setShowNewTable(true);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: `${error.message || "Something went wrong"}`,
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const formatFieldName = (name) => {
     return name
@@ -1251,7 +1256,7 @@ const generateSingleOfferPDFBlob = (offer) => {
     if (!offers || offers.length === 0) {
       return (
         <div className="no-offers">
-          No offers available for this invoice
+          {offersError ? 'No offers available' : 'No offers available for this invoice'}
         </div>
       );
     }
@@ -1357,6 +1362,101 @@ const generateSingleOfferPDFBlob = (offer) => {
     );
   };
 
+  // Helper to get allowed fields from invoice and bill_info
+  const getOfferFormFields = (invoice) => {
+    const allowedTopFields = ['address', 'CUPS', 'billing_period'];
+    const billInfo = invoice.bill_info || {};
+    const allowedBillInfoFields = Object.keys(billInfo)
+      .filter(key => key !== 'group_id' && typeof billInfo[key] !== 'object');
+    return { allowedTopFields, allowedBillInfoFields };
+  };
+
+  // Update handleOfferFormChange to support nested bill_info fields
+  const handleOfferFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('bill_info.')) {
+      const field = name.replace('bill_info.', '');
+      setOfferFormData(prev => ({
+        ...prev,
+        bill_info: {
+          ...prev.bill_info,
+          [field]: value,
+        },
+      }));
+    } else {
+      setOfferFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleOfferFormSubmit = async (e) => {
+    e.preventDefault();
+    setGeneratingOffers(true);
+    setGenerateOffersError("");
+    setGeneratedOffers([]);
+    setCreatedInvoiceDetails(null);
+    try {
+      const { allowedTopFields, allowedBillInfoFields } = getOfferFormFields(offerFormData);
+      // Validation
+      for (const key of allowedTopFields) { if (!offerFormData[key] || offerFormData[key].trim() === '') { setGenerateOffersError('Please fill all fields.'); return; } }
+      for (const key of allowedBillInfoFields) { if (!offerFormData.bill_info?.[key] || offerFormData.bill_info[key].toString().trim() === '') { setGenerateOffersError('Please fill all fields.'); return; } }
+      // Build flat payload for match API
+      const matchPayload = {};
+      allowedTopFields.forEach(key => { matchPayload[key] = offerFormData[key]; });
+      allowedBillInfoFields.forEach(key => { matchPayload[key] = offerFormData.bill_info?.[key]; });
+      matchPayload.group_id = offerFormData.bill_info?.group_id || offerFormData.group_id;
+      matchPayload.app_mode = 0;
+      // 1. Call match API
+      const matchRes = await fetch(`https://ocr.ai3dscanning.com/api/match/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(matchPayload),
+      });
+      if (!matchRes.ok) throw new Error("Failed to generate offers (match API)");
+      const matchData = await matchRes.json();
+      // 2. Call invoice creation API
+      const invoicePayload = { ...offerFormData, group_id: matchPayload.group_id };
+      const invoiceRes = await fetch(`${config.BASE_URL}/api/group/invoices`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(invoicePayload),
+      });
+      if (!invoiceRes.ok) throw new Error("Failed to create invoice");
+      const invoiceData = await invoiceRes.json();
+      setCreatedInvoiceDetails(invoiceData.data || invoiceData);
+      const invoiceId = invoiceData.invoice || invoiceData.id || invoiceData.data?.id;
+      if (!invoiceId) throw new Error("Invoice ID not found");
+      // 3. Add invoice_id to each offer in matchData
+      const offersPayload = Array.isArray(matchData)
+        ? matchData.map(offer => ({ ...offer, invoice_id: invoiceId }))
+        : [];
+      // 4. Call offers API
+      const offersRes = await fetch(`${config.BASE_URL}/api/group/offers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(offersPayload),
+      });
+      if (!offersRes.ok) throw new Error("Failed to fetch offers");
+      const offersData = await offersRes.json();
+      setGeneratedOffers(offersData.data || offersData.offers || []);
+      setShowOfferForm(false);
+    } catch (err) {
+      setGeneratedOffers([]);
+      setCreatedInvoiceDetails(null);
+      setGenerateOffersError(err.message || "Failed to generate offers. Please try again.");
+    } finally {
+      setGeneratingOffers(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -1449,6 +1549,26 @@ const generateSingleOfferPDFBlob = (offer) => {
                               }}
                             >
                               View Details
+                            </a>
+                            <a
+                              className="dropdown-item rounded-2 py-2 px-3 text-dark hover-bg cursor-pointer text-decoration-none"
+                              onClick={() => {
+                                let billInfo = {};
+                                if (invoice.bill_info && typeof invoice.bill_info === 'object') {
+                                  if (invoice.bill_info.bill_info && typeof invoice.bill_info.bill_info === 'object') {
+                                    billInfo = invoice.bill_info.bill_info;
+                                  } else {
+                                    billInfo = invoice.bill_info;
+                                  }
+                                }
+                                setOfferFormData({
+                                  ...invoice,
+                                  bill_info: billInfo,
+                                });
+                                setShowOfferForm(true);
+                              }}
+                            >
+                              Get Offers
                             </a>
                           </div>
                         )}
@@ -1685,6 +1805,121 @@ const generateSingleOfferPDFBlob = (offer) => {
                 Send Selected Offers
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showOfferForm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <form onSubmit={handleOfferFormSubmit} className="offer-form-section">
+              <div className="form-message" style={{ marginBottom: 10}}>
+               <h2>Please Verify Invoice</h2>
+              </div>
+              {(() => {
+                const { allowedTopFields, allowedBillInfoFields } = getOfferFormFields(offerFormData);
+                return (
+                  <>
+                    {allowedTopFields.map(key => (
+                      <div key={key} className="form-group">
+                        <label>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</label>
+                        <input
+                          name={key}
+                          value={['n/a', 'unknown'].includes(String(offerFormData[key] || '').toLowerCase()) ? '' : offerFormData[key] || ''}
+                          onChange={handleOfferFormChange}
+                          className="form-control"
+                        />
+                      </div>
+                    ))}
+                    {allowedBillInfoFields.map(key => (
+                      <div key={key} className="form-group">
+                        <label>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</label>
+                        <input
+                          name={`bill_info.${key}`}
+                          value={['n/a', 'unknown'].includes(String(offerFormData.bill_info?.[key] || '').toLowerCase()) ? '' : offerFormData.bill_info?.[key] || ''}
+                          onChange={handleOfferFormChange}
+                          className="form-control"
+                        />
+                      </div>
+                    ))}
+                    
+                  </>
+                );
+              })()}
+              <button type="submit" className="modern-create-agreement-btn">Get Offers</button>
+              <button type="button" className="back-button text-center" onClick={() => setShowOfferForm(false)}>Cancel</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {generatingOffers && <div>Generating offers...</div>}
+      {generateOffersError && <div className="no-offers">{generateOffersError}</div>}
+      {generatedOffers.length > 0 && (
+        <div className="modern-offer-cards">
+          <h2 className="modern-offers-title">Generated Offers</h2>
+          <div className="modern-offers-grid">
+            {generatedOffers.map((offer, index) => (
+              <div key={offer.id} className="modern-offer-card">
+                <div className="modern-offer-header">
+                  <h3>Offer #{index + 1}</h3>
+                </div>
+                <div className="modern-offer-body">
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Provider:</span>
+                    <span className="modern-offer-value">
+                      {offer.provider_name || "N/A"}
+                    </span>
+                  </div>
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Product:</span>
+                    <span className="modern-offer-value">
+                      {offer.product_name || "N/A"}
+                    </span>
+                  </div>
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Monthly Saving:</span>
+                    <span className="modern-offer-value">
+                      {offer.monthly_saving_amount || "0"}
+                    </span>
+                  </div>
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Yearly Saving:</span>
+                    <span className="modern-offer-value">
+                      {offer.yearly_saving_amount || "0"}
+                    </span>
+                  </div>
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Yearly Saving:</span>
+                    <span className="modern-offer-value">
+                      {offer.yearly_saving_percentage || "0"}%
+                    </span>
+                  </div>
+                  <div className="modern-offer-field">
+                    <span className="modern-offer-label">Commission:</span>
+                    <span className="modern-offer-value">
+                      {offer.sales_commission || "0"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {createdInvoiceDetails && (
+        <div className="created-invoice-details">
+          <h2>Created Invoice Details</h2>
+          <div className="details-grid">
+            {Object.entries(createdInvoiceDetails).map(([key, value]) => (
+              <div key={key} className="detail-item">
+                <div className="detail-label">{key}:</div>
+                <div className="detail-value">
+                  {formatValue(value)}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -233,3 +233,426 @@
     padding: 15px;
   }
 }
+
+/* --- Invoice Details Card --- */
+.invoice-details-container {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(53,152,219,0.08);
+  padding: 32px 24px;
+  margin: 32px auto 24px auto;
+  max-width: 900px;
+  border: 1.5px solid #e0e0e0;
+}
+.invoice-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.invoice-details-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3598db;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.invoice-details-header::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 36px;
+  background: #3598db;
+  border-radius: 4px;
+  margin-right: 16px;
+}
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+}
+.detail-item {
+  background: #f7fbfd;
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 4px rgba(53,152,219,0.04);
+}
+.detail-label {
+  font-weight: 600;
+  color: #3598db;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+.detail-value {
+  color: #222;
+  font-size: 1.08rem;
+  opacity: 0.85;
+  word-break: break-word;
+}
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .invoice-details-container {
+    padding: 16px 6px;
+  }
+}
+
+/* --- Offer Cards --- */
+.offers-section {
+  margin: 0 auto 32px auto;
+  max-width: 1100px;
+}
+.offers-title {
+  color: #3598db;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.offer-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(53,152,219,0.10);
+  border: 2px solid #eaf4fa;
+  transition: box-shadow 0.2s, border 0.2s;
+  padding: 24px 20px 18px 20px;
+  position: relative;
+}
+.offer-card:hover {
+  border: 2px solid #3598db;
+  box-shadow: 0 8px 24px rgba(53,152,219,0.18);
+}
+.offer-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.offer-card-header h3 {
+  font-size: 1.1rem;
+  color: #3598db;
+  font-weight: 700;
+  margin: 0;
+}
+.selected-badge {
+  background: #3598db;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 3px 12px;
+  margin-left: 8px;
+}
+.offer-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.offer-field {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.offer-label {
+  color: #3598db;
+  font-weight: 600;
+}
+.offer-value {
+  color: #222;
+  opacity: 0.9;
+  font-weight: 500;
+}
+.offer-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+.create-agreement-btn {
+  background: #3598db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.create-agreement-btn:hover {
+  background: #2176b6;
+}
+/* --- Export Buttons --- */
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #3598db;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(53,152,219,0.08);
+}
+.export-btn:disabled {
+  background: #b5d6ef;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.pdf-btn { background: #3598db; }
+.csv-btn { background: #2ecc71; }
+.excel-btn { background: #f1c40f; color: #222; }
+.whatsapp-btn, .multi-whatsapp-btn { background: #25d366; color: #fff; }
+.export-btn:hover:not(:disabled) { filter: brightness(0.95); }
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .offers-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .export-buttons {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+}
+
+/* Modern Invoice Details Card */
+.modern-invoice-details {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 24px rgba(53,152,219,0.10);
+  padding: 36px 28px;
+  margin: 36px auto 28px auto;
+  max-width: 900px;
+  border-left: 6px solid #3598db;
+  border-right: 1.5px solid #e0e0e0;
+}
+.modern-invoice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.modern-invoice-header h2 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #3598db;
+  margin: 0;
+  letter-spacing: 1px;
+}
+.modern-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.modern-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background: #f7fbfd;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 4px rgba(53,152,219,0.04);
+  border-left: 4px solid #3598db;
+}
+.modern-detail-label {
+  font-weight: 700;
+  color: #3598db;
+  font-size: 1.08rem;
+  min-width: 160px;
+}
+.modern-detail-value {
+  color: #222;
+  font-size: 1.08rem;
+  opacity: 0.92;
+  word-break: break-word;
+}
+@media (max-width: 768px) {
+  .modern-invoice-details {
+    padding: 16px 6px;
+  }
+  .modern-detail-label {
+    min-width: 110px;
+    font-size: 1rem;
+  }
+}
+
+/* Modern Offer Cards */
+.modern-offer-cards {
+  margin: 0 auto 36px auto;
+  max-width: 1100px;
+}
+.modern-offers-title {
+  color: #3598db;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 22px;
+}
+.modern-offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 28px;
+}
+.modern-offer-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(53,152,219,0.13);
+  border-left: 7px solid #3598db;
+  border-right: 1.5px solid #e0e0e0;
+  transition: box-shadow 0.2s, border 0.2s;
+  padding: 28px 22px 20px 22px;
+  position: relative;
+}
+.modern-offer-card:hover {
+  border-left: 7px solid #2176b6;
+  box-shadow: 0 12px 32px rgba(53,152,219,0.18);
+}
+.modern-offer-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.modern-offer-card-header h3 {
+  font-size: 1.15rem;
+  color: #3598db;
+  font-weight: 800;
+  margin: 0;
+}
+.modern-selected-badge {
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 4px 14px;
+  margin-left: 8px;
+  letter-spacing: 0.5px;
+}
+.modern-offer-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modern-offer-field {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  margin-bottom: 2px;
+}
+.modern-offer-label {
+  color: #3598db;
+  font-weight: 700;
+}
+.modern-offer-value {
+  color: #222;
+  opacity: 0.92;
+  font-weight: 600;
+}
+.modern-offer-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+}
+.modern-create-agreement-btn {
+  background: #3598db;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 22px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.modern-create-agreement-btn:hover {
+  background: #2176b6;
+}
+
+/* Modern Export Buttons */
+.modern-export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 28px;
+  justify-content: flex-end;
+}
+.modern-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #3598db;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 13px 28px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(53,152,219,0.10);
+}
+.modern-export-btn:disabled {
+  background: #b5d6ef;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.pdf-btn { background: #3598db; }
+.csv-btn { background: #2ecc71; }
+.excel-btn { background: #f1c40f; color: #222; }
+.whatsapp-btn, .multi-whatsapp-btn { background: #25d366; color: #fff; }
+.modern-export-btn:hover:not(:disabled) { filter: brightness(0.95); }
+
+/* Modern Offers Selection (WhatsApp modal) */
+.modern-offers-selection {
+  margin-top: 18px;
+}
+.modern-offers-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.modern-offer-checkbox {
+  background: #f7fbfd;
+  border-radius: 8px;
+  padding: 7px 14px;
+  border-left: 3px solid #3598db;
+  font-weight: 600;
+  color: #3598db;
+}
+
+@media (max-width: 768px) {
+  .modern-offers-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .modern-export-buttons {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+}

@@ -157,6 +157,9 @@
   }
   
   .detail-item {
+    display: flex;
+    flex-direction: row !important;
+    gap: 0.5rem;
     background-color: var(--secondary-color);
     padding: 0.75rem;
     border-radius: 6px;

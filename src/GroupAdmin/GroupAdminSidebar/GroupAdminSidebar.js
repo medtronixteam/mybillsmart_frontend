@@ -455,6 +455,19 @@ const GroupAdminSidebar = () => {
                       <span className="nav-link-text">WhatsApp Link</span>
                     </NavLink>
                   </li>
+
+                  <li className="nav-item">
+                    <NavLink
+                      className="nav-link"
+                      to="/group_admin/api-integration"
+                      activeClassName="active-class"
+                    >
+                      <div className="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center">
+                        <FaLink />
+                      </div>
+                      <span className="nav-link-text">API Integration</span>
+                    </NavLink>
+                  </li>
                 </ul>
               </div>
             </div>

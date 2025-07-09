@@ -1,0 +1,381 @@
+.api-integration-container {
+  max-width: 1000px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 24px;
+}
+.api-integration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.api-integration-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #344767;
+}
+.add-data-btn {
+  background: #5e72e4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-data-btn:hover {
+  background: #233dd2;
+}
+.api-integration-table-responsive {
+  /* overflow-x: auto; */
+  scrollbar-width: thin;
+  scrollbar-color: #3499db #f6f9fc;
+}
+.api-integration-table-responsive::-webkit-scrollbar {
+  height: 7px;
+}
+.api-integration-table-responsive::-webkit-scrollbar-thumb {
+  background: #3499db;
+  border-radius: 6px;
+}
+.api-integration-table-responsive::-webkit-scrollbar-track {
+  background: #f6f9fc;
+  border-radius: 6px;
+}
+.api-integration-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+.api-integration-table th, .api-integration-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+.api-integration-table th {
+  background: #f6f9fc;
+  color: #344767;
+  font-weight: 600;
+}
+.api-integration-table tbody tr:hover {
+  background: #f0f4fa;
+}
+.action-cell {
+  position: relative;
+}
+.action-icon {
+  cursor: pointer;
+  color: #5e72e4;
+  font-size: 1.2rem;
+}
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #e9ecef;
+  z-index: 10000; /* Must be high */
+  min-width: 150px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: #344767;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+.dropdown-item:hover {
+  background: #f6f9fc;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(44,62,80,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 32px 32px 32px;
+  min-width: 340px;
+  max-width: 95vw;
+  box-shadow: 0 8px 40px rgba(52,153,219,0.18), 0 1.5px 8px rgba(44,62,80,0.10);
+  position: relative;
+  animation: modalPop 0.25s cubic-bezier(.4,2,.6,1) 1;
+}
+@keyframes modalPop {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.modal-content h3 {
+  margin-top: 0;
+  color: #2d3e50;
+  margin-bottom: 28px;
+  font-size: 2.1rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.modal-form label {
+  display: block;
+  margin-bottom: 18px;
+  color: #3499db;
+  font-weight: 600;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
+}
+.modal-form input, .modal-form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e9ecef;
+  border-radius: 8px;
+  margin-top: 7px;
+  margin-bottom: 2px;
+  font-size: 1.08rem;
+  background: #f8fbfd;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.modal-form input:focus, .modal-form select:focus {
+  border-color: #3499db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52,153,219,0.12);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+.modal-actions button {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 7px;
+  font-size: 1.08rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+.modal-actions button[type="button"] {
+  background: #cfd8dc;
+  color: #344767;
+}
+.modal-actions button[type="button"]:hover {
+  background: #b0bec5;
+}
+.modal-actions button[type="submit"] {
+  background: #3499db;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(52,153,219,0.10);
+}
+.modal-actions button[type="submit"]:hover {
+  background: #217dbb;
+}
+.modal-card {
+  display: none !important;
+}
+.compact-modal {
+  min-width: 320px;
+  max-width: 370px;
+  width: 100%;
+  padding: 32px 18px 18px 18px;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(52,153,219,0.18), 0 1.5px 8px rgba(44,62,80,0.10);
+  animation: modalPop 0.22s cubic-bezier(.4,2,.6,1) 1;
+}
+@keyframes modalPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (max-width: 600px) {
+  .api-integration-container {
+    padding: 10px;
+  }
+  .api-integration-header h2 {
+    font-size: 1.2rem;
+  }
+  .modal-content {
+    padding: 18px 6px 12px 6px;
+    min-width: 90vw;
+  }
+  .modal-content h3 {
+    font-size: 1.3rem;
+  }
+  .modal-form label {
+    font-size: 1rem;
+  }
+  .modal-actions button {
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+  .api-integration-table th, .api-integration-table td {
+    padding: 8px 4px;
+    font-size: 0.95rem;
+  }
+  .modal-card {
+    padding: 14px 4px 10px 4px;
+    max-width: 98vw;
+  }
+}
+.popover-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(44,62,80,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.popover-pop {
+  position: relative;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(52,153,219,0.18), 0 1.5px 8px rgba(44,62,80,0.10);
+  min-width: 320px;
+  max-width: 370px;
+  width: 100%;
+  padding: 28px 22px 18px 22px;
+  animation: modalPop 0.22s cubic-bezier(.4,2,.6,1) 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.popover-arrow {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 14px;
+  overflow: hidden;
+}
+.popover-arrow::after {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 4px 0 8px 0;
+  box-shadow: 0 2px 8px rgba(52,153,219,0.10);
+  transform: rotate(45deg) translate(5px, 2px);
+  margin: 0 auto;
+}
+.popover-title {
+  margin-top: 0;
+  color: #2d3e50;
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.popover-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.popover-form-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 0;
+}
+.popover-form-row label {
+  min-width: 60px;
+  color: #3499db;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-align: left;
+}
+.popover-form-row input,
+.popover-form-row select {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1.5px solid #e9ecef;
+  border-radius: 7px;
+  font-size: 1.05rem;
+  background: #f8fbfd;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.popover-form-row input:focus,
+.popover-form-row select:focus {
+  border-color: #3499db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52,153,219,0.12);
+}
+.popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.popover-actions button {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+.popover-actions button[type="button"] {
+  background: #cfd8dc;
+  color: #344767;
+}
+.popover-actions button[type="button"]:hover {
+  background: #b0bec5;
+}
+.popover-actions button[type="submit"] {
+  background: #3499db;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(52,153,219,0.10);
+}
+.popover-actions button[type="submit"]:hover {
+  background: #217dbb;
+}
+@media (max-width: 600px) {
+  .popover-pop {
+    min-width: 90vw;
+    max-width: 98vw;
+    padding: 14px 4px 10px 4px;
+  }
+  .popover-title {
+    font-size: 1.1rem;
+  }
+  .popover-form-row label {
+    min-width: 48px;
+    font-size: 0.98rem;
+  }
+  .popover-actions button {
+    font-size: 0.98rem;
+    padding: 7px 12px;
+  }
+} 
